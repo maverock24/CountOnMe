@@ -1,5 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, TouchableOpacity, Text, View, Dimensions, Animated } from 'react-native';
+import { StyleSheet, TouchableOpacity, Text, View, Dimensions, Animated, Switch } from 'react-native';
+import { Audio } from 'expo-av';
+
+const actionSound = require('../../assets/sounds/action.mp3');
+const chillSound = require('../../assets/sounds/chill.mp3');
+const alarmSound = require('../../assets/sounds/alarm.mp3');
+const success = require('../../assets/sounds/success.mp3');
 
 const { width, height } = Dimensions.get('window');
 import Svg, { Circle } from 'react-native-svg';
@@ -11,9 +17,9 @@ interface Timer {
 }
 
 const timers: Timer[] = [
-  { id: '1', time: 3, title: 'workout' },
-  { id: '2', time: 6,  title: 'break' },
-  { id: '3', time: 9, title: 'workout' },
+  { id: '1', time: 10, title: 'workout' },
+  { id: '2', time: 10,  title: 'break' },
+  { id: '3', time: 10, title: 'workout' },
 ];
 
 const totalTime = timers.reduce((acc, timer) => acc + timer.time, 0);
@@ -25,14 +31,57 @@ const formatTime = (seconds: number) => {
 };
 
 interface TimerItemProps {
+  title: string;
   time: number;
   isRunning: boolean;
   setIsRunning: React.Dispatch<React.SetStateAction<boolean>>;
   setTime: React.Dispatch<React.SetStateAction<number>>;
   intervalRef: React.MutableRefObject<NodeJS.Timeout | null>;
+  soundEnabled: boolean;
 }
 
-const TimerItem: React.FC<TimerItemProps> = ({ time, isRunning, setIsRunning, setTime, intervalRef }) => {
+const playSound = async (soundFile: any, loop: boolean = true) => {
+  try {
+    //stop any currently playing sounds
+    Audio.setIsEnabledAsync(false);
+    Audio.setIsEnabledAsync(true);
+    const { sound } = await Audio.Sound.createAsync(soundFile);
+    // Optionally set audio mode or looping here
+    loop ? await sound.setIsLoopingAsync(true) : false;
+    await sound.playAsync();
+    // Note: You may want to store the sound instance to stop/unload later.
+  } catch (error) {
+    console.log('Error playing sound', error);
+  }
+};
+
+const TimerItem: React.FC<TimerItemProps> = ({title, time, isRunning, setIsRunning, setTime, intervalRef, soundEnabled }) => {
+  const alarmPlayedRef = useRef(false);
+  // Function to play a given sound file using expo-av Audio API
+
+  // Play the appropriate sound when the timer starts
+useEffect(() => {
+  if (isRunning && soundEnabled) {
+    if (title === 'workout') {
+      //play sound in a loop
+      playSound(actionSound);
+    } else if (title === 'break') {
+      playSound(chillSound);
+    }
+  }
+  if(!isRunning) {
+    Audio.setIsEnabledAsync(false);
+  }
+}, [isRunning, soundEnabled, title]);
+
+// For break timers: play alarm sound when 5 seconds remain (if next timer is workout)
+useEffect(() => {
+  if (soundEnabled && title === 'break' && time === 5 && !alarmPlayedRef.current) {
+    playSound(alarmSound);
+    alarmPlayedRef.current = true;
+  }
+}, [time, soundEnabled, title]);
+
   useEffect(() => {
     if (isRunning) {
       intervalRef.current = setInterval(() => {
@@ -70,6 +119,8 @@ const TabTwoScreen: React.FC = () => {
   const shakeAnimation = useRef(new Animated.Value(0)).current;
   const textSize = useRef(new Animated.Value(18)).current;
   const progress = useRef(new Animated.Value(0)).current;
+  const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
+
 
   useEffect(() => {
     if (time === 0 && currentIndex < timers.length - 1) {
@@ -147,6 +198,10 @@ const TabTwoScreen: React.FC = () => {
         });
       }, 1000);
       return () => clearInterval(interval);
+    }else{
+      if(currentIndex === timers.length - 1){
+        playSound(success, false);
+      }
     }
   }, [isRunning]);
 
@@ -163,6 +218,8 @@ const TabTwoScreen: React.FC = () => {
   const handleStart = () => setIsRunning(true);
   const handleStop = () => setIsRunning(false);
   const handleReset = () => {
+    //stop any currently playing sounds
+    Audio.setIsEnabledAsync(false);
     setIsRunning(false);
     setTime(timers[0].time);
     setCurrentIndex(0);
@@ -200,6 +257,7 @@ const TabTwoScreen: React.FC = () => {
             stroke="grey"
             strokeWidth={strokeWidth}
             fill="none"
+            {...({ collapsable: "false" } as any)}
           />
           <AnimatedCircle
             cx={radius + strokeWidth / 2}
@@ -211,6 +269,7 @@ const TabTwoScreen: React.FC = () => {
             strokeDasharray={circumference}
             strokeDashoffset={strokeDashoffset}
             transform={`rotate(-90 ${radius + strokeWidth / 2} ${radius + strokeWidth / 2})`}
+            {...({ collapsable: "false" } as any)}
           />
         </Svg>
       <View style={styles.currentTimerContainer}>
@@ -226,18 +285,27 @@ const TabTwoScreen: React.FC = () => {
           </Animated.Text>
       </View>
           <TimerItem
+            title={timers[currentIndex].title}
             key={timers[currentIndex].id}
             time={time}
             isRunning={isRunning}
             setIsRunning={setIsRunning}
             setTime={setTime}
             intervalRef={intervalRef}
+            soundEnabled={soundEnabled}
           />
       <View style={styles.nextTimerContainer}>
         <Text style={styles.nextTimerText}>
           Next Up: {currentIndex < timers.length - 1 ? formatTime(timers[currentIndex + 1].time) : 'Finish line'}
         </Text>
       </View>
+      </View>
+      <View style={styles.switchContainer}>
+        <Text style={styles.switchLabel}>Sound Enabled</Text>
+        <Switch
+          value={soundEnabled}
+          onValueChange={setSoundEnabled}
+        />
       </View>
       <View style={styles.buttonContainer}>
         {[3, 6, 9].map((sec) => (
@@ -271,6 +339,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#107AB0',
   },
+  switchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
+  switchLabel: {
+    marginRight: 10,
+    fontSize: 16,
+    color: 'white',
+  },
   animatedContainer: {
     width,
     height: height * timers.length,
@@ -289,7 +367,7 @@ const styles = StyleSheet.create({
   },
   timerContainer: {
     width: '100%',
-    height: '50%',
+    height: '60%',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -318,14 +396,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '80%',
-    marginVertical: 20,
+    marginVertical: 1,
   },
   repButton: {
-    borderRadius: 50,
-    padding: 10,
+    padding: 5,
     margin: 10,
-    width: 80,
-    height: 80,
+    width: 50,
+    height: 30,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
@@ -342,13 +419,12 @@ const styles = StyleSheet.create({
   }, 
   buttonText: {
     color: 'white',
-    fontSize: 20,
+    fontSize: 14,
     fontWeight: 'bold',
   },
   count: {
     fontSize: 70,
     fontWeight: 'bold',
-    // marginVertical: 20,
     color: 'white',
   },
 });
