@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, TouchableOpacity, Text, View, Dimensions, Animated, Switch } from 'react-native';
+import { StyleSheet, TouchableOpacity, Text, View, Dimensions, Animated, Switch, SafeAreaView, FlatList } from 'react-native';
 import { Audio } from 'expo-av';
 
 const actionSound = require('../../assets/sounds/action.mp3');
@@ -9,20 +9,15 @@ const success = require('../../assets/sounds/success.mp3');
 
 const { width, height } = Dimensions.get('window');
 import Svg, { Circle } from 'react-native-svg';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useData } from '@/components/data.provider';
+import { set } from 'react-hook-form';
 
 interface Timer {
   id: string;
   time: number;
   title: string;
 }
-
-const timers: Timer[] = [
-  { id: '1', time: 10, title: 'workout' },
-  { id: '2', time: 10,  title: 'break' },
-  { id: '3', time: 10, title: 'workout' },
-];
-
-const totalTime = timers.reduce((acc, timer) => acc + timer.time, 0);
 
 const formatTime = (seconds: number) => {
   const mins = Math.floor((seconds % 3600) / 60);
@@ -110,7 +105,15 @@ useEffect(() => {
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const TabTwoScreen: React.FC = () => {
-  const [time, setTime] = useState<number>(timers[0].time);
+
+  const { storedItems, reload } = useData();
+  const [timers, setTimers] = useState<Timer[]>([]);
+
+  
+  const totalTime = timers.reduce((acc, timer) => acc + timer.time, 0);
+
+
+  const [time, setTime] = useState<number>(0);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [elapsedTime, setElapsedTime] = useState<number>(0);
@@ -163,7 +166,8 @@ const TabTwoScreen: React.FC = () => {
   }, [isRunning]);
 
   useEffect(() => {
-    if (timers[currentIndex].title === 'break') {
+    if (timers.length > 0) {
+      if(timers[currentIndex].title === 'break') {
       Animated.loop(
         Animated.sequence([
           Animated.timing(textSize, {
@@ -178,6 +182,7 @@ const TabTwoScreen: React.FC = () => {
           }),
         ])
       ).start();
+    }
     } else {
       textSize.setValue(18);
     }
@@ -205,14 +210,21 @@ const TabTwoScreen: React.FC = () => {
     }
   }, [isRunning]);
 
-  const handleSetTime = (seconds: number) => {
-    setTime(seconds);
-    setIsRunning(false);
-    clearInterval(intervalRef.current!);
-    const index = timers.findIndex(timer => timer.time === seconds);
-    if (index !== -1) {
-      setCurrentIndex(index);
-    }
+  const selectSet = (value: string) => {
+
+    //add style border to selected item and remove border from others
+    
+
+    //* Split the value string into an array of objects 
+    const items = value.split(',').map((time, index) => ({
+      id: index.toString(),
+      time: parseInt(time),
+      title: index % 2 === 0 ? 'workout' : 'break',
+    }));
+
+    setTimers(items);
+    handleReset();
+
   };
 
   const handleStart = () => setIsRunning(true);
@@ -248,6 +260,17 @@ const TabTwoScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
+       <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={handleStart}>
+          <Text style={styles.buttonText}>Start</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleStop}>
+          <Text style={styles.buttonText}>Stop</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleReset}>
+          <Text style={styles.buttonText}>Reset</Text>
+        </TouchableOpacity>
+      </View>
       <View style={styles.timerContainer}>
       <Svg height={radius * 2 + strokeWidth} width={radius * 2 + strokeWidth} style={styles.progressCircle}>
           <Circle
@@ -273,20 +296,22 @@ const TabTwoScreen: React.FC = () => {
           />
         </Svg>
       <View style={styles.currentTimerContainer}>
-      <Animated.Text
-            style={[
-              styles.nextTimerText,
-              timers[currentIndex].title === 'workout'
-                ? { transform: [{ translateX: shakeAnimation }] }
-                : { fontSize: textSize },
-            ]}
-          >
-            {timers[currentIndex].title}
-          </Animated.Text>
+      {timers.length > 0 && (
+  <Animated.Text
+    style={[
+      styles.nextTimerText,
+      timers[currentIndex].title === 'workout'
+        ? { transform: [{ translateX: shakeAnimation }] }
+        : { fontSize: textSize },
+    ]}
+  >
+    {timers[currentIndex].title}
+  </Animated.Text>
+)}
       </View>
           <TimerItem
-            title={timers[currentIndex].title}
-            key={timers[currentIndex].id}
+            title={timers.length > 0 ? timers[currentIndex].title: ''}
+            key={timers.length > 0 ? timers[currentIndex].id : ''}
             time={time}
             isRunning={isRunning}
             setIsRunning={setIsRunning}
@@ -302,56 +327,79 @@ const TabTwoScreen: React.FC = () => {
       </View>
       <View style={styles.switchContainer}>
         <Text style={styles.switchLabel}>Sound Enabled</Text>
-        <Switch
+        <Switch style={styles.switch}
           value={soundEnabled}
           onValueChange={setSoundEnabled}
         />
       </View>
-      <View style={styles.buttonContainer}>
-        {[3, 6, 9].map((sec) => (
-          <TouchableOpacity
-            key={sec}
-            style={styles.repButton}
-            onPress={() => handleSetTime(sec)}
-          >
-            <Text style={styles.buttonText}>{sec} sec</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={handleStart}>
-          <Text style={styles.buttonText}>Start</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleStop}>
-          <Text style={styles.buttonText}>Stop</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleReset}>
-          <Text style={styles.buttonText}>Reset</Text>
-        </TouchableOpacity>
-      </View>
+      <SafeAreaProvider>
+          <SafeAreaView style={styles.flatList}>
+          <FlatList
+            data={storedItems}
+            renderItem={({ item }) => (
+              <TouchableOpacity onPress={() => selectSet(item.value?.toString() ?? '0')}>
+              <View style={styles.listItem}>
+                <Text style={styles.listItemTitle}>{item.key}</Text>
+                <Text style={styles.listItemValue}>{item.value}</Text>
+              </View>
+              </TouchableOpacity>
+            )}
+            keyExtractor={(item) => item.key}
+          />
+        </SafeAreaView>
+        </SafeAreaProvider>
+  
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  flatList: {
+    flex: 1,
+    marginTop: 0,
+    marginBottom: 20,
+    width: '100%',
+    height: '20%',
+  },
+  listItem: {
+    flexDirection: 'row', // align children horizontally
+    justifyContent: 'space-between', // push delete button to right
+    padding: 0,
+    marginVertical: 5,
+    marginHorizontal: 10,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    height: 40,
+    width: '90%',
+  },
+  listItemTitle: {
+    margin: 10,
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: 'gray',
+  },
+  listItemValue: {
+    margin: 10,
+    fontSize: 12,
+  },
+  switch: {
+    transform: [{ scaleX: 0.5 }, { scaleY: 0.5 }], // Increase the size of the switch
+  },
   container: {
     flex: 1,
     alignItems: 'center',
     backgroundColor: '#107AB0',
   },
   switchContainer: {
+    marginTop: -20,
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 5,
   },
   switchLabel: {
     marginRight: 10,
-    fontSize: 16,
+    fontSize: 12,
     color: 'white',
-  },
-  animatedContainer: {
-    width,
-    height: height * timers.length,
   },
   scrollView: {
     height: 10,
@@ -396,24 +444,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '80%',
-    marginVertical: 1,
   },
-  repButton: {
-    padding: 5,
-    margin: 10,
-    width: 50,
-    height: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#fff',
-  }, 
   button: {
     borderRadius: 50,
     padding: 10,
-    margin: 10,
+    margin: 5,
     width: 70,
-    height: 70,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
   }, 
