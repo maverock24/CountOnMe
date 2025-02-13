@@ -1,33 +1,41 @@
-import React, { useState } from 'react';
-import { StyleSheet, TextInput, Text, FlatList, SafeAreaView, TouchableOpacity } from 'react-native';
-import { View } from '@/components/Themed';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { StoredItem, useData } from '@/components/data.provider';
+import {StoredItem, useData} from '@/components/data.provider';
+import {View} from '@/components/Themed';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import React, {useState} from 'react';
+import {
+  FlatList,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+} from 'react-native';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
+
+import {commonStyles} from '../styles';
 
 type Inputs = {
-  example: string
-  exampleRequired: string
-}
+  example: string;
+  exampleRequired: string;
+};
 
 type Item = {
-  key: string
-  value: string
-}
+  key: string;
+  value: string;
+};
 
 const dataList = [
-  { key: 'Seil springen', value: '300,120,300,120,300' },
-  { key: 'Yoga', value: '600,120,600,120,600' },
-  { key: 'Laufen', value: '600,120,600,120,600' },
-  { key: 'Krafttraining', value: '600,120,600,120,600' },
-  { key: 'Schwimmen', value: '600,120,600,120,600' },
-  { key: 'Radfahren', value: '600,120,600,120,600' },
-  { key: 'Tanzen', value: '600,120,600,120,600' },
-  { key: 'Klettern', value: '600,120,600,120,600' },
+  {key: 'Seil springen', value: '300,120,300,120,300'},
+  {key: 'Yoga', value: '600,120,600,120,600'},
+  {key: 'Laufen', value: '600,120,600,120,600'},
+  {key: 'Krafttraining', value: '600,120,600,120,600'},
+  {key: 'Schwimmen', value: '600,120,600,120,600'},
+  {key: 'Radfahren', value: '600,120,600,120,600'},
+  {key: 'Tanzen', value: '600,120,600,120,600'},
+  {key: 'Klettern', value: '600,120,600,120,600'},
 ];
 
 export default function TabThreeScreen() {
-
   const {storedItems, storeItem, deleteItem} = useData();
 
   const [data, setData] = useState<StoredItem[]>(storedItems);
@@ -38,19 +46,20 @@ export default function TabThreeScreen() {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds - minutes * 60;
     return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
-  }
+  };
 
-  const addItem = () => { const addItem = () => {
-    // use the values from TextInput: name for key and unit for value
-    if (!name || !unit) return; // Optionally validate
-    const newItem = { key: name, value: unit };
-    //add the new item to the data array to the top
-    const newData = [newItem, ...data];
-    setData(newData);
-    // Clear the inputs after adding
-    setName('');
-    setUnit('');
-  }
+  const addItem = () => {
+    const addItem = () => {
+      // use the values from TextInput: name for key and unit for value
+      if (!name || !unit) return; // Optionally validate
+      const newItem = {key: name, value: unit};
+      //add the new item to the data array to the top
+      const newData = [newItem, ...data];
+      setData(newData);
+      // Clear the inputs after adding
+      setName('');
+      setUnit('');
+    };
     if (!name || !unit) return;
     // Use storeItem from DataProvider to store the new item
     storeItem(name, unit);
@@ -61,44 +70,52 @@ export default function TabThreeScreen() {
   const deleteSet = (key: string) => {
     // Use deleteItem from DataProvider to delete the item
     deleteItem(key);
-  }
-
+  };
 
   return (
     <View style={styles.container}>
-        <TextInput style={styles.input}
-          placeholder="name"
-          value={name}
-          onChangeText={setName}
-           />
-        <TextInput style={styles.input}
-          placeholder="(starting with exercise) in secs: e.g. 120,300,600"
-          value={unit}
+      <TextInput
+        style={styles.input}
+        placeholder='name'
+        value={name}
+        onChangeText={setName}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder='(starting with exercise) in secs: e.g. 120,300,600'
+        value={unit}
         onChangeText={setUnit}
-        />
-        <TouchableOpacity style={styles.button} onPress={() => addItem()}>
-          <Text style={styles.buttonText}>Add</Text>
-        </TouchableOpacity>
-        <SafeAreaProvider>
-          <SafeAreaView style={styles.flatList}>
+      />
+      <TouchableOpacity style={commonStyles.button} onPress={() => addItem()}>
+        <Text style={commonStyles.buttonText}>Add</Text>
+      </TouchableOpacity>
+      <SafeAreaProvider>
+        <SafeAreaView style={styles.flatList}>
           <FlatList
             data={storedItems}
-            renderItem={({ item }) => (
+            renderItem={({item}) => (
               <View style={styles.listItem}>
                 <Text style={styles.listItemTitle}>{item.key}</Text>
                 <Text style={styles.listItemValue}>{item.value}</Text>
-                <TouchableOpacity style={styles.deleteButton} onPress={() => deleteSet(item.key)}>
-                <Ionicons styles={styles.icon} name="trash" size={21} color="gray" />
+                <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={() => deleteSet(item.key)}
+                >
+                  <FontAwesome
+                    styles={styles.icon}
+                    name='trash'
+                    size={21}
+                    color='gray'
+                  />
                 </TouchableOpacity>
               </View>
             )}
             keyExtractor={(item) => item.key}
           />
         </SafeAreaView>
-        </SafeAreaProvider>
+      </SafeAreaProvider>
     </View>
   );
-  
 }
 
 const styles = StyleSheet.create({
@@ -156,23 +173,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: 'darkgray',
-  },
-  button: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'deepskyblue',
-    paddingLeft: 30,
-    paddingRight: 30,
-    paddingTop: 5,
-    paddingBottom: 5,
-    borderRadius: 20,
-    margin: 10,
-    color: 'black',
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 20,
-    fontWeight: 'bold',
   },
   icon: {
     fontSize: 120,

@@ -1,28 +1,40 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, TouchableOpacity, Text, View, Dimensions, Animated, Switch, SafeAreaView, FlatList } from 'react-native';
-import { Audio } from 'expo-av';
+import {useData} from '@/components/data.provider';
+import {Audio} from 'expo-av';
+import React, {useEffect, useRef, useState} from 'react';
+import {
+  Animated,
+  Dimensions,
+  FlatList,
+  SafeAreaView,
+  StyleSheet,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
+import Svg, {Circle} from 'react-native-svg';
+import {commonStyles} from '../styles';
 
 const actionSound = require('../../assets/sounds/action.mp3');
 const chillSound = require('../../assets/sounds/chill.mp3');
 const alarmSound = require('../../assets/sounds/alarm.mp3');
 const success = require('../../assets/sounds/success.mp3');
 
-const { width, height } = Dimensions.get('window');
-import Svg, { Circle } from 'react-native-svg';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { useData } from '@/components/data.provider';
-import { set } from 'react-hook-form';
+const {width, height} = Dimensions.get('window');
 
 interface Timer {
   id: string;
   time: number;
-  title: string;
+  segment: string;
 }
 
 const formatTime = (seconds: number) => {
   const mins = Math.floor((seconds % 3600) / 60);
   const secs = seconds % 60;
-  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  return `${mins.toString().padStart(2, '0')}:${secs
+    .toString()
+    .padStart(2, '0')}`;
 };
 
 interface TimerItemProps {
@@ -40,7 +52,7 @@ const playSound = async (soundFile: any, loop: boolean = true) => {
     //stop any currently playing sounds
     Audio.setIsEnabledAsync(false);
     Audio.setIsEnabledAsync(true);
-    const { sound } = await Audio.Sound.createAsync(soundFile);
+    const {sound} = await Audio.Sound.createAsync(soundFile);
     // Optionally set audio mode or looping here
     loop ? await sound.setIsLoopingAsync(true) : false;
     await sound.playAsync();
@@ -50,37 +62,50 @@ const playSound = async (soundFile: any, loop: boolean = true) => {
   }
 };
 
-const TimerItem: React.FC<TimerItemProps> = ({title, time, isRunning, setIsRunning, setTime, intervalRef, soundEnabled }) => {
+const TimerItem: React.FC<TimerItemProps> = ({
+  title,
+  time,
+  isRunning,
+  setIsRunning,
+  setTime,
+  intervalRef,
+  soundEnabled,
+}) => {
   const alarmPlayedRef = useRef(false);
   // Function to play a given sound file using expo-av Audio API
 
   // Play the appropriate sound when the timer starts
-useEffect(() => {
-  if (isRunning && soundEnabled) {
-    if (title === 'workout') {
-      //play sound in a loop
-      playSound(actionSound);
-    } else if (title === 'break') {
-      playSound(chillSound);
+  useEffect(() => {
+    if (isRunning && soundEnabled) {
+      if (title === 'workout') {
+        //play sound in a loop
+        playSound(actionSound);
+      } else if (title === 'break') {
+        playSound(chillSound);
+      }
     }
-  }
-  if(!isRunning) {
-    Audio.setIsEnabledAsync(false);
-  }
-}, [isRunning, soundEnabled, title]);
+    if (!isRunning) {
+      Audio.setIsEnabledAsync(false);
+    }
+  }, [isRunning, soundEnabled, title]);
 
-// For break timers: play alarm sound when 5 seconds remain (if next timer is workout)
-useEffect(() => {
-  if (soundEnabled && title === 'break' && time === 5 && !alarmPlayedRef.current) {
-    playSound(alarmSound);
-    alarmPlayedRef.current = true;
-  }
-}, [time, soundEnabled, title]);
+  // For break timers: play alarm sound when 5 seconds remain (if next timer is workout)
+  useEffect(() => {
+    if (
+      soundEnabled &&
+      title === 'break' &&
+      time === 5 &&
+      !alarmPlayedRef.current
+    ) {
+      playSound(alarmSound);
+      alarmPlayedRef.current = true;
+    }
+  }, [time, soundEnabled, title]);
 
   useEffect(() => {
     if (isRunning) {
       intervalRef.current = setInterval(() => {
-        setTime(prevTime => {
+        setTime((prevTime) => {
           if (prevTime <= 0) {
             clearInterval(intervalRef.current!);
             setIsRunning(false);
@@ -95,23 +120,16 @@ useEffect(() => {
     return () => clearInterval(intervalRef.current!);
   }, [isRunning]);
 
-  return (
-    
-      <Text style={styles.count}>{formatTime(time)}</Text>
-    
-  );
+  return <Text style={styles.count}>{formatTime(time)}</Text>;
 };
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const TabTwoScreen: React.FC = () => {
-
-  const { storedItems, reload } = useData();
+  const {storedItems, reload} = useData();
   const [timers, setTimers] = useState<Timer[]>([]);
 
-  
   const totalTime = timers.reduce((acc, timer) => acc + timer.time, 0);
-
 
   const [time, setTime] = useState<number>(0);
   const [isRunning, setIsRunning] = useState<boolean>(false);
@@ -123,7 +141,7 @@ const TabTwoScreen: React.FC = () => {
   const textSize = useRef(new Animated.Value(18)).current;
   const progress = useRef(new Animated.Value(0)).current;
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
-
+  const [selectedItem, setSelectedItem] = useState<string | null>(null);
 
   useEffect(() => {
     if (time === 0 && currentIndex < timers.length - 1) {
@@ -167,22 +185,22 @@ const TabTwoScreen: React.FC = () => {
 
   useEffect(() => {
     if (timers.length > 0) {
-      if(timers[currentIndex].title === 'break') {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(textSize, {
-            toValue: 24,
-            duration: 1000,
-            useNativeDriver: false,
-          }),
-          Animated.timing(textSize, {
-            toValue: 18,
-            duration: 1000,
-            useNativeDriver: false,
-          }),
-        ])
-      ).start();
-    }
+      if (timers[currentIndex].segment === 'break') {
+        Animated.loop(
+          Animated.sequence([
+            Animated.timing(textSize, {
+              toValue: 24,
+              duration: 1000,
+              useNativeDriver: false,
+            }),
+            Animated.timing(textSize, {
+              toValue: 18,
+              duration: 1000,
+              useNativeDriver: false,
+            }),
+          ])
+        ).start();
+      }
     } else {
       textSize.setValue(18);
     }
@@ -191,7 +209,7 @@ const TabTwoScreen: React.FC = () => {
   useEffect(() => {
     if (isRunning) {
       const interval = setInterval(() => {
-        setElapsedTime(prev => {
+        setElapsedTime((prev) => {
           const newElapsedTime = prev + 1;
           const progressValue = (newElapsedTime / totalTime) * 100;
           Animated.timing(progress, {
@@ -203,37 +221,34 @@ const TabTwoScreen: React.FC = () => {
         });
       }, 1000);
       return () => clearInterval(interval);
-    }else{
-      if(currentIndex === timers.length - 1){
+    } else {
+      if (currentIndex === timers.length - 1) {
         playSound(success, false);
       }
     }
   }, [isRunning]);
 
   const selectSet = (value: string) => {
-
-    //add style border to selected item and remove border from others
-    
-
-    //* Split the value string into an array of objects 
+    // Split the value string into an array of objects
     const items = value.split(',').map((time, index) => ({
       id: index.toString(),
       time: parseInt(time),
-      title: index % 2 === 0 ? 'workout' : 'break',
+      segment: index % 2 === 0 ? 'workout' : 'break',
     }));
-
     setTimers(items);
-    handleReset();
-
+    handleReset(items);
   };
+
+  const handleResetButtonPress = () => handleReset();
 
   const handleStart = () => setIsRunning(true);
   const handleStop = () => setIsRunning(false);
-  const handleReset = () => {
+  const handleReset = (items?: Timer[]) => {
     //stop any currently playing sounds
     Audio.setIsEnabledAsync(false);
     setIsRunning(false);
-    setTime(timers[0].time);
+    console.log(timers[0]);
+    items ? setTime(items[0].time) : setTime(timers[0].time);
     setCurrentIndex(0);
     clearInterval(intervalRef.current!);
     Animated.timing(translateY, {
@@ -249,6 +264,11 @@ const TabTwoScreen: React.FC = () => {
     setElapsedTime(0);
   };
 
+  const toggleSelectSet = (value: string) => {
+    setSelectedItem((prev) => (prev === value ? null : value));
+    selectSet(value);
+  };
+
   const radius = 135;
   const strokeWidth = 10;
   const circumference = 2 * Math.PI * radius;
@@ -260,95 +280,119 @@ const TabTwoScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={handleStart}>
-          <Text style={styles.buttonText}>Start</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleStop}>
-          <Text style={styles.buttonText}>Stop</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleReset}>
-          <Text style={styles.buttonText}>Reset</Text>
-        </TouchableOpacity>
+      <View style={styles.switchContainer}>
+        <Text style={styles.switchLabel}>Sound Enabled</Text>
+        <Switch
+          style={styles.switch}
+          value={soundEnabled}
+          onValueChange={setSoundEnabled}
+        />
       </View>
       <View style={styles.timerContainer}>
-      <Svg height={radius * 2 + strokeWidth} width={radius * 2 + strokeWidth} style={styles.progressCircle}>
+        <Svg
+          height={radius * 2 + strokeWidth}
+          width={radius * 2 + strokeWidth}
+          style={styles.progressCircle}
+        >
           <Circle
             cx={radius + strokeWidth / 2}
             cy={radius + strokeWidth / 2}
             r={radius}
-            stroke="grey"
+            stroke='grey'
             strokeWidth={strokeWidth}
-            fill="none"
-            {...({ collapsable: "false" } as any)}
+            fill='none'
+            {...({collapsable: 'false'} as any)}
           />
           <AnimatedCircle
             cx={radius + strokeWidth / 2}
             cy={radius + strokeWidth / 2}
             r={radius}
-            stroke="white"
+            stroke='white'
             strokeWidth={strokeWidth}
-            fill="none"
+            fill='none'
             strokeDasharray={circumference}
             strokeDashoffset={strokeDashoffset}
-            transform={`rotate(-90 ${radius + strokeWidth / 2} ${radius + strokeWidth / 2})`}
-            {...({ collapsable: "false" } as any)}
+            transform={`rotate(-90 ${radius + strokeWidth / 2} ${
+              radius + strokeWidth / 2
+            })`}
+            {...({collapsable: 'false'} as any)}
           />
         </Svg>
-      <View style={styles.currentTimerContainer}>
-      {timers.length > 0 && (
-  <Animated.Text
-    style={[
-      styles.nextTimerText,
-      timers[currentIndex].title === 'workout'
-        ? { transform: [{ translateX: shakeAnimation }] }
-        : { fontSize: textSize },
-    ]}
-  >
-    {timers[currentIndex].title}
-  </Animated.Text>
-)}
-      </View>
-          <TimerItem
-            title={timers.length > 0 ? timers[currentIndex].title: ''}
-            key={timers.length > 0 ? timers[currentIndex].id : ''}
-            time={time}
-            isRunning={isRunning}
-            setIsRunning={setIsRunning}
-            setTime={setTime}
-            intervalRef={intervalRef}
-            soundEnabled={soundEnabled}
-          />
-      <View style={styles.nextTimerContainer}>
-        <Text style={styles.nextTimerText}>
-          Next Up: {currentIndex < timers.length - 1 ? formatTime(timers[currentIndex + 1].time) : 'Finish line'}
-        </Text>
-      </View>
-      </View>
-      <View style={styles.switchContainer}>
-        <Text style={styles.switchLabel}>Sound Enabled</Text>
-        <Switch style={styles.switch}
-          value={soundEnabled}
-          onValueChange={setSoundEnabled}
+        <Text style={styles.nextTimerText}>{timers[currentIndex].id}</Text>
+        <TimerItem
+          title={timers.length > 0 ? timers[currentIndex].segment : ''}
+          key={timers.length > 0 ? timers[currentIndex].id : ''}
+          time={time}
+          isRunning={isRunning}
+          setIsRunning={setIsRunning}
+          setTime={setTime}
+          intervalRef={intervalRef}
+          soundEnabled={soundEnabled}
         />
+        <View style={styles.currentTimerContainer}>
+          {timers.length > 0 && (
+            <Animated.Text
+              style={[
+                styles.nextTimerText,
+                timers[currentIndex].segment === 'workout'
+                  ? {transform: [{translateX: shakeAnimation}]}
+                  : {fontSize: textSize},
+              ]}
+            >
+              Now: {timers[currentIndex].segment}
+            </Animated.Text>
+          )}
+        </View>
+        <View style={styles.nextTimerContainer}>
+          <Text style={styles.nextTimerText}>
+            Next:{' '}
+            {currentIndex < timers.length - 1
+              ? formatTime(timers[currentIndex + 1].time)
+              : 'Finish line'}
+          </Text>
+        </View>
+      </View>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={commonStyles.button} onPress={handleStart}>
+          <Text style={commonStyles.buttonText}>Start</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={commonStyles.button} onPress={handleStop}>
+          <Text style={commonStyles.buttonText}>Stop</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={commonStyles.button}
+          onPress={handleResetButtonPress}
+        >
+          <Text style={commonStyles.buttonText}>Reset</Text>
+        </TouchableOpacity>
       </View>
       <SafeAreaProvider>
-          <SafeAreaView style={styles.flatList}>
+        <SafeAreaView>
           <FlatList
+            style={styles.listContainer}
             data={storedItems}
-            renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => selectSet(item.value?.toString() ?? '0')}>
-              <View style={styles.listItem}>
-                <Text style={styles.listItemTitle}>{item.key}</Text>
-                <Text style={styles.listItemValue}>{item.value}</Text>
-              </View>
+            renderItem={({item}) => (
+              <TouchableOpacity
+                onPress={() => toggleSelectSet(item.value?.toString() ?? '0')}
+              >
+                <View
+                  style={[
+                    styles.listItem,
+                    selectedItem === item.value?.toString() && {
+                      borderColor: 'white',
+                      borderWidth: 3,
+                    },
+                  ]}
+                >
+                  <Text style={styles.listItemTitle}>{item.key}</Text>
+                  <Text style={styles.listItemValue}>{item.value}</Text>
+                </View>
               </TouchableOpacity>
             )}
             keyExtractor={(item) => item.key}
           />
         </SafeAreaView>
-        </SafeAreaProvider>
-  
+      </SafeAreaProvider>
     </View>
   );
 };
@@ -367,45 +411,48 @@ const styles = StyleSheet.create({
     padding: 0,
     marginVertical: 5,
     marginHorizontal: 10,
-    backgroundColor: '#fff',
+    backgroundColor: '#547D8A',
     borderRadius: 10,
-    height: 40,
-    width: '90%',
+    height: 45,
+    width: '95%',
   },
   listItemTitle: {
-    margin: 10,
-    fontSize: 14,
+    margin: 8,
+    fontSize: 18,
     fontWeight: 'bold',
-    color: 'gray',
+    color: 'white',
   },
   listItemValue: {
-    margin: 10,
-    fontSize: 12,
+    margin: 8,
+    fontSize: 18,
+    color: 'white',
+    letterSpacing: 4,
+    fontWeight: 'bold',
+    fontStyle: 'italic',
   },
   switch: {
-    transform: [{ scaleX: 0.5 }, { scaleY: 0.5 }], // Increase the size of the switch
+    transform: [{scaleX: 0.5}, {scaleY: 0.5}], // Increase the size of the switch
   },
   container: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: '#107AB0',
+    backgroundColor: '#303030',
   },
   switchContainer: {
-    marginTop: -20,
+    marginTop: 0,
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 5,
+    marginBottom: -30,
   },
   switchLabel: {
     marginRight: 10,
     fontSize: 12,
     color: 'white',
   },
-  scrollView: {
-    height: 10,
-  },
   listContainer: {
     width: '100%',
+    paddingTop: 10,
+    backgroundColor: '#242426',
   },
   pageContainer: {
     height: 10,
@@ -425,14 +472,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     top: '50%',
     left: '50%',
-    transform: [{ translateX: -140 }, { translateY: -140 }],
+    transform: [{translateX: -140}, {translateY: -140}],
   },
   currentTimerContainer: {
-    marginTop: 0,
+    marginTop: -10,
     alignItems: 'center',
   },
   nextTimerContainer: {
-    marginTop: 0,
     alignItems: 'center',
   },
   nextTimerText: {
@@ -442,8 +488,12 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '80%',
+    justifyContent: 'center',
+    width: '100%',
+    marginTop: -20,
+    borderBottomColor: 'white',
+    borderBottomWidth: 2,
+    paddingBottom: 5,
   },
   button: {
     borderRadius: 50,
@@ -453,7 +503,7 @@ const styles = StyleSheet.create({
     height: 40,
     alignItems: 'center',
     justifyContent: 'center',
-  }, 
+  },
   buttonText: {
     color: 'white',
     fontSize: 14,
