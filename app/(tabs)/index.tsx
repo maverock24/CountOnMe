@@ -5,6 +5,7 @@ import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
 import Slider from '@react-native-community/slider';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { commonStyles } from '../styles';
 
 export default function TabOneScreen() {
   const [count, setCount] = useState(0);
@@ -50,12 +51,14 @@ export default function TabOneScreen() {
         step={1}
         value={count}
         onValueChange={(value) => setSliderValue(value)}
+        thumbTintColor='#019baf'
+        minimumTrackTintColor='white'
       />
       <View style={styles.buttonContainerReps}>
         {repititions.map((rep, index) => (
           <TouchableOpacity
             key={index}
-            style={styles.repButton}
+            style={commonStyles.button}
             onPress={() => handleSetRemaining(rep)}>
             <Text style={styles.buttonText}>{rep}</Text>
           </TouchableOpacity>
@@ -72,7 +75,7 @@ export default function TabOneScreen() {
         <FontAwesome name="caret-right" style={styles.icon} />
         </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.button} onPress={() => handleReset()}>
+      <TouchableOpacity style={commonStyles.button} onPress={() => handleReset()}>
           <Text style={styles.buttonText}>Reset</Text>
         </TouchableOpacity>
     </View>
@@ -84,6 +87,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'black',
   },
   title: {
     fontSize: 20,
@@ -146,6 +150,7 @@ const styles = StyleSheet.create({
   slider: {
     width: '90%',
     height: 40,
+    color: '#019baf',
   },
   sliderText: {
     fontSize: 20,
@@ -153,6 +158,6 @@ const styles = StyleSheet.create({
   },
   icon: {
     fontSize: 120,
-    color: '#fff',
+    color: '#019baf',
   },
 });
