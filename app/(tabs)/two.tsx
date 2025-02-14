@@ -15,6 +15,10 @@ import {
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import Svg, {Circle} from 'react-native-svg';
 import {commonStyles} from '../styles';
+import { FontAwesome, FontAwesome5 } from '@expo/vector-icons';
+import { faRunning } from '@fortawesome/free-solid-svg-icons';
+import { faBed } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 
 const actionSound = require('../../assets/sounds/action.mp3');
 const chillSound = require('../../assets/sounds/chill.mp3');
@@ -318,7 +322,26 @@ const TabTwoScreen: React.FC = () => {
             {...({collapsable: 'false'} as any)}
           />
         </Svg>
-        <Text style={styles.nextTimerText}>{timers[currentIndex].id}</Text>
+        {timers.length > 0 && isRunning && (
+          timers[currentIndex].segment === 'workout' ? (
+          <View style={styles.timerContainerActive}>
+             <FontAwesomeIcon
+                           
+                           icon={faRunning}
+                           size={30}
+                           color='white'
+                         />
+            </View>
+          
+        ) : (<View style={styles.timerContainerSnooze}>
+           <FontAwesomeIcon
+                           
+                           icon={faBed}
+                           size={30}
+                           color='white'
+                         />
+            </View>)
+      )}
         <TimerItem
           title={timers.length > 0 ? timers[currentIndex].segment : ''}
           key={timers.length > 0 ? timers[currentIndex].id : ''}
@@ -329,20 +352,6 @@ const TabTwoScreen: React.FC = () => {
           intervalRef={intervalRef}
           soundEnabled={soundEnabled}
         />
-        <View style={styles.currentTimerContainer}>
-          {timers.length > 0 && (
-            <Animated.Text
-              style={[
-                styles.nextTimerText,
-                timers[currentIndex].segment === 'workout'
-                  ? {transform: [{translateX: shakeAnimation}]}
-                  : {fontSize: textSize},
-              ]}
-            >
-              Now: {timers[currentIndex].segment}
-            </Animated.Text>
-          )}
-        </View>
         <View style={styles.nextTimerContainer}>
           <Text style={styles.nextTimerText}>
             Next:{' '}
@@ -377,15 +386,15 @@ const TabTwoScreen: React.FC = () => {
               >
                 <View
                   style={[
-                    styles.listItem,
+                    commonStyles.listItem,
                     selectedItem === item.value?.toString() && {
-                      borderColor: 'white',
+                      borderColor: '#75cdd9',
                       borderWidth: 3,
                     },
                   ]}
                 >
-                  <Text style={styles.listItemTitle}>{item.key}</Text>
-                  <Text style={styles.listItemValue}>{item.value}</Text>
+                  <Text style={commonStyles.listItemTitle}>{item.key}</Text>
+                  <Text style={commonStyles.listItemValue}>{item.value}</Text>
                 </View>
               </TouchableOpacity>
             )}
@@ -405,38 +414,18 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '20%',
   },
-  listItem: {
-    flexDirection: 'row', // align children horizontally
-    justifyContent: 'space-between', // push delete button to right
-    padding: 0,
-    marginVertical: 5,
-    marginHorizontal: 10,
-    backgroundColor: '#547D8A',
-    borderRadius: 10,
-    height: 45,
-    width: '95%',
-  },
-  listItemTitle: {
-    margin: 8,
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  listItemValue: {
-    margin: 8,
-    fontSize: 18,
-    color: 'white',
-    letterSpacing: 4,
-    fontWeight: 'bold',
-    fontStyle: 'italic',
+  icon: {
+    fontSize: 120,
+    color: '#fff',
   },
   switch: {
     transform: [{scaleX: 0.5}, {scaleY: 0.5}], // Increase the size of the switch
+    color: '#019baf',
   },
   container: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: '#303030',
+    backgroundColor: 'black',
   },
   switchContainer: {
     marginTop: 0,
@@ -452,7 +441,7 @@ const styles = StyleSheet.create({
   listContainer: {
     width: '100%',
     paddingTop: 10,
-    backgroundColor: '#242426',
+    backgroundColor: 'black',
   },
   pageContainer: {
     height: 10,
@@ -474,9 +463,25 @@ const styles = StyleSheet.create({
     left: '50%',
     transform: [{translateX: -140}, {translateY: -140}],
   },
-  currentTimerContainer: {
-    marginTop: -10,
+  timerContainerActive: {
+    position: 'absolute',
     alignItems: 'center',
+    backgroundColor: 'green',
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+    padding:10,
+    top: '20%'
+  },
+  timerContainerSnooze: {
+    position: 'absolute',
+    alignItems: 'center',
+    backgroundColor: 'red',
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+    padding:10,
+     top: '20%'
   },
   nextTimerContainer: {
     alignItems: 'center',
@@ -493,21 +498,8 @@ const styles = StyleSheet.create({
     marginTop: -20,
     borderBottomColor: 'white',
     borderBottomWidth: 2,
+    borderStyle: 'dotted',
     paddingBottom: 5,
-  },
-  button: {
-    borderRadius: 50,
-    padding: 10,
-    margin: 5,
-    width: 70,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: 'bold',
   },
   count: {
     fontSize: 70,
