@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import React, {useState} from 'react';
+import {StyleSheet, TouchableOpacity} from 'react-native';
 
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
-import Slider from '@react-native-community/slider';
+import {Text, View} from '@/components/Themed';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { commonStyles } from '../styles';
+import Slider from '@react-native-community/slider';
+import {commonStyles} from '../styles';
 
 export default function TabOneScreen() {
   const [count, setCount] = useState(0);
@@ -16,30 +15,30 @@ export default function TabOneScreen() {
   const repititions = [5, 10, 15, 200];
 
   const handleCountUp = () => {
-    setCount(prevCount => prevCount + 1);
+    setCount((prevCount) => prevCount + 1);
     if (remaining > 0) {
-      setRemaining(prevRemaining => prevRemaining - 1);
+      setRemaining((prevRemaining) => prevRemaining - 1);
     }
   };
-  
+
   const handleCountDown = () => {
-    if (count !== 0){
-    setCount(prevCount => prevCount - 1);
-    if (remaining > 0) {
-      setRemaining(prevRemaining => prevRemaining + 1);
+    if (count !== 0) {
+      setCount((prevCount) => prevCount - 1);
+      if (remaining > 0) {
+        setRemaining((prevRemaining) => prevRemaining + 1);
+      }
     }
-  }
   };
 
   const handleSetRemaining = (value: number) => {
     setSelectedRemaining(value);
-    setRemaining(value-count);
-  }
+    setRemaining(value - count);
+  };
 
   const handleReset = () => {
     setCount(0);
     setRemaining(selectedRemaining);
-  }
+  };
 
   return (
     <View style={styles.container}>
@@ -54,30 +53,40 @@ export default function TabOneScreen() {
         thumbTintColor='#019baf'
         minimumTrackTintColor='white'
       />
+      <TouchableOpacity style={commonStyles.button}>
+        <Text style={commonStyles.buttonText}>Listen</Text>
+      </TouchableOpacity>
       <View style={styles.buttonContainerReps}>
         {repititions.map((rep, index) => (
           <TouchableOpacity
             key={index}
             style={commonStyles.button}
-            onPress={() => handleSetRemaining(rep)}>
-            <Text style={styles.buttonText}>{rep}</Text>
+            onPress={() => handleSetRemaining(rep)}
+          >
+            <Text style={commonStyles.buttonText}>{rep}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
       <Text style={styles.remaining}>{remaining ? remaining : 0}</Text>
       <View style={styles.buttonContainer}>
-      <TouchableOpacity style={styles.button} onPress={() => handleCountDown()}>
-      <FontAwesome name="caret-left" style={styles.icon} />
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => handleCountDown()}
+        >
+          <FontAwesome name='caret-left' style={styles.icon} />
         </TouchableOpacity>
         <Text style={styles.count}>{count}</Text>
         <TouchableOpacity style={styles.button} onPress={() => handleCountUp()}>
-        <FontAwesome name="caret-right" style={styles.icon} />
+          <FontAwesome name='caret-right' style={styles.icon} />
         </TouchableOpacity>
       </View>
-      <TouchableOpacity style={commonStyles.button} onPress={() => handleReset()}>
-          <Text style={styles.buttonText}>Reset</Text>
-        </TouchableOpacity>
+      <TouchableOpacity
+        style={commonStyles.button}
+        onPress={() => handleReset()}
+      >
+        <Text style={commonStyles.buttonText}>Reset</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -87,7 +96,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'black',
+    backgroundColor: '#101418',
   },
   title: {
     fontSize: 20,
@@ -96,7 +105,7 @@ const styles = StyleSheet.create({
   separator: {
     marginVertical: 30,
     height: 1,
-    textShadowOffset: { width: 0, height: 0 },
+    textShadowOffset: {width: 0, height: 0},
     width: '80%',
   },
   count: {
@@ -117,7 +126,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: '#fff',
-  }, 
+  },
   remaining: {
     color: 'white',
     fontSize: 20,
@@ -132,25 +141,31 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '90%',
+    backgroundColor: '#101418',
   },
   buttonContainerReps: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'center',
+    backgroundColor: '#101418',
+    borderTopColor: '#fff',
+    borderStyle: 'dotted',
+    borderTopWidth: 1,
+    width: '100%',
   },
   button: {
     alignItems: 'center',
     justifyContent: 'center',
   },
   buttonText: {
-    color: 'white',
-    fontSize: 20,
+    color: 'black',
+    fontSize: 18,
     fontWeight: 'bold',
   },
   slider: {
     width: '90%',
     height: 40,
-    color: '#019baf',
+    color: '#387480',
   },
   sliderText: {
     fontSize: 20,
@@ -158,6 +173,6 @@ const styles = StyleSheet.create({
   },
   icon: {
     fontSize: 120,
-    color: '#019baf',
+    color: '#387480',
   },
 });
