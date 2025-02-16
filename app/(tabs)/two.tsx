@@ -1,4 +1,6 @@
 import {useData} from '@/components/data.provider';
+import {faBed, faRunning} from '@fortawesome/free-solid-svg-icons';
+import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {Audio} from 'expo-av';
 import React, {useEffect, useRef, useState} from 'react';
 import {
@@ -15,10 +17,6 @@ import {
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import Svg, {Circle} from 'react-native-svg';
 import {commonStyles} from '../styles';
-import { FontAwesome, FontAwesome5 } from '@expo/vector-icons';
-import { faRunning } from '@fortawesome/free-solid-svg-icons';
-import { faBed } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 
 const actionSound = require('../../assets/sounds/action.mp3');
 const chillSound = require('../../assets/sounds/chill.mp3');
@@ -322,26 +320,17 @@ const TabTwoScreen: React.FC = () => {
             {...({collapsable: 'false'} as any)}
           />
         </Svg>
-        {timers.length > 0 && isRunning && (
-          timers[currentIndex].segment === 'workout' ? (
-          <View style={styles.timerContainerActive}>
-             <FontAwesomeIcon
-                           
-                           icon={faRunning}
-                           size={30}
-                           color='white'
-                         />
+        {timers.length > 0 &&
+          isRunning &&
+          (timers[currentIndex].segment === 'workout' ? (
+            <View style={styles.timerContainerActive}>
+              <FontAwesomeIcon icon={faRunning} size={30} color='white' />
             </View>
-          
-        ) : (<View style={styles.timerContainerSnooze}>
-           <FontAwesomeIcon
-                           
-                           icon={faBed}
-                           size={30}
-                           color='white'
-                         />
-            </View>)
-      )}
+          ) : (
+            <View style={styles.timerContainerSnooze}>
+              <FontAwesomeIcon icon={faBed} size={30} color='white' />
+            </View>
+          ))}
         <TimerItem
           title={timers.length > 0 ? timers[currentIndex].segment : ''}
           key={timers.length > 0 ? timers[currentIndex].id : ''}
@@ -388,8 +377,8 @@ const TabTwoScreen: React.FC = () => {
                   style={[
                     commonStyles.listItem,
                     selectedItem === item.value?.toString() && {
-                      borderColor: '#75cdd9',
-                      borderWidth: 3,
+                      borderColor: 'white',
+                      borderWidth: 1,
                     },
                   ]}
                 >
@@ -425,7 +414,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: 'black',
+    backgroundColor: '#101418',
   },
   switchContainer: {
     marginTop: 0,
@@ -441,13 +430,14 @@ const styles = StyleSheet.create({
   listContainer: {
     width: '100%',
     paddingTop: 10,
-    backgroundColor: 'black',
+    backgroundColor: '#101418',
   },
   pageContainer: {
     height: 10,
     width: width,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#202830',
   },
   timerContainer: {
     width: '100%',
@@ -470,8 +460,8 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 50,
-    padding:10,
-    top: '20%'
+    padding: 10,
+    top: '20%',
   },
   timerContainerSnooze: {
     position: 'absolute',
@@ -480,8 +470,8 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 50,
-    padding:10,
-     top: '20%'
+    padding: 10,
+    top: '20%',
   },
   nextTimerContainer: {
     alignItems: 'center',

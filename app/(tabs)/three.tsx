@@ -74,18 +74,10 @@ export default function TabThreeScreen() {
 
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.input}
-        placeholder='name'
-        value={name}
-        onChangeText={setName}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder='(starting with exercise) in secs: e.g. 120,300,600'
-        value={unit}
-        onChangeText={setUnit}
-      />
+      <Text style={styles.label}>Name</Text>
+      <TextInput style={styles.input} value={name} onChangeText={setName} />
+      <Text style={styles.label}>Sets</Text>
+      <TextInput style={styles.input} value={unit} onChangeText={setUnit} />
       <TouchableOpacity style={commonStyles.button} onPress={() => addItem()}>
         <Text style={commonStyles.buttonText}>Add</Text>
       </TouchableOpacity>
@@ -94,9 +86,9 @@ export default function TabThreeScreen() {
           <FlatList
             data={storedItems}
             renderItem={({item}) => (
-              <View style={styles.listItem}>
-                <Text style={styles.listItemTitle}>{item.key}</Text>
-                <Text style={styles.listItemValue}>{item.value}</Text>
+              <View style={commonStyles.listItem}>
+                <Text style={commonStyles.listItemTitle}>{item.key}</Text>
+                <Text style={commonStyles.listItemValue}>{item.value}</Text>
                 <TouchableOpacity
                   style={styles.deleteButton}
                   onPress={() => deleteSet(item.key)}
@@ -104,8 +96,8 @@ export default function TabThreeScreen() {
                   <FontAwesome
                     styles={styles.icon}
                     name='trash'
-                    size={21}
-                    color='gray'
+                    size={18}
+                    color='white'
                   />
                 </TouchableOpacity>
               </View>
@@ -129,7 +121,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 10,
   },
   flatList: {
     flex: 1,
@@ -137,6 +128,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     width: '100%',
     height: '20%',
+    backgroundColor: '#101418',
   },
   listItem: {
     flexDirection: 'row', // align children horizontally
@@ -159,32 +151,31 @@ const styles = StyleSheet.create({
     margin: 12,
     fontSize: 12,
   },
-  label: {
-    fontSize: 16,
-    color: '#fff',
-    marginBottom: 4,
-  },
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#101418',
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  label: {
+    fontSize: 12,
+    marginBottom: -5,
     color: 'darkgray',
+    textAlign: 'left',
+    width: '90%',
   },
   icon: {
-    fontSize: 120,
+    fontSize: 100,
     color: '#fff',
   },
   input: {
-    borderRadius: 10,
-    backgroundColor: 'white',
+    backgroundColor: 'transparent',
+    borderBottomColor: 'gray',
+    borderBottomWidth: 1,
     padding: 10,
     height: 40,
-    margin: 12,
+    marginBottom: 12,
     width: '90%',
-    borderWidth: 1,
+    color: '#ECEDEE',
   },
 });
