@@ -2,6 +2,8 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import {Link, Tabs} from 'expo-router';
 import React from 'react';
 import {Pressable} from 'react-native';
+import {faGauge,faStopwatch} from '@fortawesome/free-solid-svg-icons';
+import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 
 import {useColorScheme} from '@/components/useColorScheme';
 import Colors from '@/constants/Colors';
@@ -31,7 +33,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name='index'
         options={{
-          tabBarIcon: ({color}) => <TabBarIcon name='home' color={color} />,
+          title: 'Counter',
+          tabBarIcon: ({color}) => <FontAwesomeIcon size={23} icon={faGauge} color={color} />,
           headerRight: () => (
             <Link href='/modal' asChild>
               <Pressable>
@@ -52,7 +55,7 @@ export default function TabLayout() {
         name='two'
         options={{
           title: 'Timer',
-          tabBarIcon: ({color}) => <TabBarIcon name='clock-o' color={color} />,
+          tabBarIcon: ({color}) => <FontAwesomeIcon size={23} icon={faStopwatch} color={color} />,
         }}
       />
       <Tabs.Screen

@@ -73,7 +73,7 @@ export default function TabThreeScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={commonStyles.container}>
       <Text style={styles.label}>Name</Text>
       <TextInput style={styles.input} value={name} onChangeText={setName} />
       <Text style={styles.label}>Sets</Text>
@@ -86,7 +86,7 @@ export default function TabThreeScreen() {
           <FlatList
             data={storedItems}
             renderItem={({item}) => (
-              <View style={commonStyles.listItem}>
+              <View style={commonStyles.buttonTile}>
                 <Text style={commonStyles.listItemTitle}>{item.key}</Text>
                 <Text style={commonStyles.listItemValue}>{item.value}</Text>
                 <TouchableOpacity
