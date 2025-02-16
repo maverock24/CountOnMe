@@ -145,6 +145,17 @@ const TabTwoScreen: React.FC = () => {
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
 
+  //disabled variable for disabling buttons start and stop and reset when no timer is set
+  const [disabled, setDisabled] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (timers.length > 0) {
+      setDisabled(false);
+    } else {
+      setDisabled(true);
+    }
+  }, [timers]);
+
   useEffect(() => {
     if (time === 0 && currentIndex < timers.length - 1) {
       const nextIndex = currentIndex + 1;
@@ -281,7 +292,8 @@ const TabTwoScreen: React.FC = () => {
   });
 
   return (
-    <View style={styles.container}>
+    <View style={commonStyles.container}>
+      <View style={commonStyles.tile}>
       <View style={styles.switchContainer}>
         <Text style={styles.switchLabel}>Sound Enabled</Text>
         <Switch
@@ -351,29 +363,34 @@ const TabTwoScreen: React.FC = () => {
         </View>
       </View>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={commonStyles.button} onPress={handleStart}>
+        <TouchableOpacity disabled={disabled}
+          style={disabled ? commonStyles.buttonDisabled : commonStyles.button} onPress={handleStart}>
           <Text style={commonStyles.buttonText}>Start</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={commonStyles.button} onPress={handleStop}>
+        <TouchableOpacity disabled={disabled}
+          style={disabled ? commonStyles.buttonDisabled : commonStyles.button} onPress={handleStop}>
           <Text style={commonStyles.buttonText}>Stop</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={commonStyles.button}
+          disabled={disabled}
+          style={disabled ? commonStyles.buttonDisabled : commonStyles.button}
           onPress={handleResetButtonPress}
         >
           <Text style={commonStyles.buttonText}>Reset</Text>
         </TouchableOpacity>
       </View>
+      </View>
+     
       <SafeAreaProvider>
         <SafeAreaView>
           <FlatList
             style={styles.listContainer}
             data={storedItems}
             renderItem={({item}) => (
-              <TouchableOpacity
+              <TouchableOpacity style={[commonStyles.buttonTile, selectedItem === item.value?.toString() && {borderColor: 'white', borderWidth: 1}]}
                 onPress={() => toggleSelectSet(item.value?.toString() ?? '0')}
               >
-                <View
+                {/* <View
                   style={[
                     commonStyles.listItem,
                     selectedItem === item.value?.toString() && {
@@ -381,17 +398,17 @@ const TabTwoScreen: React.FC = () => {
                       borderWidth: 1,
                     },
                   ]}
-                >
+                > */}
                   <Text style={commonStyles.listItemTitle}>{item.key}</Text>
                   <Text style={commonStyles.listItemValue}>{item.value}</Text>
-                </View>
+                {/* </View> */}
               </TouchableOpacity>
             )}
             keyExtractor={(item) => item.key}
           />
         </SafeAreaView>
       </SafeAreaProvider>
-    </View>
+      </View>
   );
 };
 
@@ -417,10 +434,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#101418',
   },
   switchContainer: {
-    marginTop: 0,
     flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: -10,
     alignItems: 'center',
-    marginBottom: -30,
+    marginBottom: -25,
+    width: '100%',
   },
   switchLabel: {
     marginRight: 10,
@@ -428,9 +447,9 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   listContainer: {
+    marginTop: -5,
     width: '100%',
-    paddingTop: 10,
-    backgroundColor: '#101418',
+    backgroundColor: 'transparent',
   },
   pageContainer: {
     height: 10,
@@ -456,6 +475,7 @@ const styles = StyleSheet.create({
   timerContainerActive: {
     position: 'absolute',
     alignItems: 'center',
+    marginTop: -30,
     backgroundColor: 'green',
     width: 50,
     height: 50,
@@ -466,6 +486,7 @@ const styles = StyleSheet.create({
   timerContainerSnooze: {
     position: 'absolute',
     alignItems: 'center',
+    marginTop: -30,
     backgroundColor: 'red',
     width: 50,
     height: 50,
@@ -485,11 +506,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     width: '100%',
-    marginTop: -20,
-    borderBottomColor: 'white',
-    borderBottomWidth: 2,
-    borderStyle: 'dotted',
+    marginTop: 40,
     paddingBottom: 5,
+    marginBottom: -50,
   },
   count: {
     fontSize: 70,
