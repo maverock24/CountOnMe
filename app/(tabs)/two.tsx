@@ -17,6 +17,9 @@ import {
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import Svg, {Circle} from 'react-native-svg';
 import {commonStyles} from '../styles';
+import ModalScreen from '../modal';
+import { navigate } from 'expo-router/build/global-state/routing';
+import { router } from 'expo-router';
 
 const actionSound = require('../../assets/sounds/action.mp3');
 const chillSound = require('../../assets/sounds/chill.mp3');
@@ -130,7 +133,7 @@ const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 const TabTwoScreen: React.FC = () => {
   const {storedItems, reload} = useData();
   const [timers, setTimers] = useState<Timer[]>([]);
-
+  const noWorkout = storedItems.length === 0 || (storedItems[0].key === 'audioThreshold' && storedItems.length === 1); 
   const totalTime = timers.reduce((acc, timer) => acc + timer.time, 0);
 
   const [time, setTime] = useState<number>(0);
@@ -243,7 +246,7 @@ const TabTwoScreen: React.FC = () => {
 
   const selectSet = (value: string) => {
     // Split the value string into an array of objects
-    const items = value.split(',').map((time, index) => ({
+    const items = value.split(';').map((time, index) => ({
       id: index.toString(),
       time: parseInt(time),
       segment: index % 2 === 0 ? 'workout' : 'break',
@@ -282,7 +285,14 @@ const TabTwoScreen: React.FC = () => {
     selectSet(value);
   };
 
-  const radius = 135;
+  const handleAddNew = () => {
+    //navigate to the tab /modal
+    router.push('/three');
+
+
+  };
+
+  const radius = 120;
   const strokeWidth = 10;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = progress.interpolate({
@@ -293,6 +303,7 @@ const TabTwoScreen: React.FC = () => {
 
   return (
     <View style={commonStyles.container}>
+      <Text style={commonStyles.tileTitle}>Active Workout</Text>
       <View style={commonStyles.tile}>
       <View style={styles.switchContainer}>
         <Text style={styles.switchLabel}>Sound Enabled</Text>
@@ -380,35 +391,39 @@ const TabTwoScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
       </View>
-     
+      <Text style={commonStyles.tileTitle}>Workouts</Text>
+       {noWorkout && (
+        <View style={commonStyles.tile}>
+        <TouchableOpacity
+          style={commonStyles.button}
+          onPress={() => handleAddNew()}
+        >
+          <Text style={commonStyles.buttonText}>Add</Text>
+        </TouchableOpacity>
+        </View>
+      )}
       <SafeAreaProvider>
         <SafeAreaView>
           <FlatList
             style={styles.listContainer}
             data={storedItems}
             renderItem={({item}) => (
+              console.log(item.key),
+             item.key === 'audioThreshold' ? null : (
               <TouchableOpacity style={[commonStyles.buttonTile, selectedItem === item.value?.toString() && {borderColor: 'white', borderWidth: 1}]}
-                onPress={() => toggleSelectSet(item.value?.toString() ?? '0')}
-              >
-                {/* <View
-                  style={[
-                    commonStyles.listItem,
-                    selectedItem === item.value?.toString() && {
-                      borderColor: 'white',
-                      borderWidth: 1,
-                    },
-                  ]}
-                > */}
-                  <Text style={commonStyles.listItemTitle}>{item.key}</Text>
-                  <Text style={commonStyles.listItemValue}>{item.value}</Text>
-                {/* </View> */}
-              </TouchableOpacity>
-            )}
+              onPress={() => toggleSelectSet(item.value?.toString() ?? '0')}
+            >
+         
+                <Text style={commonStyles.listItemTitle}>{item.key}</Text>
+                <Text style={commonStyles.listItemValue}>{item.value}</Text>
+          
+            </TouchableOpacity>
+            ))}
             keyExtractor={(item) => item.key}
           />
         </SafeAreaView>
       </SafeAreaProvider>
-      </View>
+      </View> // push delete button to right
   );
 };
 
@@ -434,12 +449,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#101418',
   },
   switchContainer: {
+    position: 'absolute',
+    top: 2,
+    right: 40,
     flexDirection: 'row',
-    justifyContent: 'center',
     marginTop: -10,
     alignItems: 'center',
     marginBottom: -25,
-    width: '100%',
+    width: '30%',
   },
   switchLabel: {
     marginRight: 10,
@@ -447,7 +464,7 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   listContainer: {
-    marginTop: -5,
+    marginTop: 5,
     width: '100%',
     backgroundColor: 'transparent',
   },
@@ -470,7 +487,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     top: '50%',
     left: '50%',
-    transform: [{translateX: -140}, {translateY: -140}],
+    transform: [{translateX: -120}, {translateY: -120}],
   },
   timerContainerActive: {
     position: 'absolute',
@@ -495,6 +512,7 @@ const styles = StyleSheet.create({
     top: '20%',
   },
   nextTimerContainer: {
+    marginBottom: -30,
     alignItems: 'center',
   },
   nextTimerText: {
