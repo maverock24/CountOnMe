@@ -1,0 +1,3 @@
+{
+    "extends": ["@pauloelias/eslint-config-javascript-standard-reactnative"]
+  }

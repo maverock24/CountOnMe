@@ -17,8 +17,8 @@ export default function TabOneScreen() {
   const [isListening, setIsListening] = useState(false);
   const [audioLevel, setAudioLevel] = useState(0);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
-  const [isActive, setIsActive] = useState(false);
-  const [buttonText, setButtonText] = useState('Calibrate');
+  const [buttonText, setButtonText] = useState('Mic on');
+  const [lastSpikeTime, setLastSpikeTime] = useState<number | null>(null);
 
   const repititions = [5, 10, 15, 200];
 
@@ -30,8 +30,8 @@ export default function TabOneScreen() {
       }
       const storedThreshold = await AsyncStorage.getItem('audioThreshold');
       if (storedThreshold) {
+        console.log('storedThreshold', storedThreshold);
         setSliderValue(parseFloat(storedThreshold));
-        setButtonText('Mic on');
       }
     })();
   }, []);
@@ -72,76 +72,43 @@ export default function TabOneScreen() {
       }
       await Audio.setIsEnabledAsync(false);
     } else {
-      if (buttonText === 'Calibrate') {
-      setIsListening(true);
-      await Audio.setIsEnabledAsync(true);
-      if (recording) {
-        await recording.stopAndUnloadAsync();
-        setRecording(null);
-      }
-      const newRecording = new Audio.Recording();
-      try {
-        await newRecording.prepareToRecordAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
-        await newRecording.startAsync();
-        const peaks: number[] = [];
-        newRecording.setOnRecordingStatusUpdate((status) => {
-          if (status.metering) {
-            setAudioLevel(status.metering);
-            peaks.push(status.metering);
+      if (buttonText === 'Mic on') {
+        setIsListening(true);
+        setButtonText('Mic off');
+        await Audio.setIsEnabledAsync(true);
+        const newRecording = new Audio.Recording();
+        try {
+          if (recording) {
+            await recording.stopAndUnloadAsync();
+            setRecording(null);
           }
-        });
-        let remainingSeconds = 10;
-        const interval = setInterval(() => {
-          setButtonText(`Calibrating (${remainingSeconds}s)`);
-          remainingSeconds -= 1;
-        }, 1000);
-        setTimeout(async () => {
-          clearInterval(interval);
-          await newRecording.stopAndUnloadAsync();
-          setRecording(null);
-          setIsListening(false);
-          const highestPeaks = peaks.sort((a, b) => b - a).slice(0, 10);
-          const averagePeak = highestPeaks.reduce((a, b) => a + b, 0) / highestPeaks.length;
-          const threshold = averagePeak - 2;
-          setSliderValue(threshold);
-          await AsyncStorage.setItem('audioThreshold', threshold.toString());
-          setButtonText('Mic on');
-          setIsActive(true);
-        }, 10000);
-        setRecording(newRecording);
-      } catch (error) {
-        console.error(error);
-      }
-    } else if (buttonText === 'Mic on') {
-      setIsListening(true);
-      setButtonText('Mic off');
-      await Audio.setIsEnabledAsync(true);
-      const newRecording = new Audio.Recording();
-      try {
-        await newRecording.prepareToRecordAsync();
-        await newRecording.startAsync();
-        newRecording.setOnRecordingStatusUpdate((status) => {
-          if (status.metering) {
-            setAudioLevel(status.metering);
-          }
-        });
-        setRecording(newRecording);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-  }
+          await newRecording.prepareToRecordAsync();
+          await newRecording.startAsync();
+          newRecording.setOnRecordingStatusUpdate((status) => {
+            if (status.metering) {
+              setAudioLevel(status.metering);
+            }
+          });
+          setRecording(newRecording);
+        } catch (error) {
+          console.error(error);
+        }
+    }   }
   };
 
   useEffect(() => {
-    if (isActive && audioLevel > sliderValue) {
-      handleCountUp();
+    if (isListening && audioLevel > sliderValue) {
+      const currentTime = Date.now();
+      if (lastSpikeTime === null || currentTime - lastSpikeTime > 10) { // Adjust debounce time as needed
+        handleCountUp();
+        setLastSpikeTime(currentTime);
+      }
     }
   }, [audioLevel]);
 
   return (
     <View style={commonStyles.container}>
-      <Text style={commonStyles.tileTitle}>Sound Counter</Text>
+      <Text style={commonStyles.tileTitle}>Sound trigger</Text>
       <View style={commonStyles.tile}>
       <Text style={styles.title}>db: {sliderValue}</Text>
       <Slider
@@ -149,7 +116,7 @@ export default function TabOneScreen() {
         minimumValue={-100}
         maximumValue={0}
         step={1}
-        value={count}
+        value={sliderValue}
         onValueChange={(value) => setSliderValue(value)}
         thumbTintColor='#019baf'
         minimumTrackTintColor='white'
@@ -161,7 +128,7 @@ export default function TabOneScreen() {
         <Text style={commonStyles.buttonText}>{buttonText}</Text>
       </TouchableOpacity> 
       </View>
-      <Text style={commonStyles.tileTitle}>Manual Counter</Text>
+      <Text style={commonStyles.tileTitle}>Counter</Text>
       <View style={commonStyles.tile}>
       <View style={styles.buttonContainerReps}>
         {repititions.map((rep, index) => (
@@ -211,9 +178,9 @@ const styles = StyleSheet.create({
     width: '80%',
   },
   count: {
-    fontSize: 100,
+    fontSize: 130,
     fontWeight: 'bold',
-    marginVertical: 5,
+    marginVertical: 0,
     color: 'white',
   },
 
@@ -272,7 +239,7 @@ const styles = StyleSheet.create({
   },
   icon: {
     fontSize: 120,
-    color: '#3BAFBB',
+    color: '#32656F',
   },
   audioVisualizer: {
     alignItems: 'center',

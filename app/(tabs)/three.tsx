@@ -4,6 +4,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import React, {useState} from 'react';
 import {
   FlatList,
+  Keyboard,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -24,29 +25,13 @@ type Item = {
   value: string;
 };
 
-const dataList = [
-  {key: 'Seil springen', value: '300,120,300,120,300'},
-  {key: 'Yoga', value: '600,120,600,120,600'},
-  {key: 'Laufen', value: '600,120,600,120,600'},
-  {key: 'Krafttraining', value: '600,120,600,120,600'},
-  {key: 'Schwimmen', value: '600,120,600,120,600'},
-  {key: 'Radfahren', value: '600,120,600,120,600'},
-  {key: 'Tanzen', value: '600,120,600,120,600'},
-  {key: 'Klettern', value: '600,120,600,120,600'},
-];
-
 export default function TabThreeScreen() {
   const {storedItems, storeItem, deleteItem} = useData();
 
   const [data, setData] = useState<StoredItem[]>(storedItems);
   const [name, setName] = useState('');
   const [unit, setUnit] = useState('');
-
-  const formatTimeToMinuteString = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds - minutes * 60;
-    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
-  };
+  const noWorkout = storedItems.length === 0 || (storedItems[0].key === 'audioThreshold' && storedItems.length === 1); 
 
   const addItem = () => {
     const addItem = () => {
@@ -65,6 +50,8 @@ export default function TabThreeScreen() {
     storeItem(name, unit);
     setName('');
     setUnit('');
+    //unfocus the input
+    Keyboard.dismiss();
   };
 
   const deleteSet = (key: string) => {
@@ -72,15 +59,32 @@ export default function TabThreeScreen() {
     deleteItem(key);
   };
 
+  const handleUnitChange = (text: string) => {
+    // Allow only numbers and semicolons
+    const regex = /^[0-9;]*$/;
+    if (regex.test(text)) {
+      setUnit(text);
+    }
+  };
+
   return (
     <View style={commonStyles.container}>
+      <Text style={commonStyles.tileTitle}>New Workout</Text>
+      <View style={commonStyles.tile}>
       <Text style={styles.label}>Name</Text>
       <TextInput style={styles.input} value={name} onChangeText={setName} />
-      <Text style={styles.label}>Sets</Text>
-      <TextInput style={styles.input} value={unit} onChangeText={setUnit} />
+      <Text style={styles.label}>Workout set (e.g. enter "60;60;60" means: 60 sec exercise ; 60 sec break ; 60 sec exercise)</Text>
+      <TextInput style={styles.input} value={unit} onChangeText={handleUnitChange} />
       <TouchableOpacity style={commonStyles.button} onPress={() => addItem()}>
         <Text style={commonStyles.buttonText}>Add</Text>
       </TouchableOpacity>
+      </View>
+      <Text style={commonStyles.tileTitle}>Available Workouts</Text>
+      {noWorkout && (
+              <View style={commonStyles.tile}>
+              <Text style={commonStyles.buttonText}>No workouts available</Text>
+              </View>
+            )}
       <SafeAreaProvider>
         <SafeAreaView style={styles.flatList}>
           <FlatList
@@ -121,10 +125,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: -20,
   },
   flatList: {
     flex: 1,
-    marginTop: 20,
+    marginTop: 5,
     marginBottom: 20,
     width: '100%',
     height: '20%',
