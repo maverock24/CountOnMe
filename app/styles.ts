@@ -1,4 +1,10 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
+
+const { width, height } = Dimensions.get('window');
+
+// Define a base button height and adjust it based on screen size
+const baseButtonHeight = height * 0.06; // e.g., 6% of screen height
+const baseTileHeight = height * 0.1; // e.g., 20% of screen height
 
 export const commonStyles = StyleSheet.create({
   container: {
@@ -14,7 +20,7 @@ export const commonStyles = StyleSheet.create({
   buttonDisabled: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#32656F',
+    backgroundColor: 'rgb(32, 40, 52)',
     paddingLeft: 20,
     paddingRight: 20,
     paddingTop: 5,
@@ -26,18 +32,19 @@ export const commonStyles = StyleSheet.create({
   button: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#32656F',
+    backgroundColor: 'rgb(38, 47, 62)',
     paddingLeft: 20,
     paddingRight: 20,
-    paddingTop: 10,
-    paddingBottom: 10,
+    paddingTop: baseButtonHeight * 0.2, // Adjust padding based on button height
+    paddingBottom: baseButtonHeight * 0.2, // Adjust padding based on button height
+    height: baseButtonHeight, // Set the button height
     borderRadius: 10,
     margin: 10,
   },
   buttonTile: {
     flexDirection: 'row', // align children horizontally
-    justifyContent: 'space-between', // push delete button to right
-    backgroundColor: '#2A2E33',
+    justifyContent: 'space-between', // push delete button to right 'rgb(38, 47, 62)',
+    backgroundColor: 'rgb(28, 34, 46)',
     paddingLeft: 20,
     paddingRight: 20,
     paddingTop: 5,
@@ -80,11 +87,11 @@ export const commonStyles = StyleSheet.create({
   },
   tile: {
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#1A1C1F',
+    justifyContent: 'flex-start',
+    backgroundColor: 'rgb(19, 22, 29)',
     padding: 10,
     width: '95%',
-    height: 'auto',
+    height: 'auto', // Set the tile height
     margin: 10,
     borderRadius: 10,
     borderColor: '#2A2E33',
