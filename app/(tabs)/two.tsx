@@ -22,9 +22,12 @@ import { router } from 'expo-router';
 const actionSound = require('../../assets/sounds/action1.mp3');
 const chillSound = require('../../assets/sounds/chill1.mp3');
 const alarmSound = require('../../assets/sounds/alarm.mp3');
-const success = require('../../assets/sounds/success.mp3');
+const success = require('../../assets/sounds/success1.mp3');
 
 const {width, height} = Dimensions.get('window');
+
+const baseRadius = 140;
+const radius = height > 800 ? baseRadius * 1.2 : baseRadius;
 
 interface Timer {
   id: string;
@@ -319,7 +322,6 @@ useEffect(() => {
 
   };
 
-  const radius = 120;
   const strokeWidth = 10;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = progress.interpolate({
@@ -332,14 +334,7 @@ useEffect(() => {
     <View style={commonStyles.container}>
       <Text style={commonStyles.tileTitle}>Active Workout</Text>
       <View style={commonStyles.tile}>
-      <View style={styles.switchContainer}>
-        <Text style={styles.switchLabel}>Sound Enabled</Text>
-        <Switch
-          style={styles.switch}
-          value={soundEnabled}
-          onValueChange={setSoundEnabled}
-        />
-      </View>
+      <View style={styles.innerWrapperTopTile}>
       <View style={styles.timerContainer}>
         <Svg
           height={radius * 2 + strokeWidth}
@@ -381,6 +376,7 @@ useEffect(() => {
               <FontAwesomeIcon icon={faBed} size={30} color='white' />
             </View>
           ))}
+        <View style={styles.timerContainerWrapper}>
         <TimerItem
           title={timers.length > 0 ? timers[currentIndex].segment : ''}
           key={timers.length > 0 ? timers[currentIndex].id : ''}
@@ -396,8 +392,9 @@ useEffect(() => {
             Next:{' '}
             {currentIndex < timers.length - 1
               ? formatTime(timers[currentIndex + 1].time)
-              : 'Finish line'}
+              : 'Finished'}
           </Text>
+        </View>
         </View>
       </View>
       <View style={styles.buttonContainer}>
@@ -416,6 +413,15 @@ useEffect(() => {
         >
           <Text style={commonStyles.buttonText}>Reset</Text>
         </TouchableOpacity>
+      </View>
+      <View style={styles.switchContainer}>
+        <Text style={styles.switchLabel}>Sound on/off</Text>
+        <Switch
+          style={styles.switch}
+          value={soundEnabled}
+          onValueChange={setSoundEnabled}
+        />
+      </View>
       </View>
       </View>
       <Text style={commonStyles.tileTitle}>Workouts</Text>
@@ -454,12 +460,15 @@ useEffect(() => {
 };
 
 const styles = StyleSheet.create({
+  innerWrapperTopTile :{
+    width: '95%',
+    backgroundColor: 'transparent',
+    alignItems: 'center',
+  },
   flatList: {
     flex: 1,
-    marginTop: 0,
     marginBottom: 20,
     width: '100%',
-    height: '20%',
   },
   icon: {
     fontSize: 120,
@@ -474,19 +483,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#101418',
   },
+  timerContainerWrapper:{
+    backgroundColor: 'transparent',
+    top: '-45%'
+  },
   switchContainer: {
-    position: 'absolute',
-    top: 2,
-    right: 40,
     flexDirection: 'row',
-    marginTop: -10,
     alignItems: 'center',
-    marginBottom: -25,
-    width: '30%',
+    width: '40%',
   },
   switchLabel: {
     marginRight: 10,
-    fontSize: 12,
+    fontSize: 16,
     color: 'white',
   },
   listContainer: {
@@ -494,71 +502,47 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: 'transparent',
   },
-  pageContainer: {
-    height: 10,
-    width: width,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#202830',
-  },
   timerContainer: {
-   marginTop: 35,
     width: '100%',
-    height: '60%',
     alignItems: 'center',
-    justifyContent: 'center',
   },
   progressCircle: {
-    position: 'absolute',
-    justifyContent: 'center',
-    alignItems: 'center',
-    top: '50%',
-    left: '50%',
-    transform: [{translateX: -120}, {translateY: -120}],
-    // Add these lines to make the shadow visible
-    shadowColor: "#00bcd4",
-    shadowOpacity: 0.7,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 0 },
-    elevation: 5, // for Android shadow
+    marginTop:10
+    // top: '40%',
+    // left: '45%',
+    // transform: [{translateX: -radius}, {translateY: -radius}],
   },
   timerContainerActive: {
     position: 'absolute',
+    top: '15%',
     alignItems: 'center',
-    marginTop: -30,
     backgroundColor: 'green',
     width: 50,
-    height: 50,
     borderRadius: 50,
     padding: 10,
-    top: '20%',
   },
   timerContainerSnooze: {
     position: 'absolute',
+    top: '15%',
     alignItems: 'center',
-    marginTop: -30,
     backgroundColor: 'red',
     width: 50,
-    height: 50,
     borderRadius: 50,
     padding: 10,
-    top: '20%',
   },
   nextTimerContainer: {
-    marginBottom: -30,
     alignItems: 'center',
   },
   nextTimerText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: 'white',
+    color: 'darkgrey',
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     width: '100%',
-    marginTop: 50,
-    marginBottom: -90,
+    marginTop: -90
   },
   count: {
     fontSize: 70,
