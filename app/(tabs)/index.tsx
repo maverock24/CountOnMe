@@ -116,7 +116,6 @@ export default function TabOneScreen() {
         minimumValue={-100}
         maximumValue={0}
         step={1}
-        value={sliderValue}
         onValueChange={(value) => setSliderValue(value)}
         thumbTintColor='#019baf'
         minimumTrackTintColor='white'

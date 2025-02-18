@@ -3,7 +3,7 @@ import { StyleSheet, Dimensions } from 'react-native';
 const { width, height } = Dimensions.get('window');
 
 // Define a base button height and adjust it based on screen size
-const baseButtonHeight = height * 0.06; // e.g., 6% of screen height
+const baseButtonHeight = height * 0.08; // e.g., 6% of screen height
 const baseTileHeight = height * 0.1; // e.g., 20% of screen height
 
 export const commonStyles = StyleSheet.create({
@@ -14,8 +14,6 @@ export const commonStyles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#101418',
     padding: 10,
-    paddingTop: -40,
-    marginTop: 0,
   },
   buttonDisabled: {
     alignItems: 'center',
@@ -23,8 +21,8 @@ export const commonStyles = StyleSheet.create({
     backgroundColor: 'rgb(32, 40, 52)',
     paddingLeft: 20,
     paddingRight: 20,
-    paddingTop: 5,
-    paddingBottom: 5,
+    paddingTop: baseButtonHeight * 0.2, // Adjust padding based on button height
+    paddingBottom: baseButtonHeight * 0.2, // Adjust padding based on button height
     borderRadius: 10,
     margin: 10,
     opacity: 0.5,
@@ -87,11 +85,8 @@ export const commonStyles = StyleSheet.create({
   },
   tile: {
     alignItems: 'center',
-    justifyContent: 'flex-start',
-    backgroundColor: 'rgb(19, 22, 29)',
-    padding: 10,
+    backgroundColor: 'rgb(27, 30, 40)',
     width: '95%',
-    height: 'auto', // Set the tile height
     margin: 10,
     borderRadius: 10,
     borderColor: '#2A2E33',
