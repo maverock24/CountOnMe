@@ -17,12 +17,10 @@ import {
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import Svg, {Circle} from 'react-native-svg';
 import {commonStyles} from '../styles';
-import ModalScreen from '../modal';
-import { navigate } from 'expo-router/build/global-state/routing';
 import { router } from 'expo-router';
 
-const actionSound = require('../../assets/sounds/action.mp3');
-const chillSound = require('../../assets/sounds/chill.mp3');
+const actionSound = require('../../assets/sounds/action1.mp3');
+const chillSound = require('../../assets/sounds/chill1.mp3');
 const alarmSound = require('../../assets/sounds/alarm.mp3');
 const success = require('../../assets/sounds/success.mp3');
 
@@ -52,18 +50,36 @@ interface TimerItemProps {
   soundEnabled: boolean;
 }
 
+let currentSound: Audio.Sound | null = null;
 const playSound = async (soundFile: any, loop: boolean = true) => {
   try {
-    //stop any currently playing sounds
-    Audio.setIsEnabledAsync(false);
-    Audio.setIsEnabledAsync(true);
-    const {sound} = await Audio.Sound.createAsync(soundFile);
-    // Optionally set audio mode or looping here
-    loop ? await sound.setIsLoopingAsync(true) : false;
-    await sound.playAsync();
-    // Note: You may want to store the sound instance to stop/unload later.
+    // If a sound is already playing, stop and unload it
+    if (currentSound) {
+      await currentSound.stopAsync();
+      await currentSound.unloadAsync();
+      currentSound = null;
+    }
+
+    const { sound } = await Audio.Sound.createAsync(
+      soundFile,
+      {
+        shouldPlay: true,
+        isLooping: loop,
+      }
+    );
+    currentSound = sound;
+    // Optionally, add a status update listener if you need to respond to changes
   } catch (error) {
     console.log('Error playing sound', error);
+  }
+};
+
+// When you want to stop the sound (for example, when the component unmounts or timer stops)
+const stopSound = async () => {
+  if (currentSound) {
+    await currentSound.stopAsync();
+    await currentSound.unloadAsync();
+    currentSound = null;
   }
 };
 
@@ -89,9 +105,9 @@ const TimerItem: React.FC<TimerItemProps> = ({
         playSound(chillSound);
       }
     }
-    if (!isRunning) {
-      Audio.setIsEnabledAsync(false);
-    }
+    // if (!isRunning) {
+    //   Audio.setIsEnabledAsync(false);
+    // }
   }, [isRunning, soundEnabled, title]);
 
   // For break timers: play alarm sound when 5 seconds remain (if next timer is workout)
@@ -150,6 +166,15 @@ const TabTwoScreen: React.FC = () => {
 
   //disabled variable for disabling buttons start and stop and reset when no timer is set
   const [disabled, setDisabled] = useState<boolean>(true);
+
+  // In your component, make sure to unload the sound when unmounting:
+useEffect(() => {
+  return () => {
+    if (currentSound) {
+      currentSound.unloadAsync();
+    }
+  };
+}, []);
 
   useEffect(() => {
     if (timers.length > 0) {
@@ -258,12 +283,14 @@ const TabTwoScreen: React.FC = () => {
   const handleResetButtonPress = () => handleReset();
 
   const handleStart = () => setIsRunning(true);
-  const handleStop = () => setIsRunning(false);
+  const handleStop = () => {
+    setIsRunning(false);
+    stopSound();
+  };
   const handleReset = (items?: Timer[]) => {
     //stop any currently playing sounds
-    Audio.setIsEnabledAsync(false);
+    stopSound();
     setIsRunning(false);
-    console.log(timers[0]);
     items ? setTime(items[0].time) : setTime(timers[0].time);
     setCurrentIndex(0);
     clearInterval(intervalRef.current!);
@@ -323,7 +350,7 @@ const TabTwoScreen: React.FC = () => {
             cx={radius + strokeWidth / 2}
             cy={radius + strokeWidth / 2}
             r={radius}
-            stroke='grey'
+            stroke='rgb(29, 33, 44)'
             strokeWidth={strokeWidth}
             fill='none'
             {...({collapsable: 'false'} as any)}
@@ -332,7 +359,7 @@ const TabTwoScreen: React.FC = () => {
             cx={radius + strokeWidth / 2}
             cy={radius + strokeWidth / 2}
             r={radius}
-            stroke='white'
+            stroke='#00bcd4'
             strokeWidth={strokeWidth}
             fill='none'
             strokeDasharray={circumference}
@@ -408,9 +435,8 @@ const TabTwoScreen: React.FC = () => {
             style={styles.listContainer}
             data={storedItems}
             renderItem={({item}) => (
-              console.log(item.key),
              item.key === 'audioThreshold' ? null : (
-              <TouchableOpacity style={[commonStyles.buttonTile, selectedItem === item.value?.toString() && {borderColor: 'white', borderWidth: 1}]}
+              <TouchableOpacity style={[commonStyles.buttonTile, selectedItem === item.value?.toString() && {borderColor: '#00bcd4', borderWidth: 2}]}
               onPress={() => toggleSelectSet(item.value?.toString() ?? '0')}
             >
          
@@ -476,6 +502,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#202830',
   },
   timerContainer: {
+   marginTop: 35,
     width: '100%',
     height: '60%',
     alignItems: 'center',
@@ -488,6 +515,12 @@ const styles = StyleSheet.create({
     top: '50%',
     left: '50%',
     transform: [{translateX: -120}, {translateY: -120}],
+    // Add these lines to make the shadow visible
+    shadowColor: "#00bcd4",
+    shadowOpacity: 0.7,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 0 },
+    elevation: 5, // for Android shadow
   },
   timerContainerActive: {
     position: 'absolute',
@@ -524,9 +557,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     width: '100%',
-    marginTop: 40,
-    paddingBottom: 5,
-    marginBottom: -50,
+    marginTop: 50,
+    marginBottom: -90,
   },
   count: {
     fontSize: 70,

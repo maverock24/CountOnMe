@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {StyleSheet, TouchableOpacity} from 'react-native';
+import {Dimensions, StyleSheet, TouchableOpacity} from 'react-native';
 import {Text, View} from '@/components/Themed';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Slider from '@react-native-community/slider';
@@ -30,7 +30,6 @@ export default function TabOneScreen() {
       }
       const storedThreshold = await AsyncStorage.getItem('audioThreshold');
       if (storedThreshold) {
-        console.log('storedThreshold', storedThreshold);
         setSliderValue(parseFloat(storedThreshold));
       }
     })();
@@ -110,6 +109,7 @@ export default function TabOneScreen() {
     <View style={commonStyles.container}>
       <Text style={commonStyles.tileTitle}>Sound trigger</Text>
       <View style={commonStyles.tile}>
+        <View style={styles.innerWrapperTopTile}>
       <Text style={styles.title}>db: {sliderValue}</Text>
       <Slider
         style={styles.slider}
@@ -128,8 +128,10 @@ export default function TabOneScreen() {
         <Text style={commonStyles.buttonText}>{buttonText}</Text>
       </TouchableOpacity> 
       </View>
+      </View>
       <Text style={commonStyles.tileTitle}>Counter</Text>
       <View style={commonStyles.tile}>
+      <View style={styles.innerWrapperBottomTile}>
       <View style={styles.buttonContainerReps}>
         {repititions.map((rep, index) => (
           <TouchableOpacity
@@ -155,18 +157,39 @@ export default function TabOneScreen() {
           <FontAwesome name='caret-right' style={styles.icon} />
         </TouchableOpacity>
       </View>
+      <View style={styles.innerWrapperBottomTile}>
       <TouchableOpacity
-        style={commonStyles.button}
+        style={[commonStyles.button, {width: '95%'}]}
         onPress={() => handleReset()}
       >
-        <Text style={commonStyles.buttonText}>Reset</Text>
+        <Text style={[commonStyles.buttonText, {width: '95%', textAlign: 'center'}]}>Reset</Text>
       </TouchableOpacity>
+      </View>
+      </View>
       </View>
     </View>
   );
 }
 
+const { width, height } = Dimensions.get('window');
+const paddingTopTile = height * 0.01;
+const paddingBottomTile = height > 800 ? height * 0.06 : height * 0.001;
+
 const styles = StyleSheet.create({
+  innerWrapperTopTile :{
+    paddingBottom: paddingTopTile,
+    paddingTop: paddingTopTile,
+    width: '95%',
+    backgroundColor: 'transparent'
+
+  },
+  innerWrapperBottomTile: {
+    paddingBottom: paddingBottomTile,
+    paddingTop: paddingBottomTile,
+    width: '95%',
+    backgroundColor: 'transparent',
+    alignItems: 'center'
+  },
   title: {
     fontSize: 14,
     fontWeight: 'bold',
@@ -178,17 +201,16 @@ const styles = StyleSheet.create({
     width: '80%',
   },
   count: {
-    fontSize: 130,
+    fontSize: 100,
     fontWeight: 'bold',
-    marginVertical: 0,
+    marginBottom: 10,
     color: 'white',
   },
 
-  //round button
   repButton: {
     borderRadius: 50,
     padding: 10,
-    margin: 10,
+    marginBottom: paddingBottomTile,
     width: 50,
     height: 50,
     alignItems: 'center',
@@ -211,13 +233,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '90%',
     backgroundColor: 'transparent',
-    marginBottom: -20,
   },
   buttonContainerReps: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'center',
     backgroundColor: 'transparent',
+    marginBottom: 20
   },
   button: {
     alignItems: 'center',
@@ -239,7 +261,7 @@ const styles = StyleSheet.create({
   },
   icon: {
     fontSize: 120,
-    color: '#32656F',
+    color:  'rgb(38, 47, 62)',
   },
   audioVisualizer: {
     alignItems: 'center',

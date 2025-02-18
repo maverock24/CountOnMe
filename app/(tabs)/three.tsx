@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     margin: 10,
     fontSize: 14,
     fontWeight: 'bold',
-    color: 'gray',
+    color: 'rgb(192, 205, 236)',
   },
   listItemValue: {
     margin: 12,
@@ -164,8 +164,8 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 12,
-    marginBottom: -5,
-    color: 'darkgray',
+    marginBottom: 0,
+    color: 'rgb(231, 234, 241)',
     textAlign: 'left',
     width: '90%',
   },
@@ -174,9 +174,7 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   input: {
-    backgroundColor: 'transparent',
-    borderBottomColor: 'gray',
-    borderBottomWidth: 1,
+    backgroundColor: 'rgb(33, 39, 50)',
     padding: 10,
     height: 40,
     marginBottom: 12,
