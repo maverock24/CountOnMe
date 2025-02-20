@@ -62,6 +62,13 @@ export default function TabLayout() {
         name='three'
         options={{
           title: 'Manage',
+          tabBarIcon: ({color}) => <TabBarIcon name='list-alt' color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name='four'
+        options={{
+          title: 'Settings',
           tabBarIcon: ({color}) => <TabBarIcon name='cog' color={color} />,
         }}
       />

@@ -1,8 +1,8 @@
 import {useData} from '@/components/data.provider';
 import {faBed, faRunning} from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {Audio} from 'expo-av';
-import React, {useEffect, useRef, useState} from 'react';
+import {Audio, AVPlaybackStatusSuccess} from 'expo-av';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   Animated,
   Dimensions,
@@ -15,16 +15,40 @@ import {
   View,
 } from 'react-native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
-import Svg, {Circle} from 'react-native-svg';
-import {commonStyles} from '../styles';
-import { router } from 'expo-router';
+import Svg, {
+  Circle,
+  Defs,
+  Filter,
+  FeGaussianBlur,
+  FeMerge,
+  FeMergeNode,
+} from 'react-native-svg';
+import commonStyles from '../styles';
+import { router, useFocusEffect } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const actionSound = require('../../assets/sounds/action1.mp3');
-const chillSound = require('../../assets/sounds/chill1.mp3');
-const alarmSound = require('../../assets/sounds/alarm.mp3');
-const success = require('../../assets/sounds/success1.mp3');
+// Create a mapping object with static requires for each sound file.
+const soundFiles: { [key: string]: any } = {
+  upbeat: require('../../assets/sounds/upbeat.mp3'),
+  chill: require('../../assets/sounds/chill.mp3'),
+  yeah: require('../../assets/sounds/yeah.mp3'),
+  wandering: require('../../assets/sounds/wandering.mp3'),
+  starlit_serenity: require('../../assets/sounds/starlit_serenity.mp3'),
+  peaceful_music_indian: require('../../assets/sounds/peaceful_music_indian.mp3'),
+  mystical: require('../../assets/sounds/mystical.mp3'),
+  morning_garden_acoustic_chill: require('../../assets/sounds/morning_garden_acoustic_chill.mp3'),
+  low_key: require('../../assets/sounds/low_key.mp3'),
+  happy_rock: require('../../assets/sounds/happy_rock.mp3'),
+  clapping: require('../../assets/sounds/clapping.mp3'),
+  chill_beats: require('../../assets/sounds/chill_beats.mp3'),
+  bollywood: require('../../assets/sounds/bollywood.mp3'),
+};
 
 const {width, height} = Dimensions.get('window');
+
+let workoutMusic: any;
+let breakMusic: any;
+let successSound: any;
 
 const baseRadius = 140;
 const radius = height > 800 ? baseRadius * 1.2 : baseRadius;
@@ -103,25 +127,35 @@ const TimerItem: React.FC<TimerItemProps> = ({
     if (isRunning && soundEnabled) {
       if (title === 'workout') {
         //play sound in a loop
-        playSound(actionSound);
+        playSound(workoutMusic);
       } else if (title === 'break') {
-        playSound(chillSound);
+        playSound(breakMusic);
       }
     }
-    // if (!isRunning) {
-    //   Audio.setIsEnabledAsync(false);
-    // }
   }, [isRunning, soundEnabled, title]);
 
   // For break timers: play alarm sound when 5 seconds remain (if next timer is workout)
   useEffect(() => {
+    const fadeOutSound = async () => {
+  const duration = 1000;
+  const steps = 4;
+  let { volume } = await currentSound?.getStatusAsync() as AVPlaybackStatusSuccess;
+  volume = volume ?? 1; // default to full volume if undefined
+  const decrement = volume / steps;
+  for (let i = 0; i < steps; i++) {
+    volume = Math.max(volume - decrement, 0);
+    await currentSound?.setVolumeAsync(volume);
+    await new Promise(resolve => setTimeout(resolve, duration));
+  }
+    };
     if (
       soundEnabled &&
-      title === 'break' &&
-      time === 5 &&
+      (title === 'break' || title === 'workout') &&
+      time <= 4 &&
       !alarmPlayedRef.current
     ) {
-      playSound(alarmSound);
+      // 
+      fadeOutSound();
       alarmPlayedRef.current = true;
     }
   }, [time, soundEnabled, title]);
@@ -169,6 +203,22 @@ const TabTwoScreen: React.FC = () => {
 
   //disabled variable for disabling buttons start and stop and reset when no timer is set
   const [disabled, setDisabled] = useState<boolean>(true);
+
+      // Reload music settings whenever the tab is focused.
+  useFocusEffect(
+    useCallback(() => {
+      async function loadMusicSettings() {
+        const storedWorkoutMusic = (await AsyncStorage.getItem('workoutMusic')) || 'upbeat';
+        const storedBreakMusic   = (await AsyncStorage.getItem('breakMusic')) || 'chill';
+        const storedSuccessMusic = (await AsyncStorage.getItem('successSound')) || 'yeah';
+
+        workoutMusic = soundFiles[storedWorkoutMusic];
+        breakMusic = soundFiles[storedBreakMusic];
+        successSound = soundFiles[storedSuccessMusic];
+      }
+      loadMusicSettings();
+    }, [])
+  );
 
   // In your component, make sure to unload the sound when unmounting:
 useEffect(() => {
@@ -267,7 +317,7 @@ useEffect(() => {
       return () => clearInterval(interval);
     } else {
       if (currentIndex === timers.length - 1) {
-        playSound(success, false);
+        playSound(successSound, false);
       }
     }
   }, [isRunning]);
@@ -318,8 +368,12 @@ useEffect(() => {
   const handleAddNew = () => {
     //navigate to the tab /modal
     router.push('/three');
+  };
 
-
+  const handleSwitchSound = (value: boolean) => {
+    setSoundEnabled(value);
+    if(!value)
+    currentSound?.stopAsync();
   };
 
   const strokeWidth = 10;
@@ -339,8 +393,18 @@ useEffect(() => {
         <Svg
           height={radius * 2 + strokeWidth}
           width={radius * 2 + strokeWidth}
-          style={styles.progressCircle}
+          viewBox={`-15 -15 ${radius * 2 + strokeWidth + 30} ${radius * 2 + strokeWidth + 30}`}
+          style={[styles.progressCircle, { overflow: 'visible' }]}
         >
+          <Defs>
+    <Filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <FeGaussianBlur in="SourceGraphic" stdDeviation="20" result="blur" />
+      <FeMerge>
+        <FeMergeNode in="blur" />
+        <FeMergeNode in="SourceGraphic" />
+      </FeMerge>
+    </Filter>
+  </Defs>
           <Circle
             cx={radius + strokeWidth / 2}
             cy={radius + strokeWidth / 2}
@@ -362,6 +426,7 @@ useEffect(() => {
             transform={`rotate(-90 ${radius + strokeWidth / 2} ${
               radius + strokeWidth / 2
             })`}
+            filter="url(#glow)"
             {...({collapsable: 'false'} as any)}
           />
         </Svg>
@@ -417,23 +482,19 @@ useEffect(() => {
       <View style={styles.switchContainer}>
         <Text style={styles.switchLabel}>Sound on/off</Text>
         <Switch
+          thumbColor={soundEnabled ? '#00bcd4' : 'grey'}
           style={styles.switch}
           value={soundEnabled}
-          onValueChange={setSoundEnabled}
+          onValueChange={(value) => handleSwitchSound(value)}
         />
       </View>
       </View>
       </View>
       <Text style={commonStyles.tileTitle}>Workouts</Text>
        {noWorkout && (
-        <View style={commonStyles.tile}>
-        <TouchableOpacity
-          style={commonStyles.button}
-          onPress={() => handleAddNew()}
-        >
-          <Text style={commonStyles.buttonText}>Add</Text>
-        </TouchableOpacity>
-        </View>
+        <TouchableOpacity style={[commonStyles.button,{width: '95%'}]} onPress={() => handleAddNew()}>
+        <Text style={commonStyles.buttonText}>Add</Text>
+      </TouchableOpacity>
       )}
       <SafeAreaProvider>
         <SafeAreaView>
@@ -441,8 +502,19 @@ useEffect(() => {
             style={styles.listContainer}
             data={storedItems}
             renderItem={({item}) => (
-             item.key === 'audioThreshold' ? null : (
-              <TouchableOpacity style={[commonStyles.buttonTile, selectedItem === item.value?.toString() && {borderColor: '#00bcd4', borderWidth: 2}]}
+             item.key === 'breakMusic' || item.key === 'workoutMusic' ? null : (
+              <TouchableOpacity style={[
+                commonStyles.buttonTile,
+                selectedItem === item.value?.toString() && {
+                  borderColor: '#00bcd4',
+                  borderWidth: 2,
+                  shadowColor: '#00bcd4',
+                  shadowOpacity: 1,
+                  shadowRadius: 1,
+                  boxShadow: '0px 0px 5px 1px #00bcd4',
+                  elevation: 6, // Android
+                },
+              ]}
               onPress={() => toggleSelectSet(item.value?.toString() ?? '0')}
             >
          
@@ -475,8 +547,7 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   switch: {
-    transform: [{scaleX: 0.5}, {scaleY: 0.5}], // Increase the size of the switch
-    color: '#019baf',
+    transform: [{scaleX: 0.8}, {scaleY: 0.8}], // Increase the size of the switch
   },
   container: {
     flex: 1,

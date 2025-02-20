@@ -6,7 +6,7 @@ const { width, height } = Dimensions.get('window');
 const baseButtonHeight = height * 0.08; // e.g., 6% of screen height
 const baseTileHeight = height * 0.1; // e.g., 20% of screen height
 
-export const commonStyles = StyleSheet.create({
+const commonStyles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -58,6 +58,7 @@ export const commonStyles = StyleSheet.create({
     color: '#EFF0F0',
     fontSize: 16,
     fontWeight: 'bold',
+    letterSpacing: 1.5,
   },
   listItem: {
     flexDirection: 'row', // align children horizontally
@@ -84,6 +85,7 @@ export const commonStyles = StyleSheet.create({
     fontStyle: 'italic',
   },
   tile: {
+    maxWidth: 600,
     alignItems: 'center',
     backgroundColor: 'rgb(27, 30, 40)',
     width: '95%',
@@ -100,3 +102,5 @@ export const commonStyles = StyleSheet.create({
     color: 'white',
   },
 });
+
+export default commonStyles;

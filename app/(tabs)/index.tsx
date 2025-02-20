@@ -4,7 +4,7 @@ import {Text, View} from '@/components/Themed';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Slider from '@react-native-community/slider';
 import { Audio } from 'expo-av';
-import {commonStyles} from '../styles';
+import commonStyles from '../styles';
 import { AndroidAudioEncoder, AndroidOutputFormat } from 'expo-av/build/Audio';
 import { IOSOutputFormat } from 'expo-audio';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -52,8 +52,8 @@ export default function TabOneScreen() {
   };
 
   const handleSetRemaining = (value: number) => {
-    setSelectedRemaining(value);
-    setRemaining(value - count);
+    setCount(0);
+    setRemaining(value);
   };
 
   const handleReset = () => {
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
   },
   slider: {
     width: '90%',
-    height: 40,
+    height: 60,
     color: '#387480',
   },
   sliderText: {
