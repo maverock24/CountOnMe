@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 
-import {commonStyles} from '../styles';
+import commonStyles from '../styles';
 
 type Inputs = {
   example: string;
@@ -71,18 +71,20 @@ export default function TabThreeScreen() {
     <View style={commonStyles.container}>
       <Text style={commonStyles.tileTitle}>New Workout</Text>
       <View style={commonStyles.tile}>
+      <View style={styles.innerWrapperTopTile}>
       <Text style={styles.label}>Name</Text>
       <TextInput style={styles.input} value={name} onChangeText={setName} />
-      <Text style={styles.label}>Workout set (e.g. enter "60;60;60" means: 60 sec exercise ; 60 sec break ; 60 sec exercise)</Text>
+      <Text style={styles.label}>Workout time set (e.g. exercise;break;exercise "60;60;60")</Text>
       <TextInput style={styles.input} value={unit} onChangeText={handleUnitChange} />
-      <TouchableOpacity style={commonStyles.button} onPress={() => addItem()}>
+      <TouchableOpacity style={[commonStyles.button,{width: '90%'}]} onPress={() => addItem()}>
         <Text style={commonStyles.buttonText}>Add</Text>
       </TouchableOpacity>
+      </View>
       </View>
       <Text style={commonStyles.tileTitle}>Available Workouts</Text>
       {noWorkout && (
               <View style={commonStyles.tile}>
-              <Text style={commonStyles.buttonText}>No workouts available</Text>
+              <Text style={[commonStyles.buttonText,{padding: 10}]}>No workouts available</Text>
               </View>
             )}
       <SafeAreaProvider>
@@ -100,7 +102,7 @@ export default function TabThreeScreen() {
                   <FontAwesome
                     styles={styles.icon}
                     name='trash'
-                    size={18}
+                    size={18}slider
                     color='white'
                   />
                 </TouchableOpacity>
@@ -115,6 +117,12 @@ export default function TabThreeScreen() {
 }
 
 const styles = StyleSheet.create({
+  innerWrapperTopTile :{
+    paddingTop:10,
+    width: '100%',
+    backgroundColor: 'transparent',
+    alignItems: 'center',
+  },
   deleteButtonText: {
     color: 'black',
     fontWeight: 'bold',
@@ -124,7 +132,6 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     alignItems: 'center',
-    justifyContent: 'center',
     marginRight: -20,
   },
   flatList: {
