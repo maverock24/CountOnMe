@@ -61,17 +61,17 @@ const SettingsScreen: React.FC = () => {
 
   return (
     <View style={commonStyles.container}>
-      <Text style={commonStyles.tileTitle}>Settings</Text>
       
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Music Settings</Text>
         <Text style={styles.label}>Workout Music</Text>
+      
         <Picker
             selectedValue={workoutMusic}
-            style={[styles.picker, { backgroundColor: '#000' }]}
-            itemStyle={{ backgroundColor: '#000', color: '#fff' }}
+            style={styles.picker}
             onValueChange={(itemValue) => saveWorkoutMusic(itemValue)}
-            mode="dropdown"
+            mode="dialog"
+            dropdownIconColor="grey"
           >
             <Picker.Item label="Upbeat" value="upbeat" />
             <Picker.Item label="Bollywood" value="bollywood" />
@@ -83,13 +83,14 @@ const SettingsScreen: React.FC = () => {
             <Picker.Item label="Mystical" value="mystical" />
             {/* Add more languages as needed */}
           </Picker>
+         
         <Text style={styles.label}>Break Music</Text>
         <Picker
             selectedValue={breakMusic}
-            style={[styles.picker, { backgroundColor: '#000' }]}
-            itemStyle={{ backgroundColor: '#000', color: '#fff' }}
+            style={styles.picker}
             onValueChange={(itemValue) => saveBreakMusic(itemValue)}
-            mode="dropdown"
+            mode="dialog"
+            dropdownIconColor="grey"
           >
             <Picker.Item label="Chill" value="chill" />
             <Picker.Item label="Wandering" value="wandering" />
@@ -105,10 +106,10 @@ const SettingsScreen: React.FC = () => {
         <View style={styles.pickerContainer}>
           <Picker
             selectedValue={language}
-            style={[styles.picker, { backgroundColor: '#000' }]}
-            itemStyle={{ backgroundColor: '#000', color: '#fff' }}
+            style={[styles.picker]}
             onValueChange={(itemValue) => setLanguage(itemValue)}
-            mode="dropdown"
+            mode="dialog"
+            dropdownIconColor="grey"
           >
             <Picker.Item label="English" value="en" />
             <Picker.Item label="Español" value="es" />
@@ -127,7 +128,7 @@ export default SettingsScreen;
 
 const styles = StyleSheet.create({
   section: {
-    width: '90%',
+    width: '95%',
     alignSelf: 'center',
     backgroundColor: 'rgba(27, 30, 40, 0.9)',
     padding: 15,
@@ -146,7 +147,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   input: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgb(33, 39, 50)',
     color: '#fff',
     paddingHorizontal: 10,
     paddingVertical: 8,
@@ -154,12 +155,12 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   pickerContainer: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgb(33, 39, 50)',
     borderRadius: 5,
     marginBottom: 15,
   },
   picker: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgb(33, 39, 50)',
     height: 50,
     color: '#fff',
   },

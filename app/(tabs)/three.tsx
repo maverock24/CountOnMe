@@ -92,6 +92,7 @@ export default function TabThreeScreen() {
           <FlatList
             data={storedItems}
             renderItem={({item}) => (
+              item.key === 'breakMusic' || item.key === 'workoutMusic' || item.key === 'audioThreshold' ? null : (
               <View style={commonStyles.buttonTile}>
                 <Text style={commonStyles.listItemTitle}>{item.key}</Text>
                 <Text style={commonStyles.listItemValue}>{item.value}</Text>
@@ -99,15 +100,12 @@ export default function TabThreeScreen() {
                   style={styles.deleteButton}
                   onPress={() => deleteSet(item.key)}
                 >
-                  <FontAwesome
-                    styles={styles.icon}
-                    name='trash'
-                    size={18}slider
-                    color='white'
-                  />
+                  <Text style={styles.deleteButtonText}>
+                   Delete
+                  </Text>
                 </TouchableOpacity>
               </View>
-            )}
+            ))}
             keyExtractor={(item) => item.key}
           />
         </SafeAreaView>
@@ -124,7 +122,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   deleteButtonText: {
-    color: 'black',
+    color: 'white',
     fontWeight: 'bold',
   },
   deleteButton: {
@@ -132,7 +130,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     alignItems: 'center',
-    marginRight: -20,
+    backgroundColor: 'rgb(34, 41, 58)',
   },
   flatList: {
     flex: 1,

@@ -1,7 +1,7 @@
 import {useData} from '@/components/data.provider';
 import {faBed, faRunning} from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {Audio, AVPlaybackStatusSuccess} from 'expo-av';
+import {Audio, AVPlaybackStatusSuccess, InterruptionModeAndroid, InterruptionModeIOS} from 'expo-av';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   Animated,
@@ -75,10 +75,15 @@ interface TimerItemProps {
   setTime: React.Dispatch<React.SetStateAction<number>>;
   intervalRef: React.MutableRefObject<NodeJS.Timeout | null>;
   soundEnabled: boolean;
+  audioReady: boolean;
 }
 
 let currentSound: Audio.Sound | null = null;
-const playSound = async (soundFile: any, loop: boolean = true) => {
+const playSound = async (soundFile: any, loop: boolean = true, audioReady: boolean) => {
+   if (!audioReady) {
+      console.warn("Audio not ready yet.");
+      return;
+    }
   try {
     // If a sound is already playing, stop and unload it
     if (currentSound) {
@@ -118,6 +123,7 @@ const TimerItem: React.FC<TimerItemProps> = ({
   setTime,
   intervalRef,
   soundEnabled,
+  audioReady
 }) => {
   const alarmPlayedRef = useRef(false);
   // Function to play a given sound file using expo-av Audio API
@@ -127,9 +133,9 @@ const TimerItem: React.FC<TimerItemProps> = ({
     if (isRunning && soundEnabled) {
       if (title === 'workout') {
         //play sound in a loop
-        playSound(workoutMusic);
+        playSound(workoutMusic,undefined, audioReady);
       } else if (title === 'break') {
-        playSound(breakMusic);
+        playSound(breakMusic,undefined, audioReady);
       }
     }
   }, [isRunning, soundEnabled, title]);
@@ -200,6 +206,7 @@ const TabTwoScreen: React.FC = () => {
   const progress = useRef(new Animated.Value(0)).current;
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
+  const [audioReady, setAudioReady] = useState(false);
 
   //disabled variable for disabling buttons start and stop and reset when no timer is set
   const [disabled, setDisabled] = useState<boolean>(true);
@@ -217,17 +224,42 @@ const TabTwoScreen: React.FC = () => {
         successSound = soundFiles[storedSuccessMusic];
       }
       loadMusicSettings();
+
+      // Return a cleanup function that stops the sound and timer when the tab loses focus.
+    return () => {
+      stopSound();
+      setIsRunning(false);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
     }, [])
   );
 
   // In your component, make sure to unload the sound when unmounting:
-useEffect(() => {
-  return () => {
-    if (currentSound) {
-      currentSound.unloadAsync();
-    }
-  };
-}, []);
+  useEffect(() => {
+    (async () => {
+      try {
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: false,
+          interruptionModeIOS: InterruptionModeIOS.DuckOthers,
+          playsInSilentModeIOS: true,
+          shouldDuckAndroid: true,
+          interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
+          playThroughEarpieceAndroid: true,
+        });
+        setAudioReady(true);
+      } catch (error) {
+        console.error("Error setting audio mode:", error);
+      }
+    })();
+    
+    return () => {
+      if (currentSound) {
+        currentSound.unloadAsync();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (timers.length > 0) {
@@ -317,7 +349,10 @@ useEffect(() => {
       return () => clearInterval(interval);
     } else {
       if (currentIndex === timers.length - 1) {
-        playSound(successSound, false);
+        playSound(successSound, false, audioReady).then(() => {
+          handleReset();
+        });
+
       }
     }
   }, [isRunning]);
@@ -451,6 +486,7 @@ useEffect(() => {
           setTime={setTime}
           intervalRef={intervalRef}
           soundEnabled={soundEnabled}
+          audioReady={audioReady}
         />
         <View style={styles.nextTimerContainer}>
           <Text style={styles.nextTimerText}>
@@ -502,7 +538,7 @@ useEffect(() => {
             style={styles.listContainer}
             data={storedItems}
             renderItem={({item}) => (
-             item.key === 'breakMusic' || item.key === 'workoutMusic' ? null : (
+             item.key === 'breakMusic' || item.key === 'workoutMusic' || item.key === 'audioThreshold' ? null : (
               <TouchableOpacity style={[
                 commonStyles.buttonTile,
                 selectedItem === item.value?.toString() && {
@@ -519,7 +555,7 @@ useEffect(() => {
             >
          
                 <Text style={commonStyles.listItemTitle}>{item.key}</Text>
-                <Text style={commonStyles.listItemValue}>{item.value}</Text>
+                <Text style={commonStyles.listItemValue}>{item.value?.replaceAll(";"," | ")}</Text>
           
             </TouchableOpacity>
             ))}
@@ -579,9 +615,6 @@ const styles = StyleSheet.create({
   },
   progressCircle: {
     marginTop:10
-    // top: '40%',
-    // left: '45%',
-    // transform: [{translateX: -radius}, {translateY: -radius}],
   },
   timerContainerActive: {
     position: 'absolute',

@@ -1,17 +1,15 @@
 import React, {useState, useEffect} from 'react';
 import {Dimensions, StyleSheet, TouchableOpacity} from 'react-native';
 import {Text, View} from '@/components/Themed';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Slider from '@react-native-community/slider';
 import { Audio } from 'expo-av';
 import commonStyles from '../styles';
-import { AndroidAudioEncoder, AndroidOutputFormat } from 'expo-av/build/Audio';
-import { IOSOutputFormat } from 'expo-audio';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Icon from '@expo/vector-icons/FontAwesome';
 
 export default function TabOneScreen() {
   const [count, setCount] = useState(0);
-  const [sliderValue, setSliderValue] = useState(0);
+  const [sliderValue, setSliderValue] = useState<number | null>(null);
   const [remaining, setRemaining] = useState(0);
   const [selectedRemaining, setSelectedRemaining] = useState(0);
   const [isListening, setIsListening] = useState(false);
@@ -19,6 +17,8 @@ export default function TabOneScreen() {
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [buttonText, setButtonText] = useState('Mic on');
   const [lastSpikeTime, setLastSpikeTime] = useState<number | null>(null);
+  const [micOn, setMicOn] = useState(false);
+  const audioThresholdRef = React.useRef<Slider | null>(null);
 
   const repititions = [5, 10, 15, 200];
 
@@ -29,8 +29,15 @@ export default function TabOneScreen() {
         alert('Permission to access microphone is required!');
       }
       const storedThreshold = await AsyncStorage.getItem('audioThreshold');
-      if (storedThreshold) {
-        setSliderValue(parseFloat(storedThreshold));
+      if (storedThreshold !== null) {
+        const parsed = parseFloat(storedThreshold);
+        if (!isNaN(parsed)) {
+          setSliderValue(parsed);
+        } else {
+          setSliderValue(0);
+        }
+      } else {
+        setSliderValue(0); // default value if none stored
       }
     })();
   }, []);
@@ -63,6 +70,7 @@ export default function TabOneScreen() {
 
   const handleListen = async () => {
     if (isListening) {
+      setMicOn(false);
       setIsListening(false);
       setButtonText('Mic on');
       if (recording) {
@@ -72,6 +80,7 @@ export default function TabOneScreen() {
       await Audio.setIsEnabledAsync(false);
     } else {
       if (buttonText === 'Mic on') {
+        setMicOn(true);
         setIsListening(true);
         setButtonText('Mic off');
         await Audio.setIsEnabledAsync(true);
@@ -96,7 +105,7 @@ export default function TabOneScreen() {
   };
 
   useEffect(() => {
-    if (isListening && audioLevel > sliderValue) {
+    if (isListening && audioLevel > sliderValue!) {
       const currentTime = Date.now();
       if (lastSpikeTime === null || currentTime - lastSpikeTime > 10) { // Adjust debounce time as needed
         handleCountUp();
@@ -112,18 +121,33 @@ export default function TabOneScreen() {
         <View style={styles.innerWrapperTopTile}>
       <Text style={styles.title}>db: {sliderValue}</Text>
       <Slider
+        value={sliderValue!}
         style={styles.slider}
         minimumValue={-100}
         maximumValue={0}
         step={1}
-        onValueChange={(value) => setSliderValue(value)}
-        thumbTintColor='#019baf'
-        minimumTrackTintColor='white'
+        onSlidingComplete={(value) =>{
+          AsyncStorage.setItem("audioThreshold", value.toString());
+          setSliderValue(value);
+        }
+          
+        }
+        thumbTintColor='#00bcd4'
+        minimumTrackTintColor='#00bcd4'
+        maximumTrackTintColor='gray'
       />
       <View style={styles.audioVisualizer}>
           <Text style={styles.audioLevel}>Audio Level: {audioLevel}</Text>
         </View>
-     <TouchableOpacity style={commonStyles.button} onPress={handleListen}>
+     <TouchableOpacity style={[commonStyles.button,micOn && {
+                  borderColor: '#00bcd4',
+                  borderWidth: 2,
+                  shadowColor: '#00bcd4',
+                  shadowOpacity: 1,
+                  shadowRadius: 1,
+                  boxShadow: '0px 0px 5px 1px #00bcd4',
+                  elevation: 6, // Android
+                }]} onPress={handleListen}>
         <Text style={commonStyles.buttonText}>{buttonText}</Text>
       </TouchableOpacity> 
       </View>
@@ -146,14 +170,14 @@ export default function TabOneScreen() {
       <Text style={styles.remaining}>{remaining ? remaining : 0}</Text>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          style={styles.button}
+          style={styles.triangleLeft}
           onPress={() => handleCountDown()}
         >
-          <FontAwesome name='caret-left' style={styles.icon} />
+          {/* <FontAwesome name='caret-left' style={styles.icon} /> */}
         </TouchableOpacity>
         <Text style={styles.count}>{count}</Text>
-        <TouchableOpacity style={styles.button} onPress={() => handleCountUp()}>
-          <FontAwesome name='caret-right' style={styles.icon} />
+        <TouchableOpacity style={styles.triangleRight} onPress={() => handleCountUp()}>
+          {/* <FontAwesome name='caret-right' style={styles.icon} /> */}
         </TouchableOpacity>
       </View>
       <View style={styles.innerWrapperBottomTile}>
@@ -172,7 +196,7 @@ export default function TabOneScreen() {
 
 const { width, height } = Dimensions.get('window');
 const paddingTopTile = height * 0.01;
-const paddingBottomTile = height > 800 ? height * 0.06 : height * 0.001;
+const paddingBottomTile = height > 800 ? height * 0.05 : height * 0.001;
 
 const styles = StyleSheet.create({
   innerWrapperTopTile :{
@@ -202,7 +226,6 @@ const styles = StyleSheet.create({
   count: {
     fontSize: 100,
     fontWeight: 'bold',
-    marginBottom: 10,
     color: 'white',
   },
 
@@ -258,9 +281,27 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
-  icon: {
-    fontSize: 120,
-    color:  'rgb(38, 47, 62)',
+  triangleLeft: {
+    marginTop: -10,
+    width: 0,
+    height: 0,
+    borderTopWidth: 60,
+    borderRightWidth: 50,
+    borderBottomWidth: 60,
+    borderTopColor: 'transparent',
+    borderRightColor: 'rgb(34, 132, 152)',
+    borderBottomColor: 'transparent',             
+  },
+  triangleRight: {
+    marginTop: -10,
+    width: 0,
+    height: 0,
+    borderTopWidth: 60,
+    borderLeftWidth: 50,
+    borderBottomWidth: 60,
+    borderTopColor: 'transparent',
+    borderLeftColor: 'rgb(34, 132, 152)',
+    borderBottomColor: 'transparent',             
   },
   audioVisualizer: {
     alignItems: 'center',
