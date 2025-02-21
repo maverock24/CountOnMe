@@ -9,7 +9,7 @@ const baseTileHeight = height * 0.1; // e.g., 20% of screen height
 const commonStyles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     height: '100%',
     alignItems: 'center',
     backgroundColor: '#101418',
@@ -42,7 +42,7 @@ const commonStyles = StyleSheet.create({
   buttonTile: {
     flexDirection: 'row', // align children horizontally
     justifyContent: 'space-between', // push delete button to right 'rgb(38, 47, 62)',
-    backgroundColor: 'rgb(28, 34, 46)',
+    backgroundColor: 'rgb(38, 44, 61)',
     paddingLeft: 20,
     paddingRight: 20,
     paddingTop: 5,
@@ -71,18 +71,15 @@ const commonStyles = StyleSheet.create({
   },
   listItemTitle: {
     margin: 8,
-    fontSize: 14,
-    fontWeight: 'bold',
-    fontStyle: 'italic',
+    fontSize: 16,
     color: 'lightgray',
   },
   listItemValue: {
     marginTop: 10,
-    fontSize: 12,
+    fontSize: 14,
     color: 'lightgray',
     letterSpacing: 2,
     fontWeight: 'bold',
-    fontStyle: 'italic',
   },
   tile: {
     maxWidth: 600,
