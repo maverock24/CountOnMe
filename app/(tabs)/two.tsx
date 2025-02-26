@@ -26,6 +26,7 @@ import Svg, {
 import commonStyles from '../styles';
 import { router, useFocusEffect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { set } from 'react-hook-form';
 
 // Create a mapping object with static requires for each sound file.
 const soundFiles: { [key: string]: any } = {
@@ -79,30 +80,56 @@ interface TimerItemProps {
 }
 
 let currentSound: Audio.Sound | null = null;
-const playSound = async (soundFile: any, loop: boolean = true, audioReady: boolean) => {
-   if (!audioReady) {
-      console.warn("Audio not ready yet.");
-      return;
-    }
-  try {
-    // If a sound is already playing, stop and unload it
-    if (currentSound) {
-      await currentSound.stopAsync();
-      await currentSound.unloadAsync();
-      currentSound = null;
-    }
+const playSound = async (
+  soundFile: any, 
+  loop: boolean = true, 
+  audioReady: boolean,
+  volume: number = 1.0
+): Promise<void> => {
+  // Validate parameters
+  if (!audioReady) {
+    console.warn("Audio system not ready yet");
+    return;
+  }
+  
+  if (!soundFile) {
+    console.error("Cannot play null sound file");
+    return;
+  }
 
+  try {
+    // Clean up any existing sound
+    await stopSound();
+    
+    // Create and configure the new sound
     const { sound } = await Audio.Sound.createAsync(
       soundFile,
       {
         shouldPlay: true,
         isLooping: loop,
+        volume: volume,
+        progressUpdateIntervalMillis: 1000, // Update status every second
       }
     );
+    
+    // Store reference to current sound
     currentSound = sound;
-    // Optionally, add a status update listener if you need to respond to changes
+    
+    // Optional: Add status listener
+    sound.setOnPlaybackStatusUpdate((status) => {
+      if (!status.isLoaded) {
+        // Handle loading errors
+        if (status.error) {
+          console.error(`Sound playback error: ${status.error}`);
+        }
+      }
+    });
+    
+    // Return promise that resolves when playback starts
+    await sound.playAsync();
   } catch (error) {
-    console.log('Error playing sound', error);
+    console.error('Error playing sound:', error);
+    currentSound = null;
   }
 };
 
@@ -126,7 +153,6 @@ const TimerItem: React.FC<TimerItemProps> = ({
   audioReady
 }) => {
   const alarmPlayedRef = useRef(false);
-  // Function to play a given sound file using expo-av Audio API
 
   // Play the appropriate sound when the timer starts
   useEffect(() => {
@@ -142,7 +168,7 @@ const TimerItem: React.FC<TimerItemProps> = ({
 
   // For break timers: play alarm sound when 5 seconds remain (if next timer is workout)
   useEffect(() => {
-    const fadeOutSound = async () => {
+  const fadeOutSound = async () => {
   const duration = 1000;
   const steps = 4;
   let { volume } = await currentSound?.getStatusAsync() as AVPlaybackStatusSuccess;
@@ -153,14 +179,13 @@ const TimerItem: React.FC<TimerItemProps> = ({
     await currentSound?.setVolumeAsync(volume);
     await new Promise(resolve => setTimeout(resolve, duration));
   }
-    };
+    };alarmPlayedRef
     if (
       soundEnabled &&
       (title === 'break' || title === 'workout') &&
       time <= 4 &&
       !alarmPlayedRef.current
     ) {
-      // 
       fadeOutSound();
       alarmPlayedRef.current = true;
     }
@@ -207,9 +232,27 @@ const TabTwoScreen: React.FC = () => {
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const [audioReady, setAudioReady] = useState(false);
+  const [stopped, setStopped] = useState<boolean>(false);
 
   //disabled variable for disabling buttons start and stop and reset when no timer is set
   const [disabled, setDisabled] = useState<boolean>(true);
+
+  useEffect(() => {
+    const reservedKeys = ['workoutMusic', 'breakMusic', 'successSound', 'audioThreshold'];
+  
+  // Filter storedItems to find any workout items (non-reserved keys)
+  const workoutItems = storedItems.filter(item => !reservedKeys.includes(item.key));
+
+  if (workoutItems.length === 0) {
+    setTimers([]);
+    setTime(0);
+    return;
+  }
+ 
+
+    
+  }
+  , [storedItems]);
 
       // Reload music settings whenever the tab is focused.
   useFocusEffect(
@@ -309,28 +352,28 @@ const TabTwoScreen: React.FC = () => {
     }
   }, [isRunning]);
 
-  useEffect(() => {
-    if (timers.length > 0) {
-      if (timers[currentIndex].segment === 'break') {
-        Animated.loop(
-          Animated.sequence([
-            Animated.timing(textSize, {
-              toValue: 24,
-              duration: 1000,
-              useNativeDriver: false,
-            }),
-            Animated.timing(textSize, {
-              toValue: 18,
-              duration: 1000,
-              useNativeDriver: false,
-            }),
-          ])
-        ).start();
-      }
-    } else {
-      textSize.setValue(18);
-    }
-  }, [currentIndex, timers]);
+  // useEffect(() => {
+  //   if (timers.length > 0) {
+  //     if (timers[currentIndex].segment === 'break') {
+  //       Animated.loop(
+  //         Animated.sequence([
+  //           Animated.timing(textSize, {
+  //             toValue: 24,
+  //             duration: 1000,
+  //             useNativeDriver: false,
+  //           }),
+  //           Animated.timing(textSize, {
+  //             toValue: 18,
+  //             duration: 1000,
+  //             useNativeDriver: false,
+  //           }),
+  //         ])
+  //       ).start();
+  //     }
+  //   } else {
+  //     textSize.setValue(18);
+  //   }
+  // }, [currentIndex, timers]);
 
   useEffect(() => {
     if (isRunning) {
@@ -348,7 +391,7 @@ const TabTwoScreen: React.FC = () => {
       }, 1000);
       return () => clearInterval(interval);
     } else {
-      if (currentIndex === timers.length - 1) {
+      if (currentIndex === timers.length - 1 && !stopped) {
         playSound(successSound, false, audioReady).then(() => {
           handleReset();
         });
@@ -370,14 +413,20 @@ const TabTwoScreen: React.FC = () => {
 
   const handleResetButtonPress = () => handleReset();
 
-  const handleStart = () => setIsRunning(true);
+  const handleStart = () => {
+    setIsRunning(true);
+    setStopped(false);
+  };
+
   const handleStop = () => {
     setIsRunning(false);
+    setStopped(true);
     stopSound();
   };
   const handleReset = (items?: Timer[]) => {
     //stop any currently playing sounds
     stopSound();
+    setStopped(true);
     setIsRunning(false);
     items ? setTime(items[0].time) : setTime(timers[0].time);
     setCurrentIndex(0);
@@ -396,8 +445,18 @@ const TabTwoScreen: React.FC = () => {
   };
 
   const toggleSelectSet = (value: string) => {
-    setSelectedItem((prev) => (prev === value ? null : value));
-    selectSet(value);
+    setSelectedItem((prev) => {
+      if (prev === value) {
+        handleReset();
+        setTimers([]);
+        setTime(0);
+        return null;
+      }
+      selectSet(value);
+      return value;
+    });
+    
+    
   };
 
   const handleAddNew = () => {
@@ -444,7 +503,7 @@ const TabTwoScreen: React.FC = () => {
             cx={radius + strokeWidth / 2}
             cy={radius + strokeWidth / 2}
             r={radius}
-            stroke='rgb(29, 33, 44)'
+            stroke='rgb(46, 52, 70)'
             strokeWidth={strokeWidth}
             fill='none'
             {...({collapsable: 'false'} as any)}
@@ -489,30 +548,32 @@ const TabTwoScreen: React.FC = () => {
           audioReady={audioReady}
         />
         <View style={styles.nextTimerContainer}>
-          <Text style={styles.nextTimerText}>
-            Next:{' '}
-            {currentIndex < timers.length - 1
-              ? formatTime(timers[currentIndex + 1].time)
-              : 'Finished'}
-          </Text>
+          { timers.length > 0 && (
+           <Text style={styles.nextTimerText}>
+           Next:{' '}
+           {currentIndex < timers.length - 1
+             ? formatTime(timers[currentIndex + 1].time)
+             : 'Finished'}
+         </Text>
+          )}
         </View>
         </View>
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity disabled={disabled}
           style={disabled ? commonStyles.buttonDisabled : commonStyles.button} onPress={handleStart}>
-          <Text style={commonStyles.buttonText}>Start</Text>
+          <Text style={[commonStyles.buttonText, {paddingLeft: 20, paddingRight: 20}]}>Start</Text>
         </TouchableOpacity>
         <TouchableOpacity disabled={disabled}
           style={disabled ? commonStyles.buttonDisabled : commonStyles.button} onPress={handleStop}>
-          <Text style={commonStyles.buttonText}>Stop</Text>
+          <Text style={[commonStyles.buttonText, {paddingLeft: 20, paddingRight: 20}]}>Stop</Text>
         </TouchableOpacity>
         <TouchableOpacity
           disabled={disabled}
           style={disabled ? commonStyles.buttonDisabled : commonStyles.button}
           onPress={handleResetButtonPress}
         >
-          <Text style={commonStyles.buttonText}>Reset</Text>
+          <Text style={[commonStyles.buttonText, {paddingLeft: 20, paddingRight: 20}]}>Reset</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.switchContainer}>
@@ -555,7 +616,7 @@ const TabTwoScreen: React.FC = () => {
             >
          
                 <Text style={commonStyles.listItemTitle}>{item.key}</Text>
-                <Text style={commonStyles.listItemValue}>{item.value?.replaceAll(";"," | ")}</Text>
+                <Text style={commonStyles.listItemValue}>{item.value?.split(';').map((time) => parseInt(time) / 60).join(' | ')}</Text>
           
             </TouchableOpacity>
             ))}
@@ -638,6 +699,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   nextTimerText: {
+    position: 'absolute',
     fontSize: 18,
     fontWeight: 'bold',
     color: 'darkgrey',
@@ -646,9 +708,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     width: '100%',
-    marginTop: -90
+    marginTop: -75
   },
   count: {
+    marginTop: -20,
     fontSize: 70,
     fontWeight: 'bold',
     color: 'white',

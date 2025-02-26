@@ -99,11 +99,8 @@ const SettingsScreen: React.FC = () => {
             <Picker.Item label="Mystical" value="mystical" />
             {/* Add more languages as needed */}
           </Picker>
-      </View>
-      
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Language Settings</Text>
-        <View style={styles.pickerContainer}>
+          <Text style={styles.sectionTitle}>Language Settings</Text>
+          <View style={styles.pickerContainer}>
           <Picker
             selectedValue={language}
             style={[styles.picker]}
@@ -119,6 +116,8 @@ const SettingsScreen: React.FC = () => {
           </Picker>
         </View>
       </View>
+      
+     
     
     </View>
   );
@@ -130,16 +129,17 @@ const styles = StyleSheet.create({
   section: {
     width: '95%',
     alignSelf: 'center',
-    backgroundColor: 'rgba(27, 30, 40, 0.9)',
-    padding: 15,
+    backgroundColor: 'rgb(28, 35, 46)',
+    paddingLeft: 15,
+    paddingRight: 15,
     borderRadius: 10,
-    marginVertical: 10,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#fff',
     marginBottom: 10,
+    marginTop: 15,
   },
   label: {
     fontSize: 14,
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   input: {
-    backgroundColor: 'rgb(33, 39, 50)',
+    backgroundColor: 'rgb(45, 55, 73)',
     color: '#fff',
     paddingHorizontal: 10,
     paddingVertical: 8,
@@ -155,12 +155,12 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   pickerContainer: {
-    backgroundColor: 'rgb(33, 39, 50)',
+    backgroundColor: 'rgb(45, 55, 73)',
     borderRadius: 5,
     marginBottom: 15,
   },
   picker: {
-    backgroundColor: 'rgb(33, 39, 50)',
+    backgroundColor: 'rgb(45, 55, 73)',
     height: 50,
     color: '#fff',
   },

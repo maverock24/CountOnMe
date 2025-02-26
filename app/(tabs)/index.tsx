@@ -110,6 +110,7 @@ export default function TabOneScreen() {
       if (lastSpikeTime === null || currentTime - lastSpikeTime > 10) { // Adjust debounce time as needed
         handleCountUp();
         setLastSpikeTime(currentTime);
+        setAudioLevel((prev) => prev -40);
       }
     }
   }, [audioLevel]);
@@ -159,7 +160,7 @@ export default function TabOneScreen() {
         {repititions.map((rep, index) => (
           <TouchableOpacity
             key={index}
-            style={commonStyles.button}
+            style={[ commonStyles.button, {width: 68}]}
             onPress={() => handleSetRemaining(rep)}
           >
             <Text style={commonStyles.buttonText}>{rep}</Text>
