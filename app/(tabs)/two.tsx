@@ -12,6 +12,7 @@ import {
   Animated,
   Dimensions,
   FlatList,
+  Platform,
   SafeAreaView,
   StyleSheet,
   Switch,
@@ -76,16 +77,25 @@ interface TimerItemProps {
 }
 
 let currentSound: Audio.Sound | null = null;
+
+// Update the playSound function with better Android support
 const playSound = async (
   soundFile: any,
   loop: boolean = true,
   audioReady: boolean,
   volume: number = 1.0
 ): Promise<void> => {
-  // Validate parameters
+  // Make sure audio is enabled (especially important for Android)
+  try {
+    await Audio.setIsEnabledAsync(true);
+  } catch (error) {
+    console.warn('Error enabling audio:', error);
+  }
+
+  // More detailed validation
   if (!audioReady) {
-    console.warn('Audio system not ready yet');
-    return;
+    console.warn('Audio system not ready yet. Waiting for initialization...');
+    return; // Don't attempt to play if audio isn't ready
   }
 
   if (!soundFile) {
@@ -97,40 +107,59 @@ const playSound = async (
     // Clean up any existing sound
     await stopSound();
 
-    // Create and configure the new sound
-    const { sound } = await Audio.Sound.createAsync(soundFile, {
-      shouldPlay: true,
-      isLooping: loop,
-      volume: volume,
-      progressUpdateIntervalMillis: 1000, // Update status every second
-    });
+    // For Android, add small delay before creating new sound
+    if (Platform.OS === 'android') {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    }
 
-    // Store reference to current sound
-    currentSound = sound;
-
-    // Optional: Add status listener
-    sound.setOnPlaybackStatusUpdate((status) => {
-      if (!status.isLoaded) {
-        // Handle loading errors
-        if (status.error) {
-          console.error(`Sound playback error: ${status.error}`);
+    // Create the sound object
+    const { sound } = await Audio.Sound.createAsync(
+      soundFile,
+      { volume: volume, isLooping: loop },
+      (status) => {
+        if (!status.isLoaded) {
+          console.warn('Sound failed to load', status);
         }
       }
-    });
+    );
 
-    // Return promise that resolves when playback starts
+    // Store reference
+    currentSound = sound;
+
+    // Start playback
     await sound.playAsync();
+    console.log('Sound playback started successfully');
   } catch (error) {
     console.error('Error playing sound:', error);
     currentSound = null;
+
+    // For Android, if there was an error, try to re-enable audio
+    if (Platform.OS === 'android') {
+      try {
+        await Audio.setIsEnabledAsync(false);
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        await Audio.setIsEnabledAsync(true);
+      } catch (e) {
+        console.warn('Failed to reset audio system:', e);
+      }
+    }
   }
 };
 
-// When you want to stop the sound (for example, when the component unmounts or timer stops)
-const stopSound = async () => {
-  if (currentSound) {
-    await currentSound.stopAsync();
-    await currentSound.unloadAsync();
+const stopSound = async (): Promise<void> => {
+  if (!currentSound) return;
+
+  try {
+    const status = await currentSound.getStatusAsync();
+    if (status.isLoaded) {
+      if ((status as AVPlaybackStatusSuccess).isPlaying) {
+        await currentSound.stopAsync();
+      }
+      await currentSound.unloadAsync();
+    }
+  } catch (error) {
+    console.error('Error stopping sound:', error);
+  } finally {
     currentSound = null;
   }
 };
@@ -149,15 +178,28 @@ const TimerItem: React.FC<TimerItemProps> = ({
 
   // Play the appropriate sound when the timer starts
   useEffect(() => {
-    if (isRunning && soundEnabled) {
-      if (title === 'workout') {
-        //play sound in a loop
-        playSound(workoutMusic, undefined, audioReady);
-      } else if (title === 'break') {
-        playSound(breakMusic, undefined, audioReady);
-      }
+    let soundTimeout: NodeJS.Timeout | null = null;
+
+    if (isRunning && soundEnabled && audioReady) {
+      // Add slight delay for Android to ensure audio system is ready
+      soundTimeout = setTimeout(
+        () => {
+          if (title === 'workout') {
+            console.log('Playing workout music...');
+            playSound(workoutMusic, true, audioReady);
+          } else if (title === 'break') {
+            console.log('Playing break music...');
+            playSound(breakMusic, true, audioReady);
+          }
+        },
+        Platform.OS === 'android' ? 500 : 0
+      );
     }
-  }, [isRunning, soundEnabled, title]);
+
+    return () => {
+      if (soundTimeout) clearTimeout(soundTimeout);
+    };
+  }, [isRunning, soundEnabled, title, audioReady]);
 
   // For break timers: play alarm sound when 5 seconds remain (if next timer is workout)
   useEffect(() => {
@@ -271,28 +313,81 @@ const TabTwoScreen: React.FC = () => {
     }, [])
   );
 
-  // In your component, make sure to unload the sound when unmounting:
+  // Update the initAudio function in your useEffect
   useEffect(() => {
-    (async () => {
+    let isMounted = true;
+    let initAttempts = 0;
+    const maxInitAttempts = 3;
+
+    const initAudio = async () => {
       try {
+        console.log('Initializing audio system...');
+
+        // First ensure permissions are granted
+        const permissionResponse = await Audio.requestPermissionsAsync();
+        if (!permissionResponse.granted) {
+          console.warn('Audio permissions not granted');
+          return;
+        }
+
+        // Android-specific initialization
+        if (Platform.OS === 'android') {
+          try {
+            // For Android, explicitly enable audio before setting mode
+            await Audio.setIsEnabledAsync(true);
+          } catch (error) {
+            console.warn('Error enabling audio on Android:', error);
+          }
+        }
+
+        // Then set audio mode
         await Audio.setAudioModeAsync({
           allowsRecordingIOS: false,
           interruptionModeIOS: InterruptionModeIOS.DuckOthers,
           playsInSilentModeIOS: true,
           shouldDuckAndroid: true,
           interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
-          playThroughEarpieceAndroid: true,
+          playThroughEarpieceAndroid: false,
+          staysActiveInBackground: true,
         });
-        setAudioReady(true);
+
+        // Verify audio system is working by creating and immediately releasing a sound
+        try {
+          const verificationSound = new Audio.Sound();
+          await verificationSound.loadAsync(require('../../assets/sounds/chill.mp3'));
+          await verificationSound.unloadAsync();
+          console.log('Audio verification successful');
+        } catch (verifyError) {
+          console.error('Audio verification failed:', verifyError);
+          throw verifyError; // Re-throw to trigger retry
+        }
+
+        // All good!
+        if (isMounted) {
+          console.log('Audio system successfully initialized');
+          setAudioReady(true);
+        }
       } catch (error) {
-        console.error('Error setting audio mode:', error);
+        console.error('Error initializing audio system:', error);
+
+        // Retry with increasing delay
+        if (initAttempts < maxInitAttempts && isMounted) {
+          initAttempts++;
+          const delay = 1000 * initAttempts; // Increase delay with each attempt
+          console.log(
+            `Retrying audio initialization in ${delay / 1000}s (attempt ${initAttempts}/${maxInitAttempts})`
+          );
+          setTimeout(initAudio, delay);
+        }
       }
-    })();
+    };
+
+    // Start initialization
+    initAudio();
 
     return () => {
-      if (currentSound) {
-        currentSound.unloadAsync();
-      }
+      isMounted = false;
+      stopSound().catch((err) => console.error('Error stopping sound during cleanup:', err));
     };
   }, []);
 
