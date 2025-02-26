@@ -19,30 +19,36 @@ const commonStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'rgb(32, 40, 52)',
-    paddingLeft: 20,
-    paddingRight: 20,
+    paddingLeft: 10,
+    paddingRight: 10,
     paddingTop: baseButtonHeight * 0.2, // Adjust padding based on button height
     paddingBottom: baseButtonHeight * 0.2, // Adjust padding based on button height
     borderRadius: 10,
+    height: 50, // Set the button height
     margin: 10,
     opacity: 0.5,
   },
   button: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgb(38, 47, 62)',
-    paddingLeft: 20,
-    paddingRight: 20,
+    backgroundColor: 'rgb(45, 55, 73)',
+    paddingLeft: 10,
+    paddingRight: 10,
     paddingTop: baseButtonHeight * 0.2, // Adjust padding based on button height
     paddingBottom: baseButtonHeight * 0.2, // Adjust padding based on button height
-    height: baseButtonHeight, // Set the button height
+    height: 50, // Set the button height
     borderRadius: 10,
     margin: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5, // For Android
   },
   buttonTile: {
     flexDirection: 'row', // align children horizontally
     justifyContent: 'space-between', // push delete button to right 'rgb(38, 47, 62)',
-    backgroundColor: 'rgb(38, 44, 61)',
+    backgroundColor: 'rgb(36, 44, 59)',
     paddingLeft: 20,
     paddingRight: 20,
     paddingTop: 5,
@@ -72,6 +78,7 @@ const commonStyles = StyleSheet.create({
   listItemTitle: {
     margin: 8,
     fontSize: 16,
+    fontWeight: 'bold',
     color: 'lightgray',
   },
   listItemValue: {
@@ -84,7 +91,7 @@ const commonStyles = StyleSheet.create({
   tile: {
     maxWidth: 600,
     alignItems: 'center',
-    backgroundColor: 'rgb(27, 30, 40)',
+    backgroundColor: 'rgb(28, 35, 46)',
     width: '95%',
     margin: 10,
     borderRadius: 10,

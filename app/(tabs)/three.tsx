@@ -34,20 +34,10 @@ export default function TabThreeScreen() {
   const noWorkout = storedItems.length === 0 || (storedItems[0].key === 'audioThreshold' && storedItems.length === 1); 
 
   const addItem = () => {
-    const addItem = () => {
-      // use the values from TextInput: name for key and unit for value
-      if (!name || !unit) return; // Optionally validate
-      const newItem = {key: name, value: unit};
-      //add the new item to the data array to the top
-      const newData = [newItem, ...data];
-      setData(newData);
-      // Clear the inputs after adding
-      setName('');
-      setUnit('');
-    };
     if (!name || !unit) return;
-    // Use storeItem from DataProvider to store the new item
-    storeItem(name, unit);
+    // Convert unit string that contains minutes seperated by semicolons to seconds string
+    const unitInSeconds = unit.split(';').map((time) => parseInt(time) * 60).join(';');
+    storeItem(name, unitInSeconds);
     setName('');
     setUnit('');
     //unfocus the input
@@ -95,7 +85,7 @@ export default function TabThreeScreen() {
               item.key === 'breakMusic' || item.key === 'workoutMusic' || item.key === 'audioThreshold' ? null : (
               <View style={commonStyles.buttonTile}>
                 <Text style={commonStyles.listItemTitle}>{item.key}</Text>
-                <Text style={commonStyles.listItemValue}>{item.value}</Text>
+                <Text style={commonStyles.listItemValue}>{item.value?.split(';').map((time) => parseInt(time) / 60).join(' | ')}</Text>
                 <TouchableOpacity
                   style={styles.deleteButton}
                   onPress={() => deleteSet(item.key)}
@@ -179,7 +169,8 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   input: {
-    backgroundColor: 'rgb(33, 39, 50)',
+    borderBottomColor: 'rgb(81, 84, 90)',
+    borderBottomWidth: 1,
     padding: 10,
     height: 40,
     marginBottom: 12,
