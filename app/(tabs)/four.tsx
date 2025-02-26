@@ -72,6 +72,7 @@ const SettingsScreen: React.FC = () => {
             onValueChange={(itemValue) => saveWorkoutMusic(itemValue)}
             mode="dialog"
             dropdownIconColor="grey"
+            itemStyle={{fontSize: 10}}
           >
             <Picker.Item label="Upbeat" value="upbeat" />
             <Picker.Item label="Bollywood" value="bollywood" />
@@ -100,7 +101,9 @@ const SettingsScreen: React.FC = () => {
             {/* Add more languages as needed */}
           </Picker>
           <Text style={styles.sectionTitle}>Language Settings</Text>
+          <Text style={styles.label}>Selected language</Text>
           <View style={styles.pickerContainer}>
+          
           <Picker
             selectedValue={language}
             style={[styles.picker]}
@@ -138,10 +141,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#fff',
-    marginBottom: 10,
-    marginTop: 15,
+    marginTop: 20,
   },
   label: {
+    marginTop: 15,
     fontSize: 14,
     color: 'lightgray',
     marginBottom: 5,
@@ -161,7 +164,6 @@ const styles = StyleSheet.create({
   },
   picker: {
     backgroundColor: 'rgb(45, 55, 73)',
-    height: 50,
     color: '#fff',
   },
   saveButton: {
