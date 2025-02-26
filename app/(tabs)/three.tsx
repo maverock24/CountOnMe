@@ -1,7 +1,7 @@
-import {StoredItem, useData} from '@/components/data.provider';
-import {View} from '@/components/Themed';
+import { StoredItem, useData } from '@/components/data.provider';
+import { View } from '@/components/Themed';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   FlatList,
   Keyboard,
@@ -11,7 +11,7 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-import {SafeAreaProvider} from 'react-native-safe-area-context';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import commonStyles from '../styles';
 
@@ -26,17 +26,22 @@ type Item = {
 };
 
 export default function TabThreeScreen() {
-  const {storedItems, storeItem, deleteItem} = useData();
+  const { storedItems, storeItem, deleteItem } = useData();
 
   const [data, setData] = useState<StoredItem[]>(storedItems);
   const [name, setName] = useState('');
   const [unit, setUnit] = useState('');
-  const noWorkout = storedItems.length === 0 || (storedItems[0].key === 'audioThreshold' && storedItems.length === 1); 
+  const noWorkout =
+    storedItems.length === 0 ||
+    (storedItems[0].key === 'audioThreshold' && storedItems.length === 1);
 
   const addItem = () => {
     if (!name || !unit) return;
     // Convert unit string that contains minutes seperated by semicolons to seconds string
-    const unitInSeconds = unit.split(';').map((time) => parseInt(time) * 60).join(';');
+    const unitInSeconds = unit
+      .split(';')
+      .map((time) => parseInt(time) * 60)
+      .join(';');
     storeItem(name, unitInSeconds);
     setName('');
     setUnit('');
@@ -61,41 +66,47 @@ export default function TabThreeScreen() {
     <View style={commonStyles.container}>
       <Text style={commonStyles.tileTitle}>New Workout</Text>
       <View style={commonStyles.tile}>
-      <View style={styles.innerWrapperTopTile}>
-      <Text style={styles.label}>Name</Text>
-      <TextInput style={styles.input} value={name} onChangeText={setName} />
-      <Text style={styles.label}>Workout set (in minutes with ; seperator)</Text>
-      <TextInput style={styles.input} value={unit} onChangeText={handleUnitChange} />
-      <TouchableOpacity style={[commonStyles.button,{width: '90%'}]} onPress={() => addItem()}>
-        <Text style={commonStyles.buttonText}>Add</Text>
-      </TouchableOpacity>
-      </View>
+        <View style={styles.innerWrapperTopTile}>
+          <Text style={styles.label}>Name</Text>
+          <TextInput style={styles.input} value={name} onChangeText={setName} />
+          <Text style={styles.label}>Workout set (in minutes with ; seperator)</Text>
+          <TextInput style={styles.input} value={unit} onChangeText={handleUnitChange} />
+          <TouchableOpacity
+            style={[commonStyles.button, { width: '90%' }]}
+            onPress={() => addItem()}
+          >
+            <Text style={commonStyles.buttonText}>Add</Text>
+          </TouchableOpacity>
+        </View>
       </View>
       <Text style={commonStyles.tileTitle}>Available Workouts</Text>
       {noWorkout && (
-              <View style={commonStyles.tile}>
-              <Text style={[commonStyles.buttonText,{padding: 10}]}>No workouts available</Text>
-              </View>
-            )}
+        <View style={commonStyles.tile}>
+          <Text style={[commonStyles.buttonText, { padding: 10 }]}>No workouts available</Text>
+        </View>
+      )}
       <SafeAreaProvider>
         <SafeAreaView style={styles.flatList}>
           <FlatList
             data={storedItems}
-            renderItem={({item}) => (
-              item.key === 'breakMusic' || item.key === 'workoutMusic' || item.key === 'audioThreshold' ? null : (
-              <View style={commonStyles.buttonTile}>
-                <Text style={commonStyles.listItemTitle}>{item.key}</Text>
-                <Text style={commonStyles.listItemValue}>{item.value?.split(';').map((time) => parseInt(time) / 60).join(' | ')}</Text>
-                <TouchableOpacity
-                  style={styles.deleteButton}
-                  onPress={() => deleteSet(item.key)}
-                >
-                  <Text style={styles.deleteButtonText}>
-                   Delete
+            renderItem={({ item }) =>
+              item.key === 'breakMusic' ||
+              item.key === 'workoutMusic' ||
+              item.key === 'audioThreshold' ? null : (
+                <View style={commonStyles.buttonTile}>
+                  <Text style={commonStyles.listItemTitle}>{item.key}</Text>
+                  <Text style={commonStyles.listItemValue}>
+                    {item.value
+                      ?.split(';')
+                      .map((time) => parseInt(time) / 60)
+                      .join(' | ')}
                   </Text>
-                </TouchableOpacity>
-              </View>
-            ))}
+                  <TouchableOpacity style={styles.deleteButton} onPress={() => deleteSet(item.key)}>
+                    <Text style={styles.deleteButtonText}>Delete</Text>
+                  </TouchableOpacity>
+                </View>
+              )
+            }
             keyExtractor={(item) => item.key}
           />
         </SafeAreaView>
@@ -105,8 +116,8 @@ export default function TabThreeScreen() {
 }
 
 const styles = StyleSheet.create({
-  innerWrapperTopTile :{
-    paddingTop:10,
+  innerWrapperTopTile: {
+    paddingTop: 10,
     width: '100%',
     backgroundColor: 'transparent',
     alignItems: 'center',
