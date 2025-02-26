@@ -35,11 +35,9 @@ const SettingsScreen: React.FC = () => {
       }
     };
     loadBreakMusic();
-  }
-  , []);
-  
+  }, []);
 
- //save workout music setting to async storage
+  //save workout music setting to async storage
   const saveWorkoutMusic = async (value: string) => {
     try {
       // Save workout music setting to async storage
@@ -61,49 +59,47 @@ const SettingsScreen: React.FC = () => {
 
   return (
     <View style={commonStyles.container}>
-      
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Music Settings</Text>
         <Text style={styles.label}>Workout Music</Text>
-      
+
         <Picker
-            selectedValue={workoutMusic}
-            style={styles.picker}
-            onValueChange={(itemValue) => saveWorkoutMusic(itemValue)}
-            mode="dialog"
-            dropdownIconColor="grey"
-            itemStyle={{fontSize: 10}}
-          >
-            <Picker.Item label="Upbeat" value="upbeat" />
-            <Picker.Item label="Bollywood" value="bollywood" />
-            <Picker.Item label="Happy Rock" value="happy_rock" />
-            <Picker.Item label="Chill" value="chill" />
-            <Picker.Item label="Wandering" value="wandering" />
-            <Picker.Item label="Starlit Serenity" value="starlit_serenity" />
-            <Picker.Item label="Peaceful Indian" value="peaceful_music_indian" />
-            <Picker.Item label="Mystical" value="mystical" />
-            {/* Add more languages as needed */}
-          </Picker>
-         
+          selectedValue={workoutMusic}
+          style={styles.picker}
+          onValueChange={(itemValue) => saveWorkoutMusic(itemValue)}
+          mode="dialog"
+          dropdownIconColor="grey"
+          itemStyle={{ fontSize: 10 }}
+        >
+          <Picker.Item label="Upbeat" value="upbeat" />
+          <Picker.Item label="Bollywood" value="bollywood" />
+          <Picker.Item label="Happy Rock" value="happy_rock" />
+          <Picker.Item label="Chill" value="chill" />
+          <Picker.Item label="Wandering" value="wandering" />
+          <Picker.Item label="Starlit Serenity" value="starlit_serenity" />
+          <Picker.Item label="Peaceful Indian" value="peaceful_music_indian" />
+          <Picker.Item label="Mystical" value="mystical" />
+          {/* Add more languages as needed */}
+        </Picker>
+
         <Text style={styles.label}>Break Music</Text>
         <Picker
-            selectedValue={breakMusic}
-            style={styles.picker}
-            onValueChange={(itemValue) => saveBreakMusic(itemValue)}
-            mode="dialog"
-            dropdownIconColor="grey"
-          >
-            <Picker.Item label="Chill" value="chill" />
-            <Picker.Item label="Wandering" value="wandering" />
-            <Picker.Item label="Starlit Serenity" value="starlit_serenity" />
-            <Picker.Item label="Peaceful Indian" value="peaceful_music_indian" />
-            <Picker.Item label="Mystical" value="mystical" />
-            {/* Add more languages as needed */}
-          </Picker>
-          <Text style={styles.sectionTitle}>Language Settings</Text>
-          <Text style={styles.label}>Selected language</Text>
-          <View style={styles.pickerContainer}>
-          
+          selectedValue={breakMusic}
+          style={styles.picker}
+          onValueChange={(itemValue) => saveBreakMusic(itemValue)}
+          mode="dialog"
+          dropdownIconColor="grey"
+        >
+          <Picker.Item label="Chill" value="chill" />
+          <Picker.Item label="Wandering" value="wandering" />
+          <Picker.Item label="Starlit Serenity" value="starlit_serenity" />
+          <Picker.Item label="Peaceful Indian" value="peaceful_music_indian" />
+          <Picker.Item label="Mystical" value="mystical" />
+          {/* Add more languages as needed */}
+        </Picker>
+        <Text style={styles.sectionTitle}>Language Settings</Text>
+        <Text style={styles.label}>Selected language</Text>
+        <View style={styles.pickerContainer}>
           <Picker
             selectedValue={language}
             style={[styles.picker]}
@@ -119,9 +115,6 @@ const SettingsScreen: React.FC = () => {
           </Picker>
         </View>
       </View>
-      
-     
-    
     </View>
   );
 };

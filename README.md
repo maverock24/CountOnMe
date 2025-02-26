@@ -12,16 +12,21 @@ CountOnMe is a mobile application built with React Native and Expo. It features 
 ## Installation
 
 1. Clone the repository:
+
    ```sh
    git clone https://gitlab.com/yourusername/CountOnMe.git
    cd CountOnMe
 
+   ```
+
 2. Install dependencies
+
 ```
 npm install
 ```
 
 3. Start application
+
 ```
 npm start
 ```

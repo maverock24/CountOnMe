@@ -1,8 +1,13 @@
-import {useData} from '@/components/data.provider';
-import {faBed, faRunning} from '@fortawesome/free-solid-svg-icons';
-import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {Audio, AVPlaybackStatusSuccess, InterruptionModeAndroid, InterruptionModeIOS} from 'expo-av';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import { useData } from '@/components/data.provider';
+import { faBed, faRunning } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import {
+  Audio,
+  AVPlaybackStatusSuccess,
+  InterruptionModeAndroid,
+  InterruptionModeIOS,
+} from 'expo-av';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Dimensions,
@@ -14,15 +19,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {SafeAreaProvider} from 'react-native-safe-area-context';
-import Svg, {
-  Circle,
-  Defs,
-  Filter,
-  FeGaussianBlur,
-  FeMerge,
-  FeMergeNode,
-} from 'react-native-svg';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import Svg, { Circle, Defs, Filter, FeGaussianBlur, FeMerge, FeMergeNode } from 'react-native-svg';
 import commonStyles from '../styles';
 import { router, useFocusEffect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -45,7 +43,7 @@ const soundFiles: { [key: string]: any } = {
   bollywood: require('../../assets/sounds/bollywood.mp3'),
 };
 
-const {width, height} = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 let workoutMusic: any;
 let breakMusic: any;
@@ -63,9 +61,7 @@ interface Timer {
 const formatTime = (seconds: number) => {
   const mins = Math.floor((seconds % 3600) / 60);
   const secs = seconds % 60;
-  return `${mins.toString().padStart(2, '0')}:${secs
-    .toString()
-    .padStart(2, '0')}`;
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
 interface TimerItemProps {
@@ -81,40 +77,37 @@ interface TimerItemProps {
 
 let currentSound: Audio.Sound | null = null;
 const playSound = async (
-  soundFile: any, 
-  loop: boolean = true, 
+  soundFile: any,
+  loop: boolean = true,
   audioReady: boolean,
   volume: number = 1.0
 ): Promise<void> => {
   // Validate parameters
   if (!audioReady) {
-    console.warn("Audio system not ready yet");
+    console.warn('Audio system not ready yet');
     return;
   }
-  
+
   if (!soundFile) {
-    console.error("Cannot play null sound file");
+    console.error('Cannot play null sound file');
     return;
   }
 
   try {
     // Clean up any existing sound
     await stopSound();
-    
+
     // Create and configure the new sound
-    const { sound } = await Audio.Sound.createAsync(
-      soundFile,
-      {
-        shouldPlay: true,
-        isLooping: loop,
-        volume: volume,
-        progressUpdateIntervalMillis: 1000, // Update status every second
-      }
-    );
-    
+    const { sound } = await Audio.Sound.createAsync(soundFile, {
+      shouldPlay: true,
+      isLooping: loop,
+      volume: volume,
+      progressUpdateIntervalMillis: 1000, // Update status every second
+    });
+
     // Store reference to current sound
     currentSound = sound;
-    
+
     // Optional: Add status listener
     sound.setOnPlaybackStatusUpdate((status) => {
       if (!status.isLoaded) {
@@ -124,7 +117,7 @@ const playSound = async (
         }
       }
     });
-    
+
     // Return promise that resolves when playback starts
     await sound.playAsync();
   } catch (error) {
@@ -150,7 +143,7 @@ const TimerItem: React.FC<TimerItemProps> = ({
   setTime,
   intervalRef,
   soundEnabled,
-  audioReady
+  audioReady,
 }) => {
   const alarmPlayedRef = useRef(false);
 
@@ -159,27 +152,28 @@ const TimerItem: React.FC<TimerItemProps> = ({
     if (isRunning && soundEnabled) {
       if (title === 'workout') {
         //play sound in a loop
-        playSound(workoutMusic,undefined, audioReady);
+        playSound(workoutMusic, undefined, audioReady);
       } else if (title === 'break') {
-        playSound(breakMusic,undefined, audioReady);
+        playSound(breakMusic, undefined, audioReady);
       }
     }
   }, [isRunning, soundEnabled, title]);
 
   // For break timers: play alarm sound when 5 seconds remain (if next timer is workout)
   useEffect(() => {
-  const fadeOutSound = async () => {
-  const duration = 1000;
-  const steps = 4;
-  let { volume } = await currentSound?.getStatusAsync() as AVPlaybackStatusSuccess;
-  volume = volume ?? 1; // default to full volume if undefined
-  const decrement = volume / steps;
-  for (let i = 0; i < steps; i++) {
-    volume = Math.max(volume - decrement, 0);
-    await currentSound?.setVolumeAsync(volume);
-    await new Promise(resolve => setTimeout(resolve, duration));
-  }
-    };alarmPlayedRef
+    const fadeOutSound = async () => {
+      const duration = 1000;
+      const steps = 4;
+      let { volume } = (await currentSound?.getStatusAsync()) as AVPlaybackStatusSuccess;
+      volume = volume ?? 1; // default to full volume if undefined
+      const decrement = volume / steps;
+      for (let i = 0; i < steps; i++) {
+        volume = Math.max(volume - decrement, 0);
+        await currentSound?.setVolumeAsync(volume);
+        await new Promise((resolve) => setTimeout(resolve, duration));
+      }
+    };
+    alarmPlayedRef;
     if (
       soundEnabled &&
       (title === 'break' || title === 'workout') &&
@@ -215,9 +209,11 @@ const TimerItem: React.FC<TimerItemProps> = ({
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const TabTwoScreen: React.FC = () => {
-  const {storedItems, reload} = useData();
+  const { storedItems, reload } = useData();
   const [timers, setTimers] = useState<Timer[]>([]);
-  const noWorkout = storedItems.length === 0 || (storedItems[0].key === 'audioThreshold' && storedItems.length === 1); 
+  const noWorkout =
+    storedItems.length === 0 ||
+    (storedItems[0].key === 'audioThreshold' && storedItems.length === 1);
   const totalTime = timers.reduce((acc, timer) => acc + timer.time, 0);
 
   const [time, setTime] = useState<number>(0);
@@ -239,27 +235,23 @@ const TabTwoScreen: React.FC = () => {
 
   useEffect(() => {
     const reservedKeys = ['workoutMusic', 'breakMusic', 'successSound', 'audioThreshold'];
-  
-  // Filter storedItems to find any workout items (non-reserved keys)
-  const workoutItems = storedItems.filter(item => !reservedKeys.includes(item.key));
 
-  if (workoutItems.length === 0) {
-    setTimers([]);
-    setTime(0);
-    return;
-  }
- 
+    // Filter storedItems to find any workout items (non-reserved keys)
+    const workoutItems = storedItems.filter((item) => !reservedKeys.includes(item.key));
 
-    
-  }
-  , [storedItems]);
+    if (workoutItems.length === 0) {
+      setTimers([]);
+      setTime(0);
+      return;
+    }
+  }, [storedItems]);
 
-      // Reload music settings whenever the tab is focused.
+  // Reload music settings whenever the tab is focused.
   useFocusEffect(
     useCallback(() => {
       async function loadMusicSettings() {
         const storedWorkoutMusic = (await AsyncStorage.getItem('workoutMusic')) || 'upbeat';
-        const storedBreakMusic   = (await AsyncStorage.getItem('breakMusic')) || 'chill';
+        const storedBreakMusic = (await AsyncStorage.getItem('breakMusic')) || 'chill';
         const storedSuccessMusic = (await AsyncStorage.getItem('successSound')) || 'yeah';
 
         workoutMusic = soundFiles[storedWorkoutMusic];
@@ -269,13 +261,13 @@ const TabTwoScreen: React.FC = () => {
       loadMusicSettings();
 
       // Return a cleanup function that stops the sound and timer when the tab loses focus.
-    return () => {
-      stopSound();
-      setIsRunning(false);
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
+      return () => {
+        stopSound();
+        setIsRunning(false);
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+        }
+      };
     }, [])
   );
 
@@ -293,10 +285,10 @@ const TabTwoScreen: React.FC = () => {
         });
         setAudioReady(true);
       } catch (error) {
-        console.error("Error setting audio mode:", error);
+        console.error('Error setting audio mode:', error);
       }
     })();
-    
+
     return () => {
       if (currentSound) {
         currentSound.unloadAsync();
@@ -395,7 +387,6 @@ const TabTwoScreen: React.FC = () => {
         playSound(successSound, false, audioReady).then(() => {
           handleReset();
         });
-
       }
     }
   }, [isRunning]);
@@ -455,8 +446,6 @@ const TabTwoScreen: React.FC = () => {
       selectSet(value);
       return value;
     });
-    
-    
   };
 
   const handleAddNew = () => {
@@ -466,8 +455,7 @@ const TabTwoScreen: React.FC = () => {
 
   const handleSwitchSound = (value: boolean) => {
     setSoundEnabled(value);
-    if(!value)
-    currentSound?.stopAsync();
+    if (!value) currentSound?.stopAsync();
   };
 
   const strokeWidth = 10;
@@ -482,154 +470,174 @@ const TabTwoScreen: React.FC = () => {
     <View style={commonStyles.container}>
       <Text style={commonStyles.tileTitle}>Active Workout</Text>
       <View style={commonStyles.tile}>
-      <View style={styles.innerWrapperTopTile}>
-      <View style={styles.timerContainer}>
-        <Svg
-          height={radius * 2 + strokeWidth}
-          width={radius * 2 + strokeWidth}
-          viewBox={`-15 -15 ${radius * 2 + strokeWidth + 30} ${radius * 2 + strokeWidth + 30}`}
-          style={[styles.progressCircle, { overflow: 'visible' }]}
-        >
-          <Defs>
-    <Filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-      <FeGaussianBlur in="SourceGraphic" stdDeviation="20" result="blur" />
-      <FeMerge>
-        <FeMergeNode in="blur" />
-        <FeMergeNode in="SourceGraphic" />
-      </FeMerge>
-    </Filter>
-  </Defs>
-          <Circle
-            cx={radius + strokeWidth / 2}
-            cy={radius + strokeWidth / 2}
-            r={radius}
-            stroke='rgb(46, 52, 70)'
-            strokeWidth={strokeWidth}
-            fill='none'
-            {...({collapsable: 'false'} as any)}
-          />
-          <AnimatedCircle
-            cx={radius + strokeWidth / 2}
-            cy={radius + strokeWidth / 2}
-            r={radius}
-            stroke='#00bcd4'
-            strokeWidth={strokeWidth}
-            fill='none'
-            strokeDasharray={circumference}
-            strokeDashoffset={strokeDashoffset}
-            transform={`rotate(-90 ${radius + strokeWidth / 2} ${
-              radius + strokeWidth / 2
-            })`}
-            filter="url(#glow)"
-            {...({collapsable: 'false'} as any)}
-          />
-        </Svg>
-        {timers.length > 0 &&
-          isRunning &&
-          (timers[currentIndex].segment === 'workout' ? (
-            <View style={styles.timerContainerActive}>
-              <FontAwesomeIcon icon={faRunning} size={30} color='white' />
+        <View style={styles.innerWrapperTopTile}>
+          <View style={styles.timerContainer}>
+            <Svg
+              height={radius * 2 + strokeWidth}
+              width={radius * 2 + strokeWidth}
+              viewBox={`-15 -15 ${radius * 2 + strokeWidth + 30} ${radius * 2 + strokeWidth + 30}`}
+              style={[styles.progressCircle, { overflow: 'visible' }]}
+            >
+              <Defs>
+                <Filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                  <FeGaussianBlur in="SourceGraphic" stdDeviation="20" result="blur" />
+                  <FeMerge>
+                    <FeMergeNode in="blur" />
+                    <FeMergeNode in="SourceGraphic" />
+                  </FeMerge>
+                </Filter>
+              </Defs>
+              <Circle
+                cx={radius + strokeWidth / 2}
+                cy={radius + strokeWidth / 2}
+                r={radius}
+                stroke="rgb(46, 52, 70)"
+                strokeWidth={strokeWidth}
+                fill="none"
+                {...({ collapsable: 'false' } as any)}
+              />
+              <AnimatedCircle
+                cx={radius + strokeWidth / 2}
+                cy={radius + strokeWidth / 2}
+                r={radius}
+                stroke="#00bcd4"
+                strokeWidth={strokeWidth}
+                fill="none"
+                strokeDasharray={circumference}
+                strokeDashoffset={strokeDashoffset}
+                transform={`rotate(-90 ${radius + strokeWidth / 2} ${radius + strokeWidth / 2})`}
+                filter="url(#glow)"
+                {...({ collapsable: 'false' } as any)}
+              />
+            </Svg>
+            {timers.length > 0 &&
+              isRunning &&
+              (timers[currentIndex].segment === 'workout' ? (
+                <View style={styles.timerContainerActive}>
+                  <FontAwesomeIcon icon={faRunning} size={30} color="white" />
+                </View>
+              ) : (
+                <View style={styles.timerContainerSnooze}>
+                  <FontAwesomeIcon icon={faBed} size={30} color="white" />
+                </View>
+              ))}
+            <View style={styles.timerContainerWrapper}>
+              <TimerItem
+                title={timers.length > 0 ? timers[currentIndex].segment : ''}
+                key={timers.length > 0 ? timers[currentIndex].id : ''}
+                time={time}
+                isRunning={isRunning}
+                setIsRunning={setIsRunning}
+                setTime={setTime}
+                intervalRef={intervalRef}
+                soundEnabled={soundEnabled}
+                audioReady={audioReady}
+              />
+              <View style={styles.nextTimerContainer}>
+                {timers.length > 0 && (
+                  <Text style={styles.nextTimerText}>
+                    Next:{' '}
+                    {currentIndex < timers.length - 1
+                      ? formatTime(timers[currentIndex + 1].time)
+                      : 'Finished'}
+                  </Text>
+                )}
+              </View>
             </View>
-          ) : (
-            <View style={styles.timerContainerSnooze}>
-              <FontAwesomeIcon icon={faBed} size={30} color='white' />
-            </View>
-          ))}
-        <View style={styles.timerContainerWrapper}>
-        <TimerItem
-          title={timers.length > 0 ? timers[currentIndex].segment : ''}
-          key={timers.length > 0 ? timers[currentIndex].id : ''}
-          time={time}
-          isRunning={isRunning}
-          setIsRunning={setIsRunning}
-          setTime={setTime}
-          intervalRef={intervalRef}
-          soundEnabled={soundEnabled}
-          audioReady={audioReady}
-        />
-        <View style={styles.nextTimerContainer}>
-          { timers.length > 0 && (
-           <Text style={styles.nextTimerText}>
-           Next:{' '}
-           {currentIndex < timers.length - 1
-             ? formatTime(timers[currentIndex + 1].time)
-             : 'Finished'}
-         </Text>
-          )}
+          </View>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              disabled={disabled}
+              style={disabled ? commonStyles.buttonDisabled : commonStyles.button}
+              onPress={handleStart}
+            >
+              <Text style={[commonStyles.buttonText, { paddingLeft: 20, paddingRight: 20 }]}>
+                Start
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              disabled={disabled}
+              style={disabled ? commonStyles.buttonDisabled : commonStyles.button}
+              onPress={handleStop}
+            >
+              <Text style={[commonStyles.buttonText, { paddingLeft: 20, paddingRight: 20 }]}>
+                Stop
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              disabled={disabled}
+              style={disabled ? commonStyles.buttonDisabled : commonStyles.button}
+              onPress={handleResetButtonPress}
+            >
+              <Text style={[commonStyles.buttonText, { paddingLeft: 20, paddingRight: 20 }]}>
+                Reset
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.switchContainer}>
+            <Text style={styles.switchLabel}>Sound on/off</Text>
+            <Switch
+              thumbColor={soundEnabled ? '#00bcd4' : 'grey'}
+              style={styles.switch}
+              value={soundEnabled}
+              onValueChange={(value) => handleSwitchSound(value)}
+            />
+          </View>
         </View>
-        </View>
-      </View>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity disabled={disabled}
-          style={disabled ? commonStyles.buttonDisabled : commonStyles.button} onPress={handleStart}>
-          <Text style={[commonStyles.buttonText, {paddingLeft: 20, paddingRight: 20}]}>Start</Text>
-        </TouchableOpacity>
-        <TouchableOpacity disabled={disabled}
-          style={disabled ? commonStyles.buttonDisabled : commonStyles.button} onPress={handleStop}>
-          <Text style={[commonStyles.buttonText, {paddingLeft: 20, paddingRight: 20}]}>Stop</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          disabled={disabled}
-          style={disabled ? commonStyles.buttonDisabled : commonStyles.button}
-          onPress={handleResetButtonPress}
-        >
-          <Text style={[commonStyles.buttonText, {paddingLeft: 20, paddingRight: 20}]}>Reset</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.switchContainer}>
-        <Text style={styles.switchLabel}>Sound on/off</Text>
-        <Switch
-          thumbColor={soundEnabled ? '#00bcd4' : 'grey'}
-          style={styles.switch}
-          value={soundEnabled}
-          onValueChange={(value) => handleSwitchSound(value)}
-        />
-      </View>
-      </View>
       </View>
       <Text style={commonStyles.tileTitle}>Workouts</Text>
-       {noWorkout && (
-        <TouchableOpacity style={[commonStyles.button,{width: '95%'}]} onPress={() => handleAddNew()}>
-        <Text style={commonStyles.buttonText}>Add</Text>
-      </TouchableOpacity>
+      {noWorkout && (
+        <TouchableOpacity
+          style={[commonStyles.button, { width: '95%' }]}
+          onPress={() => handleAddNew()}
+        >
+          <Text style={commonStyles.buttonText}>Add</Text>
+        </TouchableOpacity>
       )}
       <SafeAreaProvider>
         <SafeAreaView>
           <FlatList
             style={styles.listContainer}
             data={storedItems}
-            renderItem={({item}) => (
-             item.key === 'breakMusic' || item.key === 'workoutMusic' || item.key === 'audioThreshold' ? null : (
-              <TouchableOpacity style={[
-                commonStyles.buttonTile,
-                selectedItem === item.value?.toString() && {
-                  borderColor: '#00bcd4',
-                  borderWidth: 2,
-                  shadowColor: '#00bcd4',
-                  shadowOpacity: 1,
-                  shadowRadius: 1,
-                  boxShadow: '0px 0px 5px 1px #00bcd4',
-                  elevation: 6, // Android
-                },
-              ]}
-              onPress={() => toggleSelectSet(item.value?.toString() ?? '0')}
-            >
-         
-                <Text style={commonStyles.listItemTitle}>{item.key}</Text>
-                <Text style={commonStyles.listItemValue}>{item.value?.split(';').map((time) => parseInt(time) / 60).join(' | ')}</Text>
-          
-            </TouchableOpacity>
-            ))}
+            renderItem={({ item }) =>
+              item.key === 'breakMusic' ||
+              item.key === 'workoutMusic' ||
+              item.key === 'audioThreshold' ? null : (
+                <TouchableOpacity
+                  style={[
+                    commonStyles.buttonTile,
+                    selectedItem === item.value?.toString() && {
+                      borderColor: '#00bcd4',
+                      borderWidth: 2,
+                      shadowColor: '#00bcd4',
+                      shadowOpacity: 1,
+                      shadowRadius: 1,
+                      boxShadow: '0px 0px 5px 1px #00bcd4',
+                      elevation: 6, // Android
+                    },
+                  ]}
+                  onPress={() => toggleSelectSet(item.value?.toString() ?? '0')}
+                >
+                  <Text style={commonStyles.listItemTitle}>{item.key}</Text>
+                  <Text style={commonStyles.listItemValue}>
+                    {item.value
+                      ?.split(';')
+                      .map((time) => parseInt(time) / 60)
+                      .join(' | ')}
+                  </Text>
+                </TouchableOpacity>
+              )
+            }
             keyExtractor={(item) => item.key}
           />
         </SafeAreaView>
       </SafeAreaProvider>
-      </View> // push delete button to right
+    </View> // push delete button to right
   );
 };
 
 const styles = StyleSheet.create({
-  innerWrapperTopTile :{
+  innerWrapperTopTile: {
     width: '95%',
     backgroundColor: 'transparent',
     alignItems: 'center',
@@ -644,16 +652,16 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   switch: {
-    transform: [{scaleX: 0.8}, {scaleY: 0.8}], // Increase the size of the switch
+    transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }], // Increase the size of the switch
   },
   container: {
     flex: 1,
     alignItems: 'center',
     backgroundColor: '#101418',
   },
-  timerContainerWrapper:{
+  timerContainerWrapper: {
     backgroundColor: 'transparent',
-    top: '-45%'
+    top: '-45%',
   },
   switchContainer: {
     flexDirection: 'row',
@@ -675,7 +683,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   progressCircle: {
-    marginTop:10
+    marginTop: 10,
   },
   timerContainerActive: {
     position: 'absolute',
@@ -708,7 +716,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     width: '100%',
-    marginTop: -75
+    marginTop: -75,
   },
   count: {
     marginTop: -20,

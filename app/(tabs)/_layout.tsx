@@ -1,11 +1,11 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import {Link, Tabs} from 'expo-router';
+import { Link, Tabs } from 'expo-router';
 import React from 'react';
-import {Pressable} from 'react-native';
-import {faGauge,faStopwatch} from '@fortawesome/free-solid-svg-icons';
-import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
+import { Pressable } from 'react-native';
+import { faGauge, faStopwatch } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 
-import {useColorScheme} from '@/components/useColorScheme';
+import { useColorScheme } from '@/components/useColorScheme';
 import Colors from '@/constants/Colors';
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
@@ -13,7 +13,7 @@ function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>['name'];
   color: string;
 }) {
-  return <FontAwesome size={28} style={{marginBottom: -3}} {...props} />;
+  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
 }
 
 export default function TabLayout() {
@@ -23,7 +23,7 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        tabBarStyle: {backgroundColor: 'black'},
+        tabBarStyle: { backgroundColor: 'black' },
         //change background color to black
         // Disable the static render of the header on web
         // to prevent a hydration error in React Navigation v6.
@@ -31,19 +31,19 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name='index'
+        name="index"
         options={{
           title: 'Counter',
-          tabBarIcon: ({color}) => <FontAwesomeIcon size={23} icon={faGauge} color={color} />,
+          tabBarIcon: ({ color }) => <FontAwesomeIcon size={23} icon={faGauge} color={color} />,
           headerRight: () => (
-            <Link href='/modal' asChild>
+            <Link href="/modal" asChild>
               <Pressable>
-                {({pressed}) => (
+                {({ pressed }) => (
                   <FontAwesome
-                    name='info-circle'
+                    name="info-circle"
                     size={25}
                     color={Colors[colorScheme ?? 'light'].text}
-                    style={{marginRight: 15, opacity: pressed ? 0.5 : 1}}
+                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
                   />
                 )}
               </Pressable>
@@ -52,24 +52,24 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name='two'
+        name="two"
         options={{
           title: 'Timer',
-          tabBarIcon: ({color}) => <FontAwesomeIcon size={23} icon={faStopwatch} color={color} />,
+          tabBarIcon: ({ color }) => <FontAwesomeIcon size={23} icon={faStopwatch} color={color} />,
         }}
       />
       <Tabs.Screen
-        name='three'
+        name="three"
         options={{
           title: 'Manage',
-          tabBarIcon: ({color}) => <TabBarIcon name='list-alt' color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="list-alt" color={color} />,
         }}
       />
       <Tabs.Screen
-        name='four'
+        name="four"
         options={{
           title: 'Settings',
-          tabBarIcon: ({color}) => <TabBarIcon name='cog' color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="cog" color={color} />,
         }}
       />
     </Tabs>

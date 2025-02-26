@@ -1,6 +1,6 @@
-import React, {useState, useEffect} from 'react';
-import {Dimensions, StyleSheet, TouchableOpacity} from 'react-native';
-import {Text, View} from '@/components/Themed';
+import React, { useState, useEffect } from 'react';
+import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
+import { Text, View } from '@/components/Themed';
 import Slider from '@react-native-community/slider';
 import { Audio } from 'expo-av';
 import commonStyles from '../styles';
@@ -101,17 +101,15 @@ export default function TabOneScreen() {
         } catch (error) {
           console.error(error);
         }
-    }   }
+      }
+    }
   };
 
   useEffect(() => {
     if (isListening && audioLevel > sliderValue!) {
-      const currentTime = Date.now();
-      if (lastSpikeTime === null || currentTime - lastSpikeTime > 10) { // Adjust debounce time as needed
-        handleCountUp();
-        setLastSpikeTime(currentTime);
-        setAudioLevel((prev) => prev -40);
-      }
+      handleCountUp();
+
+      setAudioLevel((prev) => prev - 50);
     }
   }, [audioLevel]);
 
@@ -120,76 +118,79 @@ export default function TabOneScreen() {
       <Text style={commonStyles.tileTitle}>Sound trigger</Text>
       <View style={commonStyles.tile}>
         <View style={styles.innerWrapperTopTile}>
-      <Text style={styles.title}>db: {sliderValue}</Text>
-      <Slider
-        value={sliderValue!}
-        style={styles.slider}
-        minimumValue={-100}
-        maximumValue={0}
-        step={1}
-        onSlidingComplete={(value) =>{
-          AsyncStorage.setItem("audioThreshold", value.toString());
-          setSliderValue(value);
-        }
-          
-        }
-        thumbTintColor='#00bcd4'
-        minimumTrackTintColor='#00bcd4'
-        maximumTrackTintColor='gray'
-      />
-      <View style={styles.audioVisualizer}>
-          <Text style={styles.audioLevel}>Audio Level: {audioLevel}</Text>
+          <Text style={styles.title}>db: {sliderValue}</Text>
+          <Slider
+            value={sliderValue!}
+            style={styles.slider}
+            minimumValue={-100}
+            maximumValue={0}
+            step={1}
+            onSlidingComplete={(value) => {
+              AsyncStorage.setItem('audioThreshold', value.toString());
+              setSliderValue(value);
+            }}
+            thumbTintColor="#00bcd4"
+            minimumTrackTintColor="#00bcd4"
+            maximumTrackTintColor="gray"
+          />
+          <View style={styles.audioVisualizer}>
+            <Text style={styles.audioLevel}>Audio Level: {audioLevel}</Text>
+          </View>
+          <TouchableOpacity
+            style={[
+              commonStyles.button,
+              micOn && {
+                borderColor: '#00bcd4',
+                borderWidth: 2,
+                shadowColor: '#00bcd4',
+                shadowOpacity: 1,
+                shadowRadius: 1,
+                boxShadow: '0px 0px 5px 1px #00bcd4',
+                elevation: 6, // Android
+              },
+            ]}
+            onPress={handleListen}
+          >
+            <Text style={commonStyles.buttonText}>{buttonText}</Text>
+          </TouchableOpacity>
         </View>
-     <TouchableOpacity style={[commonStyles.button,micOn && {
-                  borderColor: '#00bcd4',
-                  borderWidth: 2,
-                  shadowColor: '#00bcd4',
-                  shadowOpacity: 1,
-                  shadowRadius: 1,
-                  boxShadow: '0px 0px 5px 1px #00bcd4',
-                  elevation: 6, // Android
-                }]} onPress={handleListen}>
-        <Text style={commonStyles.buttonText}>{buttonText}</Text>
-      </TouchableOpacity> 
-      </View>
       </View>
       <Text style={commonStyles.tileTitle}>Counter</Text>
       <View style={commonStyles.tile}>
-      <View style={styles.innerWrapperBottomTile}>
-      <View style={styles.buttonContainerReps}>
-        {repititions.map((rep, index) => (
-          <TouchableOpacity
-            key={index}
-            style={[ commonStyles.button, {width: 68}]}
-            onPress={() => handleSetRemaining(rep)}
-          >
-            <Text style={commonStyles.buttonText}>{rep}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+        <View style={styles.innerWrapperBottomTile}>
+          <View style={styles.buttonContainerReps}>
+            {repititions.map((rep, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[commonStyles.button, { width: 68 }]}
+                onPress={() => handleSetRemaining(rep)}
+              >
+                <Text style={commonStyles.buttonText}>{rep}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
 
-      <Text style={styles.remaining}>{remaining ? remaining : 0}</Text>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={styles.triangleLeft}
-          onPress={() => handleCountDown()}
-        >
-          {/* <FontAwesome name='caret-left' style={styles.icon} /> */}
-        </TouchableOpacity>
-        <Text style={styles.count}>{count}</Text>
-        <TouchableOpacity style={styles.triangleRight} onPress={() => handleCountUp()}>
-          {/* <FontAwesome name='caret-right' style={styles.icon} /> */}
-        </TouchableOpacity>
-      </View>
-      <View style={styles.innerWrapperBottomTile}>
-      <TouchableOpacity
-        style={[commonStyles.button, {width: '95%'}]}
-        onPress={() => handleReset()}
-      >
-        <Text style={[commonStyles.buttonText, {width: '95%', textAlign: 'center'}]}>Reset</Text>
-      </TouchableOpacity>
-      </View>
-      </View>
+          <Text style={styles.remaining}>{remaining ? remaining : 0}</Text>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.triangleLeft} onPress={() => handleCountDown()}>
+              {/* <FontAwesome name='caret-left' style={styles.icon} /> */}
+            </TouchableOpacity>
+            <Text style={styles.count}>{count}</Text>
+            <TouchableOpacity style={styles.triangleRight} onPress={() => handleCountUp()}>
+              {/* <FontAwesome name='caret-right' style={styles.icon} /> */}
+            </TouchableOpacity>
+          </View>
+          <View style={styles.innerWrapperBottomTile}>
+            <TouchableOpacity
+              style={[commonStyles.button, { width: '95%' }]}
+              onPress={() => handleReset()}
+            >
+              <Text style={[commonStyles.buttonText, { width: '95%', textAlign: 'center' }]}>
+                Reset
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
     </View>
   );
@@ -200,19 +201,18 @@ const paddingTopTile = height * 0.01;
 const paddingBottomTile = height > 800 ? height * 0.05 : height * 0.001;
 
 const styles = StyleSheet.create({
-  innerWrapperTopTile :{
+  innerWrapperTopTile: {
     paddingBottom: paddingTopTile,
     paddingTop: paddingTopTile,
     width: '95%',
-    backgroundColor: 'transparent'
-
+    backgroundColor: 'transparent',
   },
   innerWrapperBottomTile: {
     paddingBottom: paddingBottomTile,
     paddingTop: paddingBottomTile,
     width: '95%',
     backgroundColor: 'transparent',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   title: {
     fontSize: 14,
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
   separator: {
     marginVertical: 30,
     height: 1,
-    textShadowOffset: {width: 0, height: 0},
+    textShadowOffset: { width: 0, height: 0 },
     width: '80%',
   },
   count: {
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     backgroundColor: 'transparent',
-    marginBottom: 20
+    marginBottom: 20,
   },
   button: {
     alignItems: 'center',
@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 60,
     borderTopColor: 'transparent',
     borderRightColor: 'rgb(34, 132, 152)',
-    borderBottomColor: 'transparent',             
+    borderBottomColor: 'transparent',
   },
   triangleRight: {
     marginTop: -10,
@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 60,
     borderTopColor: 'transparent',
     borderLeftColor: 'rgb(34, 132, 152)',
-    borderBottomColor: 'transparent',             
+    borderBottomColor: 'transparent',
   },
   audioVisualizer: {
     alignItems: 'center',

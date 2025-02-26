@@ -10,7 +10,7 @@ interface DataContextType {
   storedItems: StoredItem[];
   reload: () => Promise<void>;
   storeItem: (key: string, value: string) => Promise<void>;
-    deleteItem: (key: string) => Promise<void>;
+  deleteItem: (key: string) => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -28,7 +28,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const items: StoredItem[] = stores.map(([key, value]) => ({ key, value }));
       setStoredItems(items);
     } catch (e) {
-      console.error("Error loading AsyncStorage data:", e);
+      console.error('Error loading AsyncStorage data:', e);
     }
   };
 
@@ -38,7 +38,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Optionally update storedItems state by reloading all data
       await reload();
     } catch (e) {
-      console.error("Error storing data:", e);
+      console.error('Error storing data:', e);
     }
   };
 
@@ -48,9 +48,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Optionally update storedItems state by reloading all data
       await reload();
     } catch (e) {
-      console.error("Error deleting data:", e);
+      console.error('Error deleting data:', e);
     }
-  }
+  };
 
   useEffect(() => {
     reload();
