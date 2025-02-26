@@ -64,7 +64,7 @@ export default function TabThreeScreen() {
       <View style={styles.innerWrapperTopTile}>
       <Text style={styles.label}>Name</Text>
       <TextInput style={styles.input} value={name} onChangeText={setName} />
-      <Text style={styles.label}>Workout time set (e.g. exercise;break;exercise "60;60;60")</Text>
+      <Text style={styles.label}>Workout set (in minutes with ; seperator)</Text>
       <TextInput style={styles.input} value={unit} onChangeText={handleUnitChange} />
       <TouchableOpacity style={[commonStyles.button,{width: '90%'}]} onPress={() => addItem()}>
         <Text style={commonStyles.buttonText}>Add</Text>
