@@ -25,7 +25,6 @@ import Svg, { Circle, Defs, Filter, FeGaussianBlur, FeMerge, FeMergeNode } from 
 import commonStyles from '../styles';
 import { router, useFocusEffect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { set } from 'react-hook-form';
 
 // Create a mapping object with static requires for each sound file.
 const soundFiles: { [key: string]: any } = {
@@ -44,7 +43,7 @@ const soundFiles: { [key: string]: any } = {
   bollywood: require('../../assets/sounds/bollywood.mp3'),
 };
 
-const { width, height } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 
 let workoutMusic: any;
 let breakMusic: any;
@@ -113,22 +112,13 @@ const playSound = async (
     }
 
     // Create the sound object
-    const { sound } = await Audio.Sound.createAsync(
-      soundFile,
-      { volume: volume, isLooping: loop },
-      (status) => {
-        if (!status.isLoaded) {
-          console.warn('Sound failed to load', status);
-        }
-      }
-    );
+    const { sound } = await Audio.Sound.createAsync(soundFile, { volume: volume, isLooping: loop });
 
     // Store reference
     currentSound = sound;
 
     // Start playback
     await sound.playAsync();
-    console.log('Sound playback started successfully');
   } catch (error) {
     console.error('Error playing sound:', error);
     currentSound = null;
@@ -185,10 +175,8 @@ const TimerItem: React.FC<TimerItemProps> = ({
       soundTimeout = setTimeout(
         () => {
           if (title === 'workout') {
-            console.log('Playing workout music...');
             playSound(workoutMusic, true, audioReady);
           } else if (title === 'break') {
-            console.log('Playing break music...');
             playSound(breakMusic, true, audioReady);
           }
         },
@@ -201,25 +189,48 @@ const TimerItem: React.FC<TimerItemProps> = ({
     };
   }, [isRunning, soundEnabled, title, audioReady]);
 
-  // For break timers: play alarm sound when 5 seconds remain (if next timer is workout)
   useEffect(() => {
     const fadeOutSound = async () => {
-      const duration = 1000;
-      const steps = 4;
-      let { volume } = (await currentSound?.getStatusAsync()) as AVPlaybackStatusSuccess;
-      volume = volume ?? 1; // default to full volume if undefined
-      const decrement = volume / steps;
-      for (let i = 0; i < steps; i++) {
-        volume = Math.max(volume - decrement, 0);
-        await currentSound?.setVolumeAsync(volume);
-        await new Promise((resolve) => setTimeout(resolve, duration));
+      try {
+        // First check if we have a sound to fade
+        if (!currentSound) {
+          return;
+        }
+
+        // Get current status to check if it's playing
+        const status = await currentSound.getStatusAsync();
+        if (!status.isLoaded || !(status as AVPlaybackStatusSuccess).isPlaying) {
+          return;
+        }
+
+        // Start with current volume or default to 1
+        let volume = (status as AVPlaybackStatusSuccess).volume ?? 1;
+        const duration = 800; // ms per step
+        const steps = 5;
+        const decrement = volume / steps;
+
+        // Gradually reduce volume
+        for (let i = 0; i < steps; i++) {
+          volume = Math.max(volume - decrement, 0);
+          await currentSound.setVolumeAsync(volume);
+          await new Promise((resolve) => setTimeout(resolve, duration));
+        }
+      } catch (error) {
+        console.error('Error during fadeout:', error);
       }
     };
-    alarmPlayedRef;
+
+    // Reset alarmPlayedRef when time changes to > 5
+    if (time > 5) {
+      alarmPlayedRef.current = false;
+    }
+
+    // Trigger fadeout when time gets low
     if (
       soundEnabled &&
       (title === 'break' || title === 'workout') &&
       time <= 4 &&
+      time > 0 &&
       !alarmPlayedRef.current
     ) {
       fadeOutSound();
@@ -251,7 +262,7 @@ const TimerItem: React.FC<TimerItemProps> = ({
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const TabTwoScreen: React.FC = () => {
-  const { storedItems, reload } = useData();
+  const { storedItems } = useData();
   const [timers, setTimers] = useState<Timer[]>([]);
   const noWorkout =
     storedItems.length === 0 ||
@@ -265,7 +276,6 @@ const TabTwoScreen: React.FC = () => {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const translateY = useRef(new Animated.Value(0)).current;
   const shakeAnimation = useRef(new Animated.Value(0)).current;
-  const textSize = useRef(new Animated.Value(18)).current;
   const progress = useRef(new Animated.Value(0)).current;
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
@@ -321,8 +331,6 @@ const TabTwoScreen: React.FC = () => {
 
     const initAudio = async () => {
       try {
-        console.log('Initializing audio system...');
-
         // First ensure permissions are granted
         const permissionResponse = await Audio.requestPermissionsAsync();
         if (!permissionResponse.granted) {
@@ -356,7 +364,6 @@ const TabTwoScreen: React.FC = () => {
           const verificationSound = new Audio.Sound();
           await verificationSound.loadAsync(require('../../assets/sounds/chill.mp3'));
           await verificationSound.unloadAsync();
-          console.log('Audio verification successful');
         } catch (verifyError) {
           console.error('Audio verification failed:', verifyError);
           throw verifyError; // Re-throw to trigger retry
@@ -364,7 +371,6 @@ const TabTwoScreen: React.FC = () => {
 
         // All good!
         if (isMounted) {
-          console.log('Audio system successfully initialized');
           setAudioReady(true);
         }
       } catch (error) {
@@ -375,7 +381,9 @@ const TabTwoScreen: React.FC = () => {
           initAttempts++;
           const delay = 1000 * initAttempts; // Increase delay with each attempt
           console.log(
-            `Retrying audio initialization in ${delay / 1000}s (attempt ${initAttempts}/${maxInitAttempts})`
+            `Retrying audio initialization in ${
+              delay / 1000
+            }s (attempt ${initAttempts}/${maxInitAttempts})`
           );
           setTimeout(initAudio, delay);
         }
@@ -401,6 +409,9 @@ const TabTwoScreen: React.FC = () => {
 
   useEffect(() => {
     if (time === 0 && currentIndex < timers.length - 1) {
+      // Reset alarm reference when moving to next timer
+      //alarmPlayedRef.current = false;
+
       const nextIndex = currentIndex + 1;
       setCurrentIndex(nextIndex);
       setTime(timers[nextIndex].time);
@@ -439,29 +450,6 @@ const TabTwoScreen: React.FC = () => {
     }
   }, [isRunning]);
 
-  // useEffect(() => {
-  //   if (timers.length > 0) {
-  //     if (timers[currentIndex].segment === 'break') {
-  //       Animated.loop(
-  //         Animated.sequence([
-  //           Animated.timing(textSize, {
-  //             toValue: 24,
-  //             duration: 1000,
-  //             useNativeDriver: false,
-  //           }),
-  //           Animated.timing(textSize, {
-  //             toValue: 18,
-  //             duration: 1000,
-  //             useNativeDriver: false,
-  //           }),
-  //         ])
-  //       ).start();
-  //     }
-  //   } else {
-  //     textSize.setValue(18);
-  //   }
-  // }, [currentIndex, timers]);
-
   useEffect(() => {
     if (isRunning) {
       const interval = setInterval(() => {
@@ -479,9 +467,11 @@ const TabTwoScreen: React.FC = () => {
       return () => clearInterval(interval);
     } else {
       if (currentIndex === timers.length - 1 && !stopped) {
-        playSound(successSound, false, audioReady).then(() => {
+        playSound(successSound, false, audioReady);
+        // Wait 2 seconds before resetting (adjust timing as needed)
+        setTimeout(() => {
           handleReset();
-        });
+        }, 4000);
       }
     }
   }, [isRunning]);
@@ -717,7 +707,7 @@ const TabTwoScreen: React.FC = () => {
                   <Text style={commonStyles.listItemValue}>
                     {item.value
                       ?.split(';')
-                      .map((time) => parseInt(time) / 60)
+                      .map((time) => parseFloat(time) / 60)
                       .join(' | ')}
                   </Text>
                 </TouchableOpacity>
@@ -782,7 +772,7 @@ const styles = StyleSheet.create({
   },
   timerContainerActive: {
     position: 'absolute',
-    top: '15%',
+    top: '18%',
     alignItems: 'center',
     backgroundColor: 'green',
     width: 50,
@@ -791,7 +781,7 @@ const styles = StyleSheet.create({
   },
   timerContainerSnooze: {
     position: 'absolute',
-    top: '15%',
+    top: '18%',
     alignItems: 'center',
     backgroundColor: 'red',
     width: 50,

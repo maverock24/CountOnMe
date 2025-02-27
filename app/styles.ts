@@ -1,10 +1,9 @@
 import { StyleSheet, Dimensions } from 'react-native';
 
-const { width, height } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 
 // Define a base button height and adjust it based on screen size
 const baseButtonHeight = height * 0.08; // e.g., 6% of screen height
-const baseTileHeight = height * 0.1; // e.g., 20% of screen height
 
 const commonStyles = StyleSheet.create({
   container: {
