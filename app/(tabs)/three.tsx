@@ -1,6 +1,5 @@
-import { StoredItem, useData } from '@/components/data.provider';
+import { useData } from '@/components/data.provider';
 import { View } from '@/components/Themed';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import React, { useState } from 'react';
 import {
   FlatList,
@@ -15,20 +14,9 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import commonStyles from '../styles';
 
-type Inputs = {
-  example: string;
-  exampleRequired: string;
-};
-
-type Item = {
-  key: string;
-  value: string;
-};
-
 export default function TabThreeScreen() {
   const { storedItems, storeItem, deleteItem } = useData();
 
-  const [data, setData] = useState<StoredItem[]>(storedItems);
   const [name, setName] = useState('');
   const [unit, setUnit] = useState('');
   const noWorkout =
@@ -40,8 +28,9 @@ export default function TabThreeScreen() {
     // Convert unit string that contains minutes seperated by semicolons to seconds string
     const unitInSeconds = unit
       .split(';')
-      .map((time) => parseInt(time) * 60)
+      .map((time) => parseFloat(time) * 60)
       .join(';');
+
     storeItem(name, unitInSeconds);
     setName('');
     setUnit('');
@@ -56,10 +45,10 @@ export default function TabThreeScreen() {
 
   const handleUnitChange = (text: string) => {
     // Allow only numbers and semicolons
-    const regex = /^[0-9;]*$/;
-    if (regex.test(text)) {
-      setUnit(text);
-    }
+    // const regex = /^[0-9;]*$/;
+    // if (regex.test(text)) {
+    setUnit(text);
+    // }
   };
 
   return (
@@ -98,7 +87,7 @@ export default function TabThreeScreen() {
                   <Text style={commonStyles.listItemValue}>
                     {item.value
                       ?.split(';')
-                      .map((time) => parseInt(time) / 60)
+                      .map((time) => parseFloat(time) / 60)
                       .join(' | ')}
                   </Text>
                   <TouchableOpacity style={styles.deleteButton} onPress={() => deleteSet(item.key)}>

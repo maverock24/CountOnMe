@@ -1,29 +1,27 @@
 'use client';
 
-export const unstable_skipSSR = true;
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
+import { Slot, Stack, SplashScreen } from 'expo-router';
 import { useEffect } from 'react';
+import { Platform } from 'react-native';
+// Import this BEFORE any component that uses reanimated
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { DataProvider } from '@/components/data.provider';
 
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from 'expo-router';
+// Prevent the splash screen from auto-hiding before asset loading is complete
+SplashScreen.preventAutoHideAsync();
 
+// Move exports AFTER imports
+export { ErrorBoundary } from 'expo-router';
 export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
   initialRouteName: '(tabs)',
 };
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+// This should appear after imports, not before
+export const unstable_skipSSR = true;
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -31,9 +29,10 @@ export default function RootLayout() {
     ...FontAwesome.font,
   });
 
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
+  const colorScheme = useColorScheme();
+
   useEffect(() => {
-    if (error) throw error;
+    if (error) console.error('Font loading error:', error);
   }, [error]);
 
   useEffect(() => {
@@ -43,19 +42,20 @@ export default function RootLayout() {
   }, [loaded]);
 
   if (!loaded) {
-    return null;
+    return <Slot />;
   }
 
-  return <RootLayoutNav />;
-}
-
-function RootLayoutNav() {
-  const colorScheme = useColorScheme();
-
+  // Simplified component structure - no need for separate RootLayoutNav
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <DataProvider>
-        <Stack screenOptions={{ headerShown: false }}>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            // Fix potential animation issues on Android
+            animation: Platform.OS === 'android' ? 'fade' : 'default',
+          }}
+        >
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
         </Stack>

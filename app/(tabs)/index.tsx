@@ -5,20 +5,16 @@ import Slider from '@react-native-community/slider';
 import { Audio } from 'expo-av';
 import commonStyles from '../styles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Icon from '@expo/vector-icons/FontAwesome';
 
 export default function TabOneScreen() {
   const [count, setCount] = useState(0);
   const [sliderValue, setSliderValue] = useState<number | null>(null);
   const [remaining, setRemaining] = useState(0);
-  const [selectedRemaining, setSelectedRemaining] = useState(0);
   const [isListening, setIsListening] = useState(false);
   const [audioLevel, setAudioLevel] = useState(0);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [buttonText, setButtonText] = useState('Mic on');
-  const [lastSpikeTime, setLastSpikeTime] = useState<number | null>(null);
   const [micOn, setMicOn] = useState(false);
-  const audioThresholdRef = React.useRef<Slider | null>(null);
 
   const repititions = [5, 10, 15, 200];
 
@@ -113,6 +109,13 @@ export default function TabOneScreen() {
     }
   }, [audioLevel]);
 
+  const handleSliderChange = React.useCallback((value: number) => {
+    setSliderValue(value);
+    AsyncStorage.setItem('audioThreshold', value.toString()).catch((err) =>
+      console.error('Error saving threshold:', err)
+    );
+  }, []);
+
   return (
     <View style={commonStyles.container}>
       <Text style={commonStyles.tileTitle}>Sound trigger</Text>
@@ -125,10 +128,7 @@ export default function TabOneScreen() {
             minimumValue={-100}
             maximumValue={0}
             step={1}
-            onSlidingComplete={(value) => {
-              AsyncStorage.setItem('audioThreshold', value.toString());
-              setSliderValue(value);
-            }}
+            onSlidingComplete={handleSliderChange}
             thumbTintColor="#00bcd4"
             minimumTrackTintColor="#00bcd4"
             maximumTrackTintColor="gray"
