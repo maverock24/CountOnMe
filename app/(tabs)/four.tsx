@@ -1,119 +1,24 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import commonStyles from '../styles';
+import ModalPicker from '@/components/ModalPicker';
 
 const SettingsScreen: React.FC = () => {
-  const [workoutMusic, setWorkoutMusic] = useState('defaultWorkout.mp3');
-  const [breakMusic, setBreakMusic] = useState('defaultBreak.mp3');
   const [language, setLanguage] = useState('en'); // default language English
-
-  useEffect(() => {
-    // Load workout music setting from async storage
-    const loadWorkoutMusic = async () => {
-      try {
-        const value = await AsyncStorage.getItem('workoutMusic');
-        if (value !== null) {
-          setWorkoutMusic(value);
-        }
-      } catch (e) {
-        console.error('Error loading workout music setting:', e);
-      }
-    };
-    loadWorkoutMusic();
-
-    // Load break music setting from async storage
-    const loadBreakMusic = async () => {
-      try {
-        const value = await AsyncStorage.getItem('breakMusic');
-        if (value !== null) {
-          setBreakMusic(value);
-        }
-      } catch (e) {
-        console.error('Error loading break music setting:', e);
-      }
-    };
-    loadBreakMusic();
-  }, []);
-
-  //save workout music setting to async storage
-  const saveWorkoutMusic = async (value: string) => {
-    try {
-      // Save workout music setting to async storage
-      await AsyncStorage.setItem('workoutMusic', value);
-    } catch (e) {
-      console.error('Error saving workout music setting:', e);
-    }
-  };
-
-  //save break music setting to async storage
-  const saveBreakMusic = async (value: string) => {
-    try {
-      // Save break music setting to async storage
-      await AsyncStorage.setItem('breakMusic', value);
-    } catch (e) {
-      console.error('Error saving break music setting:', e);
-    }
-  };
 
   return (
     <View style={commonStyles.container}>
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Music Settings</Text>
-        <Text style={styles.label}>Workout Music</Text>
+        <Text style={styles.sectionTitle}>Music</Text>
 
-        <Picker
-          selectedValue={workoutMusic}
-          style={styles.picker}
-          onValueChange={(itemValue) => saveWorkoutMusic(itemValue)}
-          mode="dialog"
-          dropdownIconColor="grey"
-          itemStyle={{ fontSize: 10 }}
-        >
-          <Picker.Item label="Upbeat" value="upbeat" />
-          <Picker.Item label="Bollywood" value="bollywood" />
-          <Picker.Item label="Happy Rock" value="happy_rock" />
-          <Picker.Item label="Chill" value="chill" />
-          <Picker.Item label="Wandering" value="wandering" />
-          <Picker.Item label="Starlit Serenity" value="starlit_serenity" />
-          <Picker.Item label="Peaceful Indian" value="peaceful_music_indian" />
-          <Picker.Item label="Mystical" value="mystical" />
-          {/* Add more languages as needed */}
-        </Picker>
+        <ModalPicker label="Workout" dataKey="workoutMusic" />
+        <ModalPicker label="Break" dataKey="breakMusic" />
+        <ModalPicker label="Success" dataKey="successSound" />
 
-        <Text style={styles.label}>Break Music</Text>
-        <Picker
-          selectedValue={breakMusic}
-          style={styles.picker}
-          onValueChange={(itemValue) => saveBreakMusic(itemValue)}
-          mode="dialog"
-          dropdownIconColor="grey"
-        >
-          <Picker.Item label="Chill" value="chill" />
-          <Picker.Item label="Wandering" value="wandering" />
-          <Picker.Item label="Starlit Serenity" value="starlit_serenity" />
-          <Picker.Item label="Peaceful Indian" value="peaceful_music_indian" />
-          <Picker.Item label="Mystical" value="mystical" />
-          {/* Add more languages as needed */}
-        </Picker>
-        <Text style={styles.sectionTitle}>Language Settings</Text>
-        <Text style={styles.label}>Selected language</Text>
-        <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={language}
-            style={[styles.picker]}
-            onValueChange={(itemValue) => setLanguage(itemValue)}
-            mode="dialog"
-            dropdownIconColor="grey"
-          >
-            <Picker.Item label="English" value="en" />
-            <Picker.Item label="Español" value="es" />
-            <Picker.Item label="Français" value="fr" />
-            <Picker.Item label="Deutsch" value="de" />
-            {/* Add more languages as needed */}
-          </Picker>
-        </View>
+        <Text style={styles.sectionTitle}>Language</Text>
+        <ModalPicker label="Selected Language" dataKey="language" />
       </View>
     </View>
   );

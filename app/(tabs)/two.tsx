@@ -25,29 +25,10 @@ import Svg, { Circle, Defs, Filter, FeGaussianBlur, FeMerge, FeMergeNode } from 
 import commonStyles from '../styles';
 import { router, useFocusEffect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-// Create a mapping object with static requires for each sound file.
-const soundFiles: { [key: string]: any } = {
-  upbeat: require('../../assets/sounds/upbeat.mp3'),
-  chill: require('../../assets/sounds/chill.mp3'),
-  yeah: require('../../assets/sounds/yeah.mp3'),
-  wandering: require('../../assets/sounds/wandering.mp3'),
-  starlit_serenity: require('../../assets/sounds/starlit_serenity.mp3'),
-  peaceful_music_indian: require('../../assets/sounds/peaceful_music_indian.mp3'),
-  mystical: require('../../assets/sounds/mystical.mp3'),
-  morning_garden_acoustic_chill: require('../../assets/sounds/morning_garden_acoustic_chill.mp3'),
-  low_key: require('../../assets/sounds/low_key.mp3'),
-  happy_rock: require('../../assets/sounds/happy_rock.mp3'),
-  clapping: require('../../assets/sounds/clapping.mp3'),
-  chill_beats: require('../../assets/sounds/chill_beats.mp3'),
-  bollywood: require('../../assets/sounds/bollywood.mp3'),
-};
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
+import { useSound } from '@/components/useSound';
 
 const { height } = Dimensions.get('window');
-
-let workoutMusic: any;
-let breakMusic: any;
-let successSound: any;
 
 const baseRadius = 140;
 const radius = height > 800 ? baseRadius * 1.2 : baseRadius;
@@ -73,6 +54,9 @@ interface TimerItemProps {
   intervalRef: React.MutableRefObject<NodeJS.Timeout | null>;
   soundEnabled: boolean;
   audioReady: boolean;
+  workoutMusic: any;
+  breakMusic: any;
+  successSound: any;
 }
 
 let currentSound: Audio.Sound | null = null;
@@ -163,6 +147,9 @@ const TimerItem: React.FC<TimerItemProps> = ({
   intervalRef,
   soundEnabled,
   audioReady,
+  workoutMusic,
+  breakMusic,
+  successSound,
 }) => {
   const alarmPlayedRef = useRef(false);
 
@@ -262,16 +249,15 @@ const TimerItem: React.FC<TimerItemProps> = ({
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const TabTwoScreen: React.FC = () => {
-  const { storedItems } = useData();
+  const { workoutItems } = useData();
   const [timers, setTimers] = useState<Timer[]>([]);
-  const noWorkout =
-    storedItems.length === 0 ||
-    (storedItems[0].key === 'audioThreshold' && storedItems.length === 1);
+  const noWorkout = workoutItems.length === 0;
   const totalTime = timers.reduce((acc, timer) => acc + timer.time, 0);
 
   const [time, setTime] = useState<number>(0);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const translateY = useRef(new Animated.Value(0)).current;
@@ -281,34 +267,49 @@ const TabTwoScreen: React.FC = () => {
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const [audioReady, setAudioReady] = useState(false);
   const [stopped, setStopped] = useState<boolean>(false);
+  const { breakMusic, workoutMusic, successSound } = useData();
+  const [selectedWorkoutMusic, setSelectedWorkoutMusic] = useState<any>(null);
+  const [selectedBreakMusic, setSelectedBreakMusic] = useState<any>(null);
+  const [selectedSuccessSound, setSelectedSuccessSound] = useState<any>(null);
+
+  //const { isPlaying, playSound, stopSound, audioReady } = useSound();
 
   //disabled variable for disabling buttons start and stop and reset when no timer is set
   const [disabled, setDisabled] = useState<boolean>(true);
 
-  useEffect(() => {
-    const reservedKeys = ['workoutMusic', 'breakMusic', 'successSound', 'audioThreshold'];
-
-    // Filter storedItems to find any workout items (non-reserved keys)
-    const workoutItems = storedItems.filter((item) => !reservedKeys.includes(item.key));
-
-    if (workoutItems.length === 0) {
-      setTimers([]);
-      setTime(0);
-      return;
+  const getSoundFileByLabel = (label: string) => {
+    const workoutMatch = workoutMusic.find((music) => music.label === label);
+    if (workoutMatch) {
+      return workoutMatch.value;
     }
-  }, [storedItems]);
+
+    const breakMatch = breakMusic.find((music) => music.label === label);
+    if (breakMatch) {
+      return breakMatch.value;
+    }
+
+    const successMatch = successSound.find((sound) => sound.label === label);
+    if (successMatch) {
+      return successMatch.value;
+    }
+
+    if (workoutMusic.length > 0) return workoutMusic[0].value;
+
+    console.error('Could not find any sound to play');
+    return null;
+  };
 
   // Reload music settings whenever the tab is focused.
   useFocusEffect(
     useCallback(() => {
       async function loadMusicSettings() {
-        const storedWorkoutMusic = (await AsyncStorage.getItem('workoutMusic')) || 'upbeat';
-        const storedBreakMusic = (await AsyncStorage.getItem('breakMusic')) || 'chill';
-        const storedSuccessMusic = (await AsyncStorage.getItem('successSound')) || 'yeah';
+        const storedWorkoutMusic = (await AsyncStorage.getItem('workoutMusic')) || 'Upbeat';
+        const storedBreakMusic = (await AsyncStorage.getItem('breakMusic')) || 'Chill';
+        const storedSuccessMusic = (await AsyncStorage.getItem('successSound')) || 'Yeah';
 
-        workoutMusic = soundFiles[storedWorkoutMusic];
-        breakMusic = soundFiles[storedBreakMusic];
-        successSound = soundFiles[storedSuccessMusic];
+        setSelectedBreakMusic(getSoundFileByLabel(storedBreakMusic));
+        setSelectedWorkoutMusic(getSoundFileByLabel(storedWorkoutMusic));
+        setSelectedSuccessSound(getSoundFileByLabel(storedSuccessMusic));
       }
       loadMusicSettings();
 
@@ -467,7 +468,7 @@ const TabTwoScreen: React.FC = () => {
       return () => clearInterval(interval);
     } else {
       if (currentIndex === timers.length - 1 && !stopped) {
-        playSound(successSound, false, audioReady);
+        playSound(selectedSuccessSound, false, audioReady);
         // Wait 2 seconds before resetting (adjust timing as needed)
         setTimeout(() => {
           handleReset();
@@ -617,6 +618,9 @@ const TabTwoScreen: React.FC = () => {
                 intervalRef={intervalRef}
                 soundEnabled={soundEnabled}
                 audioReady={audioReady}
+                workoutMusic={selectedWorkoutMusic}
+                breakMusic={selectedBreakMusic}
+                successSound={selectedSuccessSound}
               />
               <View style={styles.nextTimerContainer}>
                 {timers.length > 0 && (
@@ -683,7 +687,7 @@ const TabTwoScreen: React.FC = () => {
         <SafeAreaView>
           <FlatList
             style={styles.listContainer}
-            data={storedItems}
+            data={workoutItems}
             renderItem={({ item }) =>
               item.key === 'breakMusic' ||
               item.key === 'workoutMusic' ||
