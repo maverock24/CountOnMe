@@ -53,6 +53,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const successSound: Array<DataKey> = [
     { label: 'Yeah', value: require('../assets/sounds/yeah.mp3') },
     { label: 'Applause', value: require('../assets/sounds/clapping.mp3') },
+    { label: 'Applause Cheer', value: require('../assets/sounds/applause_cheer.mp3') },
+    { label: 'Crowd Cheer', value: require('../assets/sounds/crowd_cheer.mp3') },
+    { label: 'Oh Yeah', value: require('../assets/sounds/oh_yeah.mp3') },
+    { label: 'Yeah Choir', value: require('../assets/sounds/yeah_choir.mp3') },
   ];
 
   const language = [

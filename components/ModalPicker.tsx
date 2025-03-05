@@ -12,6 +12,7 @@ import SoundPreview from './SoundPreview';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useData } from './data.provider';
 import { FontAwesome } from '@expo/vector-icons';
+import { useSound } from './sound.provider';
 
 export type DataKey = 'breakMusic' | 'workoutMusic' | 'successSound' | 'language';
 
@@ -25,6 +26,7 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
   const [previewKey, setPreviewKey] = useState<number>(0);
   const { workoutMusic, breakMusic, successSound, language } = useData();
   const [modalVisible, setModalVisible] = useState(false);
+  const { loadMusicSettings } = useSound();
 
   // Get the correct music array based on musicType
   const musicOptions = (() => {
@@ -66,6 +68,9 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
       await AsyncStorage.setItem(dataKey, value);
       setSelectedValue(value);
       setPreviewKey((prev) => prev + 1);
+      if (dataKey !== 'language') {
+        loadMusicSettings();
+      }
     } catch (e) {
       console.error(`Error saving ${dataKey} setting:`, e);
     }

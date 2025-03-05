@@ -11,6 +11,8 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { DataProvider } from '@/components/data.provider';
+import { Sound } from 'expo-av/build/Audio';
+import { SoundProvider } from '@/components/sound.provider';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete
 SplashScreen.preventAutoHideAsync();
@@ -49,16 +51,18 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <DataProvider>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            // Fix potential animation issues on Android
-            animation: Platform.OS === 'android' ? 'fade' : 'default',
-          }}
-        >
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-        </Stack>
+        <SoundProvider>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              // Fix potential animation issues on Android
+              animation: Platform.OS === 'android' ? 'fade' : 'default',
+            }}
+          >
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+          </Stack>
+        </SoundProvider>
       </DataProvider>
     </ThemeProvider>
   );
