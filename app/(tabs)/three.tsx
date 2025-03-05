@@ -15,13 +15,11 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import commonStyles from '../styles';
 
 export default function TabThreeScreen() {
-  const { storedItems, storeItem, deleteItem } = useData();
+  const { workoutItems, storeItem, deleteItem } = useData();
 
   const [name, setName] = useState('');
   const [unit, setUnit] = useState('');
-  const noWorkout =
-    storedItems.length === 0 ||
-    (storedItems[0].key === 'audioThreshold' && storedItems.length === 1);
+  const noWorkout = workoutItems.length === 0;
 
   const addItem = () => {
     if (!name || !unit) return;
@@ -77,25 +75,21 @@ export default function TabThreeScreen() {
       <SafeAreaProvider>
         <SafeAreaView style={styles.flatList}>
           <FlatList
-            data={storedItems}
-            renderItem={({ item }) =>
-              item.key === 'breakMusic' ||
-              item.key === 'workoutMusic' ||
-              item.key === 'audioThreshold' ? null : (
-                <View style={commonStyles.buttonTile}>
-                  <Text style={commonStyles.listItemTitle}>{item.key}</Text>
-                  <Text style={commonStyles.listItemValue}>
-                    {item.value
-                      ?.split(';')
-                      .map((time) => parseFloat(time) / 60)
-                      .join(' | ')}
-                  </Text>
-                  <TouchableOpacity style={styles.deleteButton} onPress={() => deleteSet(item.key)}>
-                    <Text style={styles.deleteButtonText}>Delete</Text>
-                  </TouchableOpacity>
-                </View>
-              )
-            }
+            data={workoutItems}
+            renderItem={({ item }) => (
+              <View style={commonStyles.buttonTile}>
+                <Text style={commonStyles.listItemTitle}>{item.key}</Text>
+                <Text style={commonStyles.listItemValue}>
+                  {item.value
+                    ?.split(';')
+                    .map((time) => parseFloat(time) / 60)
+                    .join(' | ')}
+                </Text>
+                <TouchableOpacity style={styles.deleteButton} onPress={() => deleteSet(item.key)}>
+                  <Text style={styles.deleteButtonText}>Delete</Text>
+                </TouchableOpacity>
+              </View>
+            )}
             keyExtractor={(item) => item.key}
           />
         </SafeAreaView>

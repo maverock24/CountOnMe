@@ -196,7 +196,7 @@ export default function TabOneScreen() {
   );
 }
 
-const { width, height } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 const paddingTopTile = height * 0.01;
 const paddingBottomTile = height > 800 ? height * 0.05 : height * 0.001;
 
