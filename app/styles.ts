@@ -30,7 +30,8 @@ const commonStyles = StyleSheet.create({
   button: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgb(45, 55, 73)',
+    //backgroundColor: 'rgb(45, 55, 73)',
+    backgroundColor: 'rgb(38, 47, 62)',
     paddingLeft: 10,
     paddingRight: 10,
     paddingTop: baseButtonHeight * 0.2, // Adjust padding based on button height
@@ -43,6 +44,26 @@ const commonStyles = StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5, // For Android
+  },
+  buttonPressed: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    //backgroundColor: 'rgb(45, 55, 73)',
+    backgroundColor: 'rgb(32, 40, 52)',
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: baseButtonHeight * 0.2, // Adjust padding based on button height
+    paddingBottom: baseButtonHeight * 0.2, // Adjust padding based on button height
+    height: 50, // Set the button height
+    borderRadius: 10,
+    margin: 10,
+    borderColor: 'rgb(38, 47, 62)',
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 0, // For Android
   },
   buttonTile: {
     flexDirection: 'row', // align children horizontally
@@ -103,6 +124,24 @@ const commonStyles = StyleSheet.create({
     textAlign: 'left',
     fontSize: 16,
     color: 'white',
+  },
+  shimmerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#101418',
+  },
+  shimmer: {
+    width: '95%',
+    height: 50,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  gradientContent: {
+    width: '100%',
+    padding: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
