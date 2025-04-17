@@ -156,7 +156,9 @@ export default function TabOneScreen() {
         </View>
       </View>
       <Text style={commonStyles.tileTitle}>Counter</Text>
-      <View style={commonStyles.tile}>
+      <View
+        style={[commonStyles.tile, { flex: 1, alignItems: 'center', justifyContent: 'center' }]}
+      >
         <View style={styles.innerWrapperBottomTile}>
           <View style={styles.buttonContainerReps}>
             {repititions.map((rep, index) => (
@@ -208,8 +210,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   innerWrapperBottomTile: {
-    paddingBottom: paddingBottomTile,
-    paddingTop: paddingBottomTile,
     width: '95%',
     backgroundColor: 'transparent',
     alignItems: 'center',

@@ -10,7 +10,7 @@ const SettingsScreen: React.FC = () => {
 
   return (
     <View style={commonStyles.container}>
-      <View style={styles.section}>
+      <View style={[styles.section, { height: '100%' }]}>
         <Text style={styles.sectionTitle}>Music</Text>
 
         <ModalPicker label="Workout" dataKey="workoutMusic" />
