@@ -6,6 +6,7 @@ import {
   Animated,
   Dimensions,
   FlatList,
+  Pressable,
   SafeAreaView,
   StyleSheet,
   Switch,
@@ -19,6 +20,8 @@ import commonStyles from '../styles';
 import { router } from 'expo-router';
 import TimerItem from '@/components/TimerItem';
 import { useSound } from '@/components/sound.provider';
+import GradientTile from '@/components/GradientTile';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const { height } = Dimensions.get('window');
 
@@ -220,7 +223,10 @@ const TabTwoScreen: React.FC = () => {
     <View style={commonStyles.container}>
       {/* Rest of your component remains the same */}
       <Text style={commonStyles.tileTitle}>Active Workout</Text>
-      <View style={commonStyles.tile}>
+      <LinearGradient
+        style={commonStyles.tile}
+        colors={['#394962', '#222b3a', '#222b3a', '#222b3a']}
+      >
         <View style={styles.innerWrapperTopTile}>
           <View style={styles.timerContainer}>
             <Svg
@@ -298,15 +304,34 @@ const TabTwoScreen: React.FC = () => {
             </View>
           </View>
           <View style={styles.buttonContainer}>
-            <TouchableOpacity
+            {/* Start Button - Add onPress handler */}
+            <Pressable
               disabled={disabled}
-              style={disabled ? commonStyles.buttonDisabled : commonStyles.button}
-              onPress={handleStart}
+              onPress={handleStart} // Add this line
             >
-              <Text style={[commonStyles.buttonText, { paddingLeft: 20, paddingRight: 20 }]}>
-                Start
-              </Text>
-            </TouchableOpacity>
+              {({ pressed }) => (
+                <LinearGradient
+                  style={[
+                    disabled
+                      ? commonStyles.buttonDisabled
+                      : pressed
+                      ? commonStyles.buttonPressed
+                      : commonStyles.button,
+                  ]}
+                  colors={
+                    disabled
+                      ? ['#2d3749', '#2d3749', '#2d3749']
+                      : pressed
+                      ? ['rgb(32, 40, 52)', 'rgb(32, 40, 52)', 'rgb(32, 40, 52)']
+                      : ['#4c5e7c', '#2d3749', '#2d3749']
+                  }
+                >
+                  <Text style={[commonStyles.buttonText, { paddingLeft: 20, paddingRight: 20 }]}>
+                    Start
+                  </Text>
+                </LinearGradient>
+              )}
+            </Pressable>
             <TouchableOpacity
               disabled={disabled}
               style={disabled ? commonStyles.buttonDisabled : commonStyles.button}
@@ -336,7 +361,8 @@ const TabTwoScreen: React.FC = () => {
             />
           </View>
         </View>
-      </View>
+      </LinearGradient>
+
       <Text style={commonStyles.tileTitle}>Workouts</Text>
       {noWorkout && (
         <TouchableOpacity
@@ -356,27 +382,32 @@ const TabTwoScreen: React.FC = () => {
               item.key === 'workoutMusic' ||
               item.key === 'audioThreshold' ? null : (
                 <TouchableOpacity
-                  style={[
-                    commonStyles.buttonTile,
-                    selectedItem === item.value?.toString() && {
-                      borderColor: '#00bcd4',
-                      borderWidth: 2,
-                      shadowColor: '#00bcd4',
-                      shadowOpacity: 1,
-                      shadowRadius: 1,
-                      boxShadow: '0px 0px 5px 1px #00bcd4',
-                      elevation: 6, // Android
-                    },
-                  ]}
+                  style={[{ borderRadius: 10 }]}
                   onPress={() => toggleSelectSet(item.value?.toString() ?? '0')}
                 >
-                  <Text style={commonStyles.listItemTitle}>{item.key}</Text>
-                  <Text style={commonStyles.listItemValue}>
-                    {item.value
-                      ?.split(';')
-                      .map((time) => parseFloat(time) / 60)
-                      .join(' | ')}
-                  </Text>
+                  <LinearGradient
+                    style={[
+                      commonStyles.buttonTile,
+                      selectedItem === item.value?.toString() && {
+                        borderColor: '#00bcd4',
+                        borderWidth: 2,
+                        shadowColor: '#00bcd4',
+                        shadowOpacity: 1,
+                        shadowRadius: 1,
+                        boxShadow: '0px 0px 5px 1px #00bcd4',
+                        elevation: 6, // Android
+                      },
+                    ]}
+                    colors={['#394962', '#222b3a', '#222b3a', '#222b3a']}
+                  >
+                    <Text style={commonStyles.listItemTitle}>{item.key}</Text>
+                    <Text style={commonStyles.listItemValue}>
+                      {item.value
+                        ?.split(';')
+                        .map((time) => parseFloat(time) / 60)
+                        .join(' | ')}
+                    </Text>
+                  </LinearGradient>
                 </TouchableOpacity>
               )
             }
