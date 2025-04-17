@@ -55,7 +55,7 @@ export default function TabLayout() {
         name="two"
         options={{
           title: 'Timer',
-          tabBarIcon: ({ color }) => <FontAwesomeIcon size={23} icon={faStopwatch} color={color} />,
+          tabBarIcon: ({ color }) => <FontAwesomeIcon size={30} icon={faStopwatch} color={color} />,
         }}
       />
       <Tabs.Screen
