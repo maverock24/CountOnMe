@@ -1,25 +1,45 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Picker } from '@react-native-picker/picker';
-import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import commonStyles from '../styles';
+import { useData } from '@/components/data.provider';
 import ModalPicker from '@/components/ModalPicker';
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import commonStyles from '../styles';
 
 const SettingsScreen: React.FC = () => {
   const [language, setLanguage] = useState('en'); // default language English
 
+  const { audioEnabled, setAudioEnabled } = useData();
+
   return (
     <View style={commonStyles.container}>
-      <View style={[styles.section, { height: '100%' }]}>
-        <Text style={styles.sectionTitle}>Music</Text>
-
-        <ModalPicker label="Workout" dataKey="workoutMusic" />
-        <ModalPicker label="Break" dataKey="breakMusic" />
-        <ModalPicker label="Success" dataKey="successSound" />
-
-        <Text style={styles.sectionTitle}>Language</Text>
-        <ModalPicker label="Selected Language" dataKey="language" />
-      </View>
+      <ScrollView contentContainerStyle={styles.scrollView}>
+        <View style={commonStyles.outerContainer}>
+          <View style={[styles.section, { height: '100%' }]}>
+            <Text style={styles.sectionTitle}>General</Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'stretch',
+                justifyContent: 'space-between',
+              }}
+            >
+              <Text style={styles.label}>Sound on/off</Text>
+              <Switch
+                trackColor={{ false: '#767577', true: '#81b0ff' }}
+                thumbColor={false ? '#f5dd4b' : '#f4f3f4'}
+                ios_backgroundColor="#3e3e3e"
+                onValueChange={setAudioEnabled}
+                value={audioEnabled}
+              />
+            </View>
+            <Text style={styles.sectionTitle}>Music</Text>
+            <ModalPicker label="Workout" dataKey="workoutMusic" />
+            <ModalPicker label="Break" dataKey="breakMusic" />
+            <ModalPicker label="Success" dataKey="successSound" />
+            <Text style={styles.sectionTitle}>Language</Text>
+            <ModalPicker label="Selected Language" dataKey="language" />
+          </View>
+        </View>
+      </ScrollView>
     </View>
   );
 };
@@ -27,6 +47,9 @@ const SettingsScreen: React.FC = () => {
 export default SettingsScreen;
 
 const styles = StyleSheet.create({
+  scrollView: {
+    width: 375,
+  },
   section: {
     width: '95%',
     alignSelf: 'center',

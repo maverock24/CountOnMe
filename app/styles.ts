@@ -1,18 +1,43 @@
-import { StyleSheet, Dimensions } from 'react-native';
+import { Dimensions, StyleSheet } from 'react-native';
 
-const { height } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
+const standardWidth = 375; // Reference width
+
+// Calculate scale factor based on device width
+const scale = width / standardWidth;
+
+// Scale values based on device width
+const scaleSize = (size: number) => Math.round(size * scale);
 
 // Define a base button height and adjust it based on screen size
 const baseButtonHeight = height * 0.08; // e.g., 6% of screen height
 
 const commonStyles = StyleSheet.create({
+  outerContainer: {
+    flex: 1,
+    justifyContent: 'flex-start',
+    height: '100%',
+    alignItems: 'center',
+    backgroundColor: '#101418',
+    width: '100%',
+    maxWidth: 600,
+  },
+  // container: {
+  //   flex: 1,
+  //   justifyContent: 'flex-start',
+  //   height: '100%',
+  //   alignItems: 'center',
+  //   backgroundColor: '#101418',
+  //   padding: 10,
+  // },
   container: {
     flex: 1,
     justifyContent: 'flex-start',
     height: '100%',
     alignItems: 'center',
     backgroundColor: '#101418',
-    padding: 10,
+    padding: scaleSize(10),
+     // Good tablet/desktop constraint
   },
   buttonDisabled: {
     alignItems: 'center',
@@ -58,27 +83,29 @@ const commonStyles = StyleSheet.create({
     borderRadius: 10,
     margin: 10,
     borderColor: 'rgb(38, 47, 62)',
-    borderWidth: 1,
+    borderWidth: 0,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 0, // For Android
   },
   buttonTile: {
-    flexDirection: 'row', // align children horizontally
-    justifyContent: 'space-between', // push delete button to right 'rgb(38, 47, 62)',
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between', 
     backgroundColor: 'rgb(36, 44, 59)',
     paddingLeft: 20,
     paddingRight: 20,
     paddingTop: 5,
     paddingBottom: 5,
     borderRadius: 10,
-    marginLeft: 10,
     marginRight: 10,
     marginTop: 5,
     marginBottom: 5,
-    width: '95%',
+    borderWidth: 2,
+    borderColor: 'transparent',
+    width: '100%',
   },
   buttonText: {
     color: '#EFF0F0',

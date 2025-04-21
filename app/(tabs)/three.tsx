@@ -1,17 +1,10 @@
 import { useData } from '@/components/data.provider';
 import { View } from '@/components/Themed';
 import React, { useState } from 'react';
-import {
-  FlatList,
-  Keyboard,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-} from 'react-native';
+import { FlatList, Keyboard, SafeAreaView, StyleSheet, Text, TextInput } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import TimerButton from '@/components/TimerButton';
 import commonStyles from '../styles';
 
 export default function TabThreeScreen() {
@@ -51,49 +44,57 @@ export default function TabThreeScreen() {
 
   return (
     <View style={commonStyles.container}>
-      <Text style={commonStyles.tileTitle}>New Workout</Text>
-      <View style={commonStyles.tile}>
-        <View style={styles.innerWrapperTopTile}>
-          <Text style={styles.label}>Name</Text>
-          <TextInput style={styles.input} value={name} onChangeText={setName} />
-          <Text style={styles.label}>Workout set (in minutes with ; seperator)</Text>
-          <TextInput style={styles.input} value={unit} onChangeText={handleUnitChange} />
-          <TouchableOpacity
-            style={[commonStyles.button, { width: '90%' }]}
-            onPress={() => addItem()}
-          >
-            <Text style={commonStyles.buttonText}>Add</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-      <Text style={commonStyles.tileTitle}>Available Workouts</Text>
-      {noWorkout && (
+      <View style={commonStyles.outerContainer}>
+        <Text style={commonStyles.tileTitle}>New Workout</Text>
         <View style={commonStyles.tile}>
-          <Text style={[commonStyles.buttonText, { padding: 10 }]}>No workouts available</Text>
+          <View style={styles.innerWrapperTopTile}>
+            <Text style={styles.label}>Name</Text>
+            <TextInput style={styles.input} value={name} onChangeText={setName} />
+            <Text style={styles.label}>Workout set (in minutes with ; seperator)</Text>
+            <TextInput style={styles.input} value={unit} onChangeText={handleUnitChange} />
+            {/* <TouchableOpacity
+              style={[commonStyles.button, { width: '90%' }]}
+              onPress={() => addItem()}
+            >
+              <Text style={commonStyles.buttonText}>Add</Text>
+            </TouchableOpacity> */}
+            <TimerButton text="Add" onPress={addItem} maxWidth />
+          </View>
         </View>
-      )}
-      <SafeAreaProvider>
-        <SafeAreaView style={styles.flatList}>
-          <FlatList
-            data={workoutItems}
-            renderItem={({ item }) => (
-              <View style={commonStyles.buttonTile}>
-                <Text style={commonStyles.listItemTitle}>{item.key}</Text>
-                <Text style={commonStyles.listItemValue}>
-                  {item.value
-                    ?.split(';')
-                    .map((time) => parseFloat(time) / 60)
-                    .join(' | ')}
-                </Text>
-                <TouchableOpacity style={styles.deleteButton} onPress={() => deleteSet(item.key)}>
-                  <Text style={styles.deleteButtonText}>Delete</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-            keyExtractor={(item) => item.key}
-          />
-        </SafeAreaView>
-      </SafeAreaProvider>
+        <Text style={commonStyles.tileTitle}>Available Workouts</Text>
+        {noWorkout && (
+          <View style={commonStyles.tile}>
+            <Text style={[commonStyles.buttonText, { padding: 10 }]}>No workouts available</Text>
+          </View>
+        )}
+        <SafeAreaProvider style={{ width: '95%' }}>
+          <SafeAreaView style={styles.flatList}>
+            <FlatList
+              data={workoutItems}
+              renderItem={({ item }) => (
+                <View style={commonStyles.buttonTile}>
+                  <Text style={commonStyles.listItemTitle}>{item.key}</Text>
+                  <Text style={commonStyles.listItemValue}>
+                    {item.value
+                      ?.split(';')
+                      .map((time) => parseFloat(time) / 60)
+                      .join(' | ')}
+                  </Text>
+                  {/* <TouchableOpacity style={styles.deleteButton} onPress={() => deleteSet(item.key)}>
+                    <Text style={styles.deleteButtonText}>Delete</Text>
+                  </TouchableOpacity> */}
+                  <TimerButton
+                    text="X"
+                    onPress={() => deleteSet(item.key)}
+                    style={styles.deleteButton}
+                  />
+                </View>
+              )}
+              keyExtractor={(item) => item.key}
+            />
+          </SafeAreaView>
+        </SafeAreaProvider>
+      </View>
     </View>
   );
 }
@@ -123,27 +124,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '20%',
     backgroundColor: '#101418',
-  },
-  listItem: {
-    flexDirection: 'row', // align children horizontally
-    justifyContent: 'space-between', // push delete button to right
-    padding: 0,
-    marginVertical: 5,
-    marginHorizontal: 10,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    height: 50,
-    width: '90%',
-  },
-  listItemTitle: {
-    margin: 10,
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: 'rgb(192, 205, 236)',
-  },
-  listItemValue: {
-    margin: 12,
-    fontSize: 12,
   },
   container: {
     flex: 1,
