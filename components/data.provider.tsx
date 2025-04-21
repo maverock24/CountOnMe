@@ -1,5 +1,5 @@
-import React, { createContext, useEffect, useState, useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
 export interface StoredItem {
   key: string;
@@ -21,15 +21,30 @@ interface DataContextType {
   reload: () => Promise<void>;
   storeItem: (key: string, value: string) => Promise<void>;
   deleteItem: (key: string) => Promise<void>;
+  isCountOnMeKey: (key: string) => boolean;
+  setAudioEnabled: (enabled: boolean) => void;
+  audioEnabled: boolean;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const prefixKey = '@countOnMe_';
   const [storedItems, setStoredItems] = useState<StoredItem[]>([]);
   const [workoutItems, setWorkoutItems] = useState<StoredItem[]>([]);
 
+  const [audioEnabled, setAudioEnabledState] = useState(true);
   //load all the music files friom the assets/sounds folder and use the file name as label and the file as value
+
+  const setAudioEnabled = useCallback(async (enabled: boolean) => {
+    setAudioEnabledState(enabled);
+    try {
+      await AsyncStorage.setItem('audioEnabled', String(enabled));
+      console.log('Audio setting saved:', enabled);
+    } catch (error) {
+      console.error('Failed to save audio setting', error);
+    }
+  }, []);
 
   const workoutMusic: Array<DataKey> = [
     { label: 'Upbeat', value: require('../assets/sounds/upbeat.mp3') },
@@ -75,12 +90,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       'language',
     ];
     try {
-      // Get all keys from AsyncStorage
+      // Get all keys from AsyncStorage that start with the prefix
       const keys = await AsyncStorage.getAllKeys();
+      // Filter keys to only include those that start with the prefix
+      const filteredKeys = keys.filter((key) => key.startsWith(prefixKey));
+      // Remove the prefix from the keys
       // Retrieve all key-value pairs as an array of [key, value]
-      const stores = await AsyncStorage.multiGet(keys);
+      const stores = await AsyncStorage.multiGet(filteredKeys);
       // Map the retrieved data to an array of StoredItem objects
-      const items: StoredItem[] = stores.map(([key, value]) => ({ key, value }));
+      const items: StoredItem[] = stores.map(([key, value]) => {
+        const trimmedKey = key.replace(prefixKey, '');
+        return { key: trimmedKey, value };
+      });
       const workoutItems = items.filter((item) => !reservedKeys.includes(item.key));
       setWorkoutItems(workoutItems);
       setStoredItems(items);
@@ -91,17 +112,20 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const storeItem = async (key: string, value: string) => {
     try {
-      await AsyncStorage.setItem(key, value);
+      await AsyncStorage.setItem(`${prefixKey}${key}`, value);
       // Optionally update storedItems state by reloading all data
       await reload();
     } catch (e) {
       console.error('Error storing data:', e);
     }
   };
+  const isCountOnMeKey = (key: string) => {
+    return key.startsWith(prefixKey);
+  };
 
   const deleteItem = async (key: string) => {
     try {
-      await AsyncStorage.removeItem(key);
+      await AsyncStorage.removeItem(`${prefixKey}${key}`);
       // Optionally update storedItems state by reloading all data
       await reload();
     } catch (e) {
@@ -116,6 +140,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   return (
     <DataContext.Provider
       value={{
+        isCountOnMeKey,
         storedItems,
         workoutItems,
         breakMusic,
@@ -125,6 +150,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         reload,
         storeItem,
         deleteItem,
+        setAudioEnabled,
+        audioEnabled,
       }}
     >
       {children}

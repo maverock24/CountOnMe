@@ -1,27 +1,23 @@
+import TimerButton from '@/components/TimerButton';
+import TimerItem from '@/components/TimerItem';
 import { useData } from '@/components/data.provider';
+import { useSound } from '@/components/sound.provider';
 import { faBed, faRunning } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Dimensions,
   FlatList,
-  Pressable,
-  SafeAreaView,
   StyleSheet,
-  Switch,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import Svg, { Circle, Defs, Filter, FeGaussianBlur, FeMerge, FeMergeNode } from 'react-native-svg';
+import Svg, { Circle, Defs, FeGaussianBlur, FeMerge, FeMergeNode, Filter } from 'react-native-svg';
 import commonStyles from '../styles';
-import { router } from 'expo-router';
-import TimerItem from '@/components/TimerItem';
-import { useSound } from '@/components/sound.provider';
-import GradientTile from '@/components/GradientTile';
-import { LinearGradient } from 'expo-linear-gradient';
 
 const { height } = Dimensions.get('window');
 
@@ -43,7 +39,7 @@ const formatTime = (seconds: number) => {
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const TabTwoScreen: React.FC = () => {
-  const { workoutItems } = useData();
+  const { workoutItems, isCountOnMeKey, audioEnabled, setAudioEnabled } = useData();
 
   const { audioReady, stopSound, playSegmentMusic } = useSound();
 
@@ -58,7 +54,6 @@ const TabTwoScreen: React.FC = () => {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const translateY = useRef(new Animated.Value(0)).current;
   const progress = useRef(new Animated.Value(0)).current;
-  const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
 
   const [stopped, setStopped] = useState<boolean>(false);
@@ -119,7 +114,6 @@ const TabTwoScreen: React.FC = () => {
       segment: index % 2 === 0 ? 'workout' : 'break',
     }));
 
-    console.log('Setting timers:', items);
     setTimers(items);
 
     // Ensure we have valid data before setting time
@@ -131,15 +125,6 @@ const TabTwoScreen: React.FC = () => {
   const handleResetButtonPress = () => handleReset();
 
   const handleStart = () => {
-    // Log state for debugging
-    console.log('handleStart called', {
-      timers: timers.length,
-      isRunning,
-      time,
-      currentIndex,
-      hasCurrentTimer: timers[currentIndex] !== undefined,
-    });
-
     if (timers.length > 0) {
       // Make sure time is set if starting from 0
       if (time === 0 && timers[currentIndex]) {
@@ -206,11 +191,6 @@ const TabTwoScreen: React.FC = () => {
     router.push('/three');
   };
 
-  const handleSwitchSound = (value: boolean) => {
-    setSoundEnabled(value);
-    if (!value) stopSound();
-  };
-
   const strokeWidth = 10;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = progress.interpolate({
@@ -221,200 +201,150 @@ const TabTwoScreen: React.FC = () => {
 
   return (
     <View style={commonStyles.container}>
-      {/* Rest of your component remains the same */}
-      <Text style={commonStyles.tileTitle}>Active Workout</Text>
-      <LinearGradient
-        style={commonStyles.tile}
-        colors={['#394962', '#222b3a', '#222b3a', '#222b3a']}
-      >
-        <View style={styles.innerWrapperTopTile}>
-          <View style={styles.timerContainer}>
-            <Svg
-              height={radius * 2 + strokeWidth}
-              width={radius * 2 + strokeWidth}
-              viewBox={`-15 -15 ${radius * 2 + strokeWidth + 30} ${radius * 2 + strokeWidth + 30}`}
-              style={[styles.progressCircle, { overflow: 'visible' }]}
-            >
-              <Defs>
-                <Filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                  <FeGaussianBlur in="SourceGraphic" stdDeviation="20" result="blur" />
-                  <FeMerge>
-                    <FeMergeNode in="blur" />
-                    <FeMergeNode in="SourceGraphic" />
-                  </FeMerge>
-                </Filter>
-              </Defs>
-              <Circle
-                cx={radius + strokeWidth / 2}
-                cy={radius + strokeWidth / 2}
-                r={radius}
-                stroke="rgb(46, 52, 70)"
-                strokeWidth={strokeWidth}
-                fill="none"
-                {...({ collapsable: 'false' } as any)}
-              />
-              <AnimatedCircle
-                cx={radius + strokeWidth / 2}
-                cy={radius + strokeWidth / 2}
-                r={radius}
-                stroke="#00bcd4"
-                strokeWidth={strokeWidth}
-                fill="none"
-                strokeDasharray={circumference}
-                strokeDashoffset={strokeDashoffset}
-                transform={`rotate(-90 ${radius + strokeWidth / 2} ${radius + strokeWidth / 2})`}
-                filter="url(#glow)"
-                {...({ collapsable: 'false' } as any)}
-              />
-            </Svg>
-            {timers.length > 0 &&
-              isRunning &&
-              (timers[currentIndex].segment === 'workout' ? (
-                <View style={styles.timerContainerActive}>
-                  <FontAwesomeIcon icon={faRunning} size={30} color="white" />
+      <View style={commonStyles.outerContainer}>
+        {/* Rest of your component remains the same */}
+        <Text style={commonStyles.tileTitle}>Active Workout</Text>
+        <View style={commonStyles.tile}>
+          <View style={styles.innerWrapperTopTile}>
+            <View style={styles.timerContainer}>
+              <Svg
+                height={radius * 2 + strokeWidth}
+                width={radius * 2 + strokeWidth}
+                viewBox={`-15 0 ${radius * 2 + strokeWidth + 30} ${radius * 2 + strokeWidth + 30}`}
+                style={[styles.progressCircle, { overflow: 'visible' }]}
+              >
+                <Defs>
+                  <Filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                    <FeGaussianBlur in="SourceGraphic" stdDeviation="20" result="blur" />
+                    <FeMerge>
+                      <FeMergeNode in="blur" />
+                      <FeMergeNode in="SourceGraphic" />
+                    </FeMerge>
+                  </Filter>
+                </Defs>
+                <Circle
+                  cx={radius + strokeWidth / 2}
+                  cy={radius + strokeWidth / 2}
+                  r={radius}
+                  stroke="rgb(46, 52, 70)"
+                  strokeWidth={strokeWidth}
+                  fill="none"
+                  {...({ collapsable: 'false' } as any)}
+                />
+                <AnimatedCircle
+                  cx={radius + strokeWidth / 2}
+                  cy={radius + strokeWidth / 2}
+                  r={radius}
+                  stroke="#00bcd4"
+                  strokeWidth={strokeWidth}
+                  fill="none"
+                  strokeDasharray={circumference}
+                  strokeDashoffset={strokeDashoffset}
+                  transform={`rotate(-90 ${radius + strokeWidth / 2} ${radius + strokeWidth / 2})`}
+                  filter="url(#glow)"
+                  {...({ collapsable: 'false' } as any)}
+                />
+              </Svg>
+              {timers.length > 0 &&
+                isRunning &&
+                (timers[currentIndex].segment === 'workout' ? (
+                  <View style={styles.timerContainerActive}>
+                    <FontAwesomeIcon icon={faRunning} size={30} color="white" />
+                  </View>
+                ) : (
+                  <View style={styles.timerContainerSnooze}>
+                    <FontAwesomeIcon icon={faBed} size={30} color="white" />
+                  </View>
+                ))}
+              <View style={styles.timerContainerWrapper}>
+                <TimerItem
+                  title={timers.length > 0 ? timers[currentIndex].segment : ''}
+                  key={`timer-${
+                    timers.length > 0 ? timers[currentIndex].id : 'empty'
+                  }-${currentIndex}`}
+                  time={time}
+                  isRunning={isRunning}
+                  setIsRunning={setIsRunning}
+                  setTime={setTime}
+                  intervalRef={intervalRef}
+                  soundEnabled={audioEnabled}
+                />
+                <View style={styles.nextTimerContainer}>
+                  {timers.length > 0 && (
+                    <Text style={styles.nextTimerText}>
+                      Next:{' '}
+                      {currentIndex < timers.length - 1
+                        ? formatTime(timers[currentIndex + 1].time)
+                        : 'Finished'}
+                    </Text>
+                  )}
                 </View>
-              ) : (
-                <View style={styles.timerContainerSnooze}>
-                  <FontAwesomeIcon icon={faBed} size={30} color="white" />
-                </View>
-              ))}
-            <View style={styles.timerContainerWrapper}>
-              <TimerItem
-                title={timers.length > 0 ? timers[currentIndex].segment : ''}
-                key={`timer-${
-                  timers.length > 0 ? timers[currentIndex].id : 'empty'
-                }-${currentIndex}`}
-                time={time}
-                isRunning={isRunning}
-                setIsRunning={setIsRunning}
-                setTime={setTime}
-                intervalRef={intervalRef}
-                soundEnabled={soundEnabled}
-              />
-              <View style={styles.nextTimerContainer}>
-                {timers.length > 0 && (
-                  <Text style={styles.nextTimerText}>
-                    Next:{' '}
-                    {currentIndex < timers.length - 1
-                      ? formatTime(timers[currentIndex + 1].time)
-                      : 'Finished'}
-                  </Text>
-                )}
               </View>
             </View>
-          </View>
-          <View style={styles.buttonContainer}>
-            {/* Start Button - Add onPress handler */}
-            <Pressable
-              disabled={disabled}
-              onPress={handleStart} // Add this line
-            >
-              {({ pressed }) => (
-                <LinearGradient
-                  style={[
-                    disabled
-                      ? commonStyles.buttonDisabled
-                      : pressed
-                      ? commonStyles.buttonPressed
-                      : commonStyles.button,
-                  ]}
-                  colors={
-                    disabled
-                      ? ['#2d3749', '#2d3749', '#2d3749']
-                      : pressed
-                      ? ['rgb(32, 40, 52)', 'rgb(32, 40, 52)', 'rgb(32, 40, 52)']
-                      : ['#4c5e7c', '#2d3749', '#2d3749']
-                  }
-                >
-                  <Text style={[commonStyles.buttonText, { paddingLeft: 20, paddingRight: 20 }]}>
-                    Start
-                  </Text>
-                </LinearGradient>
-              )}
-            </Pressable>
-            <TouchableOpacity
-              disabled={disabled}
-              style={disabled ? commonStyles.buttonDisabled : commonStyles.button}
-              onPress={handleStop}
-            >
-              <Text style={[commonStyles.buttonText, { paddingLeft: 20, paddingRight: 20 }]}>
-                Stop
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              disabled={disabled}
-              style={disabled ? commonStyles.buttonDisabled : commonStyles.button}
-              onPress={handleResetButtonPress}
-            >
-              <Text style={[commonStyles.buttonText, { paddingLeft: 20, paddingRight: 20 }]}>
-                Reset
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.switchContainer}>
-            <Text style={styles.switchLabel}>Sound on/off</Text>
-            <Switch
-              thumbColor={soundEnabled ? '#00bcd4' : 'grey'}
-              style={styles.switch}
-              value={soundEnabled}
-              onValueChange={(value) => handleSwitchSound(value)}
-            />
+            <View style={styles.buttonContainer}>
+              {/* Start Button - Add onPress handler */}
+              <TimerButton onPress={handleStart} disabled={disabled} text="Start" />
+              <TimerButton onPress={handleStop} disabled={disabled} text="Stop" />
+              <TimerButton onPress={handleResetButtonPress} disabled={disabled} text="Reset" />
+            </View>
+            {/* <View style={styles.switchContainer}>
+              <Text style={styles.switchLabel}>Sound on/off</Text>
+              <Switch
+                thumbColor={soundEnabled ? '#00bcd4' : 'grey'}
+                style={styles.switch}
+                value={soundEnabled}
+                onValueChange={(value) => handleSwitchSound(value)}
+              />
+            </View> */}
           </View>
         </View>
-      </LinearGradient>
-
-      <Text style={commonStyles.tileTitle}>Workouts</Text>
-      {noWorkout && (
-        <TouchableOpacity
-          style={[commonStyles.button, { width: '95%' }]}
-          onPress={() => handleAddNew()}
-        >
-          <Text style={commonStyles.buttonText}>Add</Text>
-        </TouchableOpacity>
-      )}
-      <SafeAreaProvider>
-        <SafeAreaView>
+        <Text style={commonStyles.tileTitle}>Workouts</Text>
+        {noWorkout && (
+          <TouchableOpacity
+            style={[commonStyles.button, { width: '95%' }]}
+            onPress={() => handleAddNew()}
+          >
+            <Text style={commonStyles.buttonText}>Add</Text>
+          </TouchableOpacity>
+        )}
+        <View style={{ width: '95%', flex: 1 }}>
           <FlatList
             style={styles.listContainer}
             data={workoutItems}
-            renderItem={({ item }) =>
-              item.key === 'breakMusic' ||
-              item.key === 'workoutMusic' ||
-              item.key === 'audioThreshold' ? null : (
-                <TouchableOpacity
-                  style={[{ borderRadius: 10 }]}
-                  onPress={() => toggleSelectSet(item.value?.toString() ?? '0')}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={[{ borderRadius: 10 }]}
+                onPress={() => toggleSelectSet(item.value?.toString() ?? '0')}
+              >
+                <LinearGradient
+                  style={[
+                    commonStyles.buttonTile,
+                    selectedItem === item.value?.toString() && {
+                      borderColor: '#00bcd4',
+                      borderWidth: 2,
+                      shadowColor: '#00bcd4',
+                      shadowOpacity: 1,
+                      shadowRadius: 1,
+                      boxShadow: '0px 0px 5px 1px #00bcd4',
+                      elevation: 6, // Android
+                    },
+                  ]}
+                  colors={['#394962', '#222b3a', '#222b3a', '#222b3a']}
                 >
-                  <LinearGradient
-                    style={[
-                      commonStyles.buttonTile,
-                      selectedItem === item.value?.toString() && {
-                        borderColor: '#00bcd4',
-                        borderWidth: 2,
-                        shadowColor: '#00bcd4',
-                        shadowOpacity: 1,
-                        shadowRadius: 1,
-                        boxShadow: '0px 0px 5px 1px #00bcd4',
-                        elevation: 6, // Android
-                      },
-                    ]}
-                    colors={['#394962', '#222b3a', '#222b3a', '#222b3a']}
-                  >
-                    <Text style={commonStyles.listItemTitle}>{item.key}</Text>
-                    <Text style={commonStyles.listItemValue}>
-                      {item.value
-                        ?.split(';')
-                        .map((time) => parseFloat(time) / 60)
-                        .join(' | ')}
-                    </Text>
-                  </LinearGradient>
-                </TouchableOpacity>
-              )
-            }
+                  <Text style={commonStyles.listItemTitle}>{item.key}</Text>
+                  <Text style={commonStyles.listItemValue}>
+                    {item.value
+                      ?.split(';')
+                      .map((time) => parseFloat(time) / 60)
+                      .join(' | ')}
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            )}
             keyExtractor={(item) => item.key}
           />
-        </SafeAreaView>
-      </SafeAreaProvider>
+        </View>
+      </View>
     </View>
   );
 };
@@ -422,6 +352,8 @@ const TabTwoScreen: React.FC = () => {
 const styles = StyleSheet.create({
   // Your existing styles remain the same
   innerWrapperTopTile: {
+    paddingTop: 0,
+    paddingBottom: 20,
     width: '95%',
     backgroundColor: 'transparent',
     alignItems: 'center',
@@ -445,7 +377,7 @@ const styles = StyleSheet.create({
   },
   timerContainerWrapper: {
     backgroundColor: 'transparent',
-    top: '-45%',
+    top: '-50%',
   },
   switchContainer: {
     flexDirection: 'row',
@@ -459,7 +391,6 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     marginTop: 5,
-    width: '100%',
     backgroundColor: 'transparent',
   },
   timerContainer: {
@@ -471,7 +402,7 @@ const styles = StyleSheet.create({
   },
   timerContainerActive: {
     position: 'absolute',
-    top: '18%',
+    top: '15%',
     alignItems: 'center',
     backgroundColor: 'green',
     width: 50,
@@ -480,7 +411,7 @@ const styles = StyleSheet.create({
   },
   timerContainerSnooze: {
     position: 'absolute',
-    top: '18%',
+    top: '15%',
     alignItems: 'center',
     backgroundColor: 'red',
     width: 50,

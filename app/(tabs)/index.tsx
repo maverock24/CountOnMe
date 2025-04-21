@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text, View } from '@/components/Themed';
+import TimerButton from '@/components/TimerButton';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Slider from '@react-native-community/slider';
 import { Audio } from 'expo-av';
+import React, { useEffect, useState } from 'react';
+import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import commonStyles from '../styles';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function TabOneScreen() {
   const [count, setCount] = useState(0);
@@ -118,79 +119,72 @@ export default function TabOneScreen() {
 
   return (
     <View style={commonStyles.container}>
-      <Text style={commonStyles.tileTitle}>Sound trigger</Text>
-      <View style={commonStyles.tile}>
-        <View style={styles.innerWrapperTopTile}>
-          <Text style={styles.title}>db: {sliderValue}</Text>
-          <Slider
-            value={sliderValue!}
-            style={styles.slider}
-            minimumValue={-100}
-            maximumValue={0}
-            step={1}
-            onSlidingComplete={handleSliderChange}
-            thumbTintColor="#00bcd4"
-            minimumTrackTintColor="#00bcd4"
-            maximumTrackTintColor="gray"
-          />
-          <View style={styles.audioVisualizer}>
-            <Text style={styles.audioLevel}>Audio Level: {audioLevel}</Text>
+      <View style={commonStyles.outerContainer}>
+        <Text style={commonStyles.tileTitle}>Sound trigger</Text>
+        <View style={commonStyles.tile}>
+          <View style={styles.innerWrapperTopTile}>
+            {/* <Text style={styles.title}>db: {sliderValue}</Text> */}
+            <Slider
+              value={sliderValue!}
+              style={styles.slider}
+              minimumValue={-100}
+              maximumValue={0}
+              step={1}
+              onSlidingComplete={handleSliderChange}
+              thumbTintColor="#00bcd4"
+              minimumTrackTintColor="#00bcd4"
+              maximumTrackTintColor="gray"
+            />
+            {/* <View style={styles.audioVisualizer}>
+              <Text style={styles.audioLevel}>Audio Level: {audioLevel}</Text>
+            </View> */}
+            <TimerButton
+              text={micOn ? 'Mic off' : 'Mic on'}
+              onPress={handleListen}
+              disabled={false}
+              style={
+                micOn
+                  ? {
+                      borderColor: '#00bcd4',
+                      borderWidth: 2,
+                      shadowColor: '#00bcd4',
+                      shadowOpacity: 1,
+                      shadowRadius: 1,
+                      boxShadow: '0px 0px 5px 1px #00bcd4',
+                      elevation: 6, // Android
+                    }
+                  : {}
+              }
+            />
           </View>
-          <TouchableOpacity
-            style={[
-              commonStyles.button,
-              micOn && {
-                borderColor: '#00bcd4',
-                borderWidth: 2,
-                shadowColor: '#00bcd4',
-                shadowOpacity: 1,
-                shadowRadius: 1,
-                boxShadow: '0px 0px 5px 1px #00bcd4',
-                elevation: 6, // Android
-              },
-            ]}
-            onPress={handleListen}
-          >
-            <Text style={commonStyles.buttonText}>{buttonText}</Text>
-          </TouchableOpacity>
         </View>
-      </View>
-      <Text style={commonStyles.tileTitle}>Counter</Text>
-      <View
-        style={[commonStyles.tile, { flex: 1, alignItems: 'center', justifyContent: 'center' }]}
-      >
-        <View style={styles.innerWrapperBottomTile}>
-          <View style={styles.buttonContainerReps}>
-            {repititions.map((rep, index) => (
-              <TouchableOpacity
-                key={index}
-                style={[commonStyles.button, { width: 68 }]}
-                onPress={() => handleSetRemaining(rep)}
-              >
-                <Text style={commonStyles.buttonText}>{rep}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          <Text style={styles.remaining}>{remaining ? remaining : 0}</Text>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.triangleLeft} onPress={() => handleCountDown()}>
-              {/* <FontAwesome name='caret-left' style={styles.icon} /> */}
-            </TouchableOpacity>
-            <Text style={styles.count}>{count}</Text>
-            <TouchableOpacity style={styles.triangleRight} onPress={() => handleCountUp()}>
-              {/* <FontAwesome name='caret-right' style={styles.icon} /> */}
-            </TouchableOpacity>
-          </View>
+        <Text style={commonStyles.tileTitle}>Counter</Text>
+        <View
+          style={[commonStyles.tile, { flex: 1, alignItems: 'center', justifyContent: 'center' }]}
+        >
           <View style={styles.innerWrapperBottomTile}>
-            <TouchableOpacity
-              style={[commonStyles.button, { width: '95%' }]}
-              onPress={() => handleReset()}
-            >
-              <Text style={[commonStyles.buttonText, { width: '95%', textAlign: 'center' }]}>
-                Reset
-              </Text>
-            </TouchableOpacity>
+            <View style={styles.buttonContainerReps}>
+              {repititions.map((rep, index) => (
+                <TimerButton
+                  key={index}
+                  text={rep.toString()}
+                  onPress={() => handleSetRemaining(rep)}
+                />
+              ))}
+            </View>
+            <Text style={styles.remaining}>{remaining ? remaining : 0}</Text>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.triangleLeft}
+                onPress={() => handleCountDown()}
+              ></TouchableOpacity>
+              <Text style={styles.count}>{count}</Text>
+              <TouchableOpacity
+                style={styles.triangleRight}
+                onPress={() => handleCountUp()}
+              ></TouchableOpacity>
+            </View>
+            <TimerButton maxWidth={true} text="Reset" onPress={handleReset} />
           </View>
         </View>
       </View>
@@ -208,8 +202,12 @@ const styles = StyleSheet.create({
     paddingTop: paddingTopTile,
     width: '95%',
     backgroundColor: 'transparent',
+    alignItems: 'center',
   },
   innerWrapperBottomTile: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-between',
     width: '95%',
     backgroundColor: 'transparent',
     alignItems: 'center',
@@ -275,7 +273,7 @@ const styles = StyleSheet.create({
   },
   slider: {
     width: '90%',
-    height: 60,
+    height: 40,
     color: '#387480',
   },
   sliderText: {
