@@ -163,16 +163,19 @@ export default function TabOneScreen() {
           style={[commonStyles.tile, { flex: 1, alignItems: 'center', justifyContent: 'center' }]}
         >
           <View style={styles.innerWrapperBottomTile}>
-            <View style={styles.buttonContainerReps}>
-              {repititions.map((rep, index) => (
-                <TimerButton
-                  key={index}
-                  text={rep.toString()}
-                  onPress={() => handleSetRemaining(rep)}
-                />
-              ))}
+            <View style={{ backgroundColor: 'transparent', alignItems: 'center' }}>
+              <View style={styles.buttonContainerReps}>
+                {repititions.map((rep, index) => (
+                  <TimerButton
+                    key={index}
+                    text={rep.toString()}
+                    onPress={() => handleSetRemaining(rep)}
+                  />
+                ))}
+              </View>
+              <Text style={styles.remaining}>{remaining ? remaining : 0}</Text>
             </View>
-            <Text style={styles.remaining}>{remaining ? remaining : 0}</Text>
+
             <View style={styles.buttonContainer}>
               <TouchableOpacity
                 style={styles.triangleLeft}
