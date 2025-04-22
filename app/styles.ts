@@ -36,7 +36,9 @@ const commonStyles = StyleSheet.create({
     height: '100%',
     alignItems: 'center',
     backgroundColor: '#101418',
-    padding: scaleSize(10),
+    paddingLeft: scaleSize(10),
+    paddingRight: scaleSize(10),
+    paddingTop: 5,
      // Good tablet/desktop constraint
   },
   buttonDisabled: {

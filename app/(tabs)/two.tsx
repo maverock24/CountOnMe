@@ -210,7 +210,9 @@ const TabTwoScreen: React.FC = () => {
               <Svg
                 height={radius * 2 + strokeWidth}
                 width={radius * 2 + strokeWidth}
-                viewBox={`-15 0 ${radius * 2 + strokeWidth + 30} ${radius * 2 + strokeWidth + 30}`}
+                viewBox={`-15 -15 ${radius * 2 + strokeWidth + 30} ${
+                  radius * 2 + strokeWidth + 30
+                }`}
                 style={[styles.progressCircle, { overflow: 'visible' }]}
               >
                 <Defs>
