@@ -210,7 +210,7 @@ const TabTwoScreen: React.FC = () => {
               <Svg
                 height={radius * 2 + strokeWidth}
                 width={radius * 2 + strokeWidth}
-                viewBox={`-15 -15 ${radius * 2 + strokeWidth + 30} ${
+                viewBox={`-15 -10 ${radius * 2 + strokeWidth + 30} ${
                   radius * 2 + strokeWidth + 30
                 }`}
                 style={[styles.progressCircle, { overflow: 'visible' }]}
@@ -289,26 +289,10 @@ const TabTwoScreen: React.FC = () => {
               <TimerButton onPress={handleStop} disabled={disabled} text="Stop" />
               <TimerButton onPress={handleResetButtonPress} disabled={disabled} text="Reset" />
             </View>
-            {/* <View style={styles.switchContainer}>
-              <Text style={styles.switchLabel}>Sound on/off</Text>
-              <Switch
-                thumbColor={soundEnabled ? '#00bcd4' : 'grey'}
-                style={styles.switch}
-                value={soundEnabled}
-                onValueChange={(value) => handleSwitchSound(value)}
-              />
-            </View> */}
           </View>
         </View>
         <Text style={commonStyles.tileTitle}>Workouts</Text>
-        {noWorkout && (
-          <TouchableOpacity
-            style={[commonStyles.button, { width: '95%' }]}
-            onPress={() => handleAddNew()}
-          >
-            <Text style={commonStyles.buttonText}>Add</Text>
-          </TouchableOpacity>
-        )}
+        {noWorkout && <TimerButton text="Add" onPress={handleAddNew} maxWidth />}
         <View style={{ width: '95%', flex: 1 }}>
           <FlatList
             style={styles.listContainer}
