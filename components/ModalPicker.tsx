@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    width: '85%',
+    width: 400,
     maxHeight: '90%',
     backgroundColor: 'rgb(36, 44, 59)', // Dark background for the actual content
     borderRadius: 10,

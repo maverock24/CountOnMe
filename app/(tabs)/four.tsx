@@ -11,9 +11,9 @@ const SettingsScreen: React.FC = () => {
 
   return (
     <View style={commonStyles.container}>
-      <ScrollView contentContainerStyle={styles.scrollView}>
+      <ScrollView>
         <View style={commonStyles.outerContainer}>
-          <View style={[styles.section, { height: '100%' }]}>
+          <View style={styles.section}>
             <Text style={styles.sectionTitle}>General</Text>
             <View
               style={{
@@ -47,11 +47,8 @@ const SettingsScreen: React.FC = () => {
 export default SettingsScreen;
 
 const styles = StyleSheet.create({
-  scrollView: {
-    width: 375,
-  },
   section: {
-    width: '95%',
+    width: '100%',
     alignSelf: 'center',
     backgroundColor: 'rgb(28, 35, 46)',
     paddingLeft: 15,
