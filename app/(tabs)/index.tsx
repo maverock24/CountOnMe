@@ -226,11 +226,11 @@ const styles = StyleSheet.create({
     width: '80%',
   },
   count: {
-    fontSize: 100,
+    marginTop: -30,
+    fontSize: 130,
     fontWeight: 'bold',
     color: 'white',
   },
-
   repButton: {
     borderRadius: 50,
     padding: 10,

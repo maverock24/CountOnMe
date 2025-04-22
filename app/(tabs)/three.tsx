@@ -63,9 +63,9 @@ export default function TabThreeScreen() {
         </View>
         <Text style={commonStyles.tileTitle}>Available Workouts</Text>
         {noWorkout && (
-          <View style={commonStyles.tile}>
-            <Text style={[commonStyles.buttonText, { padding: 10 }]}>No workouts available</Text>
-          </View>
+          <Text style={{ padding: 10, fontSize: 24, marginTop: '50%', color: '#fff' }}>
+            No workouts available
+          </Text>
         )}
         <SafeAreaProvider style={{ width: '95%' }}>
           <SafeAreaView style={styles.flatList}>
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#101418',
   },
   label: {
-    fontSize: 12,
+    fontSize: 16,
     marginBottom: 0,
     color: 'rgb(231, 234, 241)',
     textAlign: 'left',
@@ -143,6 +143,7 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   input: {
+    fontSize: 16,
     borderBottomColor: 'rgb(81, 84, 90)',
     borderBottomWidth: 1,
     padding: 10,
