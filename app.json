@@ -34,7 +34,14 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "name": "CountOnMe",
+      "shortName": "CountOnMe",
+      "lang": "en",
+      "scope": "/",
+      "themeColor": "#1c222e",
+      "backgroundColor": "#1c222e",
+      "display": "standalone"
     },
     "plugins": [
       "expo-router",
