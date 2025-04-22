@@ -20,16 +20,9 @@ const commonStyles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#101418',
     width: '100%',
-    maxWidth: 600,
+    maxWidth: 550,
+    minWidth: 400,
   },
-  // container: {
-  //   flex: 1,
-  //   justifyContent: 'flex-start',
-  //   height: '100%',
-  //   alignItems: 'center',
-  //   backgroundColor: '#101418',
-  //   padding: 10,
-  // },
   container: {
     flex: 1,
     justifyContent: 'flex-start',
@@ -39,7 +32,6 @@ const commonStyles = StyleSheet.create({
     paddingLeft: scaleSize(10),
     paddingRight: scaleSize(10),
     paddingTop: 5,
-     // Good tablet/desktop constraint
   },
   buttonDisabled: {
     alignItems: 'center',
@@ -95,7 +87,7 @@ const commonStyles = StyleSheet.create({
   buttonTile: {
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-between', 
+    justifyContent: 'space-between',
     backgroundColor: 'rgb(36, 44, 59)',
     paddingLeft: 20,
     paddingRight: 20,
