@@ -65,7 +65,7 @@ const TutorialModal: React.FC<TutorialModalProps> = ({ isVisible, onClose }) => 
         <View style={styles.modalContent}>
           {/* Optional: Close button at the top */}
 
-          <TimerButton style={styles.closeButtonTop} text="Skip" onPress={handleClose} />
+          {/* <TimerButton style={styles.closeButtonTop} text="Skip" onPress={handleClose} /> */}
 
           {/* Image Display */}
           <View style={styles.imageContainer}>
@@ -75,11 +75,6 @@ const TutorialModal: React.FC<TutorialModalProps> = ({ isVisible, onClose }) => 
               resizeMode="contain" // Adjust resizeMode as needed (contain, cover, stretch)
             />
           </View>
-
-          {/* Optional: Page Indicator */}
-          <Text style={styles.pageIndicator}>
-            {currentImageIndex + 1} / {tutorialImages.length}
-          </Text>
 
           {/* Navigation Buttons */}
           <View style={styles.navigationContainer}>
@@ -93,7 +88,9 @@ const TutorialModal: React.FC<TutorialModalProps> = ({ isVisible, onClose }) => 
                 { backgroundColor: 'transparent', width: 130 },
               ]} // Hide if first image
             />
-
+            <Text style={styles.pageIndicator}>
+              {currentImageIndex + 1} / {tutorialImages.length}
+            </Text>
             {/* Next / Done Button */}
             <TimerButton
               text={isLastImage ? 'Done' : 'Next'}
@@ -115,16 +112,12 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     flex: 1,
-    alignItems: 'center',
+    //alignItems: 'center',
     justifyContent: 'space-between', // Pushes content and nav buttons apart
     padding: 20,
   },
   closeButtonTop: {
-    position: 'absolute',
-    top: 15, // Adjust as needed within SafeAreaView
-    right: 15,
-    padding: 10,
-    zIndex: 1, // Ensure it's above other elements
+    alignSelf: 'flex-end',
   },
   closeButtonTextTop: {
     fontSize: 16,
@@ -132,6 +125,7 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     flex: 1, // Takes up most of the space
+    flexDirection: 'row',
     justifyContent: 'center', // Center image vertically in its container
     alignItems: 'center',
     width: '100%',
@@ -151,8 +145,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
-    paddingHorizontal: 20,
-    paddingBottom: 20, // Add some padding at the bottom
+    paddingTop: 5,
   },
   navButton: {
     backgroundColor: '#007AFF', // iOS blue color
