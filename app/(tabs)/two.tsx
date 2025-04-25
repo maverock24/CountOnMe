@@ -291,44 +291,48 @@ const TabTwoScreen: React.FC = () => {
             </View>
           </View>
         </View>
-        <Text style={commonStyles.tileTitle}>Workouts</Text>
-        {noWorkout && <TimerButton text="Add" onPress={handleAddNew} maxWidth />}
-        <View style={{ width: '95%', flex: 1 }}>
-          <FlatList
-            style={styles.listContainer}
-            data={workoutItems}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={[{ borderRadius: 10 }]}
-                onPress={() => toggleSelectSet(item.value?.toString() ?? '0')}
-              >
-                <LinearGradient
-                  style={[
-                    commonStyles.buttonTile,
-                    selectedItem === item.value?.toString() && {
-                      borderColor: '#00bcd4',
-                      borderWidth: 2,
-                      shadowColor: '#00bcd4',
-                      shadowOpacity: 1,
-                      shadowRadius: 1,
-                      boxShadow: '0px 0px 5px 1px #00bcd4',
-                      elevation: 6, // Android
-                    },
-                  ]}
-                  colors={['#394962', '#222b3a', '#222b3a', '#222b3a']}
+        <View style={commonStyles.outerContainer}>
+          {/* Rest of your component remains the same */}
+          <Text style={commonStyles.tileTitle}>Workouts</Text>
+          <View style={[commonStyles.tile, { flex: 1, padding: 10, backgroundColor: '#111719' }]}>
+            {noWorkout && <TimerButton text="Add" onPress={handleAddNew} maxWidth />}
+            {/* <View style={{ width: '95%', flex: 1 }}> */}
+            <FlatList
+              style={styles.listContainer}
+              data={workoutItems}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={[{ borderRadius: 10 }]}
+                  onPress={() => toggleSelectSet(item.value?.toString() ?? '0')}
                 >
-                  <Text style={commonStyles.listItemTitle}>{item.key}</Text>
-                  <Text style={commonStyles.listItemValue}>
-                    {item.value
-                      ?.split(';')
-                      .map((time) => parseFloat(time) / 60)
-                      .join(' | ')}
-                  </Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            )}
-            keyExtractor={(item) => item.key}
-          />
+                  <LinearGradient
+                    style={[
+                      commonStyles.buttonTile,
+                      selectedItem === item.value?.toString() && {
+                        borderColor: '#00bcd4',
+                        borderWidth: 2,
+                        shadowColor: '#00bcd4',
+                        shadowOpacity: 1,
+                        shadowRadius: 1,
+                        boxShadow: '0px 0px 5px 1px #00bcd4',
+                        elevation: 6, // Android
+                      },
+                    ]}
+                    colors={['#394962', '#222b3a', '#222b3a', '#222b3a']}
+                  >
+                    <Text style={commonStyles.listItemTitle}>{item.key}</Text>
+                    <Text style={commonStyles.listItemValue}>
+                      {item.value
+                        ?.split(';')
+                        .map((time) => parseFloat(time) / 60)
+                        .join(' | ')}
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              )}
+              keyExtractor={(item) => item.key}
+            />
+          </View>
         </View>
       </View>
     </View>
