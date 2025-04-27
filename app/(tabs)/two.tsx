@@ -11,6 +11,7 @@ import {
   Animated,
   Dimensions,
   FlatList,
+  Pressable,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -18,6 +19,7 @@ import {
 } from 'react-native';
 import Svg, { Circle, Defs, FeGaussianBlur, FeMerge, FeMergeNode, Filter } from 'react-native-svg';
 import commonStyles from '../styles';
+import ListTile from '@/components/ListTile';
 
 const { height } = Dimensions.get('window');
 
@@ -284,7 +286,6 @@ const TabTwoScreen: React.FC = () => {
               </View>
             </View>
             <View style={styles.buttonContainer}>
-              {/* Start Button - Add onPress handler */}
               <TimerButton onPress={handleStart} disabled={disabled} text="Start" />
               <TimerButton onPress={handleStop} disabled={disabled} text="Stop" />
               <TimerButton onPress={handleResetButtonPress} disabled={disabled} text="Reset" />
@@ -292,7 +293,6 @@ const TabTwoScreen: React.FC = () => {
           </View>
         </View>
         <View style={commonStyles.outerContainer}>
-          {/* Rest of your component remains the same */}
           <Text style={commonStyles.tileTitle}>Workouts</Text>
           <View style={[commonStyles.tile, { flex: 1, padding: 10, backgroundColor: '#111719' }]}>
             {noWorkout && <TimerButton text="Add" onPress={handleAddNew} maxWidth />}
@@ -301,34 +301,12 @@ const TabTwoScreen: React.FC = () => {
               style={styles.listContainer}
               data={workoutItems}
               renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={[{ borderRadius: 10 }]}
-                  onPress={() => toggleSelectSet(item.value?.toString() ?? '0')}
-                >
-                  <LinearGradient
-                    style={[
-                      commonStyles.buttonTile,
-                      selectedItem === item.value?.toString() && {
-                        borderColor: '#00bcd4',
-                        borderWidth: 2,
-                        shadowColor: '#00bcd4',
-                        shadowOpacity: 1,
-                        shadowRadius: 1,
-                        boxShadow: '0px 0px 5px 1px #00bcd4',
-                        elevation: 6, // Android
-                      },
-                    ]}
-                    colors={['#394962', '#222b3a', '#222b3a', '#222b3a']}
-                  >
-                    <Text style={commonStyles.listItemTitle}>{item.key}</Text>
-                    <Text style={commonStyles.listItemValue}>
-                      {item.value
-                        ?.split(';')
-                        .map((time) => parseFloat(time) / 60)
-                        .join(' | ')}
-                    </Text>
-                  </LinearGradient>
-                </TouchableOpacity>
+                <ListTile
+                  isSelected={selectedItem === item.value?.toString()}
+                  title={item.key}
+                  value={item.value}
+                  onPressTile={() => toggleSelectSet(item.value?.toString() ?? '0')}
+                />
               )}
               keyExtractor={(item) => item.key}
             />
@@ -366,8 +344,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#101418',
   },
   timerContainerWrapper: {
+    position: 'absolute',
+    top: '40%',
     backgroundColor: 'transparent',
-    top: '-50%',
   },
   switchContainer: {
     flexDirection: 'row',
@@ -382,6 +361,7 @@ const styles = StyleSheet.create({
   listContainer: {
     marginTop: 5,
     backgroundColor: 'transparent',
+    width: '100%',
   },
   timerContainer: {
     width: '100%',
@@ -421,7 +401,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     width: '100%',
-    marginTop: -75,
   },
   count: {
     marginTop: -20,
