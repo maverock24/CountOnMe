@@ -1,7 +1,7 @@
 import { useData } from '@/components/data.provider';
 import ModalPicker from '@/components/ModalPicker';
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Dimensions, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import commonStyles from '../styles';
 
 const SettingsScreen: React.FC = () => {
@@ -9,11 +9,13 @@ const SettingsScreen: React.FC = () => {
 
   const { audioEnabled, setAudioEnabled } = useData();
 
+  const windowHeight = Dimensions.get('window').height;
+
   return (
     <View style={commonStyles.container}>
-      <ScrollView>
-        <View style={commonStyles.outerContainer}>
-          <View style={styles.section}>
+      <View style={commonStyles.outerContainer}>
+        <View style={styles.section}>
+          <ScrollView contentContainerStyle={styles.scrollContent}>
             <Text style={styles.sectionTitle}>General</Text>
             <View
               style={{
@@ -37,9 +39,9 @@ const SettingsScreen: React.FC = () => {
             <ModalPicker label="Success" dataKey="successSound" />
             <Text style={styles.sectionTitle}>Language</Text>
             <ModalPicker label="Selected Language" dataKey="language" />
-          </View>
+          </ScrollView>
         </View>
-      </ScrollView>
+      </View>
     </View>
   );
 };
@@ -48,18 +50,25 @@ export default SettingsScreen;
 
 const styles = StyleSheet.create({
   section: {
+    flex: 1,
     width: '100%',
     alignSelf: 'center',
     backgroundColor: 'rgb(28, 35, 46)',
     paddingLeft: 15,
     paddingRight: 15,
     borderRadius: 10,
+    height: '100%',
+    marginTop: 10,
+    marginBottom: 10,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#fff',
     marginTop: 20,
+  },
+  scrollContent: {
+    paddingBottom: 20,
   },
   label: {
     marginTop: 15,
