@@ -32,6 +32,7 @@ const commonStyles = StyleSheet.create({
     paddingLeft: scaleSize(10),
     paddingRight: scaleSize(10),
     paddingTop: 5,
+    paddingBottom: 5,
   },
   buttonDisabled: {
     alignItems: 'center',
@@ -141,8 +142,6 @@ const commonStyles = StyleSheet.create({
   },
   listItem: {
     flexDirection: 'row', // align children horizontally
-    padding: 0,
-    marginVertical: 5,
     marginHorizontal: 10,
     backgroundColor: '#1A2024',
     height: 45,
@@ -155,6 +154,7 @@ const commonStyles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'white',
     marginLeft: 10,
+    marginTop: 5,
   },
   listItemValue: {
     flex: 1,

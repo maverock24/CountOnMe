@@ -4,6 +4,7 @@ import React from 'react';
 import { Pressable } from 'react-native';
 import {
   faCog,
+  faDumbbell,
   faGauge,
   faGears,
   faList,
@@ -59,8 +60,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="two"
         options={{
-          title: 'Timer',
-          tabBarIcon: ({ color }) => <TabBarIcon size={30} iconName={faStopwatch} color={color} />,
+          title: 'Workout',
+          tabBarIcon: ({ color }) => <TabBarIcon size={30} iconName={faDumbbell} color={color} />,
         }}
       />
       <Tabs.Screen

@@ -61,7 +61,7 @@ export default function TabThreeScreen() {
                 No workouts available
               </Text>
             )}
-            <SafeAreaProvider style={{ width: '95%' }}>
+            <SafeAreaProvider style={{ width: '100%' }}>
               <SafeAreaView style={styles.flatList}>
                 <FlatList
                   data={workoutItems}
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     width: '100%',
     height: '20%',
-    backgroundColor: '#101418',
+    backgroundColor: 'transparent',
   },
   container: {
     flex: 1,
