@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
   },
   label: {
     marginTop: 15,
-    fontSize: 14,
+    fontSize: 16,
     color: 'lightgray',
     marginBottom: 5,
   },

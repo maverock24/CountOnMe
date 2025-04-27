@@ -14,6 +14,7 @@ const SettingsScreen: React.FC = () => {
   return (
     <View style={commonStyles.container}>
       <View style={commonStyles.outerContainer}>
+        <Text style={commonStyles.tileTitle}>Settings</Text>
         <View style={styles.section}>
           <ScrollView contentContainerStyle={styles.scrollContent}>
             <Text style={styles.sectionTitle}>General</Text>
@@ -51,7 +52,7 @@ export default SettingsScreen;
 const styles = StyleSheet.create({
   section: {
     flex: 1,
-    width: '100%',
+    width: '95%',
     alignSelf: 'center',
     backgroundColor: 'rgb(28, 35, 46)',
     paddingLeft: 15,
@@ -66,13 +67,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
     marginTop: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: 'lightgray',
   },
   scrollContent: {
     paddingBottom: 20,
   },
   label: {
     marginTop: 15,
-    fontSize: 14,
+    fontSize: 16,
     color: 'lightgray',
     marginBottom: 5,
   },
