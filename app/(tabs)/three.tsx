@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import TimerButton from '@/components/TimerButton';
 import commonStyles from '../styles';
+import ListTile from '@/components/ListTile';
 
 export default function TabThreeScreen() {
   const { workoutItems, storeItem, deleteItem } = useData();
@@ -35,11 +36,7 @@ export default function TabThreeScreen() {
   };
 
   const handleUnitChange = (text: string) => {
-    // Allow only numbers and semicolons
-    // const regex = /^[0-9;]*$/;
-    // if (regex.test(text)) {
     setUnit(text);
-    // }
   };
 
   return (
@@ -52,48 +49,36 @@ export default function TabThreeScreen() {
             <TextInput style={styles.input} value={name} onChangeText={setName} />
             <Text style={styles.label}>Workout set (in minutes with ; seperator)</Text>
             <TextInput style={styles.input} value={unit} onChangeText={handleUnitChange} />
-            {/* <TouchableOpacity
-              style={[commonStyles.button, { width: '90%' }]}
-              onPress={() => addItem()}
-            >
-              <Text style={commonStyles.buttonText}>Add</Text>
-            </TouchableOpacity> */}
+
             <TimerButton text="Add" onPress={addItem} maxWidth />
           </View>
         </View>
-        <Text style={commonStyles.tileTitle}>Available Workouts</Text>
-        {noWorkout && (
-          <Text style={{ padding: 10, fontSize: 24, marginTop: '50%', color: '#fff' }}>
-            No workouts available
-          </Text>
-        )}
-        <SafeAreaProvider style={{ width: '95%' }}>
-          <SafeAreaView style={styles.flatList}>
-            <FlatList
-              data={workoutItems}
-              renderItem={({ item }) => (
-                <View style={commonStyles.buttonTile}>
-                  <Text style={commonStyles.listItemTitle}>{item.key}</Text>
-                  <Text style={commonStyles.listItemValue}>
-                    {item.value
-                      ?.split(';')
-                      .map((time) => parseFloat(time) / 60)
-                      .join(' | ')}
-                  </Text>
-                  {/* <TouchableOpacity style={styles.deleteButton} onPress={() => deleteSet(item.key)}>
-                    <Text style={styles.deleteButtonText}>Delete</Text>
-                  </TouchableOpacity> */}
-                  <TimerButton
-                    text="X"
-                    onPress={() => deleteSet(item.key)}
-                    style={styles.deleteButton}
-                  />
-                </View>
-              )}
-              keyExtractor={(item) => item.key}
-            />
-          </SafeAreaView>
-        </SafeAreaProvider>
+        <View style={commonStyles.outerContainer}>
+          <Text style={commonStyles.tileTitle}>Available Workouts</Text>
+          <View style={[commonStyles.tile, { flex: 1, padding: 10, backgroundColor: '#111719' }]}>
+            {noWorkout && (
+              <Text style={{ padding: 10, fontSize: 24, marginTop: '50%', color: '#fff' }}>
+                No workouts available
+              </Text>
+            )}
+            <SafeAreaProvider style={{ width: '95%' }}>
+              <SafeAreaView style={styles.flatList}>
+                <FlatList
+                  data={workoutItems}
+                  renderItem={({ item }) => (
+                    <ListTile
+                      title={item.key}
+                      value={item.value}
+                      isSelected={false}
+                      onPressBtn={() => deleteSet(item.key)}
+                    />
+                  )}
+                  keyExtractor={(item) => item.key}
+                />
+              </SafeAreaView>
+            </SafeAreaProvider>
+          </View>
+        </View>
       </View>
     </View>
   );

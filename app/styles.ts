@@ -49,7 +49,6 @@ const commonStyles = StyleSheet.create({
   button: {
     alignItems: 'center',
     justifyContent: 'center',
-    //backgroundColor: 'rgb(45, 55, 73)',
     backgroundColor: 'rgb(38, 47, 62)',
     paddingLeft: 10,
     paddingRight: 10,
@@ -67,7 +66,6 @@ const commonStyles = StyleSheet.create({
   buttonPressed: {
     alignItems: 'center',
     justifyContent: 'center',
-    //backgroundColor: 'rgb(45, 55, 73)',
     backgroundColor: 'rgb(32, 40, 52)',
     paddingLeft: 10,
     paddingRight: 10,
@@ -84,9 +82,44 @@ const commonStyles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 0, // For Android
   },
+  buttonSmall: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    //backgroundColor: 'rgb(45, 55, 73)',
+    backgroundColor: 'rgb(38, 47, 62)',
+    paddingLeft: 10,
+    paddingRight: 10,
+    height: 30, // Set the button height
+    borderRadius: 10,
+    margin: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5, // For Android
+  },
+  buttonSmallPressed: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    //backgroundColor: 'rgb(45, 55, 73)',
+    backgroundColor: 'rgb(32, 40, 52)',
+    paddingLeft: 10,
+    paddingRight: 10,
+    height: 30, // Set the button height
+    borderRadius: 10,
+    margin: 10,
+    borderColor: 'rgb(38, 47, 62)',
+    borderWidth: 0,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 0, // For Android
+  },
   buttonTile: {
     flex: 1,
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: 'rgb(36, 44, 59)',
     paddingLeft: 20,
@@ -116,17 +149,20 @@ const commonStyles = StyleSheet.create({
     width: '100%',
   },
   listItemTitle: {
-    margin: 8,
+    flex: 1,
+    alignSelf: 'flex-start',
     fontSize: 16,
     fontWeight: 'bold',
-    color: 'lightgray',
+    color: 'white',
+    marginLeft: 10,
   },
   listItemValue: {
-    marginTop: 10,
-    fontSize: 14,
-    color: 'lightgray',
+    flex: 1,
+    alignSelf: 'flex-end',
+    fontSize: 16,
     letterSpacing: 2,
     fontWeight: 'bold',
+    color: 'white',
   },
   tile: {
     maxWidth: 600,

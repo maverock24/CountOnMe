@@ -10,12 +10,14 @@ const TimerButton = ({
   text,
   style,
   maxWidth,
+  small,
 }: {
   onPress: () => void;
   disabled?: boolean;
   text: string;
   style?: StyleProp<ViewStyle>;
   maxWidth?: boolean;
+  small?: boolean;
 }) => {
   return (
     <Pressable
@@ -26,12 +28,11 @@ const TimerButton = ({
       {({ pressed }) => (
         <LinearGradient
           style={[
-            disabled
-              ? commonStyles.buttonDisabled
-              : pressed
-              ? commonStyles.buttonPressed
-              : commonStyles.button,
-            style,
+            disabled && commonStyles.buttonDisabled,
+            pressed && !small && commonStyles.buttonPressed,
+            !disabled && !small && commonStyles.button,
+            small && commonStyles.buttonSmall,
+            small && pressed && commonStyles.buttonSmallPressed,
           ]}
           colors={
             disabled
