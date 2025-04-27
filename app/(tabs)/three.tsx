@@ -55,7 +55,7 @@ export default function TabThreeScreen() {
         </View>
         <View style={commonStyles.outerContainer}>
           <Text style={commonStyles.tileTitle}>Available Workouts</Text>
-          <View style={[commonStyles.tile, { flex: 1, padding: 10, backgroundColor: '#111719' }]}>
+          <View style={[commonStyles.tile, { flex: 1, padding: 5, backgroundColor: '#111719' }]}>
             {noWorkout && (
               <Text style={{ padding: 10, fontSize: 24, marginTop: '50%', color: '#fff' }}>
                 No workouts available

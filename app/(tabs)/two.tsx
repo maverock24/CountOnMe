@@ -294,7 +294,7 @@ const TabTwoScreen: React.FC = () => {
         </View>
         <View style={commonStyles.outerContainer}>
           <Text style={commonStyles.tileTitle}>Workouts</Text>
-          <View style={[commonStyles.tile, { flex: 1, padding: 10, backgroundColor: '#111719' }]}>
+          <View style={[commonStyles.tile, { flex: 1, padding: 5, backgroundColor: '#111719' }]}>
             {noWorkout && <TimerButton text="Add" onPress={handleAddNew} maxWidth />}
             {/* <View style={{ width: '95%', flex: 1 }}> */}
             <FlatList
