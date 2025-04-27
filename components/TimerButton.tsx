@@ -29,7 +29,7 @@ const TimerButton = ({
         <LinearGradient
           style={[
             disabled && commonStyles.buttonDisabled,
-            pressed && !small && commonStyles.buttonPressed,
+            pressed && !small && { backgroundColor: 'rgba(0, 255, 42, 0.87)' },
             !disabled && !small && commonStyles.button,
             small && commonStyles.buttonSmall,
             small && pressed && commonStyles.buttonSmallPressed,

@@ -33,7 +33,7 @@ const ListTile = ({
       <LinearGradient
         style={[
           commonStyles.button,
-          { flexDirection: 'row' },
+          { flexDirection: 'row', flex: 1, borderWidth: 2, borderColor: 'transparent' },
           isSelected && {
             borderColor: '#00bcd4',
             borderWidth: 2,

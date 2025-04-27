@@ -59,29 +59,27 @@ const commonStyles = StyleSheet.create({
     borderRadius: 10,
     margin: 10,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 2,
-    elevation: 5, // For Android
   },
   buttonPressed: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgb(32, 40, 52)',
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingTop: baseButtonHeight * 0.2, // Adjust padding based on button height
-    paddingBottom: baseButtonHeight * 0.2, // Adjust padding based on button height
-    height: 50, // Set the button height
-    borderRadius: 10,
-    margin: 10,
-    borderColor: 'rgb(38, 47, 62)',
-    borderWidth: 0,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 0, // For Android
+    // alignItems: 'center',
+    // justifyContent: 'center',
+    // backgroundColor: 'rgb(40, 52, 32)',
+    // paddingLeft: 10,
+    // paddingRight: 10,
+    // paddingTop: baseButtonHeight * 0.2, // Adjust padding based on button height
+    // paddingBottom: baseButtonHeight * 0.2, // Adjust padding based on button height
+    // height: 50, // Set the button height
+    // borderRadius: 10,
+    // margin: 10,
+    // borderColor: 'rgb(38, 47, 62)',
+    // borderWidth: 0,
+    // shadowColor: '#000',
+    // shadowOffset: { width: 0, height: 0 },
+    // shadowOpacity: 0.8,
+    // shadowRadius: 0,
+    // elevation: 0, // For Android
   },
   buttonSmall: {
     alignItems: 'center',
@@ -142,7 +140,6 @@ const commonStyles = StyleSheet.create({
   },
   listItem: {
     flexDirection: 'row', // align children horizontally
-    marginHorizontal: 10,
     backgroundColor: '#1A2024',
     height: 45,
     width: '100%',
@@ -154,7 +151,6 @@ const commonStyles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'white',
     marginLeft: 10,
-    marginTop: 5,
   },
   listItemValue: {
     flex: 1,

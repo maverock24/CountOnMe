@@ -21,14 +21,15 @@ const SettingsScreen: React.FC = () => {
             <View
               style={{
                 flexDirection: 'row',
-                alignItems: 'stretch',
+                alignItems: 'center',
                 justifyContent: 'space-between',
               }}
             >
               <Text style={styles.label}>Sound on/off</Text>
               <Switch
-                trackColor={{ false: '#767577', true: '#81b0ff' }}
-                thumbColor={false ? '#f5dd4b' : '#f4f3f4'}
+                style={{ marginRight: 10, marginTop: 10 }}
+                trackColor={{ false: 'grey', true: '#f4f3f4' }}
+                thumbColor={false ? 'yellow' : '#f4f3f4'}
                 ios_backgroundColor="#3e3e3e"
                 onValueChange={setAudioEnabled}
                 value={audioEnabled}
