@@ -370,11 +370,14 @@ export default function TabOneScreen() {
     }
 
     // Continue the loop only if still listening
-    if (isListening) {
+    if (isListening && isMountedRef.current) {
       animationFrameRef.current = requestAnimationFrame(analyzeAudio);
-    } else {
-      animationFrameRef.current = null; // Ensure loop reference is cleared if isListening turned false
-    }
+ } else {
+      // Ensure loop reference is cleared if isListening turned false or component unmounted
+      console.log("Stopping analysis loop: isListening=", isListening, "isMounted=", isMountedRef.current);
+      animationFrameRef.current = null;
+      // Cleanup should be handled by stopListeningCleanup, but ensure ref is null
+ }
   };
 
   // --- Main Toggle Function ---
