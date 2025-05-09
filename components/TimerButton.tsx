@@ -11,6 +11,7 @@ const TimerButton = ({
   style,
   maxWidth,
   small,
+  isSelected,
 }: {
   onPress: () => void;
   disabled?: boolean;
@@ -18,6 +19,7 @@ const TimerButton = ({
   style?: StyleProp<ViewStyle>;
   maxWidth?: boolean;
   small?: boolean;
+  isSelected?: boolean;
 }) => {
   return (
     <Pressable
@@ -33,13 +35,24 @@ const TimerButton = ({
             !disabled && !small && commonStyles.button,
             small && commonStyles.buttonSmall,
             small && pressed && commonStyles.buttonSmallPressed,
+            { borderWidth: 2, borderColor: 'transparent' },
+            isSelected && {
+              borderColor: 'rgb(92, 150, 153)',
+              borderWidth: 2,
+              shadowColor: 'rgb(92, 150, 153)',
+              shadowOpacity: 1,
+              shadowRadius: 1,
+              boxShadow: '0px 0px 5px 1px rgb(92, 150, 153)',
+              elevation: 6, // Android
+            },
+            style,
           ]}
           colors={
             disabled
-              ? ['#2d3749', '#2d3749', '#2d3749']
+              ? ['rgb(23, 31, 35)', 'rgb(23, 31, 35)']
               : pressed
-              ? ['rgb(32, 40, 52)', 'rgb(32, 40, 52)', 'rgb(32, 40, 52)']
-              : ['#4c5e7c', '#2d3749', '#2d3749']
+              ? [ 'rgb(26, 36, 41)', 'rgb(26, 36, 41)']
+              : ['rgb(49, 67, 77)', 'rgb(38, 48, 54)', 'rgb(28, 37, 43)']
           }
         >
           <Text style={[commonStyles.buttonText, { paddingLeft: 10, paddingRight: 10 }]}>

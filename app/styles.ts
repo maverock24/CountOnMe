@@ -18,7 +18,6 @@ const commonStyles = StyleSheet.create({
     justifyContent: 'flex-start',
     height: '100%',
     alignItems: 'center',
-    backgroundColor: 'transparent',
     width: '100%',
     maxWidth: 550,
     minWidth: 400,
@@ -50,7 +49,6 @@ const commonStyles = StyleSheet.create({
   button: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgb(38, 47, 62)',
     paddingLeft: 10,
     paddingRight: 10,
     paddingTop: baseButtonHeight * 0.2, // Adjust padding based on button height
@@ -163,7 +161,7 @@ const commonStyles = StyleSheet.create({
   tile: {
     maxWidth: 600,
     alignItems: 'center',
-    backgroundColor: 'rgb(28, 35, 46)',
+    backgroundColor: 'rgb(17, 24, 30)',
     width: '95%',
     margin: 10,
     borderRadius: 10,
