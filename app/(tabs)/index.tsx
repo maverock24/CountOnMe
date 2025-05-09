@@ -403,7 +403,7 @@ export default function TabOneScreen() {
                  <Text style={styles.count}>{count}</Text>
                  <TouchableOpacity style={styles.triangleRight} onPress={handleCountUp} />
              </View>
-             <TimerButton maxWidth={true} text="Reset" onPress={handleReset} />
+             <TimerButton maxWidth={true} text="Reset" onPress={handleReset} style={{ marginTop: -20}} />
           </View>
         </View>
       </View>
@@ -414,11 +414,11 @@ export default function TabOneScreen() {
 // --- Styles ---
 const styles = StyleSheet.create({
     innerWrapperTopTile: { alignItems: 'center', justifyContent: 'center', width: '95%', paddingVertical: 15 },
-    innerWrapperBottomTile: { flex: 1, flexDirection: 'column', justifyContent: 'space-around', width: '95%', alignItems: 'center', paddingVertical: 5, backgroundColor: 'transparent' },
+    innerWrapperBottomTile: { flex: 1, flexDirection: 'column', justifyContent: 'space-around', width: '95%', alignItems: 'center', backgroundColor: 'transparent' },
     count: { fontSize: 110, fontWeight: 'bold', color: 'white', textAlign: 'center', minWidth: 150 },
     remainingLabel: { color: '#ccc', fontSize: 14, marginBottom: 2 },
     remaining: { color: 'white', fontSize: 24, fontWeight: 'bold', marginHorizontal: 20, borderBottomWidth: 1, borderBottomColor: '#fff', textAlign: 'center', width: 80, marginBottom: 15 },
-    buttonContainer: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', width: '95%', backgroundColor: 'transparent', marginVertical: 5 },
+    buttonContainer: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', width: '95%', backgroundColor: 'transparent', marginVertical: 5, marginTop: -20 },
     buttonContainerReps: { display: 'flex', flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', backgroundColor: 'transparent', marginBottom: 10 },
     sliderLabel: { fontSize: 14, color: '#ccc', marginBottom: 2 }, // This was missing in your provided render, re-added for context
     sliderValueLabel: { fontSize: 12, color: '#aaa', marginBottom: 5 }, // This was missing in your provided render, re-added for context
