@@ -1,7 +1,7 @@
 'use client';
 
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { DarkTheme, DefaultTheme, ThemeProvider, Theme } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Slot, Stack, SplashScreen } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -92,9 +92,17 @@ export default function RootLayout() {
     return <Slot />;
   }
 
+  const CustomDarkTheme: Theme = {
+    ...DarkTheme,
+    colors: {
+      ...DarkTheme.colors,
+      background: 'transparent',
+    },
+  };
+
   // Simplified component structure - no need for separate RootLayoutNav
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={CustomDarkTheme}>
       <DataProvider>
         <SoundProvider>
           <Stack

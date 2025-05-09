@@ -1,7 +1,7 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Link, Tabs } from 'expo-router';
 import React from 'react';
-import { Pressable } from 'react-native';
+import { ImageBackground, Pressable, StyleSheet } from 'react-native';
 import {
   faCog,
   faDumbbell,
@@ -26,8 +26,13 @@ function TabBarIcon(props: { iconName: IconDefinition; color: string; size?: num
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-
+  const image = require('../../assets/images/background1.jpeg');
   return (
+    <ImageBackground
+      source={image}
+      resizeMode="cover"
+      style={styles.imageContainer}
+    >
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
@@ -79,5 +84,14 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
+    </ImageBackground>
   );
 }
+
+const styles = StyleSheet.create({
+  imageContainer: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+});
