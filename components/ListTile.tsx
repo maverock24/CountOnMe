@@ -35,16 +35,16 @@ const ListTile = ({
           commonStyles.button,
           { flexDirection: 'row', flex: 1, borderWidth: 2, borderColor: 'transparent' },
           isSelected && {
-            borderColor: '#00bcd4',
+            borderColor: 'rgb(92, 150, 153)',
             borderWidth: 2,
-            shadowColor: '#00bcd4',
+            shadowColor: 'rgb(92, 150, 153)',
             shadowOpacity: 1,
             shadowRadius: 1,
-            boxShadow: '0px 0px 5px 1px #00bcd4',
+            boxShadow: '0px 0px 5px 1px rgb(92, 150, 153)',
             elevation: 6, // Android
           },
         ]}
-        colors={['#394962', '#222b3a', '#222b3a', '#222b3a']}
+        colors={['rgb(49, 67, 77)', 'rgb(38, 48, 54)', 'rgb(28, 37, 43)']}
       >
         <Text style={commonStyles.listItemTitle}>{title}</Text>
         <Text style={commonStyles.listItemValue}>

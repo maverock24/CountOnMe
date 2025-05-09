@@ -219,7 +219,7 @@ const TabTwoScreen: React.FC = () => {
               >
                 <Defs>
                   <Filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                    <FeGaussianBlur in="SourceGraphic" stdDeviation="20" result="blur" />
+                    <FeGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
                     <FeMerge>
                       <FeMergeNode in="blur" />
                       <FeMergeNode in="SourceGraphic" />
@@ -230,7 +230,7 @@ const TabTwoScreen: React.FC = () => {
                   cx={radius + strokeWidth / 2}
                   cy={radius + strokeWidth / 2}
                   r={radius}
-                  stroke="rgb(46, 52, 70)"
+                  stroke="rgb(38, 48, 54)"
                   strokeWidth={strokeWidth}
                   fill="none"
                   {...({ collapsable: 'false' } as any)}
@@ -239,7 +239,7 @@ const TabTwoScreen: React.FC = () => {
                   cx={radius + strokeWidth / 2}
                   cy={radius + strokeWidth / 2}
                   r={radius}
-                  stroke="#00bcd4"
+                  stroke="rgb(92, 150, 153)"
                   strokeWidth={strokeWidth}
                   fill="none"
                   strokeDasharray={circumference}
@@ -294,7 +294,7 @@ const TabTwoScreen: React.FC = () => {
         </View>
         <View style={commonStyles.outerContainer}>
           <Text style={commonStyles.tileTitle}>Workouts</Text>
-          <View style={[commonStyles.tile, { flex: 1, padding: 5, backgroundColor: '#111719' }]}>
+          <View style={[commonStyles.tile, { flex: 1, padding: 5 }]}>
             {noWorkout && <TimerButton text="Add" onPress={handleAddNew} maxWidth />}
             {/* <View style={{ width: '95%', flex: 1 }}> */}
             <FlatList

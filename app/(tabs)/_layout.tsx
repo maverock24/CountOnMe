@@ -1,7 +1,7 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Link, Tabs } from 'expo-router';
 import React from 'react';
-import { ImageBackground, Pressable, StyleSheet } from 'react-native';
+import { Easing, ImageBackground, Pressable, StyleSheet } from 'react-native';
 import {
   faCog,
   faDumbbell,
@@ -39,6 +39,11 @@ export default function TabLayout() {
         tabBarStyle: { backgroundColor: 'black', height: 60 },
         tabBarLabelStyle: { fontSize: 16 },
         headerShown: false,
+        animation: 'fade',
+        transitionSpec: {
+          animation: 'timing',
+          config: { easing: Easing.bezier(0.42, 0, 0.58, 1) },
+        },
       }}
     >
       <Tabs.Screen

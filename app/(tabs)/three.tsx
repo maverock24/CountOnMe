@@ -10,6 +10,7 @@ import ListTile from '@/components/ListTile';
 
 export default function TabThreeScreen() {
   const { workoutItems, storeItem, deleteItem } = useData();
+  const [selectedItem, setSelectedItem] = useState<string | null>(null);
 
   const [name, setName] = useState('');
   const [unit, setUnit] = useState('');
@@ -39,6 +40,14 @@ export default function TabThreeScreen() {
     setUnit(text);
   };
 
+  const toggleSelectSet = (key: string) => {
+    if (selectedItem === key) {
+      setSelectedItem(null);
+    } else {
+      setSelectedItem(key);
+    }
+  };
+
   return (
     <View style={commonStyles.container}>
       <View style={commonStyles.outerContainer}>
@@ -49,13 +58,16 @@ export default function TabThreeScreen() {
             <TextInput style={styles.input} value={name} onChangeText={setName} />
             <Text style={styles.label}>Workout set (in minutes with ; seperator)</Text>
             <TextInput style={styles.input} value={unit} onChangeText={handleUnitChange} />
-
-            <TimerButton text="Add" onPress={addItem} maxWidth />
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', width: '100%', paddingRight: 15 }}>
+            <TimerButton disabled={selectedItem ? false : true} text="Delete" onPress={() => deleteItem(selectedItem!)} />
+            <TimerButton text="Add" onPress={addItem} style={{ width: 107}} />
+            
+            </View>
           </View>
         </View>
         <View style={commonStyles.outerContainer}>
           <Text style={commonStyles.tileTitle}>Available Workouts</Text>
-          <View style={[commonStyles.tile, { flex: 1, padding: 5, backgroundColor: '#111719' }]}>
+          <View style={[commonStyles.tile, { flex: 1, padding: 5 }]}>
             {noWorkout && (
               <Text style={{ padding: 10, fontSize: 24, marginTop: '50%', color: '#fff' }}>
                 No workouts available
@@ -67,10 +79,10 @@ export default function TabThreeScreen() {
                   data={workoutItems}
                   renderItem={({ item }) => (
                     <ListTile
+                      isSelected={selectedItem === item.key?.toString()}
                       title={item.key}
                       value={item.value}
-                      isSelected={false}
-                      onPressBtn={() => deleteSet(item.key)}
+                      onPressTile={() => toggleSelectSet(item.key)}
                     />
                   )}
                   keyExtractor={(item) => item.key}
