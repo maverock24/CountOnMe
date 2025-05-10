@@ -152,13 +152,12 @@ const styles = StyleSheet.create({
   pickerButton: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
-    backgroundColor: 'rgb(45, 55, 73)',
     borderRadius: 5,
   },
   musicPickerContainer: {
     flexDirection: 'row-reverse',
     alignItems: 'center',
-    backgroundColor: 'rgb(45, 55, 73)',
+    backgroundColor: 'rgb(49, 67, 77)',
     borderRadius: 5,
     marginBottom: 15,
     justifyContent: 'space-between',
@@ -187,7 +186,7 @@ const styles = StyleSheet.create({
   modalContent: {
     width: 400,
     maxHeight: '90%',
-    backgroundColor: 'rgb(36, 44, 59)', // Dark background for the actual content
+    backgroundColor: 'rgb(49, 67, 77)', // Dark background for the actual content
     borderRadius: 10,
     overflow: 'hidden',
     borderWidth: 1,

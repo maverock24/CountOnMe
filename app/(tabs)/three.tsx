@@ -1,6 +1,6 @@
 import { useData } from '@/components/data.provider';
 import { View } from '@/components/Themed';
-import React, { useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { FlatList, Keyboard, SafeAreaView, StyleSheet, Text, TextInput } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -14,11 +14,48 @@ export default function TabThreeScreen() {
 
   const [name, setName] = useState('');
   const [unit, setUnit] = useState('');
+
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [unitError, setUnitError] = useState<string | null>(null);
+
   const noWorkout = workoutItems.length === 0;
 
+  const validateName = (name: string) => {
+    if (name === '') {
+      setNameError("Name cannot be empty");
+      return false;
+    }
+    const isNameValid = workoutItems.every((item) => item.key !== name);
+    setNameError("Name already exists");
+    if (isNameValid) {
+      setNameError(null);
+      return true;
+    }
+    setNameError("Name already exists");
+    return false;
+  };
+  const validateUnit = (unit: string) => {
+    if(unit === '') {
+      setUnitError("Unit cannot be empty");
+      return false;
+    }
+    // check if unit is in the format of 1;2;3 or just a number e.g. 1
+    const isUnitValid = unit.split(';').every((time) => {
+      const parsedTime = parseFloat(time);
+      return !isNaN(parsedTime) && parsedTime > 0;
+    }
+    );
+    if (isUnitValid) {
+      setUnitError(null);
+      return true;
+    }
+    setUnitError("Invalid unit format");
+    return false;
+  };
   const addItem = () => {
-    if (!name || !unit) return;
-    // Convert unit string that contains minutes seperated by semicolons to seconds string
+    const isNameValid = validateName(name);
+    const isUnitValid = validateUnit(unit);
+    if (!isNameValid || !isUnitValid) return;
     const unitInSeconds = unit
       .split(';')
       .map((time) => parseFloat(time) * 60)
@@ -32,7 +69,6 @@ export default function TabThreeScreen() {
   };
 
   const deleteSet = (key: string) => {
-    // Use deleteItem from DataProvider to delete the item
     deleteItem(key);
   };
 
@@ -47,6 +83,10 @@ export default function TabThreeScreen() {
       setSelectedItem(key);
     }
   };
+  const handleOnFocus = () => {
+    setNameError(null);
+    setUnitError(null);
+  };
 
   return (
     <View style={commonStyles.container}>
@@ -55,13 +95,22 @@ export default function TabThreeScreen() {
         <View style={commonStyles.tile}>
           <View style={styles.innerWrapperTopTile}>
             <Text style={styles.label}>Name</Text>
-            <TextInput style={styles.input} value={name} onChangeText={setName} />
-            <Text style={styles.label}>Workout set (in minutes with ; seperator)</Text>
-            <TextInput style={styles.input} value={unit} onChangeText={handleUnitChange} />
+            <TextInput style={styles.input} value={name} onChangeText={setName} onFocus={handleOnFocus}/>
+            {nameError && <Text style={{ color: 'red', width: '90%' }}>{nameError}</Text>}
+           
+            <Text style={styles.label}>Workout Set</Text>
+            <TextInput
+              style={styles.input}
+              value={unit}
+              onChangeText={handleUnitChange}
+              placeholder="e.g. 1;2;3"
+              placeholderTextColor="#999"
+              onFocus={handleOnFocus}
+            /> 
+            {unitError && <Text style={{ color: 'red', width: '90%' }}>{unitError}</Text>}
             <View style={{ flexDirection: 'row', justifyContent: 'flex-end', width: '100%', paddingRight: 15 }}>
             <TimerButton disabled={selectedItem ? false : true} text="Delete" onPress={() => deleteItem(selectedItem!)} />
-            <TimerButton text="Add" onPress={addItem} style={{ width: 107}} />
-            
+            <TimerButton disabled={ (unit !== '' && name !== '') ? false : true} text="Add" onPress={addItem} style={{ width: 107}} />
             </View>
           </View>
         </View>
