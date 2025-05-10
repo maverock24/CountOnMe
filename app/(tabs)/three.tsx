@@ -68,8 +68,13 @@ export default function TabThreeScreen() {
     Keyboard.dismiss();
   };
 
-  const deleteSet = (key: string) => {
-    deleteItem(key);
+  const deleteItemHandler = (key: string) => {
+    if (key) {
+      deleteItem(key);
+      setSelectedItem(null);
+      setNameError(null);
+      setUnitError(null);
+    }
   };
 
   const handleUnitChange = (text: string) => {
@@ -109,7 +114,7 @@ export default function TabThreeScreen() {
             /> 
             {unitError && <Text style={{ color: 'red', width: '90%' }}>{unitError}</Text>}
             <View style={{ flexDirection: 'row', justifyContent: 'flex-end', width: '100%', paddingRight: 15 }}>
-            <TimerButton disabled={selectedItem ? false : true} text="Delete" onPress={() => deleteItem(selectedItem!)} />
+            <TimerButton disabled={selectedItem ? false : true} text="Delete" onPress={() => deleteItemHandler(selectedItem!)} />
             <TimerButton disabled={ (unit !== '' && name !== '') ? false : true} text="Add" onPress={addItem} style={{ width: 107}} />
             </View>
           </View>
