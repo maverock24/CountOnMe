@@ -372,8 +372,8 @@ export default function TabOneScreen() {
               maximumValue={100}
               step={1}
               onValueChange={handleSliderChange}
-              thumbTintColor={isListening ? '#FF0000' : 'rgb(124, 183, 174)'}
-              minimumTrackTintColor={isListening ? '#FF6666' : 'rgb(74, 125, 118)'}
+              thumbTintColor={isListening ? 'rgb(80, 80, 80)' : 'rgb(124, 183, 174)'}
+              minimumTrackTintColor={isListening ? 'grey' : 'rgb(74, 125, 118)'}
               maximumTrackTintColor="gray"
             />
             <Text style={styles.audioLevel}>{levelDisplayText}</Text>
