@@ -14,10 +14,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
-  Button,
+  Button, // Standard Button (not used in final UI for trigger, but kept for reference if needed)
   Platform, // Import Platform
 } from 'react-native';
 import commonStyles from '../styles';
+import { TriangleLeft } from '@/components/TriangleLeft';
+import { TriangleRight } from '@/components/TriangleRight';
 
 // Helper type for webkit browsers (Web Audio API)
 declare global {
@@ -44,7 +46,9 @@ export default function TabOneScreen() {
   const [sensitivitySetting, setSensitivitySetting] = useState<number>(50); // 0-100
   const [isListening, setIsListening] = useState(false);
   const [audioLevel, setAudioLevel] = useState(0); // Platform-dependent value
+  // statusMessage is removed from UI based on user's latest code, but kept in state if needed for other logic
   const [statusMessage, setStatusMessage] = useState('Press "Start Listening"');
+
 
   // --- Refs ---
   const isMountedRef = useRef(true);
@@ -60,15 +64,11 @@ export default function TabOneScreen() {
   const dataArrayRef = useRef<Uint8Array | null>(null);
 
   // --- Native (expo-audio) Hook ---
-  // Define the status listener callback for useAudioRecorder
   const handleNativeStatusUpdate = useCallback((status: NativeRecordingStatusWithMetering) => {
     if (!isMountedRef.current || !nativeRecorder?.isRecording) {
-        // If no longer recording or unmounted, ensure level is reset
         if (isMountedRef.current && audioLevel !== -160) setAudioLevel(-160);
         return;
     }
-
-    // console.log("Native Status Update:", status); // DEBUG
     if (status && typeof status.metering === 'number') {
       setAudioLevel(status.metering);
       nativeStatusListenerHasLoggedNoMetering = false;
@@ -76,22 +76,22 @@ export default function TabOneScreen() {
       console.warn("Native: Metering property missing or not a number:", status);
       nativeStatusListenerHasLoggedNoMetering = true;
     }
-  }, [/* nativeRecorder?.isRecording might be needed if the hook instance is stable */]); // nativeRecorder comes from below
+  }, [audioLevel]); // Dependency on audioLevel to ensure it can reset if needed
 
   const nativeRecorder = Platform.OS !== 'web' ? useAudioRecorder(
     {
       ...RecordingPresets.HIGH_QUALITY,
-      isMeteringEnabled: true, // Critical for native
-      // Remove numberOfChannels, just spread the preset
-      android: { ...RecordingPresets.HIGH_QUALITY.android },
-      ios: { ...RecordingPresets.HIGH_QUALITY.ios },
+      isMeteringEnabled: true,
+      android: { ...RecordingPresets.HIGH_QUALITY.android }, // Spreading preset for android
+      ios: { ...RecordingPresets.HIGH_QUALITY.ios },       // Spreading preset for ios
     },
-    handleNativeStatusUpdate // Pass the listener
-  ) : null; // Only initialize hook on native
+    handleNativeStatusUpdate
+  ) : null;
 
   // --- Callbacks ---
   const handleCountUp = useCallback(() => {
     if (!isMountedRef.current) return;
+    console.log("Count Up Triggered");
     setCount((prevCount) => prevCount + 1);
     setRemaining((prevRemaining) => (prevRemaining > 0 ? prevRemaining - 1 : 0));
   }, []);
@@ -115,25 +115,22 @@ export default function TabOneScreen() {
 
   const handleSliderChange = useCallback((value: number) => {
     if (isMountedRef.current) {
-      setSensitivitySetting(value); // Update shared sensitivity
+      setSensitivitySetting(value);
     }
-    // Persist based on platform
+    const key = 'audioSensitivitySetting';
     if (Platform.OS === 'web') {
-      try { localStorage.setItem('audioSensitivitySetting', value.toString()); }
+      try { localStorage.setItem(key, value.toString()); }
       catch (e) { console.error("Web: Error saving sensitivity:", e); }
     } else {
-      AsyncStorage.setItem('audioSensitivitySetting', value.toString())
+      AsyncStorage.setItem(key, value.toString())
         .catch((err) => console.error('Native: Error saving sensitivity:', err));
     }
   }, []);
 
   // --- Effects ---
-  // Mount/Unmount Effect: Load sensitivity & Native Permissions
   useEffect(() => {
     isMountedRef.current = true;
     let initialSensitivity = 50;
-
-    // Load sensitivity setting
     (async () => {
       const key = 'audioSensitivitySetting';
       try {
@@ -152,7 +149,6 @@ export default function TabOneScreen() {
       if (isMountedRef.current) setSensitivitySetting(initialSensitivity);
     })();
 
-    // Request Native Permissions on mount (if not web)
     if (Platform.OS !== 'web') {
       (async () => {
         console.log("Requesting native recording permissions (expo-audio)...");
@@ -164,70 +160,57 @@ export default function TabOneScreen() {
       })();
     }
 
-    // Cleanup on unmount
     return () => {
       isMountedRef.current = false;
       console.log('TabOneScreen unmounting...');
       if (Platform.OS === 'web') {
-        isLoopActiveRef.current = false; // For web RAF loop
+        isLoopActiveRef.current = false;
         if (isListening) stopListeningWeb();
       } else {
         if (nativeRecorder && nativeRecorder.isRecording) {
-          console.warn("Unmounting native while recording - attempting stop");
-          nativeRecorder.stop().catch(e => console.error("Error stopping native on unmount:", e));
+          console.log("Unmount: Native recorder is active, attempting stop.");
+          nativeRecorder.stop()
+            .then(() => console.log("Unmount: Native recorder stopped successfully."))
+            .catch(e => console.error("Unmount: Error stopping native recorder:", e));
+        } else {
+            console.log("Unmount: Native recorder not active or not available at unmount time.");
         }
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nativeRecorder]); // Add nativeRecorder as dep for its methods in cleanup
+  }, []); // Empty dependency array for true mount/unmount behavior
 
-  // Triggering Effect (Platform-Specific Logic)
   useEffect(() => {
     const COOLDOWN_MS = 300;
-    if (!isListening || sensitivitySetting === null) return; // Only run if listening & sensitivity set
-
+    if (!isListening || sensitivitySetting === null) return;
     const now = performance.now();
-    if (now - lastTriggerTimestampRef.current <= COOLDOWN_MS) {
-      // console.log("Trigger ignored (cooldown)");
-      return;
-    }
+    if (now - lastTriggerTimestampRef.current <= COOLDOWN_MS) return;
 
     let triggered = false;
-
     if (Platform.OS === 'web') {
       if (isLoopActiveRef.current && audioLevel > 0) {
-        const minThreshold = 1;  // Web: peak deviation (0-128)
-        const maxThreshold = 64;
+        const minThreshold = 1; const maxThreshold = 64;
         const webThreshold = Math.round(maxThreshold - (sensitivitySetting / 100) * (maxThreshold - minThreshold));
         if (audioLevel > webThreshold) {
-          console.log(`Web Clap Detected! Level: ${audioLevel}, Threshold: ${webThreshold}. Triggering count.`);
+          console.log(`Web Clap Detected! Level: ${audioLevel}, Threshold: ${webThreshold}.`);
           triggered = true;
         }
       }
-    } else { // Native (iOS/Android)
-      if (nativeRecorder?.isRecording && audioLevel !== -160) { // audioLevel is dB (-160 to 0)
-        // Map sensitivity (0-100) to dB threshold.
-        // 0 sensitivity = -20dB (harder to trigger)
-        // 100 sensitivity = -70dB (easier to trigger)
-        const minDbThreshold = -70; // Most sensitive
-        const maxDbThreshold = -20; // Least sensitive
+    } else {
+      if (nativeRecorder?.isRecording && audioLevel !== -160) {
+        const minDbThreshold = -70; const maxDbThreshold = -20;
         const nativeThreshold = Math.round(maxDbThreshold - (sensitivitySetting / 100) * (maxDbThreshold - minDbThreshold));
-
         if (audioLevel > nativeThreshold) {
-          console.log(`Native Clap Detected! Level: ${audioLevel.toFixed(1)}dB, Threshold: ${nativeThreshold}dB. Triggering count.`);
+          console.log(`Native Clap Detected! Level: ${audioLevel.toFixed(1)}dB, Threshold: ${nativeThreshold}dB.`);
           triggered = true;
         }
       }
     }
-
     if (triggered) {
       lastTriggerTimestampRef.current = now;
       handleCountUp();
     }
   }, [audioLevel, sensitivitySetting, isListening, handleCountUp, nativeRecorder]);
 
-
-  // --- Web Audio Functions (Only for Platform.OS === 'web') ---
   const stopListeningWeb = async () => {
     console.log('>>> stopListeningWeb CALLED <<<');
     isLoopActiveRef.current = false; lastTriggerTimestampRef.current = 0;
@@ -272,7 +255,7 @@ export default function TabOneScreen() {
       analyzeAudioWeb();
     } catch (err) {
        console.error('Web Audio setup error:', err); setStatusMessage(`Web Audio setup error.`); Alert.alert('Audio Error', `Failed to init web audio.`);
-       stopListeningWeb(); // Attempt full cleanup on error
+       stopListeningWeb();
     }
   };
 
@@ -289,30 +272,24 @@ export default function TabOneScreen() {
     else { animationFrameRef.current = null; }
   };
 
-
-  // --- Native (expo-audio) Functions ---
   const startListeningNative = async () => {
     if (!nativeRecorder || !isMountedRef.current) {
         Alert.alert("Error", "Audio recorder not available.");
         return;
     }
-     // Check permissions again just before starting
      const perm = await AudioModule.getRecordingPermissionsAsync();
      if (!perm.granted) {
-         Alert.alert("Permission Required", "Microphone permission is needed. Please grant it and try again.");
+         Alert.alert("Permission Required", "Microphone permission is needed.");
          return;
      }
-
     try {
       setStatusMessage('Initializing native audio...');
-      if(isMountedRef.current) setAudioLevel(-160); // Reset level
-      await nativeRecorder.prepareToRecordAsync({
-        // isMeteringEnabled: true, // This is set in useAudioRecorder options
-      });
+      if(isMountedRef.current) setAudioLevel(-160);
+      await nativeRecorder.prepareToRecordAsync({}); // Options set in hook
       console.log('Starting native recording (expo-audio)...');
       await nativeRecorder.record();
-      if (isMountedRef.current) setIsListening(true); // Update UI state
-      nativeStatusListenerHasLoggedNoMetering = false; // Reset log flag
+      if (isMountedRef.current) setIsListening(true);
+      nativeStatusListenerHasLoggedNoMetering = false;
       setStatusMessage('Listening (Native)...');
     } catch (error) {
       console.error("Failed to start native recording:", error);
@@ -322,7 +299,27 @@ export default function TabOneScreen() {
   };
 
   const stopListeningNative = async () => {
-    if (!nativeRecorder || !isMountedRef.current) return;
+    if (!isMountedRef.current) {
+        console.log("Native stop: Component unmounted.");
+        return;
+    }
+    if (!nativeRecorder) {
+        console.log("Native stop: Recorder not available.");
+        if(isListening && isMountedRef.current) setIsListening(false);
+        setStatusMessage('Press "Start Listening"');
+        setAudioLevel(-160);
+        return;
+    }
+
+    // CRUCIAL CHECK: Only call stop if the hook indicates it's recording
+    if (!nativeRecorder.isRecording) {
+        console.log("Native stop: nativeRecorder.isRecording is false. Not calling native stop(). Resetting UI.");
+        if (isListening && isMountedRef.current) setIsListening(false);
+        setStatusMessage('Press "Start Listening"');
+        setAudioLevel(-160);
+        return;
+    }
+
     try {
       setStatusMessage('Stopping native audio...');
       console.log('Stopping native recording (expo-audio)...');
@@ -330,17 +327,20 @@ export default function TabOneScreen() {
       console.log('Native recording stopped. URI:', nativeRecorder.uri);
       if (isMountedRef.current) {
         setIsListening(false);
-        setAudioLevel(-160); // Reset level
+        setAudioLevel(-160);
         setStatusMessage('Press "Start Listening"');
       }
     } catch (error) {
       console.error("Failed to stop native recording:", error);
       Alert.alert("Error", "Could not stop native recording cleanly.");
-      if (isMountedRef.current) setIsListening(false); // Ensure UI state reset
+      if (isMountedRef.current) {
+          setIsListening(false);
+          setStatusMessage('Error stopping. Try again.');
+          setAudioLevel(-160);
+      }
     }
   };
 
-  // --- Main Toggle Function ---
    const toggleListening = () => {
     if (isListening) {
       if (Platform.OS === 'web') stopListeningWeb();
@@ -351,47 +351,43 @@ export default function TabOneScreen() {
     }
   };
 
-  // --- Render ---
   const currentPlatform = Platform.OS;
   let levelDisplayText = `Mic Level: ${audioLevel.toFixed(0)}`;
   if (currentPlatform === 'web') levelDisplayText += ' / 128';
-  else if (currentPlatform as any !== 'web' && audioLevel > -159) levelDisplayText = `Mic Level: ${audioLevel.toFixed(1)} dB`;
-  else if (currentPlatform as any !== 'web') levelDisplayText = 'Mic Level: --- dB';
+  else if (currentPlatform as any !== 'web' && audioLevel > -159.9) levelDisplayText = `Mic Level: ${audioLevel.toFixed(1)} dB`;
+  else if (currentPlatform as any  !== 'web') levelDisplayText = 'Mic Level: --- dB';
 
   return (
     <View style={commonStyles.container}>
       <View style={commonStyles.outerContainer}>
-        {/* --- Sound Trigger Tile --- */}
-        <Text style={commonStyles.tileTitle}>Sound trigger</Text>
+        <Text style={commonStyles.tileTitle}>Sound trigger</Text>{/* Updated Title */}
         <View style={commonStyles.tile}>
           <View style={styles.innerWrapperTopTile}>
-                <Slider
-                  value={sensitivitySetting ?? 50}
-                  disabled={isListening}
-                  style={styles.slider}
-                  minimumValue={0}
-                  maximumValue={100}
-                  step={1}
-                  onValueChange={handleSliderChange}
-                  thumbTintColor={isListening ? '#FF0000' : '#00bcd4'}
-                  minimumTrackTintColor={isListening ? '#FF6666' : '#00bcd4'}
-                  maximumTrackTintColor="gray"
-                />
-                <Text style={styles.audioLevel}>{levelDisplayText}</Text>
-                <TimerButton
-                  text={isListening ? 'Stop Listening' : 'Start Listening'}
-                  onPress={toggleListening}
-                  isSelected={isListening ? true : false}
-                  // Optionally disable if permissions were permanently denied, based on perm state
-                />
+            {/* UI elements removed as per user's latest code structure */}
+            <Slider
+              value={sensitivitySetting ?? 50}
+              disabled={isListening}
+              style={styles.slider}
+              minimumValue={0}
+              maximumValue={100}
+              step={1}
+              onValueChange={handleSliderChange}
+              thumbTintColor={isListening ? '#FF0000' : 'rgb(124, 183, 174)'}
+              minimumTrackTintColor={isListening ? '#FF6666' : 'rgb(74, 125, 118)'}
+              maximumTrackTintColor="gray"
+            />
+            <Text style={styles.audioLevel}>{levelDisplayText}</Text>
+            <TimerButton
+              text={isListening ? 'Stop Listening' : 'Start Listening'}
+              onPress={toggleListening}
+              isSelected={isListening} // Use isListening directly for TimerButton state
+            />
           </View>
         </View>
 
-        {/* --- Counter Tile --- */}
         <Text style={commonStyles.tileTitle}>Counter</Text>
         <View style={[commonStyles.tile, { flex: 1, alignItems: 'center', justifyContent: 'center' }]}>
           <View style={styles.innerWrapperBottomTile}>
-             {/* ... (Counter JSX as before) ... */}
              <View style={{ backgroundColor: 'transparent', alignItems: 'center' }}>
                  <View style={styles.buttonContainerReps}>
                     {repititions.map((rep, index) => ( <TimerButton key={index} text={rep.toString()} onPress={() => handleSetRemaining(rep)} style={{ marginHorizontal: 5 }} /> ))}
@@ -399,9 +395,11 @@ export default function TabOneScreen() {
                  <Text style={styles.remainingLabel}>Target Reps:</Text><Text style={styles.remaining}>{remaining > 0 ? remaining : '-'}</Text>
              </View>
              <View style={styles.buttonContainer}>
-                 <TouchableOpacity style={styles.triangleLeft} onPress={handleCountDown} />
+                 {/* <TouchableOpacity style={styles.triangleLeft} onPress={handleCountDown} /> */}
+                 <TriangleLeft size={80} onPress={handleCountDown} />
                  <Text style={styles.count}>{count}</Text>
-                 <TouchableOpacity style={styles.triangleRight} onPress={handleCountUp} />
+                 {/* <TouchableOpacity style={styles.triangleRight} onPress={handleCountUp} /> */}
+                 <TriangleRight size={80} onPress={handleCountUp} />
              </View>
              <TimerButton maxWidth={true} text="Reset" onPress={handleReset} style={{ marginTop: -20}} />
           </View>
@@ -411,20 +409,21 @@ export default function TabOneScreen() {
   );
 }
 
-// --- Styles ---
 const styles = StyleSheet.create({
     innerWrapperTopTile: { alignItems: 'center', justifyContent: 'center', width: '95%', paddingVertical: 15 },
-    innerWrapperBottomTile: { flex: 1, flexDirection: 'column', justifyContent: 'space-around', width: '95%', alignItems: 'center', backgroundColor: 'transparent' },
+    innerWrapperBottomTile: { flex: 1, flexDirection: 'column', justifyContent: 'space-around', width: '95%', alignItems: 'center', paddingVertical: 5, backgroundColor: 'transparent' }, // User change: paddingVertical: 5
     count: { fontSize: 110, fontWeight: 'bold', color: 'white', textAlign: 'center', minWidth: 150 },
     remainingLabel: { color: '#ccc', fontSize: 14, marginBottom: 2 },
     remaining: { color: 'white', fontSize: 24, fontWeight: 'bold', marginHorizontal: 20, borderBottomWidth: 1, borderBottomColor: '#fff', textAlign: 'center', width: 80, marginBottom: 15 },
-    buttonContainer: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', width: '95%', backgroundColor: 'transparent', marginVertical: 5, marginTop: -20 },
+    buttonContainer: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', width: '95%', backgroundColor: 'transparent', marginVertical: 5, marginTop: -20 }, // User change: marginVertical: 5, marginTop: -20
     buttonContainerReps: { display: 'flex', flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', backgroundColor: 'transparent', marginBottom: 10 },
-    sliderLabel: { fontSize: 14, color: '#ccc', marginBottom: 2 }, // This was missing in your provided render, re-added for context
-    sliderValueLabel: { fontSize: 12, color: '#aaa', marginBottom: 5 }, // This was missing in your provided render, re-added for context
+    // sliderLabel, sliderValueLabel, statusText are not rendered in user's latest UI for the trigger tile,
+    // but kept here if needed for other parts or future re-integration.
+    sliderLabel: { fontSize: 14, color: '#ccc', marginBottom: 2 },
+    sliderValueLabel: { fontSize: 12, color: '#aaa', marginBottom: 5 },
+    statusText: { fontSize: 14, color: '#ddd', marginBottom: 15, fontStyle: 'italic', minHeight: 20 },
     slider: { width: '90%', height: 40, marginBottom: 15 },
-    triangleLeft: { width: 0, height: 0, borderTopWidth: 40, borderRightWidth: 35, borderBottomWidth: 40, borderStyle: 'solid', backgroundColor: 'transparent', borderTopColor: 'transparent', borderRightColor: 'rgb(64, 85, 89)', borderBottomColor: 'transparent', borderLeftColor: 'transparent' },
-    triangleRight: { width: 0, height: 0, borderTopWidth: 40, borderLeftWidth: 35, borderBottomWidth: 40, borderStyle: 'solid', backgroundColor: 'transparent', borderTopColor: 'transparent', borderLeftColor: 'rgb(64, 85, 89)', borderBottomColor: 'transparent', borderRightColor: 'transparent' },
+    triangleLeft: { width: 0, height: 0, borderTopWidth: 40, borderRightWidth: 35, borderBottomWidth: 40, borderStyle: 'solid', backgroundColor: 'transparent', borderTopColor: 'transparent', borderRightColor: 'rgb(64, 85, 89)', borderBottomColor: 'transparent', borderLeftColor: 'transparent' }, // User color change
+    triangleRight: { width: 0, height: 0, borderTopWidth: 40, borderLeftWidth: 35, borderBottomWidth: 40, borderStyle: 'solid', backgroundColor: 'transparent', borderTopColor: 'transparent', borderLeftColor: 'rgb(64, 85, 89)', borderBottomColor: 'transparent', borderRightColor: 'transparent' }, // User color change
     audioLevel: { fontSize: 14, color: '#aaa', backgroundColor: 'transparent', marginTop: 0, marginBottom: 15, height: 20, textAlign: 'center' },
-    statusText: { fontSize: 14, color: '#ddd', marginBottom: 15, fontStyle: 'italic', minHeight: 20 }, // This was missing in your provided render, re-added for context
 });

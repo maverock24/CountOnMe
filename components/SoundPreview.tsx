@@ -81,7 +81,7 @@ const SoundPreview: React.FC<SoundPreviewProps> = ({ selectedSound }) => {
 
   return (
     <TouchableOpacity onPress={playSound}>
-      <FontAwesome name={isPlaying ? 'stop-circle' : 'play-circle'} size={32} color="#00bcd4" />
+      <FontAwesome name={isPlaying ? 'stop-circle' : 'play-circle'} size={32} color="white" />
     </TouchableOpacity>
   );
 };
