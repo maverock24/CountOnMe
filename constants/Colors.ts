@@ -2,6 +2,7 @@ const tintColorLight = 'white';
 const tintColorDark = 'white';
 
 export default {
+  glow: 'rgb(42, 199, 207)',
   light: {
     text: '#fff',
     background: 'transparent',

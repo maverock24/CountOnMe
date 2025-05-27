@@ -20,6 +20,7 @@ import {
 import Svg, { Circle, Defs, FeGaussianBlur, FeMerge, FeMergeNode, Filter } from 'react-native-svg';
 import commonStyles from '../styles';
 import ListTile from '@/components/ListTile';
+import Colors from '@/constants/Colors';
 
 const { height } = Dimensions.get('window');
 
@@ -239,7 +240,7 @@ const TabTwoScreen: React.FC = () => {
                   cx={radius + strokeWidth / 2}
                   cy={radius + strokeWidth / 2}
                   r={radius}
-                  stroke="rgb(92, 150, 153)"
+                  stroke={Colors.glow}
                   strokeWidth={strokeWidth}
                   fill="none"
                   strokeDasharray={circumference}
