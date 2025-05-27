@@ -1,5 +1,6 @@
-//timer button component
+
 import commonStyles from '@/app/styles';
+import Colors from '@/constants/Colors';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { Pressable, StyleProp, Text, ViewStyle } from 'react-native';
@@ -24,26 +25,25 @@ const TimerButton = ({
   return (
     <Pressable
       disabled={disabled}
-      onPress={onPress} // Add this line
+      onPress={onPress} 
       style={{ width: maxWidth ? '100%' : 'auto' }}
     >
       {({ pressed }) => (
         <LinearGradient
           style={[
             disabled && commonStyles.buttonDisabled,
-            // pressed && !small && { backgroundColor: 'rgba(0, 255, 42, 0.87)' },
             !disabled && !small && commonStyles.button,
             small && commonStyles.buttonSmall,
             small && pressed && commonStyles.buttonSmallPressed,
             { borderWidth: 2, borderColor: 'transparent' },
             isSelected && {
-              borderColor: 'rgb(92, 150, 153)',
+              borderColor: Colors.glow,
               borderWidth: 2,
-              shadowColor: 'rgb(92, 150, 153)',
+              shadowColor: Colors.glow,
               shadowOpacity: 1,
               shadowRadius: 1,
-              boxShadow: '0px 0px 5px 1px rgb(92, 150, 153)',
-              elevation: 6, // Android
+              boxShadow: `0px 0px 5px 1px ${Colors.glow}`,
+              elevation: 6, 
             },
             style,
           ]}

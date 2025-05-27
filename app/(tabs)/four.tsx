@@ -1,7 +1,7 @@
 import { useData } from '@/components/data.provider';
 import ModalPicker from '@/components/ModalPicker';
 import React, { useState } from 'react';
-import { Dimensions, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import commonStyles from '../styles';
 
 const SettingsScreen: React.FC = () => {
@@ -9,7 +9,6 @@ const SettingsScreen: React.FC = () => {
 
   const { audioEnabled, setAudioEnabled } = useData();
 
-  const windowHeight = Dimensions.get('window').height;
 
   return (
     <View style={commonStyles.container}>

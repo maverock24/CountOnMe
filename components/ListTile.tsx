@@ -6,6 +6,7 @@ import { Pressable } from 'react-native';
 import { useData } from '@/components/data.provider';
 import commonStyles from '@/app/styles';
 import TimerButton from './TimerButton';
+import Colors from '@/constants/Colors';
 
 const ListTile = ({
   isSelected,
@@ -35,12 +36,12 @@ const ListTile = ({
           commonStyles.button,
           { flexDirection: 'row', flex: 1, borderWidth: 2, borderColor: 'transparent' },
           isSelected && {
-            borderColor: 'rgb(92, 150, 153)',
+            borderColor: Colors.glow,
             borderWidth: 2,
-            shadowColor: 'rgb(92, 150, 153)',
+            shadowColor: Colors.glow,
             shadowOpacity: 1,
             shadowRadius: 1,
-            boxShadow: '0px 0px 5px 1px rgb(92, 150, 153)',
+            boxShadow: `0px 0px 5px 1px ${Colors.glow}`,
             elevation: 6, // Android
           },
         ]}
