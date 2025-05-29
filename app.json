@@ -51,7 +51,8 @@
           "microphonePermission": "Allow CountOnMe to access your microphone."
         }
       ],
-      "expo-audio"
+      "expo-audio",
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true

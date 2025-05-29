@@ -177,16 +177,16 @@ const TabTwoScreen: React.FC = () => {
     }
   };
 
-  const toggleSelectSet = (value: string) => {
+  const toggleSelectSet = (key: string, value: string) => {
     setSelectedItem((prev) => {
-      if (prev === value) {
+      if (prev === key) {
         handleReset();
         setTimers([]);
         setTime(0);
         return null;
       }
       selectSet(value);
-      return value;
+      return key;
     });
   };
 
@@ -303,10 +303,10 @@ const TabTwoScreen: React.FC = () => {
               data={workoutItems}
               renderItem={({ item }) => (
                 <ListTile
-                  isSelected={selectedItem === item.value?.toString()}
+                  isSelected={selectedItem === item.key?.toString()}
                   title={item.key}
                   value={item.value}
-                  onPressTile={() => toggleSelectSet(item.value?.toString() ?? '0')}
+                  onPressTile={() => toggleSelectSet(item.key, item.value?.toString() ?? '')}
                 />
               )}
               keyExtractor={(item) => item.key}
