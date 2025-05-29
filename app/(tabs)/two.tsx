@@ -231,7 +231,7 @@ const TabTwoScreen: React.FC = () => {
                   cx={radius + strokeWidth / 2}
                   cy={radius + strokeWidth / 2}
                   r={radius}
-                  stroke="rgb(38, 48, 54)"
+                  stroke="darkSlateGrey"
                   strokeWidth={strokeWidth}
                   fill="none"
                   {...({ collapsable: 'false' } as any)}
