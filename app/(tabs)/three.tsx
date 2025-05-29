@@ -136,7 +136,7 @@ export default function TabThreeScreen() {
                       isSelected={selectedItem === item.key?.toString()}
                       title={item.key}
                       value={item.value}
-                      onPressTile={() => toggleSelectSet(item.key)}
+                      onPressTile={() => toggleSelectSet(item.key?.toString() || '')}
                     />
                   )}
                   keyExtractor={(item) => item.key}

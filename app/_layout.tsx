@@ -15,6 +15,7 @@ import { Sound } from 'expo-av/build/Audio';
 import { SoundProvider } from '@/components/sound.provider';
 import TutorialModal from '@/components/TutorialModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { setAppLocale } from './utils/language';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete
 SplashScreen.preventAutoHideAsync();
@@ -40,6 +41,24 @@ export default function RootLayout() {
   const TUTORIAL_STORAGE_KEY = '@appTutorialSeen'; // Unique key for storage
 
   useEffect(() => {
+    const checkLanguage = async () => {
+      try {
+        // Check if the language setting exists in storage
+        const storedLanguage = await AsyncStorage.getItem('language');
+        if (storedLanguage) {
+          // If a language is stored, set it in the app (this could be a context or state update)
+          // For example, you might have a function to set the app's language
+          setAppLocale(storedLanguage);
+        } else {
+          // If no language is stored, you might want to set a default language
+          setAppLocale('en'); // Default to English or any other default language
+        }
+      } catch (error) {
+        console.error('Error reading language from AsyncStorage:', error);
+        // Handle error, maybe set a default language
+        // setAppLocale('en'); // Default to English or any other default language
+      }
+    };
     const checkTutorialStatus = async () => {
       try {
         // Check if the tutorial flag exists in storage
@@ -62,6 +81,7 @@ export default function RootLayout() {
       }
     };
 
+    checkLanguage();
     checkTutorialStatus();
   }, []); // Empty dependency array ensures this runs only once on mount
 

@@ -55,6 +55,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     { label: 'Starlit Serenity', value: require('../assets/sounds/starlit_serenity.mp3') },
     { label: 'Peaceful Indian', value: require('../assets/sounds/peaceful_music_indian.mp3') },
     { label: 'Mystical', value: require('../assets/sounds/mystical.mp3') },
+    { label: 'Radio Hirschmilch Chillout', value: 'https://hirschmilch.de:7501/chillout.mp3' },
+    { label: 'Radio Hirschmilch Techno', value: 'https://hirschmilch.de:7501/techno.mp3' }
   ];
 
   const breakMusic = [
@@ -63,6 +65,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     { label: 'Starlit Serenity', value: require('../assets/sounds/starlit_serenity.mp3') },
     { label: 'Peaceful Indian', value: require('../assets/sounds/peaceful_music_indian.mp3') },
     { label: 'Mystical', value: require('../assets/sounds/mystical.mp3') },
+    { label: 'Radio Hirschmilch Chillout', value: 'https://hirschmilch.de:7501/chillout.mp3' },
   ];
 
   const successSound: Array<DataKey> = [
@@ -76,9 +79,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const language = [
     { label: 'English', value: 'en' },
-    { label: 'Español', value: 'es' },
-    { label: 'Français', value: 'fr' },
-    { label: 'Deutsch', value: 'de' },
+    { label: 'German', value: 'de' },
   ];
 
   const reload = async () => {
