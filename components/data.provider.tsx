@@ -57,9 +57,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     { label: 'Mystical', value: require('../assets/sounds/mystical.mp3') },
     { label: 'Radio: Hirschmilch Chillout', value: 'https://hirschmilch.de:7501/chillout.mp3' },
     { label: 'Radio: Hirschmilch Techno', value: 'https://hirschmilch.de:7501/techno.mp3' },
-    { label: 'Radio: Yoga Chill', value: 'http://radio4.vip-radios.fm:8027/secure-128mp3-YogaChill_autodj' },
+    { label: 'Radio: Chilltrax', value: 'https://streamssl3.chilltrax.com/listen.pls?sid=1' },
+    { label: 'Radio: Frisky Chill', value: 'https://stream.chill.friskyradio.com/mp3_low' },
     { label: 'Radio: Hirschmilch Psy Trance', value: 'https://hirschmilch.de:7501/psytrance.mp3' },
     { label: 'Radio: Hirschmilch Ambient', value: 'https://hirschmilch.de:7501/ambient.mp3' },
+    { label: 'Radio Moonphase', value: 'https://cp12.serverse.com/proxy/moonphase/stream' },
+    { label: 'Radio: La Patate Douce', value: 'https://listen.radioking.com/radio/285742/stream/331753' },
+    { label: 'Hunter FM LoFi', value: 'https://live.hunter.fm/lofi_normal' },
+    { label: 'Ambient Sleeping Pill', value: 'https://s.stereoscenic.com/asp-h.m3u' },
   ];
 
   const breakMusic = [
@@ -69,8 +74,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     { label: 'Peaceful Indian', value: require('../assets/sounds/peaceful_music_indian.mp3') },
     { label: 'Mystical', value: require('../assets/sounds/mystical.mp3') },
     { label: 'Radio: Hirschmilch Chillout', value: 'https://hirschmilch.de:7501/chillout.mp3' },
-    { label: 'Radio: Yoga Chill', value: 'http://radio4.vip-radios.fm:8027/secure-128mp3-YogaChill_autodj' },
-    
+    { label: 'Radio: Frisky Chill', value: 'https://stream.chill.friskyradio.com/mp3_low' },
+    { label: 'Radio: Chilltrax', value: 'https://streamssl3.chilltrax.com/listen.pls?sid=1' },
+    { label: 'Radio Moonphase', value: 'https://cp12.serverse.com/proxy/moonphase/stream' },
+    { label: 'Radio: La Patate Douce', value: 'https://listen.radioking.com/radio/285742/stream/331753' },
+    { label: 'Hunter FM LoFi', value: 'https://live.hunter.fm/lofi_normal' },
+    { label: 'Ambient Sleeping Pill', value: 'https://s.stereoscenic.com/asp-h.m3u' },
   ];
 
   const successSound: Array<DataKey> = [
