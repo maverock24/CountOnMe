@@ -65,6 +65,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     { label: 'Radio: La Patate Douce', value: 'https://listen.radioking.com/radio/285742/stream/331753' },
     { label: 'Hunter FM LoFi', value: 'https://live.hunter.fm/lofi_normal' },
     { label: 'Ambient Sleeping Pill', value: 'https://s.stereoscenic.com/asp-h.m3u' },
+    { label: 'Radio: Bagle Radio', value: 'https://ais-sa3.cdnstream1.com/2606_128.mp3' },
   ];
 
   const breakMusic = [

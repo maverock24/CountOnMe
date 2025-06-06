@@ -306,6 +306,7 @@ const TabTwoScreen: React.FC = () => {
                   isSelected={selectedItem === item.key?.toString()}
                   title={item.key}
                   value={item.value}
+                  currentIndex={currentIndex}
                   onPressTile={() => toggleSelectSet(item.key, item.value?.toString() ?? '')}
                 />
               )}

@@ -1,3 +1,4 @@
+import Colors from '@/constants/Colors';
 import { Dimensions, StyleSheet } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -13,6 +14,19 @@ const scaleSize = (size: number) => Math.round(size * scale);
 const baseButtonHeight = height * 0.08; // e.g., 6% of screen height
 
 const commonStyles = StyleSheet.create({
+  listItemValueText: {
+    flex: 1,
+    alignSelf: 'flex-end',
+    fontSize: 18,
+    letterSpacing: 2,
+    fontWeight: 'bold',
+    //add glow
+    color: 'rgb(157, 242, 246)',
+    textShadowColor: Colors.glow,
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 8,
+
+  },
   outerContainer: {
     flex: 1,
     justifyContent: 'flex-start',
