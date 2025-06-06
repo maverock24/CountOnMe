@@ -20,12 +20,12 @@ const commonStyles = StyleSheet.create({
     fontSize: 18,
     letterSpacing: 2,
     fontWeight: 'bold',
-    //add glow
     color: 'rgb(157, 242, 246)',
     textShadowColor: Colors.glow,
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 8,
-
+    textDecorationStyle: 'solid',
+    textDecorationLine: 'underline'
   },
   outerContainer: {
     flex: 1,
