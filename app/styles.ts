@@ -157,7 +157,6 @@ const commonStyles = StyleSheet.create({
     width: '100%',
   },
   listItemTitle: {
-    flex: 3,
     fontSize: 12,
     fontWeight: 'bold',
     color: 'white',
@@ -166,7 +165,9 @@ const commonStyles = StyleSheet.create({
     borderRightWidth: 1,
     height: 20,
     marginRight: 20,
+    paddingRight: 10,
     paddingTop: 3,
+
   },
   listItemValue: {
     flex: 1,
