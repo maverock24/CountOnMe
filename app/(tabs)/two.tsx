@@ -214,7 +214,7 @@ const TabTwoScreen: React.FC = () => {
               <View
                             style={{
                               position: 'absolute',
-                              top: 250,
+                              top: '65%',
                               flexDirection: 'row',
                               alignItems: 'center',
                               justifyContent: 'space-between',
