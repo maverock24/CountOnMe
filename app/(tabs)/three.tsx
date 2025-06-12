@@ -108,7 +108,7 @@ export default function TabThreeScreen() {
               style={styles.input}
               value={unit}
               onChangeText={handleUnitChange}
-              placeholder="e.g. 1;2;3"
+              placeholder="1;2;3 -> 1min workout; 2min break; 3min workout"
               placeholderTextColor="#999"
               onFocus={handleOnFocus}
             /> 
