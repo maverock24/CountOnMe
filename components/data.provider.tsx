@@ -91,6 +91,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     },
     { label: 'Perfect Beauty', value: require('../assets/sounds/chill_perfect-beauty.mp3') },
     { label: 'Space Ambient', value: require('../assets/sounds/chill_space-ambient-music.mp3') },
+    { label: 'Radio: Ndr Info', value: 'https://www.ndr.de/resources/metadaten/audio/m3u/ndrinfo_hh.m3u' },
     { label: 'Radio: Hirschmilch Chillout', value: 'https://hirschmilch.de:7501/chillout.mp3' },
     { label: 'Radio: Hirschmilch Techno', value: 'https://hirschmilch.de:7501/techno.mp3' },
     { label: 'Radio: Chilltrax', value: 'https://streamssl3.chilltrax.com/listen.pls?sid=1' },
