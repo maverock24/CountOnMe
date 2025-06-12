@@ -175,7 +175,7 @@ export default function TabOneScreen() {
   }, []); 
 
   useEffect(() => {
-    const COOLDOWN_MS = 300;
+    const COOLDOWN_MS = 100;
     if (!isListening || sensitivitySetting === null) return;
     const now = performance.now();
     if (now - lastTriggerTimestampRef.current <= COOLDOWN_MS) return;
