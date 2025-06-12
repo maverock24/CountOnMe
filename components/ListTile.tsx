@@ -33,9 +33,6 @@ const ListTile = ({
     }
   }, [currentIndex]);
 
-
-
-
   return (
     <Pressable
       style={{
@@ -66,7 +63,6 @@ const ListTile = ({
   <Text style={commonStyles.listItemTitle}>{title}</Text>
   {value &&
     value.split(';').map((time, index) => (
-      console.log('time', time, index, workoutStage),
       <Text key={index} style={isSelected && index === workoutStage ? commonStyles.listItemValueText : commonStyles.listItemValue}>
         {(parseFloat(time) / 60).toString()}
       </Text>
