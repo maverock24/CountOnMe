@@ -13,6 +13,7 @@ import {
   FlatList,
   Pressable,
   StyleSheet,
+  Switch,
   Text,
   TouchableOpacity,
   View,
@@ -210,6 +211,24 @@ const TabTwoScreen: React.FC = () => {
         <View style={commonStyles.tile}>
           <View style={styles.innerWrapperTopTile}>
             <View style={styles.timerContainer}>
+              <View
+                            style={{
+                              position: 'absolute',
+                              top: 250,
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                            }}
+                          >
+                            <Text style={styles.label}>Sound on/off</Text>
+                            <Switch
+                              style={{ marginRight: 10, marginTop: 10 }}
+                              trackColor={{ false: 'white', true: 'rgb(74, 125, 118)' }}
+                              thumbColor={audioEnabled ? 'white' : 'grey'}
+                              onValueChange={setAudioEnabled}
+                              value={audioEnabled}
+                            />
+                          </View>
               <Svg
                 height={radius * 2 + strokeWidth}
                 width={radius * 2 + strokeWidth}
@@ -320,6 +339,13 @@ const TabTwoScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  label: {
+    marginTop: 15,
+    marginRight: 10,
+    fontSize: 16,
+    color: 'lightgray',
+    marginBottom: 5,
+  },
   // Your existing styles remain the same
   innerWrapperTopTile: {
     paddingTop: 0,
