@@ -10,15 +10,15 @@ import {
 import { Text } from '@/components/Themed';
 import SoundPreview from './SoundPreview';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useData } from './data.provider';
+import { DataKey, useData } from './data.provider';
 import { FontAwesome } from '@expo/vector-icons';
 import { useSound } from './sound.provider';
 
-export type DataKey = 'breakMusic' | 'workoutMusic' | 'successSound' | 'language';
+export type setting = 'breakMusic' | 'workoutMusic' | 'successSound' | 'language';
 
 interface MusicPickerProps {
   label: string;
-  dataKey: string;
+  dataKey: setting;
 }
 
 const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
@@ -30,18 +30,24 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
 
   // Get the correct music array based on musicType
   const musicOptions = (() => {
+    let options: DataKey[] = [];
     switch (dataKey) {
       case 'workoutMusic':
-        return workoutMusic;
+        options = workoutMusic;
+        break;
       case 'breakMusic':
-        return breakMusic;
+        options = breakMusic;
+        break;
       case 'successSound':
-        return successSound;
+        options = successSound;
+        break;
       case 'language':
-        return language;
+        options = language;
+        break;
       default:
-        return [];
+        options = [];
     }
+    return options.sort((a, b) => a.label.localeCompare(b.label));
   })();
 
   useEffect(() => {
