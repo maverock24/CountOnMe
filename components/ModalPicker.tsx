@@ -172,9 +172,12 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
                 <FontAwesome name="play" size={20} color="white" />
               </TouchableOpacity>
             )}
+            <TouchableOpacity
+              onPress={() => setModalVisible(true)} >
             <View style={{ flex: 1, alignItems: 'center' }}>
               <Text style={styles.selectedValueText}>{selectedValue}</Text>
             </View>
+            </TouchableOpacity>
             <TouchableOpacity style={styles.pickerButton} onPress={() => setModalVisible(true)}>
               <FontAwesome name="chevron-down" size={20} color="white" />
             </TouchableOpacity>
