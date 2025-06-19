@@ -33,6 +33,7 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
   const [trackPosition, setTrackPosition] = useState(0);
   const [trackDuration, setTrackDuration] = useState(1);
   const [sliderDragging, setSliderDragging] = useState(false);
+  const [isRadio, setIsRadio] = useState(false);
   let soundInstance = React.useRef<any>(null);
 
   // Get the correct music array based on musicType
@@ -98,6 +99,7 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
   // Play sound and show slider
   const handlePlay = async () => {
     const sound = findSelectedSound();
+    setIsRadio(sound?.toString().includes('http'));
     if (!sound) return;
     setIsPlaying(true);
     const playback = new Audio.Sound();
@@ -119,6 +121,7 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
 
   const handleStop = async () => {
     setIsPlaying(false);
+    setIsRadio(false);
     setTrackPosition(0);
     if (soundInstance.current) {
       await soundInstance.current.stopAsync();
@@ -144,6 +147,7 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
               <FontAwesome name="stop" size={22} color="white" />
             </TouchableOpacity>
             <Slider
+            disabled={isRadio}
               style={{ flex: 1, marginHorizontal: 10 }}
               minimumValue={0}
               maximumValue={trackDuration}
