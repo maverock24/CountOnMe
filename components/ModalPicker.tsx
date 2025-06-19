@@ -13,6 +13,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DataKey, useData } from './data.provider';
 import { FontAwesome } from '@expo/vector-icons';
 import { useSound } from './sound.provider';
+import Slider from '@react-native-community/slider';
+import { Audio } from 'expo-av';
 
 export type setting = 'breakMusic' | 'workoutMusic' | 'successSound' | 'language';
 
@@ -27,6 +29,11 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
   const { workoutMusic, breakMusic, successSound, language } = useData();
   const [modalVisible, setModalVisible] = useState(false);
   const { loadMusicSettings } = useSound();
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [trackPosition, setTrackPosition] = useState(0);
+  const [trackDuration, setTrackDuration] = useState(1);
+  const [sliderDragging, setSliderDragging] = useState(false);
+  let soundInstance = React.useRef<any>(null);
 
   // Get the correct music array based on musicType
   const musicOptions = (() => {
@@ -88,21 +95,86 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
     return music ? music.value : null;
   };
 
+  // Play sound and show slider
+  const handlePlay = async () => {
+    const sound = findSelectedSound();
+    if (!sound) return;
+    setIsPlaying(true);
+    const playback = new Audio.Sound();
+    await playback.loadAsync(sound);
+    soundInstance.current = playback;
+    playback.setOnPlaybackStatusUpdate((status: any) => {
+      if (!sliderDragging && status.isLoaded) {
+        setTrackPosition(status.positionMillis || 0);
+        setTrackDuration(status.durationMillis || 1);
+      }
+      if (status.didJustFinish) {
+        setIsPlaying(false);
+        setTrackPosition(0);
+        playback.unloadAsync();
+      }
+    });
+    await playback.playAsync();
+  };
+
+  const handleStop = async () => {
+    setIsPlaying(false);
+    setTrackPosition(0);
+    if (soundInstance.current) {
+      await soundInstance.current.stopAsync();
+      await soundInstance.current.unloadAsync();
+      soundInstance.current = null;
+    }
+  };
+
+  const handleSliderValueChange = async (value: number) => {
+    setTrackPosition(value);
+    if (soundInstance.current) {
+      await soundInstance.current.setPositionAsync(value);
+    }
+  };
+
   return (
     <>
       <Text style={styles.label}>{label}</Text>
       <View style={styles.musicPickerContainer}>
-        <TouchableOpacity style={styles.pickerButton} onPress={() => setModalVisible(true)}>
-          <FontAwesome name="chevron-down" size={20} color="white" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.pickerButton} onPress={() => setModalVisible(true)}>
-          <Text style={styles.selectedValueText}>{selectedValue}</Text>
-        </TouchableOpacity>
-        {dataKey !== 'language' && (
-          <SoundPreview
-            key={`${selectedValue}-${previewKey}`}
-            selectedSound={findSelectedSound()}
-          />
+        {isPlaying ? (
+          <>
+            <TouchableOpacity style={styles.pickerButton} onPress={handleStop}>
+              <FontAwesome name="stop" size={22} color="white" />
+            </TouchableOpacity>
+            <Slider
+              style={{ flex: 1, marginHorizontal: 10 }}
+              minimumValue={0}
+              maximumValue={trackDuration}
+              value={trackPosition}
+              minimumTrackTintColor="#00bcd4"
+              maximumTrackTintColor="#fff"
+              thumbTintColor="#00bcd4"
+              onValueChange={(value: number) => {
+                setSliderDragging(true);
+                setTrackPosition(value);
+              }}
+              onSlidingComplete={async (value: number) => {
+                setSliderDragging(false);
+                await handleSliderValueChange(value);
+              }}
+            />
+          </>
+        ) : (
+          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            {dataKey !== 'language' && (
+              <TouchableOpacity style={styles.pickerButton} onPress={handlePlay}>
+                <FontAwesome name="play" size={20} color="white" />
+              </TouchableOpacity>
+            )}
+            <View style={{ flex: 1, alignItems: 'center' }}>
+              <Text style={styles.selectedValueText}>{selectedValue}</Text>
+            </View>
+            <TouchableOpacity style={styles.pickerButton} onPress={() => setModalVisible(true)}>
+              <FontAwesome name="chevron-down" size={20} color="white" />
+            </TouchableOpacity>
+          </View>
         )}
       </View>
       <Modal
@@ -161,7 +233,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   musicPickerContainer: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgb(49, 67, 77)',
     borderRadius: 5,
