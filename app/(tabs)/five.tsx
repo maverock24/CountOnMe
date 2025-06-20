@@ -30,7 +30,7 @@ const AnalyzerScreen: React.FC = () => {
       const body = calories
         ? { calories }
         : { weight, exercise, trainingLevel };
-      const response = await fetch('/analyze', {
+      const response = await fetch('/.netlify/functions/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
