@@ -36,8 +36,6 @@ const ListTile = ({
   return (
     <Pressable
       style={{
-        flex: 1,
-        width: '100%',
         paddingBottom: 0,
         paddingTop: 0,
       }}
@@ -60,14 +58,26 @@ const ListTile = ({
         colors={['rgb(49, 67, 77)', 'rgb(38, 48, 54)', 'rgb(28, 37, 43)']}
       >
       <>
-  <Text style={commonStyles.listItemTitle}>{title}</Text>
-  {value &&
+  <View style={{ flexDirection: 'row', alignItems: 'flex-start', width: '100%'}}>
+
+    {/* Info row: mock values for calories and training level, now below the title */}
+    <View style={{ flexDirection: 'column', alignItems: 'flex-start', width: 110, borderRightColor: '#b0e0e6', borderRightWidth: 1 }}>
+      <Text style={commonStyles.listItemTitle}>{title}</Text>
+      <Text style={{ fontSize: 12, color: '#b0e0e6', marginBottom: 5 }}>Calories: 120</Text>
+      <Text style={{ fontSize: 12, color: '#b0e0e6' }}>Level: Intermediate</Text>
+    </View>
+  
+  <View style={{ flexDirection: 'row', width: '80%', paddingHorizontal: 15, marginTop: 20 }}>
+    {value &&
     value.split(';').map((time, index) => (
       <Text key={index} style={isSelected && index === workoutStage ? commonStyles.listItemValueText : commonStyles.listItemValue}>
         {(parseFloat(time) / 60).toString()}
       </Text>
     ))
   }
+  </View>
+  </View>
+
 </>
         {onPressBtn && <TimerButton text="Delete" onPress={onPressBtn} small />}
       </LinearGradient>

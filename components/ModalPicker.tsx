@@ -36,16 +36,31 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
   const [isRadio, setIsRadio] = useState(false);
   let soundInstance = React.useRef<any>(null);
 
+  // Add helper to get random track by label
+  function getRandomTrack(options: DataKey[], label: string) {
+    const filtered = options.filter((item) => item.label.toLowerCase().includes(label.toLowerCase()));
+    if (filtered.length === 0) return null;
+    return filtered[Math.floor(Math.random() * filtered.length)].value;
+  }
+
   // Get the correct music array based on musicType
   const musicOptions = (() => {
     let options: DataKey[] = [];
     switch (dataKey) {
       case 'workoutMusic':
         options = workoutMusic;
-        break;
+        // Add 'random:Action' option
+        return [
+          ...options,
+          { label: 'random:Action', value: 'RANDOM_ACTION' } as DataKey,
+        ].sort((a, b) => a.label.localeCompare(b.label));
       case 'breakMusic':
         options = breakMusic;
-        break;
+        // Add 'random:Chill' option
+        return [
+          ...options,
+          { label: 'random:Chill', value: 'RANDOM_CHILL' } as DataKey,
+        ].sort((a, b) => a.label.localeCompare(b.label));
       case 'successSound':
         options = successSound;
         break;
@@ -98,7 +113,14 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
 
   // Play sound and show slider
   const handlePlay = async () => {
-    const sound = findSelectedSound();
+    let sound;
+    if (dataKey === 'workoutMusic' && selectedValue === 'random:Action') {
+      sound = getRandomTrack(workoutMusic, 'action');
+    } else if (dataKey === 'breakMusic' && selectedValue === 'random:Chill') {
+      sound = getRandomTrack(breakMusic, 'chill');
+    } else {
+      sound = findSelectedSound();
+    }
     setIsRadio(sound?.toString().includes('http'));
     if (!sound) return;
     setIsPlaying(true);
