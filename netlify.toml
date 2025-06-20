@@ -1,3 +1,17 @@
 [build]
   command = "expo export -p web"
   publish = "dist"
+
+[functions]
+  directory = "netlify/functions"
+
+[dev]
+  framework = "#static"
+  publish = "dist"
+  port = 8888
+
+# For SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
