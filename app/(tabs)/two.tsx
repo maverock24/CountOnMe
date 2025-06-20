@@ -10,6 +10,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Dimensions,
+  Easing,
   FlatList,
   Pressable,
   StyleSheet,
@@ -63,6 +64,39 @@ const TabTwoScreen: React.FC = () => {
   const [stopped, setStopped] = useState<boolean>(false);
 
   const [disabled, setDisabled] = useState<boolean>(true);
+
+  const scaleValue = useRef(new Animated.Value(1)).current;
+  const pulseAnimationRef = useRef<Animated.CompositeAnimation | null>(null);
+
+  // Pulse animation: run when isRunning is true
+    useEffect(() => {
+      if (isRunning) {
+        const pulseAnimation = Animated.loop(
+          Animated.sequence([
+            Animated.timing(scaleValue, {
+              toValue: 1.01,
+              duration: 125,
+              useNativeDriver: true,
+              easing: Easing.inOut(Easing.quad),
+            }),
+            Animated.timing(scaleValue, {
+              toValue: 1,
+              duration: 350,
+              useNativeDriver: true,
+              easing: Easing.inOut(Easing.quad),
+            }),
+          ])
+        );
+        pulseAnimation.start();
+        pulseAnimationRef.current = pulseAnimation;
+      } else {
+        if (pulseAnimationRef.current) {
+          pulseAnimationRef.current.stop();
+          pulseAnimationRef.current = null;
+        }
+        scaleValue.setValue(1);
+      }
+    }, [isRunning, scaleValue]);
 
   useEffect(() => {
     if (timers.length > 0) {
@@ -134,7 +168,6 @@ const TabTwoScreen: React.FC = () => {
       if (time === 0 && timers[currentIndex]) {
         setTime(timers[currentIndex].time);
       }
-
       setIsRunning(true);
       setStopped(false);
     }
@@ -229,6 +262,7 @@ const TabTwoScreen: React.FC = () => {
                               value={audioEnabled}
                             />
                           </View>
+              <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
               <Svg
                 height={radius * 2 + strokeWidth}
                 width={radius * 2 + strokeWidth}
@@ -239,7 +273,7 @@ const TabTwoScreen: React.FC = () => {
               >
                 <Defs>
                   <Filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                    <FeGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+                    <FeGaussianBlur in="SourceGraphic" stdDeviation="15" result="blur" />
                     <FeMerge>
                       <FeMergeNode in="blur" />
                       <FeMergeNode in="SourceGraphic" />
@@ -269,6 +303,7 @@ const TabTwoScreen: React.FC = () => {
                   {...({ collapsable: 'false' } as any)}
                 />
               </Svg>
+              </Animated.View>
               {timers.length > 0 &&
                 isRunning &&
                 (timers[currentIndex].segment === 'workout' ? (

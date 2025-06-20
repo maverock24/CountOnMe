@@ -179,20 +179,12 @@ export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const storedBreakMusic = (await AsyncStorage.getItem('breakMusic')) || 'Chill';
       const storedSuccessSound = (await AsyncStorage.getItem('successSound')) || 'Yeah';
 
-      console.log(
-        'Loading music settings:',
-        storedWorkoutMusic,
-        storedBreakMusic,
-        storedSuccessSound
-      );
-
       const workoutFile = getSoundFileByLabel(storedWorkoutMusic);
       const breakFile = getSoundFileByLabel(storedBreakMusic);
       const successFile = getSoundFileByLabel(storedSuccessSound);
 
       if (workoutFile) {
         setSelectedWorkoutMusic(workoutFile);
-        console.log('Loaded workout music:', storedWorkoutMusic);
       } else {
         console.warn('Could not find workout music for:', storedWorkoutMusic);
         if (workoutMusic.length > 0) setSelectedWorkoutMusic(workoutMusic[0].value);
@@ -200,7 +192,6 @@ export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       if (breakFile) {
         setSelectedBreakMusic(breakFile);
-        console.log('Loaded break music:', storedBreakMusic);
       } else {
         console.warn('Could not find break music for:', storedBreakMusic);
         if (breakMusic.length > 0) setSelectedBreakMusic(breakMusic[0].value);
@@ -208,7 +199,6 @@ export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       if (successFile) {
         setSelectedSuccessSound(successFile);
-        console.log('Loaded success sound:', storedSuccessSound);
       } else {
         console.warn('Could not find success sound for:', storedSuccessSound);
         if (successSound.length > 0) setSelectedSuccessSound(successSound[0].value);
@@ -256,6 +246,20 @@ export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
+  // Helper to get a random track by label
+  const getRandomTrackByLabel = (musicArray: any[], label: string) => {
+    const filtered = musicArray.filter((item) =>
+      item.label && item.label.toLowerCase().includes(label.toLowerCase())
+    );
+    if (filtered.length === 0) return null;
+    // Shuffle the array to ensure a new random order each time
+    const shuffled = filtered
+      .map((value) => ({ value, sort: Math.random() }))
+      .sort((a, b) => a.sort - b.sort)
+      .map(({ value }) => value);
+    return shuffled[0].value;
+  };
+
   // Play sound function with validation and error handling
   const playSound = async (
     soundFile: any,
@@ -282,7 +286,6 @@ export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         await new Promise((resolve) => setTimeout(resolve, 300));
       }
 
-      console.log('Creating sound from file');
       const { sound } = await Audio.Sound.createAsync(soundFile, {
         volume: volume,
         isLooping: loop,
@@ -299,7 +302,6 @@ export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           if ((status as AVPlaybackStatusSuccess).didJustFinish && !loop) {
             sound.unloadAsync().catch((e) => console.error('Error unloading sound:', e));
             setIsPlaying(false);
-            console.log('Sound finished playing');
             callback && callback();
             currentSound = null;
           }
@@ -356,14 +358,30 @@ export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const playSegmentMusic = async (segment: string, callback?: () => void) => {
     if (!audioReady) return;
 
-    if (segment === 'workout' && selectedWorkoutMusic) {
-      console.log('Playing workout music');
-      await playSound(selectedWorkoutMusic, true);
-    } else if (segment === 'break' && selectedBreakMusic) {
-      console.log('Playing break music');
-      await playSound(selectedBreakMusic, true);
+    if (segment === 'workout') {
+      const workoutMusicValue = await AsyncStorage.getItem('workoutMusic');
+      if (workoutMusicValue === 'random:Action') {
+        const randomAction = getRandomTrackByLabel(workoutMusic, 'action:');
+        if (randomAction) {
+          await playSound(randomAction, true);
+          return;
+        }
+      } else {
+        await playSound(selectedWorkoutMusic, true);
+      }
+    } else if (segment === 'break') {
+      const breakMusicValue = await AsyncStorage.getItem('breakMusic');
+      if (breakMusicValue === 'random:Chill') {
+        const randomChill = getRandomTrackByLabel(breakMusic, 'chill:');
+        if (randomChill) {
+          await playSound(randomChill, true);
+          return;
+        }
+      }else {
+        console.log('Playing selected break music');
+        await playSound(selectedBreakMusic, true);
+      }
     } else if (segment === 'successSound' && selectedSuccessSound) {
-      console.log('Playing break music');
       await playSound(selectedSuccessSound, false, 1.0, callback);
     } else {
       console.warn('No matching music for segment:', segment);

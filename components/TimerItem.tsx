@@ -1,20 +1,21 @@
 import React, { useEffect, useRef } from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { Animated, Easing, StyleSheet, Text } from 'react-native';
 import { Audio, AVPlaybackStatusSuccess } from 'expo-av';
 import { Platform } from 'react-native';
 import { useSound } from './sound.provider';
 
+// Define the props for the TimerItem component
 interface TimerItemProps {
-  title: string;
-  time: number;
-  isRunning: boolean;
-  setIsRunning: React.Dispatch<React.SetStateAction<boolean>>;
-  setTime: React.Dispatch<React.SetStateAction<number>>;
-  intervalRef: React.MutableRefObject<NodeJS.Timeout | null>;
-  soundEnabled: boolean;
+  title: string; // The title of the timer item (e.g., 'workout' or 'break')
+  time: number; // The remaining time in seconds
+  isRunning: boolean; // Indicates if the timer is currently running
+  setIsRunning: React.Dispatch<React.SetStateAction<boolean>>; // Function to update the running state
+  setTime: React.Dispatch<React.SetStateAction<number>>; // Function to update the remaining time
+  intervalRef: React.MutableRefObject<NodeJS.Timeout | null>; // Ref to store the interval ID
+  soundEnabled: boolean; // Indicates if sound is enabled
 }
 
-// Helper to format time in MM:SS
+// Helper function to format time in MM:SS
 const formatTime = (seconds: number) => {
   const mins = Math.floor((seconds % 3600) / 60);
   const secs = seconds % 60;
@@ -53,8 +54,9 @@ const TimerItem: React.FC<TimerItemProps> = ({
   soundEnabled,
 }) => {
   const alarmPlayedRef = useRef(false);
-
   const { playSegmentMusic, audioReady, fadeOutSound } = useSound();
+  const scaleValue = useRef(new Animated.Value(1)).current;
+  const pulseAnimationRef = useRef<Animated.CompositeAnimation | null>(null);
 
   // Play the appropriate sound when the timer starts
   useEffect(() => {
@@ -125,6 +127,36 @@ const TimerItem: React.FC<TimerItemProps> = ({
     };
   }, [isRunning, setTime, intervalRef]);
 
+  // Pulse animation: run when isRunning is true
+  useEffect(() => {
+    if (isRunning) {
+      const pulseAnimation = Animated.loop(
+        Animated.sequence([
+          Animated.timing(scaleValue, {
+            toValue: 1.04,
+            duration: 100,
+            useNativeDriver: true,
+            easing: Easing.inOut(Easing.quad),
+          }),
+          Animated.timing(scaleValue, {
+            toValue: 1,
+            duration: 350,
+            useNativeDriver: true,
+            easing: Easing.inOut(Easing.quad),
+          }),
+        ])
+      );
+      pulseAnimation.start();
+      pulseAnimationRef.current = pulseAnimation;
+    } else {
+      if (pulseAnimationRef.current) {
+        pulseAnimationRef.current.stop();
+        pulseAnimationRef.current = null;
+      }
+      scaleValue.setValue(1);
+    }
+  }, [isRunning, scaleValue]);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -132,7 +164,9 @@ const TimerItem: React.FC<TimerItemProps> = ({
     };
   }, []);
 
-  return <Text style={styles.count}>{formatTime(time)}</Text>;
+  return (
+      <Text style={styles.count}>{formatTime(time)}</Text>
+  );
 };
 
 const styles = StyleSheet.create({
