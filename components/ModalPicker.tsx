@@ -206,7 +206,7 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey, onValueChange
             </View>
             </TouchableOpacity>
             <TouchableOpacity style={styles.pickerButton} onPress={() => setModalVisible(true)}>
-              <FontAwesome name="chevron-down" size={20} color="white" />
+              <FontAwesome name="chevron-down" size={15} color="white" />
             </TouchableOpacity>
           </View>
         )}
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
   },
   label: {
     marginTop: 15,
-    fontSize: 16,
+    fontSize: 14,
     color: 'lightgray',
     marginBottom: 5,
   },

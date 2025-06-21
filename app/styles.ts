@@ -65,8 +65,8 @@ const commonStyles = StyleSheet.create({
     justifyContent: 'center',
     paddingLeft: 10,
     paddingRight: 10,
-    paddingTop: baseButtonHeight * 0.2, // Adjust padding based on button height
-    paddingBottom: baseButtonHeight * 0.2, // Adjust padding based on button height
+    paddingTop: 10, // Adjust padding based on button height
+    paddingBottom: 10, // Adjust padding based on button height
     height: 50, // Set the button height
     borderRadius: 10,
     margin: 10,

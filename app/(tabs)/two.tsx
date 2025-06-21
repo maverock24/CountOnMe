@@ -363,9 +363,9 @@ const TabTwoScreen: React.FC = () => {
               </View>
             </View>
             <View style={styles.buttonContainer}>
-              <TimerButton onPress={handleStart} disabled={disabled} text="Start" />
-              <TimerButton onPress={handleStop} disabled={disabled} text="Stop" />
-              <TimerButton onPress={handleResetButtonPress} disabled={disabled} text="Reset" />
+              <TimerButton style={{ width: 100}} onPress={handleStart} disabled={disabled} text="Start" />
+              <TimerButton style={{ width: 100}} onPress={handleStop} disabled={disabled} text="Stop" />
+              <TimerButton style={{ width: 100}} onPress={handleResetButtonPress} disabled={disabled} text="Reset" />
             </View>
           </View>
         </View>

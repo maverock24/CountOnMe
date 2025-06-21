@@ -2,8 +2,8 @@ import { useData } from '@/components/data.provider';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import ModalPicker from '@/components/ModalPicker';
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import commonStyles from '../styles';
 
 const SettingsScreen: React.FC = () => {
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   },
   label: {
     marginTop: 15,
-    fontSize: 16,
+    fontSize: 14,
     color: 'lightgray',
     marginBottom: 5,
   },
