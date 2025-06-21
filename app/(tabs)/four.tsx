@@ -1,22 +1,23 @@
 import { useData } from '@/components/data.provider';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 import ModalPicker from '@/components/ModalPicker';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import commonStyles from '../styles';
 
 const SettingsScreen: React.FC = () => {
   const [language, setLanguage] = useState('en'); // default language English
-
   const { audioEnabled, setAudioEnabled } = useData();
-
+  const { t } = useTranslation();
 
   return (
     <View style={commonStyles.container}>
       <View style={commonStyles.outerContainer}>
-        <Text style={commonStyles.tileTitle}>Settings</Text>
+        <Text style={commonStyles.tileTitle}>{t('settings')}</Text>
         <View style={styles.section}>
           <ScrollView contentContainerStyle={styles.scrollContent}>
-            <Text style={styles.sectionTitle}>General</Text>
+            <Text style={styles.sectionTitle}>{t('general')}</Text>
             <View
               style={{
                 flexDirection: 'row',
@@ -24,7 +25,7 @@ const SettingsScreen: React.FC = () => {
                 justifyContent: 'space-between',
               }}
             >
-              <Text style={styles.label}>Sound on/off</Text>
+              <Text style={styles.label}>{t('sound_on_off')}</Text>
               <Switch
                 style={{ marginRight: 10, marginTop: 10 }}
                 trackColor={{ false: 'white', true: 'rgb(74, 125, 118)' }}
@@ -33,12 +34,12 @@ const SettingsScreen: React.FC = () => {
                 value={audioEnabled}
               />
             </View>
-            <Text style={styles.sectionTitle}>Music</Text>
-            <ModalPicker label="Workout" dataKey="workoutMusic" />
-            <ModalPicker label="Break" dataKey="breakMusic" />
-            <ModalPicker label="Success" dataKey="successSound" />
-            <Text style={styles.sectionTitle}>Language</Text>
-            <ModalPicker label="Selected Language" dataKey="language" />
+            <Text style={styles.sectionTitle}>{t('music')}</Text>
+            <ModalPicker label={t('workout')} dataKey="workoutMusic" />
+            <ModalPicker label={t('break')} dataKey="breakMusic" />
+            <ModalPicker label={t('success')} dataKey="successSound" />
+            <Text style={styles.sectionTitle}>{t('language')}</Text>
+            <LanguageSwitcher />
           </ScrollView>
         </View>
       </View>

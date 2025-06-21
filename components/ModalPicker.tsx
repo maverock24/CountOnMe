@@ -21,9 +21,10 @@ export type setting = 'breakMusic' | 'workoutMusic' | 'successSound' | 'language
 interface MusicPickerProps {
   label: string;
   dataKey: setting;
+  onValueChange?: (value: string) => void | Promise<void>;
 }
 
-const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
+const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey, onValueChange }) => {
   const [selectedValue, setSelectedValue] = useState<string>('');
   const [previewKey, setPreviewKey] = useState<number>(0);
   const { workoutMusic, breakMusic, successSound, language } = useData();
@@ -99,6 +100,9 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
       setPreviewKey((prev) => prev + 1);
       if (dataKey !== 'language') {
         loadMusicSettings();
+      }
+      if (onValueChange) {
+        await onValueChange(value);
       }
     } catch (e) {
       console.error(`Error saving ${dataKey} setting:`, e);

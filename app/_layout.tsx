@@ -16,6 +16,7 @@ import { SoundProvider } from '@/components/sound.provider';
 import TutorialModal from '@/components/TutorialModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setAppLocale } from './utils/language';
+import '../i18n'; // Import i18n initialization
 
 // Prevent the splash screen from auto-hiding before asset loading is complete
 SplashScreen.preventAutoHideAsync();
