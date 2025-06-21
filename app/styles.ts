@@ -102,7 +102,6 @@ const commonStyles = StyleSheet.create({
     paddingRight: 10,
     height: 30, // Set the button height
     borderRadius: 10,
-    margin: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
@@ -118,7 +117,6 @@ const commonStyles = StyleSheet.create({
     paddingRight: 10,
     height: 30, // Set the button height
     borderRadius: 10,
-    margin: 10,
     borderColor: 'rgb(38, 47, 62)',
     borderWidth: 0,
     shadowColor: '#000',
