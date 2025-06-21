@@ -17,7 +17,7 @@ const commonStyles = StyleSheet.create({
   listItemValueText: {
     flex: 1,
     alignSelf: 'flex-end',
-    fontSize: 16,
+    fontSize: 14,
     letterSpacing: 2,
     fontWeight: 'bold',
     color: 'rgb(157, 242, 246)',
@@ -154,7 +154,7 @@ const commonStyles = StyleSheet.create({
     width: '100%',
   },
   listItemTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
     color: 'white',
     marginBottom: 5,
@@ -163,7 +163,7 @@ const commonStyles = StyleSheet.create({
   listItemValue: {
     flex: 1,
     alignSelf: 'flex-end',
-    fontSize: 16,
+    fontSize: 14,
     letterSpacing: 2,
     fontWeight: 'bold',
     color: '#b0e0e6',
@@ -186,8 +186,9 @@ const commonStyles = StyleSheet.create({
     width: '95%',
     marginBottom: -7,
     textAlign: 'left',
-    fontSize: 16,
+    fontSize: 14,
     color: 'white',
+    marginLeft: 10,
   },
   shimmerContainer: {
     flex: 1,
