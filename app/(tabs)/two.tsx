@@ -66,18 +66,26 @@ const TabTwoScreen: React.FC = () => {
   const pulseAnimationRef = useRef<Animated.CompositeAnimation | null>(null);
 
   useEffect(() => {
+    let pulseDuration = 350;
+    let pulseUpDuration = 125;
+    if (isRunning && currentMusicBeingPlayed) {
+      if (currentMusicBeingPlayed.toLowerCase().includes('chill:')) {
+        pulseDuration += 1000;
+        pulseUpDuration += 1000;
+      }
+    }
     if (isRunning) {
       const pulseAnimation = Animated.loop(
         Animated.sequence([
           Animated.timing(scaleValue, {
             toValue: 1.01,
-            duration: 125,
+            duration: pulseUpDuration,
             useNativeDriver: true,
             easing: Easing.inOut(Easing.quad),
           }),
           Animated.timing(scaleValue, {
             toValue: 1,
-            duration: 350,
+            duration: pulseDuration,
             useNativeDriver: true,
             easing: Easing.inOut(Easing.quad),
           }),
@@ -92,7 +100,7 @@ const TabTwoScreen: React.FC = () => {
       }
       scaleValue.setValue(1);
     }
-  }, [isRunning, scaleValue]);
+  }, [isRunning, scaleValue, currentMusicBeingPlayed]);
 
   useEffect(() => {
     if (timers.length > 0) {
