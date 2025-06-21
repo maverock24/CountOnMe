@@ -163,7 +163,7 @@ const commonStyles = StyleSheet.create({
   listItemValue: {
     flex: 1,
     alignSelf: 'flex-end',
-    fontSize: 14,
+    fontSize: 12,
     letterSpacing: 2,
     fontWeight: 'bold',
     color: '#b0e0e6',
