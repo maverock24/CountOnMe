@@ -148,6 +148,13 @@ const TabTwoScreen: React.FC = () => {
     }
   }, [isRunning, currentIndex, timers.length, stopped, totalTime, audioReady]);
 
+  // Ensure progress is set to 100 when timer completes
+  useEffect(() => {
+    if (elapsedTime >= totalTime && totalTime > 0) {
+      progress.setValue(100);
+    }
+  }, [elapsedTime, totalTime, progress]);
+
   const selectSet = (value: string) => {
     // Split the value string into an array of objects
     const items = value.split(';').map((time, index) => ({
@@ -187,6 +194,10 @@ const TabTwoScreen: React.FC = () => {
     setIsRunning(false);
     setStopped(true);
     stopSound();
+    // If timer is at the end, force progress to 100
+    if (elapsedTime >= totalTime && totalTime > 0) {
+      progress.setValue(100);
+    }
   };
 
   const handleReset = (items?: Timer[]) => {
@@ -214,6 +225,9 @@ const TabTwoScreen: React.FC = () => {
       // Always reset progress and elapsedTime on reset
       progress.setValue(0);
       setElapsedTime(0);
+    } else {
+      // If no timers, force progress to 100 to reset circle
+      progress.setValue(100);
     }
   };
 
