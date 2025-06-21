@@ -98,8 +98,8 @@ const commonStyles = StyleSheet.create({
     justifyContent: 'center',
     //backgroundColor: 'rgb(45, 55, 73)',
     backgroundColor: 'rgb(38, 47, 62)',
-    paddingLeft: 10,
-    paddingRight: 10,
+    paddingLeft: 7,
+    paddingRight: 7,
     height: 30, // Set the button height
     borderRadius: 10,
     shadowColor: '#000',
@@ -113,8 +113,8 @@ const commonStyles = StyleSheet.create({
     justifyContent: 'center',
     //backgroundColor: 'rgb(45, 55, 73)',
     backgroundColor: 'rgb(32, 40, 52)',
-    paddingLeft: 10,
-    paddingRight: 10,
+    paddingLeft: 7,
+    paddingRight: 7,
     height: 30, // Set the button height
     borderRadius: 10,
     borderColor: 'rgb(38, 47, 62)',
