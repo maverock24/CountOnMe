@@ -75,7 +75,7 @@ const ListTile = ({
             key={i}
             name={i < filledStars ? 'star' : 'star-o'}
             size={14}
-            color={i < filledStars ? Colors.glow : '#b0e0e6'}
+            color={i < filledStars ? 'white' : '#b0e0e6'}
             style={{ marginLeft: 1, marginRight: 1 }}
           />
         ))}
