@@ -1,23 +1,20 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, Tabs } from 'expo-router';
-import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, ImageBackground, Pressable, StyleSheet } from 'react-native';
 import {
   faAtom,
-  faCog,
   faDumbbell,
   faGauge,
   faGears,
   faList,
-  faStopwatch,
-  IconDefinition,
+  IconDefinition
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { EventEmitter } from 'events';
+import { Link, Tabs } from 'expo-router';
+import React from 'react';
+import { Easing, ImageBackground, Pressable, StyleSheet } from 'react-native';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import Colors from '@/constants/Colors';
-import { Icon } from 'react-native-vector-icons/Icon';
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: { iconName: IconDefinition; color: string; size?: number }) {
