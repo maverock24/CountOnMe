@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
   label: {
     marginTop: 15,
     marginRight: 10,
-    fontSize: 16,
+    fontSize: 14,
     color: 'lightgray',
     marginBottom: 5,
   },
@@ -465,9 +465,10 @@ const styles = StyleSheet.create({
   },
   nextTimerText: {
     position: 'absolute',
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: 'bold',
     color: 'darkgrey',
+    opacity: 0.6,
   },
   buttonContainer: {
     marginTop: 20,

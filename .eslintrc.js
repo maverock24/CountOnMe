@@ -34,6 +34,7 @@ module.exports = {
     },
   },
   rules: {
+    'no-multiple-empty-lines': ['error', { max: 1 }],
     // React rules
     'react/react-in-jsx-scope': 'off', // Not needed with React 17+
     'react/prop-types': 'off', // Use TypeScript types instead
@@ -120,6 +121,5 @@ module.exports = {
     browser: true,
     es2021: true,
     node: true,
-    'react-native/react-native': true,
   },
 };

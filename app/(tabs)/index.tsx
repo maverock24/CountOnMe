@@ -1,25 +1,22 @@
 import { Text, View } from '@/components/Themed';
 import TimerButton from '@/components/TimerButton';
-import AsyncStorage from '@react-native-async-storage/async-storage'; 
-import Slider from '@react-native-community/slider';
-import {
-    useAudioRecorder,
-    AudioModule,
-    RecordingPresets,
-    RecordingStatus as ExpoAudioRecordingStatus,
-} from 'expo-audio';
-import React, { useEffect, useState, useRef, useCallback } from 'react';
-import {
-  Dimensions,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-  Button, 
-  Platform, 
-} from 'react-native';
-import commonStyles from '../styles';
 import { TriangleLeft } from '@/components/TriangleLeft';
 import { TriangleRight } from '@/components/TriangleRight';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Slider from '@react-native-community/slider';
+import {
+  AudioModule,
+  RecordingStatus as ExpoAudioRecordingStatus,
+  RecordingPresets,
+  useAudioRecorder,
+} from 'expo-audio';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  Alert,
+  Platform,
+  StyleSheet
+} from 'react-native';
+import commonStyles from '../styles';
 
 
 declare global {
