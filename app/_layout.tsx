@@ -1,20 +1,21 @@
 'use client';
 
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { DarkTheme, DefaultTheme, ThemeProvider, Theme } from '@react-navigation/native';
+import { DarkTheme, Theme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Slot, Stack, SplashScreen } from 'expo-router';
+import { Slot, SplashScreen, Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 // Import this BEFORE any component that uses reanimated
 import 'react-native-reanimated';
 
-import { useColorScheme } from '@/components/useColorScheme';
 import { DataProvider } from '@/components/data.provider';
+import GlobalStyle from '@/components/GlobalStyle';
 import TutorialModal from '@/components/TutorialModal';
+import { useColorScheme } from '@/components/useColorScheme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { setAppLocale } from './utils/language';
 import '../i18n'; // Import i18n initialization
+import { setAppLocale } from './utils/language';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete
 SplashScreen.preventAutoHideAsync();
@@ -122,6 +123,7 @@ export default function RootLayout() {
   // Simplified component structure - no need for separate RootLayoutNav
   return (
     <ThemeProvider value={CustomDarkTheme}>
+      <GlobalStyle css="input {outline: none;}" />
       <DataProvider>
         <Stack
           screenOptions={{
