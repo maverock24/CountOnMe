@@ -154,6 +154,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   errorAndLoading: {
+    position: 'absolute',
+    top: '55%',
+    zIndex: -1,
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
