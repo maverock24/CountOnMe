@@ -65,6 +65,8 @@ const TabTwoScreen: React.FC = () => {
   const scaleValue = useRef(new Animated.Value(1)).current;
   const pulseAnimationRef = useRef<Animated.CompositeAnimation | null>(null);
 
+  const [progressKey, setProgressKey] = useState(0);
+
   useEffect(() => {
     let pulseDuration = 350;
     let pulseUpDuration = 125;
@@ -167,9 +169,9 @@ const TabTwoScreen: React.FC = () => {
 
     // Ensure we have valid data before setting time
     if (items.length > 0) {
-      // Always reset progress and elapsedTime when selecting a set
       progress.setValue(0);
       setElapsedTime(0);
+      setProgressKey((k) => k + 1); // force re-render
       handleReset(items);
     }
   };
@@ -178,15 +180,16 @@ const TabTwoScreen: React.FC = () => {
 
   const handleStart = () => {
     if (timers.length > 0) {
-      // Always reset progress and elapsedTime before starting
       progress.setValue(0);
       setElapsedTime(0);
-      // Make sure time is set if starting from 0
-      if (time === 0 && timers[currentIndex]) {
-        setTime(timers[currentIndex].time);
-      }
-      setIsRunning(true);
-      setStopped(false);
+      setProgressKey((k) => k + 1); // force re-render
+      setTimeout(() => {
+        if (time === 0 && timers[currentIndex]) {
+          setTime(timers[currentIndex].time);
+        }
+        setIsRunning(true);
+        setStopped(false);
+      }, 0);
     }
   };
 
@@ -222,12 +225,12 @@ const TabTwoScreen: React.FC = () => {
         useNativeDriver: true,
       }).start();
 
-      // Always reset progress and elapsedTime on reset
       progress.setValue(0);
       setElapsedTime(0);
+      setProgressKey((k) => k + 1); // force re-render
     } else {
-      // If no timers, force progress to 100 to reset circle
       progress.setValue(100);
+      setProgressKey((k) => k + 1); // force re-render
     }
   };
 
@@ -284,12 +287,11 @@ const TabTwoScreen: React.FC = () => {
                 />
               </View>
               <Text style={styles.currentMusicLabel}>{ isRunning ? 'Playing ' + currentMusicBeingPlayed : ""}</Text>
-              <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
+              <Animated.View key={progressKey} style={{ transform: [{ scale: scaleValue }] }}>
                 <Svg
                   height={radius * 2 + strokeWidth}
                   width={radius * 2 + strokeWidth}
-                  viewBox={`-15 -10 ${radius * 2 + strokeWidth + 30} ${radius * 2 + strokeWidth + 30
-                    }`}
+                  viewBox={`-15 -10 ${radius * 2 + strokeWidth + 30} ${radius * 2 + strokeWidth + 30}`}
                   style={[styles.progressCircle, { overflow: 'visible' }]}
                 >
                   <Defs>
