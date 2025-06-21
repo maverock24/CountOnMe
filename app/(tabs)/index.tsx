@@ -372,7 +372,7 @@ export default function TabOneScreen() {
           <View style={styles.innerWrapperBottomTile}>
              <View style={{ backgroundColor: 'transparent', alignItems: 'center' }}>
                  <View style={styles.buttonContainerReps}>
-                    {repititions.map((rep, index) => ( <TimerButton key={index} text={rep.toString()} onPress={() => handleSetRemaining(rep)} style={{ marginHorizontal: 5 }} /> ))}
+                    {repititions.map((rep, index) => ( <TimerButton key={index} text={rep.toString()} onPress={() => handleSetRemaining(rep)} style={{ marginHorizontal: 5, width: 77 }} /> ))}
                  </View>
                  <Text style={styles.remainingLabel}>Target Reps:</Text><Text style={styles.remaining}>{remaining > 0 ? remaining : '-'}</Text>
              </View>
