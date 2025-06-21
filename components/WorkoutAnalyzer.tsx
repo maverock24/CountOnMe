@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import {
   View, Text, TextInput, Button, StyleSheet, ActivityIndicator
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 const USER_WEIGHT_KG = 70; // Example weight, get this from user profile
 
@@ -20,6 +21,7 @@ const WorkoutAnalyzer: React.FC = () => {
   const [aiResult, setAiResult] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const { t } = useTranslation();
 
   const handleAnalyze = async () => {
     setIsLoading(true);
@@ -52,32 +54,31 @@ const WorkoutAnalyzer: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Activity Name (e.g., Running, Yoga)</Text>
-      <TextInput style={styles.input} value={activity} onChangeText={setActivity} />
+      <Text style={styles.label}>{t('exercise')}</Text>
+      <TextInput style={styles.input} value={activity} onChangeText={setActivity} placeholder={t('exercise_placeholder')} />
 
-      <Text style={styles.label}>Training Plan (e.g., 5;5;5)</Text>
+      <Text style={styles.label}>{t('training_plan') || 'Training Plan'}</Text>
       <TextInput style={styles.input} value={plan} onChangeText={setPlan} />
       
-      <Text style={styles.label}>Weight (kg)</Text>
-      <TextInput style={styles.input} value={weight} onChangeText={setWeight} keyboardType="numeric" placeholder="Enter your weight" />
-      <Text style={styles.label}>Exercise</Text>
-      <TextInput style={styles.input} value={exercise} onChangeText={setExercise} placeholder="e.g. Running, Push-ups" />
-      <Text style={styles.label}>Training Level</Text>
+      <Text style={styles.label}>{t('weight')}</Text>
+      <TextInput style={styles.input} value={weight} onChangeText={setWeight} keyboardType="numeric" placeholder={t('enter_your_weight')} />
+      <Text style={styles.label}>{t('exercise')}</Text>
+      <TextInput style={styles.input} value={exercise} onChangeText={setExercise} placeholder={t('exercise_placeholder')} />
+      <Text style={styles.label}>{t('training_level')}</Text>
       <View style={styles.goalRow}>
-        {['beginner','intermediate','expert'].map((g) => (
-          <Button key={g} title={g.charAt(0).toUpperCase()+g.slice(1)} onPress={() => setTrainingLevel(g)} color={trainingLevel===g?"#00bcd4":undefined} />
+        {[t('beginner'), t('intermediate'), t('expert')].map((g, idx) => (
+          <Button key={g} title={g} onPress={() => setTrainingLevel(['beginner','intermediate','expert'][idx])} color={trainingLevel===['beginner','intermediate','expert'][idx]?"#00bcd4":undefined} />
         ))}
       </View>
-
-      <Text style={styles.label}>Calories (optional)</Text>
-      <TextInput style={styles.input} value={calories} onChangeText={setCalories} keyboardType="numeric" placeholder="Enter calories to burn (optional)" />
-      <Button title={isLoading ? "Analyzing..." : "Analyze Workout"} onPress={handleAnalyze} disabled={isLoading} />
+      <Text style={styles.label}>{t('calories')} ({t('optional') || 'optional'})</Text>
+      <TextInput style={styles.input} value={calories} onChangeText={setCalories} keyboardType="numeric" placeholder={t('calories') + ' ' + (t('optional') || 'optional')} />
+      <Button title={isLoading ? t('analyze') + '...' : t('analyze')} onPress={handleAnalyze} disabled={isLoading} />
 
       {isLoading && <ActivityIndicator style={{ marginTop: 60 }} size="large" />}
 
       {aiAdvice && 'advice' in aiAdvice && (
         <View style={styles.resultContainer}>
-          <Text style={styles.adviceTitle}>Friendly Advice from Gemini:</Text>
+          <Text style={styles.adviceTitle}>{t('advice') || 'Friendly Advice from Gemini:'}</Text>
           <Text style={styles.adviceText}>{aiAdvice.advice}</Text>
         </View>
       )}
@@ -91,11 +92,11 @@ const WorkoutAnalyzer: React.FC = () => {
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
       {aiResult && (
         <View style={styles.resultContainer}>
-          {aiResult.reps && <Text style={styles.resultText}>Repetitions/Breaks: <Text style={{ fontWeight: 'bold' }}>{aiResult.reps}</Text></Text>}
-          {aiResult.calories && <Text style={styles.resultText}>Expected Calories Burned: <Text style={{ fontWeight: 'bold' }}>{aiResult.calories}</Text></Text>}
-          {aiResult.exercise && <Text style={styles.resultText}>Exercise: <Text style={{ fontWeight: 'bold' }}>{aiResult.exercise}</Text></Text>}
-          {aiResult.weight && <Text style={styles.resultText}>Weight: <Text style={{ fontWeight: 'bold' }}>{aiResult.weight}</Text></Text>}
-          {aiResult.explanation && <Text style={styles.resultText}>Explanation: <Text>{aiResult.explanation}</Text></Text>}
+          {aiResult.reps && <Text style={styles.resultText}>{t('repetitions_breaks') || 'Repetitions/Breaks'}: <Text style={{ fontWeight: 'bold' }}>{aiResult.reps}</Text></Text>}
+          {aiResult.calories && <Text style={styles.resultText}>{t('calories_burned')}: <Text style={{ fontWeight: 'bold' }}>{aiResult.calories}</Text></Text>}
+          {aiResult.exercise && <Text style={styles.resultText}>{t('exercise')}: <Text style={{ fontWeight: 'bold' }}>{aiResult.exercise}</Text></Text>}
+          {aiResult.weight && <Text style={styles.resultText}>{t('weight')}: <Text style={{ fontWeight: 'bold' }}>{aiResult.weight}</Text></Text>}
+          {aiResult.explanation && <Text style={styles.resultText}>{t('explanation') || 'Explanation'}: <Text>{aiResult.explanation}</Text></Text>}
         </View>
       )}
     </View>
