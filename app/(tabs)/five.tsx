@@ -1,10 +1,8 @@
 import { useData } from '@/components/data.provider';
-import React, { useState } from 'react';
-import { View, TextInput, StyleSheet, Text, TouchableOpacity, Keyboard, ActivityIndicator, ScrollView, Button } from 'react-native';
-import commonStyles from '../styles';
-import WorkoutAnalyzer from '@/components/WorkoutAnalyzer';
-import { set } from 'react-hook-form';
 import TimerButton from '@/components/TimerButton';
+import React, { useState } from 'react';
+import { ActivityIndicator, Keyboard, StyleSheet, Text, TextInput, View } from 'react-native';
+import commonStyles from '../styles';
 
 const trainingGoals = [
   { label: 'Strength', value: 'strength' },
@@ -67,7 +65,7 @@ const AnalyzerScreen: React.FC = () => {
     <View style={commonStyles.container}>
       <View style={commonStyles.outerContainer}>
         <Text style={commonStyles.tileTitle}>AI Workout Analyzer</Text>
-        <View style={commonStyles.tile}>
+        <View style={[commonStyles.tile, { justifyContent: 'flex-start' }]}> 
           <View style={styles.innerWrapperTopTile}>
             <Text style={styles.label}>Weight (kg)</Text>
             <TextInput
@@ -95,7 +93,7 @@ const AnalyzerScreen: React.FC = () => {
             <Text style={styles.label}>Training Level</Text>
             <View style={styles.goalRow}>
               {['beginner','intermediate','expert'].map((g) => (
-                <TimerButton key={g} text={g.charAt(0).toUpperCase()+g.slice(1)} onPress={() => setTrainingLevel(g)} isSelected={trainingLevel===g} style={styles.goalButton} />
+                <TimerButton small key={g} text={g.charAt(0).toUpperCase()+g.slice(1)} onPress={() => setTrainingLevel(g)} isSelected={trainingLevel===g} style={styles.goalButton} />
               ))}
             </View>
 
@@ -109,12 +107,17 @@ const AnalyzerScreen: React.FC = () => {
               placeholderTextColor="#999"
               onFocus={() => setError('')}
             />
-            {/* Error message styled like three.tsx */}
-            <TimerButton text={loading ? 'Analyzing...' : 'Analyze'} onPress={handleAnalyze} style={styles.analyzeButton} />
-            {error ? <Text style={{ color: 'red', width: '90%' }}>{error}</Text> : null}
-            {loading && <ActivityIndicator style={{ marginTop: 10 }} color="#00bcd4" />}
+           
           </View>
+          <View style={{ alignItems: 'flex-end', width: '100%', marginBottom: 8, marginRight: 20 }}>
+            <TimerButton text={loading ? 'Analyzing...' : 'Analyze'} onPress={handleAnalyze} style={styles.analyzeButton} />
+          </View>
+           
         </View>
+        <View style={styles.errorAndLoading}>
+            {error ? <Text style={{ color: 'red', width: '90%' }}>{error}</Text> : null}
+            {loading && <ActivityIndicator size={80} style={{ marginTop: 10, }} color="#00bcd4" />}
+            </View>
         {aiResult && (
           <View style={styles.resultBox}>
             <TimerButton text="Add to Workouts" onPress={handleAddAiWorkout} style={styles.addAiButton} />
@@ -150,6 +153,15 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
   },
+  errorAndLoading: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    height: '40%',
+    fontSize: 16,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
   label: {
     fontSize: 16,
     marginBottom: 0,
@@ -171,6 +183,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 15,
+    marginTop: 10,
     width: '90%',
   },
   goalButton: {
@@ -198,7 +211,9 @@ const styles = StyleSheet.create({
     padding: 15,
     alignItems: 'center',
     marginTop: 10,
-    alignSelf: 'flex-end',
+    minWidth: 120,
+    zIndex: 10,
+    // Removed position: 'absolute', bottom, right
   },
   analyzeButtonText: {
     color: '#fff',
