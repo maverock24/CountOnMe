@@ -334,8 +334,7 @@ const styles = StyleSheet.create({
   },
   selectedValueText: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 14,
   },
   optionText: {
     color: '#fff',

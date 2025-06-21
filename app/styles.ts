@@ -144,9 +144,8 @@ const commonStyles = StyleSheet.create({
   },
   buttonText: {
     color: '#EFF0F0',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
-    letterSpacing: 1.5,
   },
   listItem: {
     flexDirection: 'row', // align children horizontally
