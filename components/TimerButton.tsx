@@ -55,7 +55,7 @@ const TimerButton = ({
               : ['rgb(49, 67, 77)', 'rgb(38, 48, 54)', 'rgb(28, 37, 43)']
           }
         >
-          <Text style={[commonStyles.buttonText, { paddingLeft: 10, paddingRight: 10, fontSize: small ? 12 : 16 }]}>
+          <Text style={[commonStyles.buttonText, { paddingLeft: 5, paddingRight: 5, fontSize: small ? 12 : 14 }]}>
             {text}
           </Text>
         </LinearGradient>
