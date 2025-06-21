@@ -156,6 +156,9 @@ const TabTwoScreen: React.FC = () => {
 
     // Ensure we have valid data before setting time
     if (items.length > 0) {
+      // Always reset progress and elapsedTime when selecting a set
+      progress.setValue(0);
+      setElapsedTime(0);
       handleReset(items);
     }
   };
@@ -164,6 +167,9 @@ const TabTwoScreen: React.FC = () => {
 
   const handleStart = () => {
     if (timers.length > 0) {
+      // Always reset progress and elapsedTime before starting
+      progress.setValue(0);
+      setElapsedTime(0);
       // Make sure time is set if starting from 0
       if (time === 0 && timers[currentIndex]) {
         setTime(timers[currentIndex].time);
@@ -201,12 +207,8 @@ const TabTwoScreen: React.FC = () => {
         useNativeDriver: true,
       }).start();
 
-      Animated.timing(progress, {
-        toValue: 0,
-        duration: 500,
-        useNativeDriver: false,
-      }).start();
-
+      // Always reset progress and elapsedTime on reset
+      progress.setValue(0);
       setElapsedTime(0);
     }
   };
@@ -246,6 +248,7 @@ const TabTwoScreen: React.FC = () => {
             <View style={styles.timerContainer}>
               <View
                             style={{
+                              zIndex: 999,
                               position: 'absolute',
                               top: '65%',
                               flexDirection: 'row',

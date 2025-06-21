@@ -46,7 +46,7 @@ export default function TabLayout() {
         screenOptions={{
           tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
           tabBarStyle: { backgroundColor: 'black', height: 60 },
-          tabBarLabelStyle: { fontSize: 16 },
+          tabBarLabelStyle: { fontSize: 14 },
           headerShown: false,
           animation: 'fade',
           transitionSpec: {
@@ -59,7 +59,7 @@ export default function TabLayout() {
           name="index"
           options={{
             title: 'Counter',
-            tabBarIcon: ({ color }) => <TabBarIcon size={23} iconName={faGauge} color={color} />,
+            tabBarIcon: ({ color }) => <TabBarIcon size={22} iconName={faGauge} color={color} />,
             headerRight: () => (
               <Link href="/modal" asChild>
                 <Pressable>
@@ -80,7 +80,7 @@ export default function TabLayout() {
           name="two"
           options={{
             title: 'Workout',
-            tabBarIcon: ({ color }) => <TabBarIcon size={30} iconName={faDumbbell} color={color} />,
+            tabBarIcon: ({ color }) => <TabBarIcon size={29} iconName={faDumbbell} color={color} />,
           }}
         />
         <Tabs.Screen
