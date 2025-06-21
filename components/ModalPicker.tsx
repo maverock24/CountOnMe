@@ -1,20 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Modal,
-  TouchableWithoutFeedback,
-  FlatList,
-} from 'react-native';
 import { Text } from '@/components/Themed';
-import SoundPreview from './SoundPreview';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { DataKey, useData } from './data.provider';
 import { FontAwesome } from '@expo/vector-icons';
-import { useSound } from './sound.provider';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Slider from '@react-native-community/slider';
 import { Audio } from 'expo-av';
+import React, { useEffect, useState } from 'react';
+import {
+  FlatList,
+  Modal,
+  StyleSheet,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
+import { DataKey, useData } from './data.provider';
+import { useSound } from './sound.provider';
 
 export type setting = 'breakMusic' | 'workoutMusic' | 'successSound' | 'language';
 
@@ -54,6 +53,7 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey, onValueChange
         return [
           ...options,
           { label: 'random:Action', value: 'RANDOM_ACTION' } as DataKey,
+          { label: 'random:Chill', value: 'RANDOM_CHILL' } as DataKey,
         ].sort((a, b) => a.label.localeCompare(b.label));
       case 'breakMusic':
         options = breakMusic;
@@ -61,6 +61,7 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey, onValueChange
         return [
           ...options,
           { label: 'random:Chill', value: 'RANDOM_CHILL' } as DataKey,
+          { label: 'random:Action', value: 'RANDOM_ACTION' } as DataKey,
         ].sort((a, b) => a.label.localeCompare(b.label));
       case 'successSound':
         options = successSound;

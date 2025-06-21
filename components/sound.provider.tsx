@@ -10,7 +10,6 @@ import { Platform } from 'react-native';
 
 let currentSound: Audio.Sound | null = null;
 
-// Interface for our context
 interface SoundContextType {
   isPlaying: boolean;
   audioReady: boolean;
@@ -24,7 +23,6 @@ interface SoundContextType {
   loadMusicSettings: () => Promise<void>;
 }
 
-// Create context with default values
 const SoundContext = createContext<SoundContextType>({
   isPlaying: false,
   audioReady: false,
@@ -38,7 +36,6 @@ const SoundContext = createContext<SoundContextType>({
   loadMusicSettings: async () => { },
 });
 
-// Provider component
 export const SoundProvider: React.FC<{
   children: React.ReactNode;
   workoutMusic: any[];
@@ -52,7 +49,7 @@ export const SoundProvider: React.FC<{
   const [selectedBreakMusic, setSelectedBreakMusic] = useState<any>(null);
   const [selectedSuccessSound, setSelectedSuccessSound] = useState<any>(null);
 
-  // Initialize audio system
+  
   useEffect(() => {
     let isMounted = true;
     let initAttempts = 0;
@@ -60,14 +57,14 @@ export const SoundProvider: React.FC<{
 
     const initAudio = async () => {
       try {
-        // Request permissions
+        
         const permissionResponse = await Audio.requestPermissionsAsync();
         if (!permissionResponse.granted) {
           console.warn('Audio permissions not granted');
           return;
         }
 
-        // For Android, explicitly enable audio before setting mode
+        
         if (Platform.OS === 'android') {
           try {
             await Audio.setIsEnabledAsync(true);
@@ -76,7 +73,7 @@ export const SoundProvider: React.FC<{
           }
         }
 
-        // Set audio mode
+        
         await Audio.setAudioModeAsync({
           allowsRecordingIOS: false,
           interruptionModeIOS: InterruptionModeIOS.DuckOthers,
@@ -87,17 +84,17 @@ export const SoundProvider: React.FC<{
           staysActiveInBackground: true,
         });
 
-        // Verify audio system is working by creating and immediately releasing a sound
+        
         try {
           const verificationSound = new Audio.Sound();
-          // Use a simple sound file for verification if available
+          
           const soundFile =
             workoutMusic.length > 0 ? workoutMusic[0].value : require('../assets/sounds/yeah.mp3');
           await verificationSound.loadAsync(soundFile);
           await verificationSound.unloadAsync();
         } catch (verifyError) {
           console.error('Audio verification failed:', verifyError);
-          throw verifyError; // Re-throw to trigger retry
+          throw verifyError; 
         }
 
         if (isMounted) {
@@ -107,10 +104,10 @@ export const SoundProvider: React.FC<{
       } catch (error) {
         console.error('Error initializing audio system:', error);
 
-        // Retry with increasing delay
+        
         if (initAttempts < maxInitAttempts && isMounted) {
           initAttempts++;
-          const delay = 1000 * initAttempts; // Increase delay with each attempt
+          const delay = 1000 * initAttempts; 
           console.log(
             `Retrying audio initialization in ${delay / 1000
             }s (attempt ${initAttempts}/${maxInitAttempts})`
@@ -120,7 +117,7 @@ export const SoundProvider: React.FC<{
       }
     };
 
-    // Only initialize audio if we have music data
+    
     if (workoutMusic.length > 0 || breakMusic.length > 0 || successSound.length > 0) {
       initAudio();
     }
@@ -129,9 +126,9 @@ export const SoundProvider: React.FC<{
       isMounted = false;
       stopSound();
     };
-  }, [workoutMusic, breakMusic, successSound]); // Add dependencies to re-init if audio data changes
+  }, [workoutMusic, breakMusic, successSound]); 
 
-  // Load music settings once audio is ready
+  
   useEffect(() => {
     if (
       audioReady &&
@@ -141,7 +138,7 @@ export const SoundProvider: React.FC<{
     }
   }, [audioReady, workoutMusic, breakMusic, successSound]);
 
-  // Stop sound function
+  
   const stopSound = async () => {
     if (!currentSound) return;
 
@@ -161,14 +158,14 @@ export const SoundProvider: React.FC<{
     }
   };
 
-  // Load music settings from AsyncStorage
+  
   const loadMusicSettings = async () => {
     if (!audioReady) {
       console.log('Audio not ready yet');
       return;
     }
 
-    // Check if we have any music data
+    
     if (workoutMusic.length === 0 && breakMusic.length === 0 && successSound.length === 0) {
       console.log('No music data available');
       return;
@@ -206,35 +203,35 @@ export const SoundProvider: React.FC<{
     } catch (error) {
       console.error('Error loading music settings:', error);
 
-      // Set defaults if there's an error
+      
       if (workoutMusic.length > 0) setSelectedWorkoutMusic(workoutMusic[0].value);
       if (breakMusic.length > 0) setSelectedBreakMusic(breakMusic[0].value);
       if (successSound.length > 0) setSelectedSuccessSound(successSound[0].value);
     }
   };
 
-  // Helper function to find sound file by label
+  
   const getSoundFileByLabel = (label: string) => {
     try {
-      // Check workoutMusic
+      
       if (workoutMusic && Array.isArray(workoutMusic)) {
         const workoutMatch = workoutMusic.find((music) => music && music.label === label);
         if (workoutMatch && workoutMatch.value) return workoutMatch.value;
       }
 
-      // Check breakMusic
+      
       if (breakMusic && Array.isArray(breakMusic)) {
         const breakMatch = breakMusic.find((music) => music && music.label === label);
         if (breakMatch && breakMatch.value) return breakMatch.value;
       }
 
-      // Check successSound
+      
       if (successSound && Array.isArray(successSound)) {
         const successMatch = successSound.find((sound) => sound && sound.label === label);
         if (successMatch && successMatch.value) return successMatch.value;
       }
 
-      // Default fallbacks
+      
       if (workoutMusic?.length > 0) return workoutMusic[0].value;
       if (breakMusic?.length > 0) return breakMusic[0].value;
       if (successSound?.length > 0) return successSound[0].value;
@@ -246,13 +243,13 @@ export const SoundProvider: React.FC<{
     }
   };
 
-  // Helper to get a random track by label
+  
   const getRandomTrackByLabel = (musicArray: any[], label: string) => {
     const filtered = musicArray.filter((item) =>
       item.label && item.label.toLowerCase().includes(label.toLowerCase())
     );
     if (filtered.length === 0) return null;
-    // Shuffle the array to ensure a new random order each time
+    
     const shuffled = filtered
       .map((value) => ({ value, sort: Math.random() }))
       .sort((a, b) => a.sort - b.sort)
@@ -260,12 +257,13 @@ export const SoundProvider: React.FC<{
     return shuffled[0].value;
   };
 
-  // Play sound function with validation and error handling
+  
   const playSound = async (
     soundFile: any,
     loop: boolean = true,
     volume: number = 1.0,
-    callback?: () => void
+    callback?: () => void,
+    onFinish?: () => void 
   ) => {
     if (!audioReady) {
       console.warn('Audio system not ready');
@@ -277,7 +275,7 @@ export const SoundProvider: React.FC<{
       return null;
     }
 
-    // Try to find the label for the soundFile
+    
     let foundLabel: string | null = null;
     const allMusic = [...(workoutMusic || []), ...(breakMusic || []), ...(successSound || [])];
     for (const item of allMusic) {
@@ -298,13 +296,11 @@ export const SoundProvider: React.FC<{
     }
 
     try {
-      // Clean up existing sound first
+      
       await stopSound();
-      // Add a small delay to ensure sound is fully unloaded
       await new Promise((resolve) => setTimeout(resolve, 150));
       console.log('Playing sound file:', foundLabel || soundFile);
 
-      // For Android, add small delay before creating new sound
       if (Platform.OS === 'android') {
         await new Promise((resolve) => setTimeout(resolve, 200));
       }
@@ -318,13 +314,14 @@ export const SoundProvider: React.FC<{
       currentSound = sound;
       setIsPlaying(true);
 
-      sound.setOnPlaybackStatusUpdate((status) => {
+      sound.setOnPlaybackStatusUpdate(async (status) => {
         if (status.isLoaded) {
           if ((status as AVPlaybackStatusSuccess).didJustFinish && !loop) {
             sound.unloadAsync().catch((e) => console.error('Error unloading sound:', e));
             setIsPlaying(false);
             callback && callback();
             currentSound = null;
+            if (onFinish) onFinish(); 
           }
         } else if (status.error) {
           console.error('Playback error:', status.error);
@@ -343,27 +340,27 @@ export const SoundProvider: React.FC<{
     }
   };
 
-  // Fade out sound function
+  
   const fadeOutSound = async () => {
     try {
-      // First check if we have a sound to fade
+      
       if (!currentSound) {
         return;
       }
 
-      // Get current status to check if it's playing
+      
       const status = await currentSound.getStatusAsync();
       if (!status.isLoaded || !(status as AVPlaybackStatusSuccess).isPlaying) {
         return;
       }
 
-      // Start with current volume or default to 1
+      
       let volume = (status as AVPlaybackStatusSuccess).volume ?? 1;
-      const duration = 800; // ms per step
+      const duration = 800; 
       const steps = 5;
       const decrement = volume / steps;
 
-      // Gradually reduce volume
+      
       for (let i = 0; i < steps; i++) {
         volume = Math.max(volume - decrement, 0);
         await currentSound.setVolumeAsync(volume);
@@ -374,35 +371,48 @@ export const SoundProvider: React.FC<{
     }
   };
 
-  // Play segment-specific music
+  
   const playSegmentMusic = async (segment: string, callback?: () => void) => {
     console.log('playSegmentMusic called for segment:', segment);
     if (!audioReady) return;
 
-    // Always stop any current sound before playing new
     await stopSound();
-    // Add a small delay to ensure sound is fully unloaded
     await new Promise((resolve) => setTimeout(resolve, 100));
 
     if (segment === 'workout') {
       const workoutMusicValue = await AsyncStorage.getItem('workoutMusic');
       if (workoutMusicValue === 'random:Action') {
-        const randomAction = getRandomTrackByLabel(workoutMusic, 'action:');
-        if (randomAction) {
-          await playSound(randomAction, true);
-          return;
-        }
+        const playRandom = async () => {
+          const randomAction = getRandomTrackByLabel(workoutMusic, 'action:');
+          if (randomAction) {
+            await playSound(randomAction, false, 1.0, undefined, playRandom); 
+          }
+        };
+        await playRandom();
+        return;
+      } else if (workoutMusicValue === 'random:Chill') {
+        const playRandom = async () => {
+          const randomChill = getRandomTrackByLabel(workoutMusic, 'chill:');
+          if (randomChill) {
+            await playSound(randomChill, false, 1.0, undefined, playRandom);
+          }
+        };
+        await playRandom();
+        return;
       } else {
         await playSound(selectedWorkoutMusic, true);
       }
     } else if (segment === 'break') {
       const breakMusicValue = await AsyncStorage.getItem('breakMusic');
       if (breakMusicValue === 'random:Chill') {
-        const randomChill = getRandomTrackByLabel(breakMusic, 'chill:');
-        if (randomChill) {
-          await playSound(randomChill, true);
-          return;
-        }
+        const playRandom = async () => {
+          const randomChill = getRandomTrackByLabel(breakMusic, 'chill:');
+          if (randomChill) {
+            await playSound(randomChill, false, 1.0, undefined, playRandom);
+          }
+        };
+        await playRandom();
+        return;
       } else {
         console.log('Playing selected break music');
         await playSound(selectedBreakMusic, true);
@@ -430,5 +440,5 @@ export const SoundProvider: React.FC<{
   return <SoundContext.Provider value={contextValue}>{children}</SoundContext.Provider>;
 };
 
-// Custom hook for using the sound context
+
 export const useSound = () => useContext(SoundContext);
