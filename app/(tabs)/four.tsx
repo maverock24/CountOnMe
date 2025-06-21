@@ -1,6 +1,7 @@
 import { useData } from '@/components/data.provider';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import ModalPicker from '@/components/ModalPicker';
+import Colors from '@/constants/Colors';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
@@ -13,9 +14,15 @@ const SettingsScreen: React.FC = () => {
 
   return (
     <View style={commonStyles.container}>
-      <View style={commonStyles.outerContainer}>
+      <View style={[commonStyles.outerContainer]}>
         <Text style={commonStyles.tileTitle}>{t('settings')}</Text>
-        <View style={styles.section}>
+        <View style={[styles.section, { backgroundColor: 'rgba(17, 24, 30, 0.8)',borderRadius: 10,
+            borderColor: '#2A2E33',
+            borderWidth: 1,
+            shadowColor: Colors.glow,
+            shadowOpacity: 0.2,
+            shadowRadius: 12,
+            shadowOffset: { width: 0, height: 0 } }]}>
           <ScrollView contentContainerStyle={styles.scrollContent}>
             <Text style={styles.sectionTitle}>{t('general')}</Text>
             <View
