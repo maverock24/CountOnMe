@@ -1,13 +1,13 @@
 import { useData } from '@/components/data.provider';
 import { View } from '@/components/Themed';
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FlatList, Keyboard, SafeAreaView, StyleSheet, Text, TextInput } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { useTranslation } from 'react-i18next';
 
+import ListTile from '@/components/ListTile';
 import TimerButton from '@/components/TimerButton';
 import commonStyles from '../styles';
-import ListTile from '@/components/ListTile';
 
 export default function TabThreeScreen() {
   const { workoutItems, storeItem, deleteItem } = useData();
