@@ -1,14 +1,13 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   Audio,
   AVPlaybackStatusSuccess,
   InterruptionModeAndroid,
   InterruptionModeIOS,
 } from 'expo-av';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Module-scoped variable for tracking the current playing sound (singleton)
 let currentSound: Audio.Sound | null = null;
 
 // Interface for our context
@@ -33,10 +32,10 @@ const SoundContext = createContext<SoundContextType>({
   selectedBreakMusic: null,
   selectedSuccessSound: null,
   playSound: async () => null,
-  stopSound: async () => {},
-  fadeOutSound: async () => {},
-  playSegmentMusic: async () => {},
-  loadMusicSettings: async () => {},
+  stopSound: async () => { },
+  fadeOutSound: async () => { },
+  playSegmentMusic: async () => { },
+  loadMusicSettings: async () => { },
 });
 
 // Provider component
@@ -113,8 +112,7 @@ export const SoundProvider: React.FC<{
           initAttempts++;
           const delay = 1000 * initAttempts; // Increase delay with each attempt
           console.log(
-            `Retrying audio initialization in ${
-              delay / 1000
+            `Retrying audio initialization in ${delay / 1000
             }s (attempt ${initAttempts}/${maxInitAttempts})`
           );
           setTimeout(initAudio, delay);

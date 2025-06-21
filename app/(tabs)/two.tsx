@@ -1,10 +1,11 @@
+import ListTile from '@/components/ListTile';
 import TimerButton from '@/components/TimerButton';
 import TimerItem from '@/components/TimerItem';
 import { useData } from '@/components/data.provider';
 import { useSound } from '@/components/sound.provider';
+import Colors from '@/constants/Colors';
 import { faBed, faRunning } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -12,17 +13,13 @@ import {
   Dimensions,
   Easing,
   FlatList,
-  Pressable,
   StyleSheet,
   Switch,
   Text,
-  TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import Svg, { Circle, Defs, FeGaussianBlur, FeMerge, FeMergeNode, Filter } from 'react-native-svg';
 import commonStyles from '../styles';
-import ListTile from '@/components/ListTile';
-import Colors from '@/constants/Colors';
 
 const { height } = Dimensions.get('window');
 
@@ -68,20 +65,19 @@ const TabTwoScreen: React.FC = () => {
   const scaleValue = useRef(new Animated.Value(1)).current;
   const pulseAnimationRef = useRef<Animated.CompositeAnimation | null>(null);
 
-  // Pulse animation: run when isRunning is true
   useEffect(() => {
     if (isRunning) {
       const pulseAnimation = Animated.loop(
         Animated.sequence([
           Animated.timing(scaleValue, {
             toValue: 1.01,
-              duration: 125,
+            duration: 125,
             useNativeDriver: true,
             easing: Easing.inOut(Easing.quad),
           }),
           Animated.timing(scaleValue, {
             toValue: 1,
-              duration: 350,
+            duration: 350,
             useNativeDriver: true,
             easing: Easing.inOut(Easing.quad),
           }),
@@ -96,7 +92,7 @@ const TabTwoScreen: React.FC = () => {
       }
       scaleValue.setValue(1);
     }
-    }, [isRunning, scaleValue]);
+  }, [isRunning, scaleValue]);
 
   useEffect(() => {
     if (timers.length > 0) {
@@ -247,66 +243,65 @@ const TabTwoScreen: React.FC = () => {
           <View style={styles.innerWrapperTopTile}>
             <View style={styles.timerContainer}>
               <View
-                            style={{
-                              zIndex: 999,
-                              position: 'absolute',
-                              top: '65%',
-                              flexDirection: 'row',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                            }}
-                          >
-                            <Text style={styles.label}>Sound on/off</Text>
-                            <Switch
-                              style={{ marginRight: 10, marginTop: 10 }}
-                              trackColor={{ false: 'white', true: 'rgb(74, 125, 118)' }}
-                              thumbColor={audioEnabled ? 'white' : 'grey'}
-                              onValueChange={setAudioEnabled}
-                              value={audioEnabled}
-                            />
-                          </View>
-                          <Text style={styles.currentMusicLabel}>Playing: {currentMusicBeingPlayed}</Text>
-              <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
-              <Svg
-                height={radius * 2 + strokeWidth}
-                width={radius * 2 + strokeWidth}
-                viewBox={`-15 -10 ${radius * 2 + strokeWidth + 30} ${
-                  radius * 2 + strokeWidth + 30
-                }`}
-                style={[styles.progressCircle, { overflow: 'visible' }]}
+                style={{
+                  zIndex: 999,
+                  position: 'absolute',
+                  top: '65%',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
               >
-                <Defs>
-                  <Filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                    <FeGaussianBlur in="SourceGraphic" stdDeviation="15" result="blur" />
-                    <FeMerge>
-                      <FeMergeNode in="blur" />
-                      <FeMergeNode in="SourceGraphic" />
-                    </FeMerge>
-                  </Filter>
-                </Defs>
-                <Circle
-                  cx={radius + strokeWidth / 2}
-                  cy={radius + strokeWidth / 2}
-                  r={radius}
-                  stroke="darkSlateGrey"
-                  strokeWidth={strokeWidth}
-                  fill="none"
-                  {...({ collapsable: 'false' } as any)}
+                <Text style={styles.label}>Sound on/off</Text>
+                <Switch
+                  style={{ marginRight: 10, marginTop: 10 }}
+                  trackColor={{ false: 'white', true: 'rgb(74, 125, 118)' }}
+                  thumbColor={audioEnabled ? 'white' : 'grey'}
+                  onValueChange={setAudioEnabled}
+                  value={audioEnabled}
                 />
-                <AnimatedCircle
-                  cx={radius + strokeWidth / 2}
-                  cy={radius + strokeWidth / 2}
-                  r={radius}
-                  stroke={Colors.glow}
-                  strokeWidth={strokeWidth}
-                  fill="none"
-                  strokeDasharray={circumference}
-                  strokeDashoffset={strokeDashoffset}
-                  transform={`rotate(-90 ${radius + strokeWidth / 2} ${radius + strokeWidth / 2})`}
-                  filter="url(#glow)"
-                  {...({ collapsable: 'false' } as any)}
-                />
-              </Svg>
+              </View>
+              <Text style={styles.currentMusicLabel}>Playing: {currentMusicBeingPlayed}</Text>
+              <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
+                <Svg
+                  height={radius * 2 + strokeWidth}
+                  width={radius * 2 + strokeWidth}
+                  viewBox={`-15 -10 ${radius * 2 + strokeWidth + 30} ${radius * 2 + strokeWidth + 30
+                    }`}
+                  style={[styles.progressCircle, { overflow: 'visible' }]}
+                >
+                  <Defs>
+                    <Filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                      <FeGaussianBlur in="SourceGraphic" stdDeviation="15" result="blur" />
+                      <FeMerge>
+                        <FeMergeNode in="blur" />
+                        <FeMergeNode in="SourceGraphic" />
+                      </FeMerge>
+                    </Filter>
+                  </Defs>
+                  <Circle
+                    cx={radius + strokeWidth / 2}
+                    cy={radius + strokeWidth / 2}
+                    r={radius}
+                    stroke="darkSlateGrey"
+                    strokeWidth={strokeWidth}
+                    fill="none"
+                    {...({ collapsable: 'false' } as any)}
+                  />
+                  <AnimatedCircle
+                    cx={radius + strokeWidth / 2}
+                    cy={radius + strokeWidth / 2}
+                    r={radius}
+                    stroke={Colors.glow}
+                    strokeWidth={strokeWidth}
+                    fill="none"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={strokeDashoffset}
+                    transform={`rotate(-90 ${radius + strokeWidth / 2} ${radius + strokeWidth / 2})`}
+                    filter="url(#glow)"
+                    {...({ collapsable: 'false' } as any)}
+                  />
+                </Svg>
               </Animated.View>
               {timers.length > 0 &&
                 isRunning &&
@@ -322,9 +317,8 @@ const TabTwoScreen: React.FC = () => {
               <View style={styles.timerContainerWrapper}>
                 <TimerItem
                   title={timers.length > 0 ? timers[currentIndex].segment : ''}
-                  key={`timer-${
-                    timers.length > 0 ? timers[currentIndex].id : 'empty'
-                  }-${currentIndex}`}
+                  key={`timer-${timers.length > 0 ? timers[currentIndex].id : 'empty'
+                    }-${currentIndex}`}
                   time={time}
                   isRunning={isRunning}
                   setIsRunning={setIsRunning}
