@@ -69,7 +69,7 @@ const commonStyles = StyleSheet.create({
     paddingBottom: 10, // Adjust padding based on button height
     height: 50, // Set the button height
     borderRadius: 10,
-    margin: 10,
+    margin: 5,
     shadowColor: '#000',
     shadowOpacity: 0.8,
     shadowRadius: 2,
