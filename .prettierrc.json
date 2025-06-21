@@ -5,5 +5,7 @@
   "tabWidth": 2,
   "printWidth": 100,
   "bracketSpacing": true,
-  "jsxBracketSameLine": false
+  "jsxBracketSameLine": false,
+  "proseWrap": "preserve",
+  "endOfLine": "lf"
 }

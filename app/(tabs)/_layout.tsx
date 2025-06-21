@@ -16,7 +16,6 @@ import { Easing, ImageBackground, Pressable, StyleSheet } from 'react-native';
 import { useColorScheme } from '@/components/useColorScheme';
 import Colors from '@/constants/Colors';
 
-// You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: { iconName: IconDefinition; color: string; size?: number }) {
   return (
     <FontAwesomeIcon size={28} style={{ marginBottom: -3 }} icon={props.iconName} {...props} />
