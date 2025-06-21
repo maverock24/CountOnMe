@@ -44,7 +44,7 @@ const formatTime = (seconds: number) => {
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const TabTwoScreen: React.FC = () => {
-  const { workoutItems, isCountOnMeKey, audioEnabled, setAudioEnabled } = useData();
+  const { workoutItems, isCountOnMeKey, audioEnabled, setAudioEnabled, currentMusicBeingPlayed } = useData();
 
   const { audioReady, stopSound, playSegmentMusic } = useSound();
 
@@ -69,33 +69,33 @@ const TabTwoScreen: React.FC = () => {
   const pulseAnimationRef = useRef<Animated.CompositeAnimation | null>(null);
 
   // Pulse animation: run when isRunning is true
-    useEffect(() => {
-      if (isRunning) {
-        const pulseAnimation = Animated.loop(
-          Animated.sequence([
-            Animated.timing(scaleValue, {
-              toValue: 1.01,
+  useEffect(() => {
+    if (isRunning) {
+      const pulseAnimation = Animated.loop(
+        Animated.sequence([
+          Animated.timing(scaleValue, {
+            toValue: 1.01,
               duration: 125,
-              useNativeDriver: true,
-              easing: Easing.inOut(Easing.quad),
-            }),
-            Animated.timing(scaleValue, {
-              toValue: 1,
+            useNativeDriver: true,
+            easing: Easing.inOut(Easing.quad),
+          }),
+          Animated.timing(scaleValue, {
+            toValue: 1,
               duration: 350,
-              useNativeDriver: true,
-              easing: Easing.inOut(Easing.quad),
-            }),
-          ])
-        );
-        pulseAnimation.start();
-        pulseAnimationRef.current = pulseAnimation;
-      } else {
-        if (pulseAnimationRef.current) {
-          pulseAnimationRef.current.stop();
-          pulseAnimationRef.current = null;
-        }
-        scaleValue.setValue(1);
+            useNativeDriver: true,
+            easing: Easing.inOut(Easing.quad),
+          }),
+        ])
+      );
+      pulseAnimation.start();
+      pulseAnimationRef.current = pulseAnimation;
+    } else {
+      if (pulseAnimationRef.current) {
+        pulseAnimationRef.current.stop();
+        pulseAnimationRef.current = null;
       }
+      scaleValue.setValue(1);
+    }
     }, [isRunning, scaleValue]);
 
   useEffect(() => {
@@ -265,6 +265,7 @@ const TabTwoScreen: React.FC = () => {
                               value={audioEnabled}
                             />
                           </View>
+                          <Text style={styles.currentMusicLabel}>Playing: {currentMusicBeingPlayed}</Text>
               <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
               <Svg
                 height={radius * 2 + strokeWidth}
@@ -384,6 +385,17 @@ const styles = StyleSheet.create({
     color: 'lightgray',
     marginBottom: 5,
   },
+  currentMusicLabel: {
+    position: 'absolute',
+    top: '99%',
+    fontSize: 12,
+    color: 'lightgray',
+    marginTop: 2,
+    marginBottom: 5,
+    marginLeft: 10,
+    marginRight: 10,
+    textAlign: 'center',
+  },
   // Your existing styles remain the same
   innerWrapperTopTile: {
     paddingTop: 0,
@@ -464,6 +476,7 @@ const styles = StyleSheet.create({
     color: 'darkgrey',
   },
   buttonContainer: {
+    marginTop: 20,
     flexDirection: 'row',
     justifyContent: 'center',
     width: '100%',
