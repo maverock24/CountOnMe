@@ -11,8 +11,6 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { DataProvider } from '@/components/data.provider';
-import { Sound } from 'expo-av/build/Audio';
-import { SoundProvider } from '@/components/sound.provider';
 import TutorialModal from '@/components/TutorialModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setAppLocale } from './utils/language';
@@ -125,19 +123,17 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={CustomDarkTheme}>
       <DataProvider>
-        <SoundProvider>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              // Fix potential animation issues on Android
-              animation: Platform.OS === 'android' ? 'fade' : 'default',
-            }}
-          >
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-          </Stack>
-          <TutorialModal isVisible={showTutorial} onClose={handleCloseTutorial} />
-        </SoundProvider>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            // Fix potential animation issues on Android
+            animation: Platform.OS === 'android' ? 'fade' : 'default',
+          }}
+        >
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+        </Stack>
+        <TutorialModal isVisible={showTutorial} onClose={handleCloseTutorial} />
       </DataProvider>
     </ThemeProvider>
   );

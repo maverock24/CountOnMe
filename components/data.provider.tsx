@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { SoundProvider } from './sound.provider'; // Adjust the import based on your file structure
 
 export interface StoredItem {
   key: string;
@@ -24,6 +25,8 @@ interface DataContextType {
   isCountOnMeKey: (key: string) => boolean;
   setAudioEnabled: (enabled: boolean) => void;
   audioEnabled: boolean;
+  currentMusicBeingPlayed: string | null;
+  setCurrentMusicBeingPlayed: (music: string | null) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -34,7 +37,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [workoutItems, setWorkoutItems] = useState<StoredItem[]>([]);
 
   const [audioEnabled, setAudioEnabledState] = useState(true);
-  //load all the music files friom the assets/sounds folder and use the file name as label and the file as value
+  const [currentMusicBeingPlayed, setCurrentMusicBeingPlayed] = useState<string | null>(null);
 
   const setAudioEnabled = useCallback(async (enabled: boolean) => {
     setAudioEnabledState(enabled);
@@ -208,24 +211,33 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   return (
-    <DataContext.Provider
-      value={{
-        isCountOnMeKey,
-        storedItems,
-        workoutItems,
-        breakMusic,
-        workoutMusic,
-        successSound,
-        language,
-        reload,
-        storeItem,
-        deleteItem,
-        setAudioEnabled,
-        audioEnabled,
-      }}
+    <SoundProvider
+      workoutMusic={workoutMusic}
+      breakMusic={breakMusic}
+      successSound={successSound}
+      setCurrentMusicBeingPlayed={setCurrentMusicBeingPlayed}
     >
-      {children}
-    </DataContext.Provider>
+      <DataContext.Provider
+        value={{
+          isCountOnMeKey,
+          storedItems,
+          workoutItems,
+          breakMusic,
+          workoutMusic,
+          successSound,
+          language,
+          reload,
+          storeItem,
+          deleteItem,
+          setAudioEnabled,
+          audioEnabled,
+          currentMusicBeingPlayed,
+          setCurrentMusicBeingPlayed,
+        }}
+      >
+        {children}
+      </DataContext.Provider>
+    </SoundProvider>
   );
 };
 

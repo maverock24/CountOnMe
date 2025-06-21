@@ -7,7 +7,6 @@ import {
 } from 'expo-av';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useData } from './data.provider'; // Import the useData hook
 
 // Module-scoped variable for tracking the current playing sound (singleton)
 let currentSound: Audio.Sound | null = null;
@@ -41,15 +40,18 @@ const SoundContext = createContext<SoundContextType>({
 });
 
 // Provider component
-export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const SoundProvider: React.FC<{
+  children: React.ReactNode;
+  workoutMusic: any[];
+  breakMusic: any[];
+  successSound: any[];
+  setCurrentMusicBeingPlayed: (label: string) => void;
+}> = ({ children, workoutMusic, breakMusic, successSound, setCurrentMusicBeingPlayed }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioReady, setAudioReady] = useState(false);
   const [selectedWorkoutMusic, setSelectedWorkoutMusic] = useState<any>(null);
   const [selectedBreakMusic, setSelectedBreakMusic] = useState<any>(null);
   const [selectedSuccessSound, setSelectedSuccessSound] = useState<any>(null);
-
-  // Get workoutMusic, breakMusic, and successSound from useData hook
-  const { workoutMusic, breakMusic, successSound } = useData();
 
   // Initialize audio system
   useEffect(() => {
@@ -277,13 +279,36 @@ export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return null;
     }
 
+    // Try to find the label for the soundFile
+    let foundLabel: string | null = null;
+    const allMusic = [...(workoutMusic || []), ...(breakMusic || []), ...(successSound || [])];
+    for (const item of allMusic) {
+      if (item && item.value) {
+        if (
+          item.value === soundFile ||
+          (item.value?.uri && soundFile?.uri && item.value.uri === soundFile.uri) ||
+          (typeof item.value === 'string' && typeof soundFile === 'string' && item.value === soundFile) ||
+          (typeof item.value === 'object' && typeof soundFile === 'object' && JSON.stringify(item.value) === JSON.stringify(soundFile))
+        ) {
+          foundLabel = item.label;
+          break;
+        }
+      }
+    }
+    if (foundLabel) {
+      setCurrentMusicBeingPlayed(foundLabel);
+    }
+
     try {
       // Clean up existing sound first
       await stopSound();
+      // Add a small delay to ensure sound is fully unloaded
+      await new Promise((resolve) => setTimeout(resolve, 150));
+      console.log('Playing sound file:', foundLabel || soundFile);
 
       // For Android, add small delay before creating new sound
       if (Platform.OS === 'android') {
-        await new Promise((resolve) => setTimeout(resolve, 300));
+        await new Promise((resolve) => setTimeout(resolve, 200));
       }
 
       const { sound } = await Audio.Sound.createAsync(soundFile, {
@@ -292,11 +317,9 @@ export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         progressUpdateIntervalMillis: 1000,
       });
 
-      // Store reference in the module-scoped variable
       currentSound = sound;
       setIsPlaying(true);
 
-      // Set up status monitoring
       sound.setOnPlaybackStatusUpdate((status) => {
         if (status.isLoaded) {
           if ((status as AVPlaybackStatusSuccess).didJustFinish && !loop) {
@@ -312,7 +335,6 @@ export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
       });
 
-      // Start playback and wait for it to finish
       await sound.playAsync();
       return sound;
     } catch (error) {
@@ -356,7 +378,13 @@ export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Play segment-specific music
   const playSegmentMusic = async (segment: string, callback?: () => void) => {
+    console.log('playSegmentMusic called for segment:', segment);
     if (!audioReady) return;
+
+    // Always stop any current sound before playing new
+    await stopSound();
+    // Add a small delay to ensure sound is fully unloaded
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     if (segment === 'workout') {
       const workoutMusicValue = await AsyncStorage.getItem('workoutMusic');
@@ -377,7 +405,7 @@ export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           await playSound(randomChill, true);
           return;
         }
-      }else {
+      } else {
         console.log('Playing selected break music');
         await playSound(selectedBreakMusic, true);
       }
