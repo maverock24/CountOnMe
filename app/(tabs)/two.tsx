@@ -261,7 +261,7 @@ const TabTwoScreen: React.FC = () => {
                   value={audioEnabled}
                 />
               </View>
-              <Text style={styles.currentMusicLabel}>Playing: {currentMusicBeingPlayed}</Text>
+              <Text style={styles.currentMusicLabel}>{ isRunning ? 'Playing ' + currentMusicBeingPlayed : ""}</Text>
               <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
                 <Svg
                   height={radius * 2 + strokeWidth}
