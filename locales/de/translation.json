@@ -1,11 +1,11 @@
 {
   "welcome": "Willkommen",
   "sound_on_off": "Ton an/aus",
-  "active_workout": "Trainingsplan",
+  "active_workout": "Ausgewähltes Training",
   "workouts": "Workouts",
   "start": "Start",
   "stop": "Stop",
-  "reset": "Zurücksetzen",
+  "reset": "Reset",
     "settings": "Einstellungen",
     "language": "Sprache",
     "select_language": "Sprache auswählen",
@@ -33,7 +33,11 @@
     "available_workouts": "Verfügbare Workouts",
     "sound_trigger": "Sound Trigger",
     "mic_level": "Mikrofonpegel",
-    "start_listening": "Beginne zuzuhören",
+    "start_listening": "Aktiviere Mikrofon",
+    "stop_listening": "Deaktiviere Mikrofon",
     "counter": "Zähler",
-    "manager": "Manager"
+    "manager": "Manager",
+    "trainer": "Trainer",
+    "target_reps": "Zielwiederholungen",
+    "playing": "Titel"
 }

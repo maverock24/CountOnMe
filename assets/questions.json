@@ -1,0 +1,339 @@
+{
+  "questionnaire": {
+    "title": "Fitness Profile Questionnaire",
+    "description": "Help us create your personalized training plan by answering these questions",
+    "version": "1.0",
+    "sections": [
+      {
+        "id": "personal_info",
+        "title": "Personal Information",
+        "description": "Basic information about yourself",
+        "questions": [
+          {
+            "id": "q1",
+            "type": "text",
+            "question": "What is your full name?",
+            "required": true
+          },
+          {
+            "id": "q2",
+            "type": "number",
+            "question": "What is your age?",
+            "required": true,
+            "min": 16,
+            "max": 100
+          },
+          {
+            "id": "q3",
+            "type": "select",
+            "question": "What is your gender?",
+            "options": ["Male", "Female", "Non-binary", "Prefer not to say"],
+            "required": true
+          },
+          {
+            "id": "q4",
+            "type": "number",
+            "question": "What is your height in cm?",
+            "required": true,
+            "min": 100,
+            "max": 250
+          },
+          {
+            "id": "q5",
+            "type": "number",
+            "question": "What is your weight in kg?",
+            "required": true,
+            "min": 30,
+            "max": 250
+          }
+        ]
+      },
+      {
+        "id": "fitness_goals",
+        "title": "Fitness Goals",
+        "description": "Tell us what you want to achieve",
+        "questions": [
+          {
+            "id": "q6",
+            "type": "multi_select",
+            "question": "What are your primary fitness goals? (Select up to 3)",
+            "options": [
+              "Lose weight", 
+              "Build muscle", 
+              "Increase endurance", 
+              "Improve flexibility",
+              "Improve athletic performance",
+              "Maintain current fitness level",
+              "Rehabilitate an injury",
+              "Reduce stress",
+              "Improve overall health"
+            ],
+            "max_selections": 3,
+            "required": true
+          },
+          {
+            "id": "q7",
+            "type": "range",
+            "question": "How important is achieving your fitness goals to you?",
+            "min": 1,
+            "max": 10,
+            "min_label": "Somewhat important",
+            "max_label": "Extremely important",
+            "required": true
+          },
+          {
+            "id": "q8",
+            "type": "text",
+            "question": "Do you have any specific targets? (e.g., lose 5kg, run 5km, etc.)",
+            "required": false
+          }
+        ]
+      },
+      {
+        "id": "current_fitness",
+        "title": "Current Fitness Level",
+        "description": "Help us understand where you're starting from",
+        "questions": [
+          {
+            "id": "q9",
+            "type": "select",
+            "question": "How would you describe your current fitness level?",
+            "options": [
+              "Beginner - New to exercise",
+              "Novice - Exercise occasionally",
+              "Intermediate - Exercise regularly",
+              "Advanced - Very active lifestyle",
+              "Athletic - Competitive sports"
+            ],
+            "required": true
+          },
+          {
+            "id": "q10",
+            "type": "number",
+            "question": "How many days per week do you currently exercise?",
+            "min": 0,
+            "max": 7,
+            "required": true
+          },
+          {
+            "id": "q11",
+            "type": "multi_select",
+            "question": "What types of exercise do you currently do?",
+            "options": [
+              "Walking",
+              "Running",
+              "Cycling",
+              "Swimming",
+              "Weight training",
+              "Yoga",
+              "Pilates",
+              "Team sports",
+              "HIIT",
+              "None"
+            ],
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "preferences",
+        "title": "Exercise Preferences",
+        "description": "Tell us what you enjoy doing",
+        "questions": [
+          {
+            "id": "q12",
+            "type": "multi_select",
+            "question": "What types of exercise do you enjoy?",
+            "options": [
+              "Cardio (running, cycling, etc.)",
+              "Strength training",
+              "Flexibility work (yoga, stretching)",
+              "Group classes",
+              "Team sports",
+              "Outdoor activities",
+              "Home workouts"
+            ],
+            "required": true
+          },
+          {
+            "id": "q13",
+            "type": "select",
+            "question": "Do you prefer to exercise alone or with others?",
+            "options": [
+              "Alone",
+              "With a partner",
+              "In small groups",
+              "In large classes",
+              "No preference"
+            ],
+            "required": false
+          },
+          {
+            "id": "q14",
+            "type": "range",
+            "question": "How intense do you like your workouts to be?",
+            "min": 1,
+            "max": 10,
+            "min_label": "Light and easy",
+            "max_label": "Very challenging",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "availability",
+        "title": "Equipment & Time Availability",
+        "description": "Let us know what resources you have available",
+        "questions": [
+          {
+            "id": "q15",
+            "type": "multi_select",
+            "question": "What equipment do you have access to?",
+            "options": [
+              "Gym membership",
+              "Home gym",
+              "Dumbbells/free weights",
+              "Resistance bands",
+              "Cardio equipment",
+              "Pull-up bar",
+              "Yoga mat",
+              "No equipment"
+            ],
+            "required": true
+          },
+          {
+            "id": "q16",
+            "type": "number",
+            "question": "How many days per week can you commit to exercise?",
+            "min": 1,
+            "max": 7,
+            "required": true
+          },
+          {
+            "id": "q17",
+            "type": "number",
+            "question": "How much time (in minutes) can you dedicate to each workout session?",
+            "min": 10,
+            "max": 120,
+            "required": true
+          },
+          {
+            "id": "q18",
+            "type": "multi_select",
+            "question": "When do you prefer to work out?",
+            "options": [
+              "Early morning",
+              "Mid-morning",
+              "Lunch time",
+              "Afternoon",
+              "Evening",
+              "Late night"
+            ],
+            "required": false
+          }
+        ]
+      },
+      {
+        "id": "health_considerations",
+        "title": "Health Considerations",
+        "description": "Important information for safe exercise planning",
+        "questions": [
+          {
+            "id": "q19",
+            "type": "boolean",
+            "question": "Do you have any injuries or medical conditions that might affect your exercise routine?",
+            "required": true
+          },
+          {
+            "id": "q20",
+            "type": "text",
+            "question": "If yes, please describe your injuries or conditions:",
+            "conditional": {
+              "depends_on": "q19",
+              "show_if": true
+            },
+            "required": false
+          },
+          {
+            "id": "q21",
+            "type": "multi_select",
+            "question": "Do you have any of the following conditions?",
+            "options": [
+              "Heart condition",
+              "High blood pressure",
+              "Diabetes",
+              "Asthma",
+              "Joint problems",
+              "Back pain",
+              "Pregnancy",
+              "None of the above"
+            ],
+            "required": true
+          },
+          {
+            "id": "q22",
+            "type": "boolean",
+            "question": "Have you been cleared by a doctor to exercise?",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "nutrition",
+        "title": "Nutrition & Diet",
+        "description": "Information about your eating habits",
+        "questions": [
+          {
+            "id": "q23",
+            "type": "select",
+            "question": "How would you describe your current diet?",
+            "options": [
+              "Omnivore (eat everything)",
+              "Vegetarian",
+              "Vegan",
+              "Pescatarian",
+              "Keto",
+              "Paleo",
+              "Gluten-free",
+              "Other"
+            ],
+            "required": true
+          },
+          {
+            "id": "q24",
+            "type": "text",
+            "question": "If 'Other', please specify:",
+            "conditional": {
+              "depends_on": "q23",
+              "show_if": "Other"
+            },
+            "required": false
+          },
+          {
+            "id": "q25",
+            "type": "multi_select",
+            "question": "Do you have any food allergies or intolerances?",
+            "options": [
+              "Dairy",
+              "Gluten",
+              "Nuts",
+              "Eggs",
+              "Soy",
+              "Fish/Shellfish",
+              "None"
+            ],
+            "required": true
+          },
+          {
+            "id": "q26",
+            "type": "range",
+            "question": "How many meals do you typically eat per day?",
+            "min": 1,
+            "max": 6,
+            "required": true
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -15,6 +15,7 @@ import { Easing, ImageBackground, Pressable, StyleSheet } from 'react-native';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import Colors from '@/constants/Colors';
+import { useTranslation } from 'react-i18next';
 
 function TabBarIcon(props: { iconName: IconDefinition; color: string; size?: number }) {
   return (
@@ -28,10 +29,11 @@ export function emitPulseEvent(isRunning: boolean) {
   pulseEventEmitter.emit('timerRunning', isRunning);
 }
 
+
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const image = require('../../assets/images/background1.jpeg');
-
+  const { t } = useTranslation();
   return (
     <ImageBackground
       source={image}
@@ -54,7 +56,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="index"
           options={{
-            title: 'Counter',
+            title: t('counter'),
             tabBarIcon: ({ color }) => <TabBarIcon size={22} iconName={faGauge} color={color} />,
             headerRight: () => (
               <Link href="/modal" asChild>
@@ -75,28 +77,28 @@ export default function TabLayout() {
         <Tabs.Screen
           name="two"
           options={{
-            title: 'Workout',
+            title: t('workout'),
             tabBarIcon: ({ color }) => <TabBarIcon size={29} iconName={faDumbbell} color={color} />,
           }}
         />
         <Tabs.Screen
           name="three"
           options={{
-            title: 'Manager',
+            title: t('manager'),
             tabBarIcon: ({ color }) => <TabBarIcon iconName={faList} color={color} />,
           }}
         />
         <Tabs.Screen
           name="five"
           options={{
-            title: 'Trainer',
+            title: t('trainer'),
             tabBarIcon: ({ color }) => <TabBarIcon iconName={faAtom} color={color} />,
           }}
         />
         <Tabs.Screen
           name="four"
           options={{
-            title: 'Settings',
+            title: t('settings'),
             tabBarIcon: ({ color }) => <TabBarIcon iconName={faGears} color={color} />,
           }}
         />

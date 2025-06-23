@@ -1,6 +1,6 @@
 import { Text } from '@/components/Themed';
+import i18n from '@/i18n';
 import { FontAwesome } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Slider from '@react-native-community/slider';
 import { Audio } from 'expo-av';
 import React, { useEffect, useState } from 'react';
@@ -20,13 +20,12 @@ export type setting = 'breakMusic' | 'workoutMusic' | 'successSound' | 'language
 interface MusicPickerProps {
   label: string;
   dataKey: setting;
-  onValueChange?: (value: string) => void | Promise<void>;
 }
 
-const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey, onValueChange }) => {
+const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
   const [selectedValue, setSelectedValue] = useState<string>('');
   const [previewKey, setPreviewKey] = useState<number>(0);
-  const { workoutMusic, breakMusic, successSound, language } = useData();
+  const { workoutMusic, breakMusic, successSound, language, storeItem, getStoredItem } = useData();
   const [modalVisible, setModalVisible] = useState(false);
   const { loadMusicSettings } = useSound();
   const [isPlaying, setIsPlaying] = useState(false);
@@ -44,7 +43,7 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey, onValueChange
   }
 
   // Get the correct music array based on musicType
-  const musicOptions = (() => {
+  const options = (() => {
     let options: DataKey[] = [];
     switch (dataKey) {
       case 'workoutMusic':
@@ -79,31 +78,27 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey, onValueChange
     // Load music setting from async storage
     const loadValue = async () => {
       try {
-        const value = await AsyncStorage.getItem(dataKey);
+        const value = await getStoredItem(dataKey);
         if (value !== null) {
           setSelectedValue(value);
-        } else if (musicOptions.length > 0) {
-          // Set default if no stored value
-          setSelectedValue(musicOptions[0].label);
-          await AsyncStorage.setItem(dataKey, musicOptions[0].label);
-        }
+        } 
       } catch (e) {
         console.error(`Error loading ${dataKey} setting:`, e);
       }
     };
     loadValue();
-  }, [dataKey, musicOptions]);
+  }, []);
 
   const handleValueChange = async (value: string) => {
     try {
-      await AsyncStorage.setItem(dataKey, value);
+      storeItem(dataKey, value);
       setSelectedValue(value);
       setPreviewKey((prev) => prev + 1);
       if (dataKey !== 'language') {
         loadMusicSettings();
       }
-      if (onValueChange) {
-        await onValueChange(value);
+      if(dataKey === 'language') {
+        i18n.changeLanguage(value);
       }
     } catch (e) {
       console.error(`Error saving ${dataKey} setting:`, e);
@@ -112,7 +107,7 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey, onValueChange
 
   // Find the selected sound object
   const findSelectedSound = () => {
-    const music = musicOptions.find((item) => item.label === selectedValue);
+    const music = options.find((item) => item.label === selectedValue);
     return music ? music.value : null;
   };
 
@@ -202,7 +197,7 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey, onValueChange
             <TouchableOpacity
               onPress={() => setModalVisible(true)} >
             <View style={{ flex: 1, alignItems: 'center' }}>
-              <Text style={styles.selectedValueText}>{selectedValue}</Text>
+              <Text style={styles.selectedValueText}>{dataKey === 'language' ? options.find((item) => item.value === i18n.language)?.label : selectedValue}</Text>
             </View>
             </TouchableOpacity>
             <TouchableOpacity style={styles.pickerButton} onPress={() => setModalVisible(true)}>
@@ -223,7 +218,7 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey, onValueChange
               <View style={styles.modalContent}>
                 <Text style={styles.modalTitle}>{label}</Text>
                 <FlatList
-                  data={musicOptions}
+                  data={options}
                   keyExtractor={(item) => item.label}
                   renderItem={({ item }) => (
                     <TouchableOpacity
@@ -232,7 +227,7 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey, onValueChange
                         selectedValue === item.label && styles.selectedOptionItem,
                       ]}
                       onPress={() => {
-                        handleValueChange(item.label);
+                        handleValueChange(dataKey === 'language' ? item.value : item.label);
                         setModalVisible(false);
                       }}
                     >

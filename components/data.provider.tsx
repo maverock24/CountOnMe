@@ -1,3 +1,4 @@
+import i18n from '@/i18n';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { SoundProvider } from './sound.provider'; // Adjust the import based on your file structure
@@ -21,12 +22,15 @@ interface DataContextType {
   workoutItems: StoredItem[];
   reload: () => Promise<void>;
   storeItem: (key: string, value: string) => Promise<void>;
+  getStoredItem: (key: string) => Promise<string | null>;
   deleteItem: (key: string) => Promise<void>;
   isCountOnMeKey: (key: string) => boolean;
   setAudioEnabled: (enabled: boolean) => void;
   audioEnabled: boolean;
   currentMusicBeingPlayed: string | null;
   setCurrentMusicBeingPlayed: (music: string | null) => void;
+  currentLanguage: string | null;
+  setLanguage: (language: string | null) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -35,6 +39,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const prefixKey = '@countOnMe_';
   const [storedItems, setStoredItems] = useState<StoredItem[]>([]);
   const [workoutItems, setWorkoutItems] = useState<StoredItem[]>([]);
+  const [currentLanguage, setLanguage] = useState<string | null>(null);
+
+  const [selectedActionMusic, setSelectedActionMusic] = useState<string>("Action: Upbeat");
+  const [selectedBreakMusic, setSelectedBreakMusic] = useState<string>("Break: Chill");
+  const [selectedSuccessSound, setSelectedSuccessSound] = useState<string>("Success: Yeah");
 
   const [audioEnabled, setAudioEnabledState] = useState(true);
   const [currentMusicBeingPlayed, setCurrentMusicBeingPlayed] = useState<string | null>(null);
@@ -173,15 +182,44 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Map the retrieved data to an array of StoredItem objects
       const items: StoredItem[] = stores.map(([key, value]) => {
         const trimmedKey = key.replace(prefixKey, '');
+        switch (trimmedKey) {
+          case 'workoutMusic':
+            setSelectedActionMusic(value!);
+            break;
+          case 'breakMusic':
+            setSelectedBreakMusic(value!);
+            break;
+          case 'successSound':
+            setSelectedSuccessSound(value!);
+            break;
+          case 'language':
+            if (value && value !== i18n.language) {
+                i18n.changeLanguage(value);
+            }
+            break;
+        }
         return { key: trimmedKey, value };
       });
       const workoutItems = items.filter((item) => !reservedKeys.includes(item.key));
       setWorkoutItems(workoutItems);
-      setStoredItems(items);
+      setStoredItems(items);      
     } catch (e) {
       console.error('Error loading AsyncStorage data:', e);
     }
   };
+
+  const getStoredItem = useCallback(
+    async (key: string): Promise<string | null> => {
+      try {
+        const value = await AsyncStorage.getItem(`${prefixKey}${key}`);
+        return value;
+      } catch (e) {
+        console.error('Error retrieving data:', e);
+        return null;
+      }
+    },
+    [prefixKey]
+  );
 
   const storeItem = async (key: string, value: string) => {
     try {
@@ -216,6 +254,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       breakMusic={breakMusic}
       successSound={successSound}
       setCurrentMusicBeingPlayed={setCurrentMusicBeingPlayed}
+      selectedBreakMusic={selectedBreakMusic}
+      selectedWorkoutMusic={selectedActionMusic}
+      selectedSuccessSound={selectedSuccessSound}
     >
       <DataContext.Provider
         value={{
@@ -226,6 +267,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           workoutMusic,
           successSound,
           language,
+          currentLanguage,
+          setLanguage,
           reload,
           storeItem,
           deleteItem,
@@ -233,6 +276,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           audioEnabled,
           currentMusicBeingPlayed,
           setCurrentMusicBeingPlayed,
+          getStoredItem
         }}
       >
         {children}
