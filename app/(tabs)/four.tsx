@@ -1,14 +1,12 @@
 import { useData } from '@/components/data.provider';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
 import ModalPicker from '@/components/ModalPicker';
 import Colors from '@/constants/Colors';
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import commonStyles from '../styles';
 
 const SettingsScreen: React.FC = () => {
-  const [language, setLanguage] = useState('en'); // default language English
   const { audioEnabled, setAudioEnabled } = useData();
   const { t } = useTranslation();
 
@@ -46,7 +44,10 @@ const SettingsScreen: React.FC = () => {
             <ModalPicker label={t('break')} dataKey="breakMusic" />
             <ModalPicker label={t('success')} dataKey="successSound" />
             <Text style={styles.sectionTitle}>{t('language')}</Text>
-            <LanguageSwitcher />
+            <ModalPicker
+      label="Selected Language"
+      dataKey="language"
+    />
           </ScrollView>
         </View>
       </View>

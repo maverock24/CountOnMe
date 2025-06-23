@@ -1,8 +1,8 @@
+import { useData } from '@/components/data.provider';
 import { Text, View } from '@/components/Themed';
 import TimerButton from '@/components/TimerButton';
 import { TriangleLeft } from '@/components/TriangleLeft';
 import { TriangleRight } from '@/components/TriangleRight';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Slider from '@react-native-community/slider';
 import {
   AudioModule,
@@ -11,6 +11,7 @@ import {
   useAudioRecorder,
 } from 'expo-audio';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   Platform,
@@ -35,12 +36,14 @@ let nativeStatusListenerHasLoggedNoMetering = false;
 
 export default function TabOneScreen() {
   
+  const { t } = useTranslation();
   const [count, setCount] = useState(0);
   const [remaining, setRemaining] = useState(0);
   const repititions = [5, 10, 15, 200];
 
-  
-  const [sensitivitySetting, setSensitivitySetting] = useState<number>(50); 
+  const { storeItem,getStoredItem } = useData();
+
+  const [sensitivitySetting, setSensitivitySetting] = useState<number>(50);
   const [isListening, setIsListening] = useState(false);
   const [audioLevel, setAudioLevel] = useState(0); 
   
@@ -118,7 +121,7 @@ export default function TabOneScreen() {
       try { localStorage.setItem(key, value.toString()); }
       catch (e) { console.error("Web: Error saving sensitivity:", e); }
     } else {
-      AsyncStorage.setItem(key, value.toString())
+      storeItem(key, value.toString())
         .catch((err) => console.error('Native: Error saving sensitivity:', err));
     }
   }, []);
@@ -134,7 +137,7 @@ export default function TabOneScreen() {
         if (Platform.OS === 'web') {
           storedValue = localStorage.getItem(key);
         } else {
-          storedValue = await AsyncStorage.getItem(key);
+          storedValue = await getStoredItem(key);
         }
         if (storedValue !== null) {
           const parsed = parseFloat(storedValue);
@@ -334,15 +337,15 @@ export default function TabOneScreen() {
   };
 
   const currentPlatform = Platform.OS;
-  let levelDisplayText = `Mic Level: ${audioLevel.toFixed(0)}`;
+  let levelDisplayText = `${t('mic_level')}: ${audioLevel.toFixed(0)}`;
   if (currentPlatform === 'web') levelDisplayText += ' / 128';
-  else if (currentPlatform as any !== 'web' && audioLevel > -159.9) levelDisplayText = `Mic Level: ${audioLevel.toFixed(1)} dB`;
-  else if (currentPlatform as any  !== 'web') levelDisplayText = 'Mic Level: --- dB';
+  else if (currentPlatform as any !== 'web' && audioLevel > -159.9) levelDisplayText = `${t('mic_level')}: ${audioLevel.toFixed(1)} dB`;
+  else if (currentPlatform as any  !== 'web') levelDisplayText = `${t('mic_level')}: --- dB`;
 
   return (
     <View style={commonStyles.container}>
       <View style={commonStyles.outerContainer}>
-        <Text style={commonStyles.tileTitle}>Sound trigger</Text>{/* Updated Title */}
+        <Text style={commonStyles.tileTitle}>{t('sound_trigger')}</Text>{/* Updated Title */}
         <View style={commonStyles.tile}>
           <View style={styles.innerWrapperTopTile}>
             {/* UI elements removed as per user's latest code structure */}
@@ -360,21 +363,21 @@ export default function TabOneScreen() {
             />
             <Text style={styles.audioLevel}>{levelDisplayText}</Text>
             <TimerButton
-              text={isListening ? 'Stop Listening' : 'Start Listening'}
+              text={isListening ? t('stop_listening') : t('start_listening')}
               onPress={toggleListening}
               isSelected={isListening} 
             />
           </View>
         </View>
 
-        <Text style={commonStyles.tileTitle}>Counter</Text>
+        <Text style={commonStyles.tileTitle}>{t('counter')}</Text>
         <View style={[commonStyles.tile, { flex: 1, alignItems: 'center', justifyContent: 'center' }]}>
           <View style={styles.innerWrapperBottomTile}>
              <View style={{ backgroundColor: 'transparent', alignItems: 'center' }}>
                  <View style={styles.buttonContainerReps}>
                     {repititions.map((rep, index) => ( <TimerButton key={index} text={rep.toString()} onPress={() => handleSetRemaining(rep)} style={{ marginHorizontal: 5, width: 77 }} /> ))}
                  </View>
-                 <Text style={styles.remainingLabel}>Target Reps:</Text><Text style={styles.remaining}>{remaining > 0 ? remaining : '-'}</Text>
+                 <Text style={styles.remainingLabel}>{t('target_reps')}:</Text><Text style={styles.remaining}>{remaining > 0 ? remaining : '-'}</Text>
              </View>
              <View style={styles.buttonContainer}>
                  {/* <TouchableOpacity style={styles.triangleLeft} onPress={handleCountDown} /> */}
@@ -383,7 +386,7 @@ export default function TabOneScreen() {
                  {/* <TouchableOpacity style={styles.triangleRight} onPress={handleCountUp} /> */}
                  <TriangleRight size={80} onPress={handleCountUp} />
              </View>
-             <TimerButton maxWidth={true} text="Reset" onPress={handleReset} style={{ marginTop: -20}} />
+             <TimerButton maxWidth={true} text={t('reset')} onPress={handleReset} style={{ marginTop: -20}} />
           </View>
         </View>
       </View>

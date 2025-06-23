@@ -8,6 +8,7 @@ import { faBed, faRunning } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Animated,
   Dimensions,
@@ -66,6 +67,8 @@ const TabTwoScreen: React.FC = () => {
   const pulseAnimationRef = useRef<Animated.CompositeAnimation | null>(null);
 
   const [progressKey, setProgressKey] = useState(0);
+
+  const { t } = useTranslation();
 
   useEffect(() => {
     let pulseDuration = 350;
@@ -263,7 +266,7 @@ const TabTwoScreen: React.FC = () => {
     <View style={commonStyles.container}>
       <View style={commonStyles.outerContainer}>
         {/* Rest of your component remains the same */}
-        <Text style={commonStyles.tileTitle}>Active Workout</Text>
+        <Text style={commonStyles.tileTitle}>{t('active_workout')}</Text>
         <View style={commonStyles.tile}>
           <View style={styles.innerWrapperTopTile}>
             <View style={styles.timerContainer}>
@@ -277,7 +280,7 @@ const TabTwoScreen: React.FC = () => {
                   justifyContent: 'space-between',
                 }}
               >
-                <Text style={styles.label}>Sound on/off</Text>
+                <Text style={styles.label}>{t('sound_on_off')}</Text>
                 <Switch
                   style={{ marginRight: 10, marginTop: 10 }}
                   trackColor={{ false: 'white', true: 'rgb(74, 125, 118)' }}
@@ -286,7 +289,7 @@ const TabTwoScreen: React.FC = () => {
                   value={audioEnabled}
                 />
               </View>
-              <Text style={styles.currentMusicLabel}>{ isRunning ? 'Playing ' + currentMusicBeingPlayed : ""}</Text>
+              <Text style={styles.currentMusicLabel}>{ isRunning ? t('playing') + ' ' + currentMusicBeingPlayed : ""}</Text>
               <Animated.View key={progressKey} style={{ transform: [{ scale: scaleValue }] }}>
                 <Svg
                   height={radius * 2 + strokeWidth}
