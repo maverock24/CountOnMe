@@ -183,9 +183,10 @@ const TabTwoScreen: React.FC = () => {
 
   const handleStart = () => {
     if (timers.length > 0) {
-      progress.setValue(0);
-      setElapsedTime(0);
-      setProgressKey((k) => k + 1); // force re-render
+      if (totalTime > 0 && elapsedTime >= totalTime) {
+        handleReset();
+      }
+
       setTimeout(() => {
         if (time === 0 && timers[currentIndex]) {
           setTime(timers[currentIndex].time);
