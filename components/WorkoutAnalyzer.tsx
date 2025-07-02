@@ -1,7 +1,7 @@
 // src/components/WorkoutAnalyzer.tsx
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { ActivityIndicator, Button, StyleSheet, Text, TextInput, View } from 'react-native';
 
 const USER_WEIGHT_KG = 70; // Example weight, get this from user profile
 
@@ -41,10 +41,10 @@ const WorkoutAnalyzer: React.FC = () => {
         body: JSON.stringify(body),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'AI error');
+      if (!response.ok) throw new Error(data.error || t('ai_error'));
       setAiResult(data);
     } catch (error: any) {
-      setError(error.message || 'Unknown error');
+      setError(error.message || t('unknown_error'));
     } finally {
       setIsLoading(false);
     }
@@ -58,9 +58,10 @@ const WorkoutAnalyzer: React.FC = () => {
         value={activity}
         onChangeText={setActivity}
         placeholder={t('exercise_placeholder')}
+        defaultValue='test'
       />
 
-      <Text style={styles.label}>{t('training_plan') || 'Training Plan'}</Text>
+      <Text style={styles.label}>{t('training_plan')}</Text>
       <TextInput style={styles.input} value={plan} onChangeText={setPlan} />
 
       <Text style={styles.label}>{t('weight')}</Text>
@@ -92,14 +93,14 @@ const WorkoutAnalyzer: React.FC = () => {
         ))}
       </View>
       <Text style={styles.label}>
-        {t('calories')} ({t('optional') || 'optional'})
-      </Text>
+        {t('calories')} ({t('optional')})
+      </Text>useStore
       <TextInput
         style={styles.input}
         value={calories}
         onChangeText={setCalories}
         keyboardType="numeric"
-        placeholder={t('calories') + ' ' + (t('optional') || 'optional')}
+        placeholder={t('calories') + ' ' + t('optional')}
       />
       <Button
         title={isLoading ? t('analyze') + '...' : t('analyze')}
@@ -111,7 +112,7 @@ const WorkoutAnalyzer: React.FC = () => {
 
       {aiAdvice && 'advice' in aiAdvice && (
         <View style={styles.resultContainer}>
-          <Text style={styles.adviceTitle}>{t('advice') || 'Friendly Advice from Gemini:'}</Text>
+          <Text style={styles.adviceTitle}>{t('friendly_advice_from_gemini')}</Text>
           <Text style={styles.adviceText}>{aiAdvice.advice}</Text>
         </View>
       )}
@@ -127,7 +128,7 @@ const WorkoutAnalyzer: React.FC = () => {
         <View style={styles.resultContainer}>
           {aiResult.reps && (
             <Text style={styles.resultText}>
-              {t('repetitions_breaks') || 'Repetitions/Breaks'}:{' '}
+              {t('repetitions_breaks_full')}:{' '}
               <Text style={{ fontWeight: 'bold' }}>{aiResult.reps}</Text>
             </Text>
           )}
@@ -149,7 +150,7 @@ const WorkoutAnalyzer: React.FC = () => {
           )}
           {aiResult.explanation && (
             <Text style={styles.resultText}>
-              {t('explanation') || 'Explanation'}: <Text>{aiResult.explanation}</Text>
+              {t('explanation_full')}: <Text>{aiResult.explanation}</Text>
             </Text>
           )}
         </View>
@@ -189,7 +190,7 @@ const styles = StyleSheet.create({
   },
   adviceText: { fontSize: 16, fontStyle: 'italic', lineHeight: 22, color: '#eee' },
   errorText: { color: '#EF9A9A', fontSize: 16 },
-  goalRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15 },
+  goalRow: { flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 15 },
 });
 
 export default WorkoutAnalyzer;

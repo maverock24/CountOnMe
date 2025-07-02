@@ -6,6 +6,7 @@ import { Pressable, Text, View } from 'react-native';
 import commonStyles from '@/app/styles';
 import Colors from '@/constants/Colors';
 
+import { useTranslation } from 'react-i18next';
 import TimerButton from './TimerButton';
 
 const ListTile = ({
@@ -24,6 +25,8 @@ const ListTile = ({
   currentIndex?: number;
 }) => {
   const [workoutStage, setWorkoutStage] = useState(currentIndex || 0);
+  const { t } = useTranslation();
+  
 
   useEffect(() => {
     if (currentIndex !== undefined) {
@@ -76,9 +79,9 @@ const ListTile = ({
               }}
             >
               <Text style={commonStyles.listItemTitle}>{title}</Text>
-              <Text style={{ fontSize: 12, color: '#b0e0e6', marginBottom: 5 }}>Calories: 120</Text>
+              <Text style={{ fontSize: 12, color: '#b0e0e6', marginBottom: 5 }}>{t('calories_colon')} 120</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
-                <Text style={{ fontSize: 12, color: '#b0e0e6', marginRight: 5 }}>Level:</Text>
+                <Text style={{ fontSize: 12, color: '#b0e0e6', marginRight: 5 }}>{t('level_colon')}</Text>
                 {[...Array(totalStars)].map((_, i) => (
                   <FontAwesome
                     key={i}

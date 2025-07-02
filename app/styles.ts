@@ -21,12 +21,9 @@ const commonStyles = StyleSheet.create({
     letterSpacing: 2,
     fontWeight: 'bold',
     color: 'rgb(157, 242, 246)',
-    textShadowColor: Colors.glow,
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 8,
     textDecorationStyle: 'solid',
     textDecorationLine: 'underline',
-  },
+  } as any, // Temporarily cast to avoid web-specific style warnings
   outerContainer: {
     flex: 1,
     justifyContent: 'flex-start',
@@ -70,10 +67,8 @@ const commonStyles = StyleSheet.create({
     height: 50, // Set the button height
     borderRadius: 10,
     margin: 5,
-    shadowColor: '#000',
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-  },
+    boxShadow: '0px 2px 2px rgba(0, 0, 0, 0.8)',
+  } as any, // Temporarily cast to avoid web-specific style warnings
   buttonPressed: {
     // alignItems: 'center',
     // justifyContent: 'center',
@@ -102,12 +97,9 @@ const commonStyles = StyleSheet.create({
     paddingRight: 7,
     height: 30, // Set the button height
     borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
+    boxShadow: '0px 2px 2px rgba(0, 0, 0, 0.8)',
     elevation: 5, // For Android
-  },
+  } as any, // Temporarily cast to avoid web-specific style warnings
   buttonSmallPressed: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -119,12 +111,9 @@ const commonStyles = StyleSheet.create({
     borderRadius: 10,
     borderColor: 'rgb(38, 47, 62)',
     borderWidth: 0,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
+    boxShadow: '0px 0px 2px rgba(0, 0, 0, 0.8)',
     elevation: 0, // For Android
-  },
+  } as any, // Temporarily cast to avoid web-specific style warnings
   buttonTile: {
     flex: 1,
     flexDirection: 'row',
@@ -176,11 +165,8 @@ const commonStyles = StyleSheet.create({
     borderRadius: 10,
     borderColor: '#2A2E33',
     borderWidth: 1,
-    shadowColor: Colors.glow,
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 0 },
-  },
+    boxShadow: `0px 0px 12px ${Colors.glow}20`, // 20 for opacity
+  } as any, // Temporarily cast to avoid web-specific style warnings
   tileTitle: {
     width: '95%',
     marginBottom: -7,

@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react';
 import { View, Text, ViewStyle, Animated } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 import commonStyles from '../app/styles';
-import { gradients, gradientDirections, addShineEffect } from '../app/utils/gradients';
+import { gradients, gradientDirections, addShineEffect } from '../utils/gradients';
 
 interface GradientTileProps {
   title?: string;

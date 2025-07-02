@@ -52,7 +52,7 @@ const SettingsScreen: React.FC = () => {
             <ModalPicker label={t('break')} dataKey="breakMusic" />
             <ModalPicker label={t('success')} dataKey="successSound" />
             <Text style={styles.sectionTitle}>{t('language')}</Text>
-            <ModalPicker label="Selected Language" dataKey="language" />
+            <ModalPicker label={t('selected_language')} dataKey="language" />
           </ScrollView>
         </View>
       </View>
