@@ -58,9 +58,9 @@
             "type": "multi_select",
             "question": "What are your primary fitness goals? (Select up to 3)",
             "options": [
-              "Lose weight", 
-              "Build muscle", 
-              "Increase endurance", 
+              "Lose weight",
+              "Build muscle",
+              "Increase endurance",
               "Improve flexibility",
               "Improve athletic performance",
               "Maintain current fitness level",
@@ -313,15 +313,7 @@
             "id": "q25",
             "type": "multi_select",
             "question": "Do you have any food allergies or intolerances?",
-            "options": [
-              "Dairy",
-              "Gluten",
-              "Nuts",
-              "Eggs",
-              "Soy",
-              "Fish/Shellfish",
-              "None"
-            ],
+            "options": ["Dairy", "Gluten", "Nuts", "Eggs", "Soy", "Fish/Shellfish", "None"],
             "required": true
           },
           {

@@ -1,9 +1,3 @@
-import ListTile from '@/components/ListTile';
-import TimerButton from '@/components/TimerButton';
-import TimerItem from '@/components/TimerItem';
-import { useData } from '@/components/data.provider';
-import { useSound } from '@/components/sound.provider';
-import Colors from '@/constants/Colors';
 import { faBed, faRunning } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { router } from 'expo-router';
@@ -17,9 +11,17 @@ import {
   StyleSheet,
   Switch,
   Text,
-  View
+  View,
 } from 'react-native';
 import Svg, { Circle, Defs, FeGaussianBlur, FeMerge, FeMergeNode, Filter } from 'react-native-svg';
+
+import { useData } from '@/components/data.provider';
+import ListTile from '@/components/ListTile';
+import { useSound } from '@/components/sound.provider';
+import TimerButton from '@/components/TimerButton';
+import TimerItem from '@/components/TimerItem';
+import Colors from '@/constants/Colors';
+
 import commonStyles from '../styles';
 
 const { height } = Dimensions.get('window');
@@ -42,7 +44,8 @@ const formatTime = (seconds: number) => {
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const TabTwoScreen: React.FC = () => {
-  const { workoutItems, isCountOnMeKey, audioEnabled, setAudioEnabled, currentMusicBeingPlayed } = useData();
+  const { workoutItems, isCountOnMeKey, audioEnabled, setAudioEnabled, currentMusicBeingPlayed } =
+    useData();
 
   const { audioReady, stopSound, playSegmentMusic } = useSound();
 
@@ -290,12 +293,16 @@ const TabTwoScreen: React.FC = () => {
                   value={audioEnabled}
                 />
               </View>
-              <Text style={styles.currentMusicLabel}>{ isRunning ? t('playing') + ' ' + currentMusicBeingPlayed : ""}</Text>
+              <Text style={styles.currentMusicLabel}>
+                {isRunning ? t('playing') + ' ' + currentMusicBeingPlayed : ''}
+              </Text>
               <Animated.View key={progressKey} style={{ transform: [{ scale: scaleValue }] }}>
                 <Svg
                   height={radius * 2 + strokeWidth}
                   width={radius * 2 + strokeWidth}
-                  viewBox={`-15 -10 ${radius * 2 + strokeWidth + 30} ${radius * 2 + strokeWidth + 30}`}
+                  viewBox={`-15 -10 ${radius * 2 + strokeWidth + 30} ${
+                    radius * 2 + strokeWidth + 30
+                  }`}
                   style={[styles.progressCircle, { overflow: 'visible' }]}
                 >
                   <Defs>
@@ -325,7 +332,9 @@ const TabTwoScreen: React.FC = () => {
                     fill="none"
                     strokeDasharray={circumference}
                     strokeDashoffset={strokeDashoffset}
-                    transform={`rotate(-90 ${radius + strokeWidth / 2} ${radius + strokeWidth / 2})`}
+                    transform={`rotate(-90 ${radius + strokeWidth / 2} ${
+                      radius + strokeWidth / 2
+                    })`}
                     filter="url(#glow)"
                     {...({ collapsable: 'false' } as any)}
                   />
@@ -345,8 +354,9 @@ const TabTwoScreen: React.FC = () => {
               <View style={styles.timerContainerWrapper}>
                 <TimerItem
                   title={timers.length > 0 ? timers[currentIndex].segment : ''}
-                  key={`timer-${timers.length > 0 ? timers[currentIndex].id : 'empty'
-                    }-${currentIndex}`}
+                  key={`timer-${
+                    timers.length > 0 ? timers[currentIndex].id : 'empty'
+                  }-${currentIndex}`}
                   time={time}
                   isRunning={isRunning}
                   setIsRunning={setIsRunning}
@@ -367,9 +377,24 @@ const TabTwoScreen: React.FC = () => {
               </View>
             </View>
             <View style={styles.buttonContainer}>
-              <TimerButton style={{ width: 100}} onPress={handleStart} disabled={disabled} text="Start" />
-              <TimerButton style={{ width: 100}} onPress={handleStop} disabled={disabled} text="Stop" />
-              <TimerButton style={{ width: 100}} onPress={handleResetButtonPress} disabled={disabled} text="Reset" />
+              <TimerButton
+                style={{ width: 100 }}
+                onPress={handleStart}
+                disabled={disabled}
+                text="Start"
+              />
+              <TimerButton
+                style={{ width: 100 }}
+                onPress={handleStop}
+                disabled={disabled}
+                text="Stop"
+              />
+              <TimerButton
+                style={{ width: 100 }}
+                onPress={handleResetButtonPress}
+                disabled={disabled}
+                text="Reset"
+              />
             </View>
           </View>
         </View>

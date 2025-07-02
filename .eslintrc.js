@@ -29,7 +29,7 @@ module.exports = {
     'import/resolver': {
       typescript: {}, // This uses tsconfig.json paths
       node: {
-        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
       },
     },
   },
@@ -59,7 +59,8 @@ module.exports = {
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'warn',
     '@typescript-eslint/no-non-null-assertion': 'warn',
-    '@typescript-eslint/no-var-requires': 'warn',
+    '@typescript-eslint/no-var-requires': 'off', // Allow require() for React Native assets
+    '@typescript-eslint/no-require-imports': 'off', // Allow require() for React Native assets
     '@typescript-eslint/consistent-type-imports': ['warn', { prefer: 'type-imports' }],
     '@typescript-eslint/ban-ts-comment': ['error', { 'ts-ignore': 'allow-with-description' }],
 
@@ -80,6 +81,9 @@ module.exports = {
       },
     ],
     'import/no-duplicates': 'error',
+    'import/no-commonjs': 'off', // Allow require() for React Native assets
+    'import/no-dynamic-require': 'off', // Allow require() for React Native assets
+    'import/no-unresolved': 'off', // Disable unresolved module warnings
 
     // Formatting (will defer to prettier)
     'prettier/prettier': [
@@ -96,6 +100,16 @@ module.exports = {
     ],
   },
   overrides: [
+    // Asset file providers - allow require() for React Native assets
+    {
+      files: ['**/data.provider.tsx', '**/sound.provider.tsx', '**/*provider.tsx'],
+      rules: {
+        '@typescript-eslint/no-var-requires': 'off',
+        '@typescript-eslint/no-require-imports': 'off',
+        'import/no-commonjs': 'off',
+        'import/no-dynamic-require': 'off',
+      },
+    },
     // Test file specific rules
     {
       files: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx'],

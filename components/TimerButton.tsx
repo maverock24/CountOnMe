@@ -1,4 +1,3 @@
-
 import commonStyles from '@/app/styles';
 import Colors from '@/constants/Colors';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -23,11 +22,7 @@ const TimerButton = ({
   isSelected?: boolean;
 }) => {
   return (
-    <Pressable
-      disabled={disabled}
-      onPress={onPress} 
-      style={{ width: maxWidth ? '100%' : 'auto' }}
-    >
+    <Pressable disabled={disabled} onPress={onPress} style={{ width: maxWidth ? '100%' : 'auto' }}>
       {({ pressed }) => (
         <LinearGradient
           style={[
@@ -43,7 +38,7 @@ const TimerButton = ({
               shadowOpacity: 1,
               shadowRadius: 1,
               boxShadow: `0px 0px 5px 1px ${Colors.glow}`,
-              elevation: 6, 
+              elevation: 6,
             },
             style,
           ]}
@@ -51,11 +46,16 @@ const TimerButton = ({
             disabled
               ? ['rgb(23, 31, 35)', 'rgb(23, 31, 35)']
               : pressed
-              ? [ 'rgb(26, 36, 41)', 'rgb(26, 36, 41)']
+              ? ['rgb(26, 36, 41)', 'rgb(26, 36, 41)']
               : ['rgb(49, 67, 77)', 'rgb(38, 48, 54)', 'rgb(28, 37, 43)']
           }
         >
-          <Text style={[commonStyles.buttonText, { paddingLeft: 5, paddingRight: 5, fontSize: small ? 12 : 14 }]}>
+          <Text
+            style={[
+              commonStyles.buttonText,
+              { paddingLeft: 5, paddingRight: 5, fontSize: small ? 12 : 14 },
+            ]}
+          >
             {text}
           </Text>
         </LinearGradient>

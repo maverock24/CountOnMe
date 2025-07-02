@@ -21,20 +21,20 @@ export function TriangleRight({ size = 80, onPress }: TriangleRightProps) {
     <Pressable onPress={onPress}>
       {({ pressed }) => (
         <Svg width={outerWidth} height={outerHeight} viewBox={`0 0 ${outerWidth} ${outerHeight}`}>
-         <Defs>
-        {/* Outer gradient (shadow) */}
-        <LinearGradient id="outerGrad" x1="0" y1="0" x2="1" y2="1">
-          <Stop offset="0" stopColor="rgb(80, 99, 110)" />
-          <Stop offset="0.5" stopColor="rgb(51, 63, 71)" />
-          <Stop offset="1" stopColor="rgb(28, 37, 43)" />
-        </LinearGradient>
-        {/* Inner gradient (top surface) */}
-        <LinearGradient id="innerGrad" x1="0" y1="0" x2="1" y2="1">
-          <Stop offset="0" stopColor="rgb(44, 60, 68)" />
-          <Stop offset="0.5" stopColor="rgb(38, 48, 54)" />
-          <Stop offset="1" stopColor="rgb(43, 55, 63)" />
-        </LinearGradient>
-      </Defs>
+          <Defs>
+            {/* Outer gradient (shadow) */}
+            <LinearGradient id="outerGrad" x1="0" y1="0" x2="1" y2="1">
+              <Stop offset="0" stopColor="rgb(80, 99, 110)" />
+              <Stop offset="0.5" stopColor="rgb(51, 63, 71)" />
+              <Stop offset="1" stopColor="rgb(28, 37, 43)" />
+            </LinearGradient>
+            {/* Inner gradient (top surface) */}
+            <LinearGradient id="innerGrad" x1="0" y1="0" x2="1" y2="1">
+              <Stop offset="0" stopColor="rgb(44, 60, 68)" />
+              <Stop offset="0.5" stopColor="rgb(38, 48, 54)" />
+              <Stop offset="1" stopColor="rgb(43, 55, 63)" />
+            </LinearGradient>
+          </Defs>
           {/* Outer triangle (shadow) */}
           <Polygon
             points={`0,0 ${outerWidth},${outerHeight / 2} 0,${outerHeight}`}

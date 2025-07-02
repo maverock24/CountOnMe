@@ -37,6 +37,7 @@ CountOnMe is a mobile application built with React Native and Expo. It features 
    ```sh
    npx expo export:web
    ```
+
    This will generate the static site in the `dist/` directory.
 
 5. **Install Netlify CLI (recommended as a dev dependency):**
@@ -50,6 +51,7 @@ CountOnMe is a mobile application built with React Native and Expo. It features 
    ```sh
    npx netlify dev
    ```
+
    - The app will be available at [http://localhost:8888](http://localhost:8888)
    - Netlify Dev will serve the static site from `dist/` and proxy API requests to Netlify Functions in `netlify/functions/`.
 

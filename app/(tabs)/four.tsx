@@ -14,13 +14,21 @@ const SettingsScreen: React.FC = () => {
     <View style={commonStyles.container}>
       <View style={[commonStyles.outerContainer]}>
         <Text style={commonStyles.tileTitle}>{t('settings')}</Text>
-        <View style={[styles.section, { backgroundColor: 'rgba(17, 24, 30, 0.8)',borderRadius: 10,
-            borderColor: '#2A2E33',
-            borderWidth: 1,
-            shadowColor: Colors.glow,
-            shadowOpacity: 0.2,
-            shadowRadius: 12,
-            shadowOffset: { width: 0, height: 0 } }]}>
+        <View
+          style={[
+            styles.section,
+            {
+              backgroundColor: 'rgba(17, 24, 30, 0.8)',
+              borderRadius: 10,
+              borderColor: '#2A2E33',
+              borderWidth: 1,
+              shadowColor: Colors.glow,
+              shadowOpacity: 0.2,
+              shadowRadius: 12,
+              shadowOffset: { width: 0, height: 0 },
+            },
+          ]}
+        >
           <ScrollView contentContainerStyle={styles.scrollContent}>
             <Text style={styles.sectionTitle}>{t('general')}</Text>
             <View
@@ -44,10 +52,7 @@ const SettingsScreen: React.FC = () => {
             <ModalPicker label={t('break')} dataKey="breakMusic" />
             <ModalPicker label={t('success')} dataKey="successSound" />
             <Text style={styles.sectionTitle}>{t('language')}</Text>
-            <ModalPicker
-      label="Selected Language"
-      dataKey="language"
-    />
+            <ModalPicker label="Selected Language" dataKey="language" />
           </ScrollView>
         </View>
       </View>

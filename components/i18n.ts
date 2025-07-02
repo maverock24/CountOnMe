@@ -11,10 +11,7 @@ function getInitialLanguage() {
     return 'en';
   }
   if (Platform.OS === 'web' && typeof navigator !== 'undefined') {
-    const lang =
-      navigator.language ||
-      (navigator.languages && navigator.languages[0]) ||
-      'en';
+    const lang = navigator.language || (navigator.languages && navigator.languages[0]) || 'en';
     if (lang.startsWith('de')) return 'de';
     if (lang.startsWith('fi')) return 'fi';
     return 'en';

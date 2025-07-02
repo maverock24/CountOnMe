@@ -37,7 +37,9 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
 
   // Add helper to get random track by label
   function getRandomTrack(options: DataKey[], label: string) {
-    const filtered = options.filter((item) => item.label.toLowerCase().includes(label.toLowerCase()));
+    const filtered = options.filter((item) =>
+      item.label.toLowerCase().includes(label.toLowerCase())
+    );
     if (filtered.length === 0) return null;
     return filtered[Math.floor(Math.random() * filtered.length)].value;
   }
@@ -81,7 +83,7 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
         const value = await getStoredItem(dataKey);
         if (value !== null) {
           setSelectedValue(value);
-        } 
+        }
       } catch (e) {
         console.error(`Error loading ${dataKey} setting:`, e);
       }
@@ -97,7 +99,7 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
       if (dataKey !== 'language') {
         loadMusicSettings();
       }
-      if(dataKey === 'language') {
+      if (dataKey === 'language') {
         i18n.changeLanguage(value);
       }
     } catch (e) {
@@ -169,7 +171,7 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
               <FontAwesome name="stop" size={22} color="white" />
             </TouchableOpacity>
             <Slider
-            disabled={isRadio}
+              disabled={isRadio}
               style={{ flex: 1, marginHorizontal: 10 }}
               minimumValue={0}
               maximumValue={trackDuration}
@@ -188,17 +190,27 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
             />
           </>
         ) : (
-          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <View
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
             {dataKey !== 'language' && (
               <TouchableOpacity style={styles.pickerButton} onPress={handlePlay}>
                 <FontAwesome name="play" size={20} color="white" />
               </TouchableOpacity>
             )}
-            <TouchableOpacity
-              onPress={() => setModalVisible(true)} >
-            <View style={{ flex: 1, alignItems: 'center' }}>
-              <Text style={styles.selectedValueText}>{dataKey === 'language' ? options.find((item) => item.value === i18n.language)?.label : selectedValue}</Text>
-            </View>
+            <TouchableOpacity onPress={() => setModalVisible(true)}>
+              <View style={{ flex: 1, alignItems: 'center' }}>
+                <Text style={styles.selectedValueText}>
+                  {dataKey === 'language'
+                    ? options.find((item) => item.value === i18n.language)?.label
+                    : selectedValue}
+                </Text>
+              </View>
             </TouchableOpacity>
             <TouchableOpacity style={styles.pickerButton} onPress={() => setModalVisible(true)}>
               <FontAwesome name="chevron-down" size={15} color="white" />

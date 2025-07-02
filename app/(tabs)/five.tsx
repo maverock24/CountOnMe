@@ -15,7 +15,12 @@ const AnalyzerScreen: React.FC = () => {
   const [weight, setWeight] = useState('');
   const [exercise, setExercise] = useState('');
   const [calories, setCalories] = useState('');
-  const [aiResult, setAiResult] = useState<{ reps: string; calories: number; explanation: string; exercise?: string } | null>(null);
+  const [aiResult, setAiResult] = useState<{
+    reps: string;
+    calories: number;
+    explanation: string;
+    exercise?: string;
+  } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [trainingLevel, setTrainingLevel] = useState('beginner');
@@ -25,9 +30,7 @@ const AnalyzerScreen: React.FC = () => {
     setError('');
     setAiResult(null);
     try {
-      const body = calories
-        ? { calories }
-        : { weight, exercise, trainingLevel };
+      const body = calories ? { calories } : { weight, exercise, trainingLevel };
       const response = await fetch('/.netlify/functions/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -65,7 +68,7 @@ const AnalyzerScreen: React.FC = () => {
     <View style={commonStyles.container}>
       <View style={commonStyles.outerContainer}>
         <Text style={commonStyles.tileTitle}>AI Workout Analyzer</Text>
-        <View style={[commonStyles.tile, { justifyContent: 'flex-start' }]}> 
+        <View style={[commonStyles.tile, { justifyContent: 'flex-start' }]}>
           <View style={styles.innerWrapperTopTile}>
             <Text style={styles.label}>Weight (kg)</Text>
             <TextInput
@@ -92,8 +95,15 @@ const AnalyzerScreen: React.FC = () => {
 
             <Text style={styles.label}>Training Level</Text>
             <View style={styles.goalRow}>
-              {['beginner','intermediate','expert'].map((g) => (
-                <TimerButton small key={g} text={g.charAt(0).toUpperCase()+g.slice(1)} onPress={() => setTrainingLevel(g)} isSelected={trainingLevel===g} style={styles.goalButton} />
+              {['beginner', 'intermediate', 'expert'].map((g) => (
+                <TimerButton
+                  small
+                  key={g}
+                  text={g.charAt(0).toUpperCase() + g.slice(1)}
+                  onPress={() => setTrainingLevel(g)}
+                  isSelected={trainingLevel === g}
+                  style={styles.goalButton}
+                />
               ))}
             </View>
 
@@ -107,20 +117,26 @@ const AnalyzerScreen: React.FC = () => {
               placeholderTextColor="#999"
               onFocus={() => setError('')}
             />
-           
           </View>
           <View style={{ alignItems: 'flex-end', width: '100%', marginBottom: 8, marginRight: 20 }}>
-            <TimerButton text={loading ? 'Analyzing...' : 'Analyze'} onPress={handleAnalyze} style={styles.analyzeButton} />
+            <TimerButton
+              text={loading ? 'Analyzing...' : 'Analyze'}
+              onPress={handleAnalyze}
+              style={styles.analyzeButton}
+            />
           </View>
-           
         </View>
         <View style={styles.errorAndLoading}>
-            {error ? <Text style={{ color: 'red', width: '90%' }}>{error}</Text> : null}
-            {loading && <ActivityIndicator size={80} style={{ marginTop: 10, }} color="#00bcd4" />}
-            </View>
+          {error ? <Text style={{ color: 'red', width: '90%' }}>{error}</Text> : null}
+          {loading && <ActivityIndicator size={80} style={{ marginTop: 10 }} color="#00bcd4" />}
+        </View>
         {aiResult && (
           <View style={styles.resultBox}>
-            <TimerButton text="Add to Workouts" onPress={handleAddAiWorkout} style={styles.addAiButton} />
+            <TimerButton
+              text="Add to Workouts"
+              onPress={handleAddAiWorkout}
+              style={styles.addAiButton}
+            />
             <Text style={styles.resultLabel}>Repetitions/Breaks</Text>
             <Text style={styles.resultValue}>{aiResult.reps} min</Text>
             <Text style={styles.resultLabel}>Expected Calories Burned</Text>
