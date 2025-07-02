@@ -1,6 +1,8 @@
-import i18n from '@/i18n';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+
+import i18n from '@/i18n';
+
 import { SoundProvider } from './sound.provider'; // Adjust the import based on your file structure
 
 export interface StoredItem {
@@ -41,9 +43,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [workoutItems, setWorkoutItems] = useState<StoredItem[]>([]);
   const [currentLanguage, setLanguage] = useState<string | null>(null);
 
-  const [selectedActionMusic, setSelectedActionMusic] = useState<string>("Action: Upbeat");
-  const [selectedBreakMusic, setSelectedBreakMusic] = useState<string>("Break: Chill");
-  const [selectedSuccessSound, setSelectedSuccessSound] = useState<string>("Success: Yeah");
+  const [selectedActionMusic, setSelectedActionMusic] = useState<string>('Action: Upbeat');
+  const [selectedBreakMusic, setSelectedBreakMusic] = useState<string>('Break: Chill');
+  const [selectedSuccessSound, setSelectedSuccessSound] = useState<string>('Success: Yeah');
 
   const [audioEnabled, setAudioEnabledState] = useState(true);
   const [currentMusicBeingPlayed, setCurrentMusicBeingPlayed] = useState<string | null>(null);
@@ -62,7 +64,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     { label: 'Action: Upbeat', value: require('../assets/sounds/upbeat.mp3') },
     { label: 'Action: Bollywood', value: require('../assets/sounds/bollywood.mp3') },
     { label: 'Action: Happy Rock', value: require('../assets/sounds/happy_rock.mp3') },
-     { label: 'Action: Breeze Groove', value: require('../assets/sounds/action_breeze-groove.mp3') },
+    { label: 'Action: Breeze Groove', value: require('../assets/sounds/action_breeze-groove.mp3') },
     {
       label: 'Action: Children Electro Swing',
       value: require('../assets/sounds/action_children-electro-swing-2_medium.mp3'),
@@ -79,22 +81,34 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     { label: 'Action: Fun Day', value: require('../assets/sounds/action_fun-day.mp3') },
     { label: 'Action: Funny running', value: require('../assets/sounds/action_funny-running.mp3') },
     { label: 'Action: Joyride', value: require('../assets/sounds/action_joyride-jamboree.mp3') },
-    { label: 'Action: Sunshine Whistle', value: require('../assets/sounds/action_sunshine-whistle.mp3') },
+    {
+      label: 'Action: Sunshine Whistle',
+      value: require('../assets/sounds/action_sunshine-whistle.mp3'),
+    },
     { label: 'Action: Dance Music', value: require('../assets/sounds/action_the-dance-music.mp3') },
     {
       label: 'Action: Upbeat Electro Swing',
       value: require('../assets/sounds/action_upbeat_children-electro-swing.mp3'),
     },
-    { label: 'Action: Upbeat energetic', value: require('../assets/sounds/action_upbeat-energetic.mp3') },
+    {
+      label: 'Action: Upbeat energetic',
+      value: require('../assets/sounds/action_upbeat-energetic.mp3'),
+    },
     { label: 'Action: Upbeat fun', value: require('../assets/sounds/action_upbeat-fun.mp3') },
     { label: 'Chill: Calm down', value: require('../assets/sounds/chill.mp3') },
     { label: 'Chill: Wandering', value: require('../assets/sounds/wandering.mp3') },
     { label: 'Chill: Starlit Serenity', value: require('../assets/sounds/starlit_serenity.mp3') },
-    { label: 'Chill: Peaceful Indian', value: require('../assets/sounds/peaceful_music_indian.mp3') },
+    {
+      label: 'Chill: Peaceful Indian',
+      value: require('../assets/sounds/peaceful_music_indian.mp3'),
+    },
     { label: 'Chill: Mystical', value: require('../assets/sounds/mystical.mp3') },
     { label: 'Chill: Chill Beats', value: require('../assets/sounds/chill_beats.mp3') },
     { label: 'Chill: Breath of Life', value: require('../assets/sounds/chill_breath-of-life.mp3') },
-    { label: 'Chill: Deep Meditation', value: require('../assets/sounds/chill_deep-meditation.mp3') },
+    {
+      label: 'Chill: Deep Meditation',
+      value: require('../assets/sounds/chill_deep-meditation.mp3'),
+    },
     { label: 'Chill: Forest Melody', value: require('../assets/sounds/chill_forest-melody.mp3') },
     { label: 'Chill: Inner Peace', value: require('../assets/sounds/chill_inner-peace.mp3') },
     {
@@ -102,8 +116,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value: require('../assets/sounds/chill_meditation-relax-sleep-music.mp3'),
     },
     { label: 'Chill: Perfect Beauty', value: require('../assets/sounds/chill_perfect-beauty.mp3') },
-    { label: 'Chill: Space Ambient', value: require('../assets/sounds/chill_space-ambient-music.mp3') },
-    { label: 'Radio: Ndr Info', value: 'https://www.ndr.de/resources/metadaten/audio/m3u/ndrinfo_hh.m3u' },
+    {
+      label: 'Chill: Space Ambient',
+      value: require('../assets/sounds/chill_space-ambient-music.mp3'),
+    },
+    {
+      label: 'Radio: Ndr Info',
+      value: 'https://www.ndr.de/resources/metadaten/audio/m3u/ndrinfo_hh.m3u',
+    },
     { label: 'Radio: Hirschmilch Chillout', value: 'https://hirschmilch.de:7501/chillout.mp3' },
     { label: 'Radio: Hirschmilch Techno', value: 'https://hirschmilch.de:7501/techno.mp3' },
     { label: 'Radio: Chilltrax', value: 'https://streamssl3.chilltrax.com/listen.pls?sid=1' },
@@ -124,11 +144,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     { label: 'Chill: Calm down', value: require('../assets/sounds/chill.mp3') },
     { label: 'Chill: Wandering', value: require('../assets/sounds/wandering.mp3') },
     { label: 'Chill: Starlit Serenity', value: require('../assets/sounds/starlit_serenity.mp3') },
-    { label: 'Chill: Peaceful Indian', value: require('../assets/sounds/peaceful_music_indian.mp3') },
+    {
+      label: 'Chill: Peaceful Indian',
+      value: require('../assets/sounds/peaceful_music_indian.mp3'),
+    },
     { label: 'Chill: Mystical', value: require('../assets/sounds/mystical.mp3') },
     { label: 'Chill: Chill Beats', value: require('../assets/sounds/chill_beats.mp3') },
     { label: 'Chill: Breath of Life', value: require('../assets/sounds/chill_breath-of-life.mp3') },
-    { label: 'Chill: Deep Meditation', value: require('../assets/sounds/chill_deep-meditation.mp3') },
+    {
+      label: 'Chill: Deep Meditation',
+      value: require('../assets/sounds/chill_deep-meditation.mp3'),
+    },
     { label: 'Chill: Forest Melody', value: require('../assets/sounds/chill_forest-melody.mp3') },
     { label: 'Chill: Inner Peace', value: require('../assets/sounds/chill_inner-peace.mp3') },
     {
@@ -136,7 +162,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value: require('../assets/sounds/chill_meditation-relax-sleep-music.mp3'),
     },
     { label: 'Chill: Perfect Beauty', value: require('../assets/sounds/chill_perfect-beauty.mp3') },
-    { label: 'Chill: Space Ambient', value: require('../assets/sounds/chill_space-ambient-music.mp3') },
+    {
+      label: 'Chill: Space Ambient',
+      value: require('../assets/sounds/chill_space-ambient-music.mp3'),
+    },
     { label: 'Radio: Hirschmilch Chillout', value: 'https://hirschmilch.de:7501/chillout.mp3' },
     { label: 'Radio: Frisky Chill', value: 'https://stream.chill.friskyradio.com/mp3_low' },
     { label: 'Radio: Chilltrax', value: 'https://streamssl3.chilltrax.com/listen.pls?sid=1' },
@@ -194,7 +223,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             break;
           case 'language':
             if (value && value !== i18n.language) {
-                i18n.changeLanguage(value);
+              i18n.changeLanguage(value);
             }
             break;
         }
@@ -202,7 +231,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       const workoutItems = items.filter((item) => !reservedKeys.includes(item.key));
       setWorkoutItems(workoutItems);
-      setStoredItems(items);      
+      setStoredItems(items);
     } catch (e) {
       console.error('Error loading AsyncStorage data:', e);
     }
@@ -276,7 +305,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           audioEnabled,
           currentMusicBeingPlayed,
           setCurrentMusicBeingPlayed,
-          getStoredItem
+          getStoredItem,
         }}
       >
         {children}

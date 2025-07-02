@@ -29,10 +29,10 @@ const SoundContext = createContext<SoundContextType>({
   selectedBreakFile: null,
   selectedSuccessFile: null,
   playSound: async () => null,
-  stopSound: async () => { },
-  fadeOutSound: async () => { },
-  playSegmentMusic: async () => { },
-  loadMusicSettings: async () => { },
+  stopSound: async () => {},
+  fadeOutSound: async () => {},
+  playSegmentMusic: async () => {},
+  loadMusicSettings: async () => {},
 });
 
 export const SoundProvider: React.FC<{
@@ -44,7 +44,16 @@ export const SoundProvider: React.FC<{
   selectedBreakMusic: string;
   selectedSuccessSound: string;
   setCurrentMusicBeingPlayed: (label: string) => void;
-}> = ({ children, workoutMusic, breakMusic, successSound, setCurrentMusicBeingPlayed, selectedBreakMusic, selectedSuccessSound, selectedWorkoutMusic }) => {
+}> = ({
+  children,
+  workoutMusic,
+  breakMusic,
+  successSound,
+  setCurrentMusicBeingPlayed,
+  selectedBreakMusic,
+  selectedSuccessSound,
+  selectedWorkoutMusic,
+}) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioReady, setAudioReady] = useState(false);
 
@@ -59,14 +68,12 @@ export const SoundProvider: React.FC<{
 
     const initAudio = async () => {
       try {
-        
         const permissionResponse = await Audio.requestPermissionsAsync();
         if (!permissionResponse.granted) {
           console.warn('Audio permissions not granted');
           return;
         }
 
-        
         if (Platform.OS === 'android') {
           try {
             await Audio.setIsEnabledAsync(true);
@@ -75,7 +82,6 @@ export const SoundProvider: React.FC<{
           }
         }
 
-        
         await Audio.setAudioModeAsync({
           allowsRecordingIOS: false,
           interruptionModeIOS: InterruptionModeIOS.DuckOthers,
@@ -86,17 +92,16 @@ export const SoundProvider: React.FC<{
           staysActiveInBackground: true,
         });
 
-        
         try {
           const verificationSound = new Audio.Sound();
-          
+
           const soundFile =
             workoutMusic.length > 0 ? workoutMusic[0].value : require('../assets/sounds/yeah.mp3');
           await verificationSound.loadAsync(soundFile);
           await verificationSound.unloadAsync();
         } catch (verifyError) {
           console.error('Audio verification failed:', verifyError);
-          throw verifyError; 
+          throw verifyError;
         }
 
         if (isMounted) {
@@ -106,12 +111,12 @@ export const SoundProvider: React.FC<{
       } catch (error) {
         console.error('Error initializing audio system:', error);
 
-        
         if (initAttempts < maxInitAttempts && isMounted) {
           initAttempts++;
-          const delay = 1000 * initAttempts; 
+          const delay = 1000 * initAttempts;
           console.log(
-            `Retrying audio initialization in ${delay / 1000
+            `Retrying audio initialization in ${
+              delay / 1000
             }s (attempt ${initAttempts}/${maxInitAttempts})`
           );
           setTimeout(initAudio, delay);
@@ -119,7 +124,6 @@ export const SoundProvider: React.FC<{
       }
     };
 
-    
     if (workoutMusic.length > 0 || breakMusic.length > 0 || successSound.length > 0) {
       initAudio();
     }
@@ -128,9 +132,8 @@ export const SoundProvider: React.FC<{
       isMounted = false;
       stopSound();
     };
-  }, [workoutMusic, breakMusic, successSound]); 
+  }, [workoutMusic, breakMusic, successSound]);
 
-  
   useEffect(() => {
     if (
       audioReady &&
@@ -140,7 +143,6 @@ export const SoundProvider: React.FC<{
     }
   }, [audioReady, workoutMusic, breakMusic, successSound]);
 
-  
   const stopSound = async () => {
     if (!currentSound) return;
 
@@ -160,14 +162,12 @@ export const SoundProvider: React.FC<{
     }
   };
 
-  
   const loadMusicSettings = async () => {
     if (!audioReady) {
       console.log('Audio not ready yet');
       return;
     }
 
-    
     if (workoutMusic.length === 0 && breakMusic.length === 0 && successSound.length === 0) {
       console.log('No music data available');
       return;
@@ -202,35 +202,29 @@ export const SoundProvider: React.FC<{
     } catch (error) {
       console.error('Error loading music settings:', error);
 
-
       if (workoutMusic.length > 0) setSelectedWorkoutMusicFile(workoutMusic[0].value);
       if (breakMusic.length > 0) setSelectedBreakMusicFile(breakMusic[0].value);
       if (successSound.length > 0) setSelectedSuccessSoundFile(successSound[0].value);
     }
   };
 
-  
   const getSoundFileByLabel = (label: string) => {
     try {
-      
       if (workoutMusic && Array.isArray(workoutMusic)) {
         const workoutMatch = workoutMusic.find((music) => music && music.label === label);
         if (workoutMatch && workoutMatch.value) return workoutMatch.value;
       }
 
-      
       if (breakMusic && Array.isArray(breakMusic)) {
         const breakMatch = breakMusic.find((music) => music && music.label === label);
         if (breakMatch && breakMatch.value) return breakMatch.value;
       }
 
-      
       if (successSound && Array.isArray(successSound)) {
         const successMatch = successSound.find((sound) => sound && sound.label === label);
         if (successMatch && successMatch.value) return successMatch.value;
       }
 
-      
       if (workoutMusic?.length > 0) return workoutMusic[0].value;
       if (breakMusic?.length > 0) return breakMusic[0].value;
       if (successSound?.length > 0) return successSound[0].value;
@@ -242,13 +236,12 @@ export const SoundProvider: React.FC<{
     }
   };
 
-  
   const getRandomTrackByLabel = (musicArray: any[], label: string) => {
-    const filtered = musicArray.filter((item) =>
-      item.label && item.label.toLowerCase().includes(label.toLowerCase())
+    const filtered = musicArray.filter(
+      (item) => item.label && item.label.toLowerCase().includes(label.toLowerCase())
     );
     if (filtered.length === 0) return null;
-    
+
     const shuffled = filtered
       .map((value) => ({ value, sort: Math.random() }))
       .sort((a, b) => a.sort - b.sort)
@@ -256,13 +249,12 @@ export const SoundProvider: React.FC<{
     return shuffled[0].value;
   };
 
-  
   const playSound = async (
     soundFile: any,
     loop: boolean = true,
     volume: number = 1.0,
     callback?: () => void,
-    onFinish?: () => void 
+    onFinish?: () => void
   ) => {
     if (!audioReady) {
       console.warn('Audio system not ready');
@@ -274,7 +266,6 @@ export const SoundProvider: React.FC<{
       return null;
     }
 
-    
     let foundLabel: string | null = null;
     const allMusic = [...(workoutMusic || []), ...(breakMusic || []), ...(successSound || [])];
     for (const item of allMusic) {
@@ -282,8 +273,12 @@ export const SoundProvider: React.FC<{
         if (
           item.value === soundFile ||
           (item.value?.uri && soundFile?.uri && item.value.uri === soundFile.uri) ||
-          (typeof item.value === 'string' && typeof soundFile === 'string' && item.value === soundFile) ||
-          (typeof item.value === 'object' && typeof soundFile === 'object' && JSON.stringify(item.value) === JSON.stringify(soundFile))
+          (typeof item.value === 'string' &&
+            typeof soundFile === 'string' &&
+            item.value === soundFile) ||
+          (typeof item.value === 'object' &&
+            typeof soundFile === 'object' &&
+            JSON.stringify(item.value) === JSON.stringify(soundFile))
         ) {
           foundLabel = item.label;
           break;
@@ -295,7 +290,6 @@ export const SoundProvider: React.FC<{
     }
 
     try {
-      
       await stopSound();
       await new Promise((resolve) => setTimeout(resolve, 150));
       console.log('Playing sound file:', foundLabel || soundFile);
@@ -320,7 +314,7 @@ export const SoundProvider: React.FC<{
             setIsPlaying(false);
             callback && callback();
             currentSound = null;
-            if (onFinish) onFinish(); 
+            if (onFinish) onFinish();
           }
         } else if (status.error) {
           console.error('Playback error:', status.error);
@@ -339,27 +333,22 @@ export const SoundProvider: React.FC<{
     }
   };
 
-  
   const fadeOutSound = async () => {
     try {
-      
       if (!currentSound) {
         return;
       }
 
-      
       const status = await currentSound.getStatusAsync();
       if (!status.isLoaded || !(status as AVPlaybackStatusSuccess).isPlaying) {
         return;
       }
 
-      
       let volume = (status as AVPlaybackStatusSuccess).volume ?? 1;
-      const duration = 800; 
+      const duration = 800;
       const steps = 5;
       const decrement = volume / steps;
 
-      
       for (let i = 0; i < steps; i++) {
         volume = Math.max(volume - decrement, 0);
         await currentSound.setVolumeAsync(volume);
@@ -370,7 +359,6 @@ export const SoundProvider: React.FC<{
     }
   };
 
-  
   const playSegmentMusic = async (segment: string, callback?: () => void) => {
     console.log('playSegmentMusic called for segment:', segment);
     if (!audioReady) return;
@@ -383,7 +371,7 @@ export const SoundProvider: React.FC<{
         const playRandom = async () => {
           const randomAction = getRandomTrackByLabel(workoutMusic, 'action:');
           if (randomAction) {
-            await playSound(randomAction, false, 1.0, undefined, playRandom); 
+            await playSound(randomAction, false, 1.0, undefined, playRandom);
           }
         };
         await playRandom();
@@ -436,6 +424,5 @@ export const SoundProvider: React.FC<{
 
   return <SoundContext.Provider value={contextValue}>{children}</SoundContext.Provider>;
 };
-
 
 export const useSound = () => useContext(SoundContext);

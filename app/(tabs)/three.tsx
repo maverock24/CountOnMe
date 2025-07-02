@@ -37,7 +37,7 @@ export default function TabThreeScreen() {
     return true;
   };
   const validateUnit = (unit: string) => {
-    if(unit === '') {
+    if (unit === '') {
       setUnitError(t('unit_cannot_be_empty'));
       return false;
     }
@@ -100,9 +100,14 @@ export default function TabThreeScreen() {
         <View style={commonStyles.tile}>
           <View style={styles.innerWrapperTopTile}>
             <Text style={styles.label}>{t('name')}</Text>
-            <TextInput style={styles.input} value={name} onChangeText={setName} onFocus={handleOnFocus}/>
+            <TextInput
+              style={styles.input}
+              value={name}
+              onChangeText={setName}
+              onFocus={handleOnFocus}
+            />
             {nameError && <Text style={{ color: 'red', width: '90%' }}>{nameError}</Text>}
-           
+
             <Text style={styles.label}>{t('workout_set')}</Text>
             <TextInput
               style={styles.input}
@@ -111,17 +116,33 @@ export default function TabThreeScreen() {
               placeholder={t('workout_set_placeholder')}
               placeholderTextColor="#999"
               onFocus={handleOnFocus}
-            /> 
+            />
             {unitError && <Text style={{ color: 'red', width: '90%' }}>{unitError}</Text>}
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', width: '100%', paddingRight: 15 }}>
-            <TimerButton disabled={selectedItem ? false : true} text={t('delete')} onPress={() => deleteItemHandler(selectedItem!)} />
-            <TimerButton disabled={ (unit !== '' && name !== '') ? false : true} text={t('add')} onPress={addItem} style={{ width: 107}} />
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'flex-end',
+                width: '100%',
+                paddingRight: 15,
+              }}
+            >
+              <TimerButton
+                disabled={selectedItem ? false : true}
+                text={t('delete')}
+                onPress={() => deleteItemHandler(selectedItem!)}
+              />
+              <TimerButton
+                disabled={unit !== '' && name !== '' ? false : true}
+                text={t('add')}
+                onPress={addItem}
+                style={{ width: 107 }}
+              />
             </View>
           </View>
         </View>
         <View style={commonStyles.outerContainer}>
           <Text style={commonStyles.tileTitle}>{t('available_workouts')}</Text>
-          <View style={[commonStyles.tile, { flex: 1, padding: 5 }]}> 
+          <View style={[commonStyles.tile, { flex: 1, padding: 5 }]}>
             {noWorkout && (
               <Text style={{ padding: 10, fontSize: 24, marginTop: '50%', color: '#fff' }}>
                 {t('no_workouts_available')}

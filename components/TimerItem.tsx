@@ -164,9 +164,7 @@ const TimerItem: React.FC<TimerItemProps> = ({
     };
   }, []);
 
-  return (
-      <Text style={styles.count}>{formatTime(time)}</Text>
-  );
+  return <Text style={styles.count}>{formatTime(time)}</Text>;
 };
 
 const styles = StyleSheet.create({

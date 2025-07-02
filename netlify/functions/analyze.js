@@ -1,6 +1,6 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-exports.handler = async function(event, context) {
+exports.handler = async function (event, context) {
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
@@ -56,26 +56,33 @@ exports.handler = async function(event, context) {
     }
 
     // Validate required fields: either (weight is a number & exercise is non-empty) OR (calories is a number)
-    const hasWeightAndExercise = typeof weight === 'number' && !isNaN(weight) && typeof exercise === 'string' && exercise.trim().length > 0;
+    const hasWeightAndExercise =
+      typeof weight === 'number' &&
+      !isNaN(weight) &&
+      typeof exercise === 'string' &&
+      exercise.trim().length > 0;
     const hasCalories = typeof calories === 'number' && !isNaN(calories);
     if (!(hasWeightAndExercise || hasCalories)) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: 'Missing required fields: provide either weight (number) and exercise (string), or calories (number).' }),
+        body: JSON.stringify({
+          error:
+            'Missing required fields: provide either weight (number) and exercise (string), or calories (number).',
+        }),
         headers: { 'Content-Type': 'application/json' },
       };
     }
 
     const schema = {
-      type: "OBJECT",
+      type: 'OBJECT',
       properties: {
-        reps: { type: "STRING" },
-        exercise: { type: "STRING" },
-        weight: { type: "NUMBER" },
-        calories: { type: "NUMBER" },
-        explanation: { type: "STRING"}
+        reps: { type: 'STRING' },
+        exercise: { type: 'STRING' },
+        weight: { type: 'NUMBER' },
+        calories: { type: 'NUMBER' },
+        explanation: { type: 'STRING' },
       },
-      required: ["reps", "exercise", "weight", "calories"],
+      required: ['reps', 'exercise', 'weight', 'calories'],
     };
 
     const basePrompt = `You are an expert fitness planner creating a workout plan.\nFill out all fields of the required JSON structure based on the user's input, estimating where necessary to create a complete and logical plan.\n**IMPORTANT RULES FOR THE 'reps' FIELD:**\n1.  First, analyze the user's requested 'exercise'.\n2.  IF the exercise is a continuous endurance activity (like running, cycling, swimming, skating, rowing, elliptical, etc.), the 'reps' value MUST be a single number as a string, representing the total workout duration in minutes (e.g., "30").\n3.  OTHERWISE, for all other exercises (like pull-ups, push-ups, weightlifting, HIIT, calisthenics), the 'reps' value MUST be a semicolon-separated string of alternating exercise and break times in minutes (e.g., "2;3;2;3;2").\n4.  For these interval plans, NO single exercise or break duration can exceed 10 minutes.\n5.  Provide an 'explanation' for the chosen values but do not explain the 'reps'.\n6.  For calculating the 'calories' field, use Metabolic Equivalent of Task (MET)\nvalues based on the user's weight and exercise type. The formula is:\n    calories = MET * weight (kg) * duration (hours).\nNow, create the plan based on the following input.\n\nUser Input: `;
@@ -89,7 +96,7 @@ exports.handler = async function(event, context) {
     const model = genAI.getGenerativeModel({
       model: 'gemini-1.5-flash-latest',
       generationConfig: {
-        responseMimeType: "application/json",
+        responseMimeType: 'application/json',
         responseSchema: schema,
       },
     });

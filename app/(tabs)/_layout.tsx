@@ -5,7 +5,7 @@ import {
   faGauge,
   faGears,
   faList,
-  IconDefinition
+  IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { EventEmitter } from 'events';
@@ -29,17 +29,12 @@ export function emitPulseEvent(isRunning: boolean) {
   pulseEventEmitter.emit('timerRunning', isRunning);
 }
 
-
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const image = require('../../assets/images/background1.jpeg');
   const { t } = useTranslation();
   return (
-    <ImageBackground
-      source={image}
-      resizeMode="cover"
-      style={styles.imageContainer}
-    >
+    <ImageBackground source={image} resizeMode="cover" style={styles.imageContainer}>
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,

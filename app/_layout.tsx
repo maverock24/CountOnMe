@@ -40,7 +40,6 @@ export default function RootLayout() {
   const TUTORIAL_STORAGE_KEY = '@appTutorialSeen'; // Unique key for storage
 
   useEffect(() => {
-
     const checkTutorialStatus = async () => {
       try {
         // Check if the tutorial flag exists in storage

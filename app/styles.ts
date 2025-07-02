@@ -25,7 +25,7 @@ const commonStyles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 8,
     textDecorationStyle: 'solid',
-    textDecorationLine: 'underline'
+    textDecorationLine: 'underline',
   },
   outerContainer: {
     flex: 1,
@@ -158,7 +158,6 @@ const commonStyles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'white',
     marginBottom: 5,
-
   },
   listItemValue: {
     flex: 1,
