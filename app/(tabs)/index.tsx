@@ -39,7 +39,7 @@ export default function TabOneScreen() {
   const [isListening, setIsListening] = useState(false);
   const [audioLevel, setAudioLevel] = useState(0);
 
-  const [statusMessage, setStatusMessage] = useState('Press "Start Listening"');
+  const [statusMessage, setStatusMessage] = useState(t('press_start_listening'));
 
   const isMountedRef = useRef(true);
   const isLoopActiveRef = useRef(false);
@@ -86,14 +86,17 @@ export default function TabOneScreen() {
     if (!isMountedRef.current) return;
     setCount((prevCount) => prevCount + 1);
     setRemaining((prevRemaining) => (prevRemaining > 0 ? prevRemaining - 1 : 0));
-  }, []);
+  }, [setCount, setRemaining]);
 
   const handleCountDown = useCallback(() => {
-    if (count > 0) {
-      setCount((prevCount) => prevCount - 1);
-      if (remaining >= 0) setRemaining((prevRemaining) => prevRemaining + 1);
-    }
-  }, [count, remaining]);
+    setCount((prevCount) => {
+      if (prevCount > 0) {
+        setRemaining((prevRemaining) => prevRemaining + 1);
+        return prevCount - 1;
+      }
+      return prevCount;
+    });
+  }, [setCount, setRemaining]);
 
   const handleSetRemaining = useCallback((value: number) => {
     setCount(0);
@@ -150,7 +153,7 @@ export default function TabOneScreen() {
       (async () => {
         const permStatus = await AudioModule.requestRecordingPermissionsAsync();
         if (!permStatus.granted) {
-          Alert.alert('Permission Required', 'Microphone access is needed.');
+          Alert.alert(t('permission_required'), t('microphone_access_needed'));
         }
       })();
     }
@@ -249,16 +252,16 @@ export default function TabOneScreen() {
   const startListeningWeb = async () => {
     if (!isMountedRef.current) return;
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      Alert.alert('Error', 'Browser not supported.');
+      Alert.alert(t('error'), t('browser_not_supported'));
       return;
     }
     if (isListening || audioContextRef.current) {
-      console.log('Web: Already listening.');
+      console.log(t('web_already_listening'));
       return;
     }
     let stream: MediaStream | null = null;
     try {
-      setStatusMessage('Requesting permission...');
+      setStatusMessage(t('requesting_permission'));
       stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       audioStreamRef.current = stream;
       if (!isMountedRef.current) {
@@ -272,16 +275,16 @@ export default function TabOneScreen() {
         err instanceof Error &&
         (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')
       ) {
-        setStatusMessage('Permission denied.');
-        Alert.alert('Permission Denied', 'Please allow microphone access.');
+        setStatusMessage(t('permission_denied'));
+        Alert.alert(t('permission_denied'), t('please_allow_microphone_access'));
       } else {
-        setStatusMessage('Mic access error.');
-        Alert.alert('Error', `Could not access microphone.`);
+        setStatusMessage(t('mic_access_error'));
+        Alert.alert(t('error'), t('could_not_access_microphone'));
       }
       audioStreamRef.current = null;
       return;
     }
-    setStatusMessage('Initializing web audio...');
+    setStatusMessage(t('initializing_web_audio'));
     try {
       const context = new (window.AudioContext || window.webkitAudioContext)();
       audioContextRef.current = context;
@@ -291,10 +294,10 @@ export default function TabOneScreen() {
       if (!isMountedRef.current || context.state !== 'running') {
         if (context.state !== 'closed') await context.close();
         audioContextRef.current = null;
-        throw new Error('Context not running');
+        throw new Error(t('context_not_running'));
       }
       const currentStream = audioStreamRef.current;
-      if (!currentStream) throw new Error('Stream null.');
+      if (!currentStream) throw new Error(t('stream_null'));
       const source = context.createMediaStreamSource(currentStream);
       mediaStreamSourceRef.current = source;
       const analyser = context.createAnalyser();
@@ -303,7 +306,7 @@ export default function TabOneScreen() {
       const bufferLength = analyser.frequencyBinCount;
       dataArrayRef.current = new Uint8Array(bufferLength);
       source.connect(analyser);
-      setStatusMessage('Listening (Web)...');
+      setStatusMessage(t('listening_web'));
       lastTriggerTimestampRef.current = 0;
       isLoopActiveRef.current = true;
       setIsListening(true);
@@ -311,8 +314,8 @@ export default function TabOneScreen() {
       analyzeAudioWeb();
     } catch (err) {
       console.error('Web Audio setup error:', err);
-      setStatusMessage(`Web Audio setup error.`);
-      Alert.alert('Audio Error', `Failed to init web audio.`);
+      setStatusMessage(t('web_audio_setup_error'));
+      Alert.alert(t('error'), t('failed_to_init_web_audio'));
       stopListeningWeb();
     }
   };
@@ -359,24 +362,24 @@ export default function TabOneScreen() {
 
   const startListeningNative = async () => {
     if (!nativeRecorder || !isMountedRef.current) {
-      Alert.alert('Error', 'Audio recorder not available.');
+      Alert.alert(t('error'), t('audio_recorder_not_available'));
       return;
     }
     const perm = await AudioModule.getRecordingPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('Permission Required', 'Microphone permission is needed.');
+      Alert.alert(t('permission_required'), t('microphone_access_needed'));
       return;
     }
     try {
-      setStatusMessage('Initializing native audio...');
+      setStatusMessage(t('initializing_native_audio'));
       if (isMountedRef.current) setAudioLevel(-160);
       await nativeRecorder.prepareToRecordAsync({});
       await nativeRecorder.record();
       if (isMountedRef.current) setIsListening(true);
       nativeStatusListenerHasLoggedNoMetering = false;
-      setStatusMessage('Listening (Native)...');
+      setStatusMessage(t('listening_native'));
     } catch (error) {
-      Alert.alert('Error', 'Could not start native recording.');
+      Alert.alert(t('error'), t('could_not_start_native_recording'));
       if (isMountedRef.current) setIsListening(false);
     }
   };
@@ -387,32 +390,32 @@ export default function TabOneScreen() {
     }
     if (!nativeRecorder) {
       if (isListening && isMountedRef.current) setIsListening(false);
-      setStatusMessage('Press "Start Listening"');
+      setStatusMessage(t('press_start_listening'));
       setAudioLevel(-160);
       return;
     }
 
     if (!nativeRecorder.isRecording) {
       if (isListening && isMountedRef.current) setIsListening(false);
-      setStatusMessage('Press "Start Listening"');
+      setStatusMessage(t('press_start_listening'));
       setAudioLevel(-160);
       return;
     }
 
     try {
-      setStatusMessage('Stopping native audio...');
+      setStatusMessage(t('stopping_native_audio'));
       await nativeRecorder.stop();
       if (isMountedRef.current) {
         setIsListening(false);
         setAudioLevel(-160);
-        setStatusMessage('Press "Start Listening"');
+        setStatusMessage(t('press_start_listening'));
       }
     } catch (error) {
       console.error('Failed to stop native recording:', error);
-      Alert.alert('Error', 'Could not stop native recording cleanly.');
+      Alert.alert(t('error'), t('could_not_stop_native_recording_cleanly'));
       if (isMountedRef.current) {
         setIsListening(false);
-        setStatusMessage('Error stopping. Try again.');
+        setStatusMessage(t('error_stopping_try_again'));
         setAudioLevel(-160);
       }
     }

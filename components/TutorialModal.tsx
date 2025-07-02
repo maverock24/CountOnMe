@@ -10,6 +10,7 @@ import {
   Dimensions,
 } from 'react-native';
 import TimerButton from './TimerButton';
+import { useTranslation } from 'react-i18next';
 
 // --- Configuration ---
 // Add your tutorial image sources here using require
@@ -30,6 +31,7 @@ interface TutorialModalProps {
 
 const TutorialModal: React.FC<TutorialModalProps> = ({ isVisible, onClose }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const { t } = useTranslation();
 
   const handleNext = () => {
     if (currentImageIndex < tutorialImages.length - 1) {
@@ -80,7 +82,7 @@ const TutorialModal: React.FC<TutorialModalProps> = ({ isVisible, onClose }) => 
           <View style={styles.navigationContainer}>
             {/* Previous Button (hidden on first image) */}
             <TimerButton
-              text="Previous"
+              text={t('previous')}
               onPress={handlePrevious}
               style={[
                 styles.navButton,
@@ -93,7 +95,7 @@ const TutorialModal: React.FC<TutorialModalProps> = ({ isVisible, onClose }) => 
             </Text>
             {/* Next / Done Button */}
             <TimerButton
-              text={isLastImage ? 'Done' : 'Next'}
+              text={isLastImage ? t('done') : t('next')}
               onPress={handleNext}
               style={[styles.navButton, { backgroundColor: 'transparent', width: 140 }]} // Transparent button
             />

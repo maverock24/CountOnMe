@@ -367,11 +367,11 @@ const TabTwoScreen: React.FC = () => {
                 <View style={styles.nextTimerContainer}>
                   {timers.length > 0 && (
                     <Text style={styles.nextTimerText}>
-                      Next:{' '}
-                      {currentIndex < timers.length - 1
-                        ? formatTime(timers[currentIndex + 1].time)
-                        : 'Finished'}
-                    </Text>
+                {t('next')}{' '}
+                {currentIndex < timers.length - 1
+                  ? formatTime(timers[currentIndex + 1].time)
+                  : t('finished')}
+              </Text>
                   )}
                 </View>
               </View>
@@ -381,27 +381,27 @@ const TabTwoScreen: React.FC = () => {
                 style={{ width: 100 }}
                 onPress={handleStart}
                 disabled={disabled}
-                text="Start"
+                text={t('start')}
               />
               <TimerButton
                 style={{ width: 100 }}
                 onPress={handleStop}
                 disabled={disabled}
-                text="Stop"
+                text={t('stop')}
               />
               <TimerButton
                 style={{ width: 100 }}
                 onPress={handleResetButtonPress}
                 disabled={disabled}
-                text="Reset"
+                text={t('reset')}
               />
             </View>
           </View>
         </View>
         <View style={commonStyles.outerContainer}>
-          <Text style={commonStyles.tileTitle}>Workouts</Text>
+          <Text style={commonStyles.tileTitle}>{t('workouts')}</Text>
           <View style={[commonStyles.tile, { flex: 1, padding: 5 }]}>
-            {noWorkout && <TimerButton text="Add" onPress={handleAddNew} maxWidth />}
+            {noWorkout && <TimerButton text={t('add_button')} onPress={handleAddNew} maxWidth />}
             {/* <View style={{ width: '95%', flex: 1 }}> */}
             <FlatList
               style={styles.listContainer}
