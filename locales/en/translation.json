@@ -15,7 +15,7 @@
   "music": "Music",
   "general": "General",
   "ai_trainer": "AI Trainer",
-  "weight": "Weight",
+  "weight": "Weight(kg)",
   "enter_your_weight": "Enter Your Weight",
   "exercise": "Exercise",
   "exercise_placeholder": "Enter an Exercise",
@@ -107,5 +107,7 @@
   "friendly_advice_from_gemini": "Friendly Advice from Gemini:",
   "repetitions_breaks_full": "Repetitions/Breaks",
   "explanation_full": "Explanation",
-  "trainer": "Trainer"
+  "trainer": "Trainer",
+  "intensity": "Intensity",
+  "fitness_level": "Fitness Level"
 }

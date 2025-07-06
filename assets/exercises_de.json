@@ -1,0 +1,704 @@
+[
+  {
+    "name": "Kniebeugen",
+    "type": "legs",
+    "met": { "low": 3.5, "medium": 5.5, "high": 7.5 },
+    "description": "Stehe mit den Füßen schulterbreit auseinander, Brust raus und Rumpf angespannt. Senke deine Hüften nach hinten und unten, als ob du dich auf einen Stuhl setzt. Vermeide, dass deine Knie nach innen fallen oder deine Brust nach vorne kippt. Konzentriere dich darauf, dich aus den Fersen wieder hochzudrücken."
+  },
+  {
+    "name": "Kosaken-Kniebeugen",
+    "type": "legs",
+    "met": { "low": 3.5, "medium": 5.0, "high": 6.0 },
+    "description": "Aus einer breiten Haltung das Gewicht auf eine Seite verlagern und so tief wie möglich in die Hocke gehen, während das andere Bein gestreckt bleibt. Vermeide, dass die Ferse des gebeugten Beins abhebt. Konzentriere dich auf Hüftbeweglichkeit und Kontrolle."
+  },
+  {
+    "name": "Sissy-Kniebeugen",
+    "type": "legs",
+    "met": { "low": 3.0, "medium": 4.5, "high": 6.0 },
+    "description": "Eine Bodyweight-Isolationsübung für die Oberschenkel. Stehe mit eng aneinander stehenden Füßen, hebe die Fersen an und lehne deinen Oberkörper zurück, während du die Knie nach vorne beugst. Halte dich zur Balance an einer Wand oder einem Stütze fest. Vermeide es, das Kniegelenk durch unkontrollierte Bewegungen zu belasten. Konzentriere dich darauf, die Dehnung in den Oberschenkeln zu spüren."
+  },
+  {
+    "name": "Pistolen-Kniebeugen (Einbeinige Kniebeuge)",
+    "type": "legs",
+    "met": { "low": 4.0, "medium": 6.0, "high": 8.0 },
+    "description": "Balanciere auf einem Bein und strecke das andere gerade nach vorne aus. Gehe so tief wie möglich in die Hocke, während die Ferse auf dem Boden bleibt. Nutze bei Bedarf eine Stütze zur Balance. Vermeide, dass dein Knie nach innen knickt. Konzentriere dich auf Kontrolle und Gleichgewicht."
+  },
+  {
+    "name": "Shrimp-Kniebeugen",
+    "type": "legs",
+    "met": { "low": 3.5, "medium": 5.0, "high": 6.5 },
+    "description": "Eine einbeinige Kniebeugen-Variante. Stehe auf einem Bein und greife den Fuß des anderen Beins hinter dir. Gehe in die Hocke, bis dein hinteres Knie den Boden berührt. Vermeide es, das Gleichgewicht zu verlieren. Konzentriere dich auf einen kontrollierten Ab- und Aufstieg."
+  },
+  {
+    "name": "Ausfallschritte",
+    "type": "legs",
+    "met": { "low": 3.0, "medium": 5.0, "high": 7.0 },
+    "description": "Mache einen Schritt nach vorne und senke deine Hüften, bis beide Knie in einem 90-Grad-Winkel gebeugt sind. Dein vorderes Knie sollte über deinem Knöchel sein. Vermeide, dass dein vorderes Knie über deine Zehen hinausragt. Konzentriere dich darauf, dich vom vorderen Fuß abzustoßen, um in die Ausgangsposition zurückzukehren."
+  },
+  {
+    "name": "Umgekehrte Ausfallschritte",
+    "type": "legs",
+    "met": { "low": 3.0, "medium": 4.5, "high": 6.5 },
+    "description": "Mache einen Schritt nach hinten in einen Ausfallschritt und senke deine Hüften, bis beide Knie in einem 90-Grad-Winkel gebeugt sind. Stoße dich vom hinteren Fuß ab, um in die Ausgangsposition zurückzukehren. Vermeide es, deinen Oberkörper zu weit nach vorne zu lehnen. Konzentriere dich auf Stabilität und Kontrolle."
+  },
+  {
+    "name": "Gehende Ausfallschritte",
+    "type": "legs",
+    "met": { "low": 3.5, "medium": 5.0, "high": 7.0 },
+    "description": "Führe einen Ausfallschritt nach vorne aus, aber anstatt dich zurückzudrücken, bringe dein hinteres Bein nach vorne, um direkt in den nächsten Ausfallschritt zu gehen. Vermeide es, zwischen den Schritten das Gleichgewicht zu verlieren. Konzentriere dich auf eine kontinuierliche, kontrollierte Gehbewegung."
+  },
+  {
+    "name": "Curtsy-Ausfallschritte (Knicks-Ausfallschritt)",
+    "type": "legs",
+    "met": { "low": 3.0, "medium": 4.5, "high": 6.0 },
+    "description": "Aus einer stehenden Position einen Schritt mit einem Bein nach hinten und über das andere machen, als ob du einen Knicks machst. Senke deine Hüften, bis dein vorderer Oberschenkel parallel zum Boden ist. Vermeide es, dein Knie zu verdrehen. Konzentriere dich darauf, deine Gesäßmuskeln anzuspannen."
+  },
+  {
+    "name": "Seitliche Ausfallschritte",
+    "type": "legs",
+    "met": { "low": 3.0, "medium": 4.5, "high": 6.0 },
+    "description": "Mache aus dem Stand einen Schritt zur Seite und halte das andere Bein gestreckt. Beuge die Hüfte und gehe mit dem gebeugten Bein in die Hocke. Vermeide, dass dein Knie über deine Zehen hinausragt. Konzentriere dich darauf, dich vom Fuß abzustoßen, um in die Mitte zurückzukehren."
+  },
+  {
+    "name": "Ausfallschritt-Sprünge (Split Jumps)",
+    "type": "legs",
+    "met": { "low": 6.0, "medium": 8.0, "high": 9.5 },
+    "description": "Beginne in einer Ausfallschrittposition. Springe explosiv ab, wechsle die Position deiner Beine in der Luft und lande wieder in einem Ausfallschritt mit dem anderen Bein vorne. Vermeide es, dein hinteres Knie auf den Boden zu schlagen. Konzentriere dich auf Höhe und Kontrolle."
+  },
+  {
+    "name": "Statischer Ausfallschritt / Split Squat",
+    "type": "legs",
+    "met": { "low": 3.0, "medium": 4.0, "high": 5.0 },
+    "description": "Beginne in einer gespreizten Haltung mit einem Fuß vorne und einem hinten. Senke deine Hüften, bis dein hinteres Knie knapp über dem Boden ist. Drücke dich wieder in die Ausgangsposition, ohne deine Füße zu bewegen. Vermeide es, dich zu weit nach vorne zu lehnen. Konzentriere dich darauf, deinen Oberkörper aufrecht zu halten."
+  },
+  {
+    "name": "Kniebeugen-Pulse",
+    "type": "legs",
+    "met": { "low": 3.0, "medium": 4.0, "high": 5.0 },
+    "description": "Gehe in die Hocke und halte die untere Position. Führe kleine, kontrollierte Auf- und Abbewegungen (Pulse) aus, ohne ganz nach oben zu kommen. Vermeide es zu wippen. Konzentriere dich darauf, die Spannung in den Oberschenkeln und im Gesäß zu halten."
+  },
+  {
+    "name": "Ausfallschritt-Pulse",
+    "type": "legs",
+    "met": { "low": 3.0, "medium": 4.0, "high": 5.0 },
+    "description": "Gehe in einen Ausfallschritt und halte die untere Position. Führe kleine, kontrollierte Auf- und Abbewegungen (Pulse) aus, ohne ganz nach oben zu kommen. Vermeide es zu wippen. Konzentriere dich darauf, die Spannung im vorderen Bein zu halten."
+  },
+  {
+    "name": "Gesäßbrücke",
+    "type": "legs",
+    "met": { "low": 2.5, "medium": 3.5, "high": 4.5 },
+    "description": "Lege dich auf den Rücken, die Knie gebeugt und die Füße flach auf dem Boden. Hebe deine Hüften zur Decke und spanne dein Gesäß an. Vermeide ein Hohlkreuz. Konzentriere dich auf eine starke Kontraktion des Gesäßes."
+  },
+  {
+    "name": "Einbeinige Gesäßbrücke",
+    "type": "legs",
+    "met": { "low": 3.0, "medium": 4.0, "high": 5.0 },
+    "description": "Führe eine Gesäßbrücke aus, aber mit einem Bein gerade ausgestreckt. Vermeide, dass deine Hüften kippen. Konzentriere dich darauf, das Gesäß des stützenden Beins zu isolieren."
+  },
+  {
+    "name": "Froschsprünge",
+    "type": "legs",
+    "met": { "low": 5.0, "medium": 6.5, "high": 8.0 },
+    "description": "Beginne in einer tiefen Hocke. Springe explosiv nach vorne und lande wieder in der tiefen Hocke. Vermeide, dass deine Knie nach innen fallen. Konzentriere dich auf einen kraftvollen Sprung aus einer tiefen Position."
+  },
+  {
+    "name": "Glute Kickbacks",
+    "type": "legs",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.5 },
+    "description": "Beginne auf allen Vieren. Strecke ein Bein gerade nach hinten aus und hebe es an, bis es auf einer Linie mit deinem Körper ist. Spanne dein Gesäß oben an. Vermeide ein Hohlkreuz. Konzentriere dich auf einen kontrollierten Hub."
+  },
+  {
+    "name": "Seitliches Beinheben im Liegen",
+    "type": "legs",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.0 },
+    "description": "Lege dich auf die Seite, die Beine übereinander. Hebe das obere Bein zur Decke, ohne den Oberkörper zu bewegen. Vermeide Schwung. Konzentriere dich auf eine langsame, kontrollierte Bewegung, um den äußeren Oberschenkel und die Hüfte anzusprechen."
+  },
+  {
+    "name": "Inneres Oberschenkelheben",
+    "type": "legs",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.0 },
+    "description": "Lege dich auf die Seite, das obere Bein gebeugt und der Fuß vor dem unteren Bein auf dem Boden platziert. Hebe das untere, gestreckte Bein vom Boden ab. Vermeide es, mit dem Körper zu wackeln. Konzentriere dich darauf, den inneren Oberschenkel zu isolieren."
+  },
+  {
+    "name": "Einbeiniges Kreuzheben (Körpergewicht)",
+    "type": "legs",
+    "met": { "low": 3.0, "medium": 4.0, "high": 5.0 },
+    "description": "Balanciere auf einem Bein. Beuge dich in den Hüften und strecke das andere Bein gerade nach hinten aus, während du deinen Oberkörper senkst. Halte deinen Rücken gerade. Vermeide es, den Rücken zu runden oder das Gleichgewicht zu verlieren. Konzentriere dich auf die Anspannung der Oberschenkelrückseite und des Gesäßes."
+  },
+  {
+    "name": "Beinbeuger im Liegen",
+    "type": "legs",
+    "met": { "low": 2.5, "medium": 3.0, "high": 4.0 },
+    "description": "Lege dich auf den Bauch. Beuge ein Knie und bringe deine Ferse in Richtung deines Gesäßes, wobei du deine Oberschenkelrückseite anspannst. Senke es kontrolliert ab. Vermeide es, deine Hüften vom Boden abzuheben. Konzentriere dich darauf, den Oberschenkelmuskel zu isolieren."
+  },
+  {
+    "name": "Wadenheben",
+    "type": "legs",
+    "met": { "low": 2.0, "medium": 3.0, "high": 4.0 },
+    "description": "Stehe auf einer flachen Oberfläche oder der Kante einer Stufe. Hebe deine Fersen so hoch wie möglich an und senke sie dann wieder ab. Vermeide Schwung. Konzentriere dich auf einen vollen Bewegungsumfang, spüre die Dehnung unten und die Anspannung oben."
+  },
+  {
+    "name": "Einbeiniges Wadenheben",
+    "type": "legs",
+    "met": { "low": 2.5, "medium": 3.5, "high": 4.5 },
+    "description": "Führe ein Wadenheben durch, während du auf einem Fuß balancierst. Halte dich bei Bedarf an einer Stütze fest. Vermeide Schwung. Konzentriere dich darauf, den Wadenmuskel des arbeitenden Beins zu isolieren."
+  },
+  {
+    "name": "Wandsitz mit Wadenheben",
+    "type": "legs",
+    "met": { "low": 2.5, "medium": 3.5, "high": 4.5 },
+    "description": "Halte eine Wandsitzposition. Führe während des Haltens Wadenheben durch, indem du deine Fersen anhebst und senkst. Vermeide es, deine Hüften anzuheben. Konzentriere dich darauf, die isometrische Kniebeuge beizubehalten, während du deine Knöchel bewegst."
+  },
+  {
+    "name": "Wand-Liegestütze",
+    "type": "upper_body_push",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.0 },
+    "description": "Stelle dich vor eine Wand und lege deine Hände etwas breiter als schulterbreit darauf. Lehne dich nach vorne und mache einen Liegestütz gegen die Wand. Dies ist eine großartige Anfängervariante. Vermeide, dass dein Rücken durchhängt. Konzentriere dich auf eine kontrollierte Bewegung."
+  },
+  {
+    "name": "Schräge Liegestütze",
+    "type": "upper_body_push",
+    "met": { "low": 2.5, "medium": 3.5, "high": 4.5 },
+    "description": "Mache einen Liegestütz mit den Händen auf einer erhöhten Oberfläche wie einer Bank oder Box. Dies verringert die Schwierigkeit. Halte deinen Körper in einer geraden Linie. Vermeide, dass deine Hüften durchhängen. Konzentriere dich auf einen vollen Bewegungsumfang."
+  },
+  {
+    "name": "Liegestütze",
+    "type": "upper_body_push",
+    "met": { "low": 3.8, "medium": 6.0, "high": 8.0 },
+    "description": "Platziere die Hände etwas breiter als deine Schultern. Halte deinen Körper in einer geraden Linie von Kopf bis Fersen. Senke dich ab, bis deine Brust fast den Boden berührt. Vermeide es, die Hüften durchhängen zu lassen oder die Ellbogen zur Seite auszustellen. Konzentriere dich auf einen angespannten Rumpf."
+  },
+  {
+    "name": "Breite Liegestütze",
+    "type": "upper_body_push",
+    "met": { "low": 3.8, "medium": 5.5, "high": 7.5 },
+    "description": "Führe einen Liegestütz mit deutlich breiter als schulterbreit platzierten Händen aus. Dies legt mehr Betonung auf die Brustmuskulatur. Vermeide es, die Ellbogen zu hoch auszustellen. Konzentriere dich darauf, die Dehnung in der Brust zu spüren."
+  },
+  {
+    "name": "Versetzte Liegestütze",
+    "type": "upper_body_push",
+    "met": { "low": 4.0, "medium": 6.0, "high": 8.0 },
+    "description": "Führe einen Liegestütz aus, bei dem eine Hand weiter vorne platziert ist als die andere. Dies fordert die Rumpfstabilität und die unilaterale Kraft. Wechsle die Handpositionen zwischen den Sätzen. Vermeide es, den Oberkörper zu verdrehen. Konzentriere dich auf einen stabilen Rumpf."
+  },
+  {
+    "name": "Diamant-Liegestütze",
+    "type": "upper_body_push",
+    "met": { "low": 4.0, "medium": 6.5, "high": 8.5 },
+    "description": "Mache einen Liegestütz mit eng aneinander liegenden Händen, die mit Daumen und Zeigefingern eine Rautenform bilden. Dies zielt mehr auf den Trizeps ab. Vermeide es, die Ellbogen auszustellen. Konzentriere dich auf eine kontrollierte Bewegung."
+  },
+  {
+    "name": "Pseudo-Planche-Liegestütze",
+    "type": "upper_body_push",
+    "met": { "low": 5.0, "medium": 6.5, "high": 8.0 },
+    "description": "Lehne dich aus einer Liegestützposition so weit wie möglich nach vorne, sodass deine Schultern über deine Handgelenke hinausragen. Mache in dieser Position einen Liegestütz. Vermeide, dass deine Hüften durchhängen. Konzentriere dich auf die extreme Vorwärtsneigung, um die Schultern zu trainieren."
+  },
+  {
+    "name": "Hindu-Liegestütze",
+    "type": "upper_body_push",
+    "met": { "low": 4.0, "medium": 5.5, "high": 7.0 },
+    "description": "Beginne in der Position des herabschauenden Hundes. Senke deine Brust in einer Wischbewegung zum Boden und dann nach oben in die Position des heraufschauenden Hundes. Kehre die Bewegung um, um zum Start zurückzukehren. Vermeide, dass deine Hüften den Boden berühren. Konzentriere dich auf eine fließende, wellenartige Bewegung."
+  },
+  {
+    "name": "Dive-Bomber-Liegestütze",
+    "type": "upper_body_push",
+    "met": { "low": 4.5, "medium": 6.0, "high": 7.5 },
+    "description": "Ähnlich wie ein Hindu-Liegestütz, aber du kehrst die Bewegung um, indem du dich durch die Wischbewegung zurück in die Ausgangsposition drückst. Es ist eine anspruchsvollere Variante. Vermeide, dass dein Rücken durchhängt. Konzentriere dich auf die Kraft in beide Richtungen der Bewegung."
+  },
+  {
+    "name": "Pike-Liegestütze",
+    "type": "upper_body_push",
+    "met": { "low": 3.5, "medium": 5.0, "high": 6.5 },
+    "description": "Gehe in eine Hecht- oder herabschauender-Hund-Position mit hochgestreckten Hüften. Mache einen Liegestütz, indem du deinen Kopf in Richtung Boden senkst. Dies zielt auf die Schultern. Vermeide, dass dein Rücken durchhängt. Konzentriere dich darauf, deine Hüften hoch zu halten."
+  },
+  {
+    "name": "Negative Liegestütze",
+    "type": "upper_body_push",
+    "met": { "low": 4.0, "medium": 6.5, "high": 8.5 },
+    "description": "Mache einen Liegestütz mit den Füßen auf einer Bank oder Box erhöht. Dies erhöht die Schwierigkeit und zielt auf die obere Brust und die Schultern. Vermeide, dass deine Hüften unter die gerade Körperlinie sinken. Konzentriere dich auf eine kontrollierte Bewegung."
+  },
+  {
+    "name": "Archer-Liegestütze",
+    "type": "upper_body_push",
+    "met": { "low": 4.5, "medium": 6.0, "high": 7.5 },
+    "description": "Mache einen Liegestütz, aber verlagere dein Gewicht auf eine Seite, wobei der Ellbogen des arbeitenden Arms angelegt bleibt, während der andere Arm zur Unterstützung seitlich ausgestreckt wird. Vermeide es, die Hüften zu drehen. Konzentriere dich auf die Brust der arbeitenden Seite."
+  },
+  {
+    "name": "Einarmiger Liegestütz (unterstützt)",
+    "type": "upper_body_push",
+    "met": { "low": 5.0, "medium": 7.0, "high": 9.0 },
+    "description": "Führe einen einarmigen Liegestütz mit einer breiteren Fußstellung durch und unterstütze dich mit der anderen Hand auf deinem Oberschenkel oder einer leicht erhöhten Oberfläche. Vermeide es, den Oberkörper zu verdrehen. Konzentriere dich auf eine langsame, kontrollierte Negativbewegung."
+  },
+  {
+    "name": "Klatsch-Liegestütze",
+    "type": "upper_body_push",
+    "met": { "low": 6.0, "medium": 7.5, "high": 9.0 },
+    "description": "Mache einen Liegestütz mit genügend explosiver Kraft, um deine Hände vom Boden abzudrücken und in der Luft zu klatschen. Lande sanft mit gebeugten Ellbogen. Vermeide es, mit durchgestreckten Armen zu landen. Konzentriere dich auf explosive Brustkraft."
+  },
+  {
+    "name": "Spiderman-Liegestütze",
+    "type": "upper_body_push",
+    "met": { "low": 4.0, "medium": 5.5, "high": 7.0 },
+    "description": "Während du dich in einen Liegestütz absenkst, bringe ein Knie seitlich zu deinem Ellbogen. Bringe das Bein zurück, während du dich hochdrückst, und wechsle die Seiten. Vermeide, dass deine Hüften durchhängen. Konzentriere dich auf die Rumpfspannung und die Hüftbeweglichkeit."
+  },
+  {
+    "name": "Tiger-Bend-Liegestütze",
+    "type": "upper_body_push",
+    "met": { "low": 5.0, "medium": 6.5, "high": 8.0 },
+    "description": "Senke dich aus einer Plank-Position auf deine Unterarme ab und drücke dich dann wieder in die Plank-Position hoch. Dies ist eine fortgeschrittene Übung für Trizeps und Schultern. Vermeide es, dass deine Hüften schwingen. Konzentriere dich auf einen starken Rumpf und die Anspannung des Trizeps."
+  },
+  {
+    "name": "Körpergewichts-Trizepsstrecken",
+    "type": "upper_body_push",
+    "met": { "low": 3.0, "medium": 4.0, "high": 5.0 },
+    "description": "Lege aus kniender oder stehender Position deine Hände vor dir auf den Boden und gehe mit ihnen nach vorne. Beuge die Ellbogen und senke deinen Kopf in Richtung deiner Hände, dann drücke dich wieder hoch. Vermeide es, die Ellbogen auszustellen. Konzentriere dich darauf, den Trizeps zu isolieren."
+  },
+  {
+    "name": "Boden-Dips (Krabben-Dips)",
+    "type": "upper_body_push",
+    "met": { "low": 3.5, "medium": 4.5, "high": 5.5 },
+    "description": "Setze dich auf den Boden, die Knie gebeugt und die Füße flach. Lege deine Hände hinter dich auf den Boden, die Finger zeigen zum Körper. Hebe deine Hüften an und beuge deine Ellbogen, um deinen Körper abzusenken. Vermeide es, dass deine Schultern nach vorne rollen. Konzentriere dich darauf, dich mit dem Trizeps hochzudrücken."
+  },
+  {
+    "name": "Handstand-Wandläufe",
+    "type": "upper_body_push",
+    "met": { "low": 5.5, "medium": 7.0, "high": 8.5 },
+    "description": "Beginne in einer Liegestützposition mit den Füßen an einer Wand. Gehe mit den Füßen die Wand hoch, während du mit den Händen näher an die Wand gehst, bis du in einer Handstandposition bist. Kehre die Bewegung um, um wieder herunterzukommen. Vermeide ein Hohlkreuz. Konzentriere dich auf Schulterstabilität und Rumpfkontrolle."
+  },
+  {
+    "name": "Handstand-Liegestütze",
+    "type": "upper_body_push",
+    "met": { "low": 6.5, "medium": 8.5, "high": 10.5 },
+    "description": "Stoße dich an einer Wand in den Handstand. Senke dich ab, bis dein Kopf den Boden berührt, und halte dabei die Ellbogen angelegt. Vermeide es, die Ellbogen auszustellen. Konzentriere dich darauf, einen angespannten Rumpf beizubehalten, um ein Hohlkreuz zu vermeiden."
+  },
+  {
+    "name": "Planche-Tuck",
+    "type": "upper_body_push",
+    "met": { "low": 6.0, "medium": 8.0, "high": 10.0 },
+    "description": "Lehne dich aus einer Liegestützposition nach vorne, bis deine Füße vom Boden abheben, und ziehe deine Knie an deine Brust. Die Arme sollten gestreckt sein. Vermeide es, die Arme zu beugen. Konzentriere dich auf die Protraktion der Schulter und eine extreme Vorwärtsneigung."
+  },
+  {
+    "name": "Superman",
+    "type": "upper_body_back",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.0 },
+    "description": "Lege dich auf den Bauch, Arme und Beine ausgestreckt. Hebe gleichzeitig Arme, Brust und Beine vom Boden ab. Vermeide es, den Nacken zu überstrecken, indem du nach oben schaust. Konzentriere dich darauf, deinen unteren Rücken und dein Gesäß anzuspannen."
+  },
+  {
+    "name": "Prone Cobra",
+    "type": "upper_body_back",
+    "met": { "low": 2.5, "medium": 3.0, "high": 3.5 },
+    "description": "Lege dich mit dem Gesicht nach unten, die Arme an den Seiten, die Handflächen nach unten. Hebe Kopf, Brust und Hände vom Boden ab, ziehe die Schulterblätter zusammen und drehe die Daumen zur Decke. Vermeide es, nach oben zu schauen. Konzentriere dich auf die Anspannung des oberen Rückens."
+  },
+  {
+    "name": "Back Widows",
+    "type": "upper_body_back",
+    "met": { "low": 3.0, "medium": 4.0, "high": 5.0 },
+    "description": "Lege dich auf den Rücken, die Knie gebeugt und die Füße flach auf dem Boden. Lege deine Arme mit 90 Grad gebeugten Ellbogen auf den Boden. Drücke deine Ellbogen in den Boden, um deinen oberen Rücken und deine Brust anzuheben. Vermeide es, mit den Füßen zu schieben. Konzentriere dich darauf, deine Rückenmuskeln anzuspannen."
+  },
+  {
+    "name": "Umgekehrte Schnee-Engel",
+    "type": "upper_body_back",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.0 },
+    "description": "Lege dich mit dem Gesicht nach unten, die Arme über dem Kopf ausgestreckt. Hebe Brust und Arme vom Boden ab und „wische“ mit den Armen nach unten zu deinen Seiten und wieder nach oben. Vermeide es, den Nacken zu überstrecken. Konzentriere dich darauf, deine Schulterblätter zusammenzuziehen."
+  },
+  {
+    "name": "Boden-Engel",
+    "type": "upper_body_back",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.0 },
+    "description": "Lege dich auf den Rücken, die Knie gebeugt. Drücke deinen unteren Rücken flach auf den Boden. Beginne mit den Armen in einer „W“-Form und schiebe sie über den Kopf in eine „Y“-Form, wobei deine Arme und Handgelenke den Bodenkontakt halten. Vermeide ein Hohlkreuz. Konzentriere dich auf die Schulterbeweglichkeit."
+  },
+  {
+    "name": "Prone I-Y-T Raises",
+    "type": "upper_body_back",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.5 },
+    "description": "Lege dich mit dem Gesicht nach unten. Hebe deine Arme gerade nach vorne in eine „I“-Form, dann seitlich in eine „Y“-Form und dann seitlich in eine „T“-Form. Vermeide Schwung. Konzentriere dich darauf, deine oberen Rückenmuskeln anzuspannen."
+  },
+  {
+    "name": "Skapuläre Shrugs (in der Planke)",
+    "type": "upper_body_back",
+    "met": { "low": 2.5, "medium": 3.0, "high": 3.5 },
+    "description": "Halte eine hohe Plank-Position. Ohne die Ellbogen zu beugen, ziehe deine Schulterblätter zusammen und drücke sie dann auseinander. Vermeide es, deine Hüften zu bewegen. Konzentriere dich darauf, die Bewegung auf deine Schulterblätter zu isolieren."
+  },
+  {
+    "name": "Wand-Slides",
+    "type": "upper_body_back",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.0 },
+    "description": "Stelle dich mit dem Rücken an eine Wand. Lege deine Arme in einer „W“- oder Torpfostenposition an die Wand. Schiebe deine Arme die Wand hoch, bis sie gerade sind, und halte dabei Rücken, Ellbogen und Handgelenke in Kontakt mit der Wand. Vermeide ein Hohlkreuz. Konzentriere dich auf Haltung und Aktivierung des oberen Rückens."
+  },
+  {
+    "name": "Planke",
+    "type": "core",
+    "met": { "low": 2.0, "medium": 3.0, "high": 4.0 },
+    "description": "Halte eine Liegestützposition auf deinen Unterarmen oder Händen. Dein Körper sollte eine gerade Linie von Kopf bis Fersen bilden. Vermeide, dass deine Hüften durchhängen oder zu hoch steigen. Konzentriere dich darauf, deinen gesamten Rumpf anzuspannen und dein Gesäß zusammenzudrücken."
+  },
+  {
+    "name": "Seitliche Planke",
+    "type": "core",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.5 },
+    "description": "Stütze deinen Körper auf einem Unterarm ab und halte deinen Körper in einer geraden Linie von Kopf bis Fuß. Vermeide, dass deine Hüfte durchhängt. Konzentriere dich darauf, die schräge Bauchmuskulatur auf der unteren Seite anzuspannen."
+  },
+  {
+    "name": "Seitliche Planke mit Hüft-Dips",
+    "type": "core",
+    "met": { "low": 2.5, "medium": 3.0, "high": 4.0 },
+    "description": "Senke aus einer seitlichen Plank-Position deine Hüfte zum Boden und hebe sie dann wieder an. Vermeide es, deinen Oberkörper zu drehen. Konzentriere dich auf eine kontrollierte Bewegung, die von deinen schrägen Bauchmuskeln angetrieben wird."
+  },
+  {
+    "name": "Umgekehrte Planke",
+    "type": "core",
+    "met": { "low": 2.5, "medium": 3.0, "high": 3.5 },
+    "description": "Setze dich auf den Boden, die Beine ausgestreckt und die Hände hinter dir. Hebe deine Hüften an, bis dein Körper eine gerade Linie von den Schultern bis zu den Fersen bildet. Vermeide, dass deine Hüften durchhängen. Konzentriere dich darauf, dein Gesäß, deine Oberschenkelrückseiten und deinen Rücken anzuspannen."
+  },
+  {
+    "name": "Plank Jacks",
+    "type": "core",
+    "met": { "low": 5.0, "medium": 6.5, "high": 8.0 },
+    "description": "Springe aus einer hohen Plank (auf den Händen) mit den Füßen weit auseinander und dann wieder zusammen, wie bei einem horizontalen Hampelmann. Vermeide es, dass deine Hüften auf und ab hüpfen. Konzentriere dich auf die Rumpfstabilität."
+  },
+  {
+    "name": "Planke zu Liegestütz",
+    "type": "core",
+    "met": { "low": 4.0, "medium": 5.0, "high": 6.0 },
+    "description": "Beginne in einer Unterarmplanke. Drücke dich nacheinander mit einem Arm nach oben in eine hohe Planke (auf den Händen). Kehre nacheinander mit einem Arm in die Unterarmplanke zurück. Vermeide übermäßige Hüftrotation. Konzentriere dich darauf, einen stabilen Rumpf beizubehalten."
+  },
+  {
+    "name": "Liegestütz zu seitlicher Planke",
+    "type": "core",
+    "met": { "low": 4.0, "medium": 5.5, "high": 7.0 },
+    "description": "Mache einen normalen Liegestütz. Drehe dich oben in eine seitliche Planke und strecke einen Arm zur Decke. Kehre zum Start zurück und wiederhole auf der anderen Seite. Vermeide eine überhastete Drehung. Konzentriere dich auf die Kontrolle."
+  },
+  {
+    "name": "Hollow Body Hold",
+    "type": "core",
+    "met": { "low": 3.0, "medium": 4.0, "high": 5.0 },
+    "description": "Lege dich auf den Rücken und hebe deine Beine und Schultern leicht vom Boden ab, wobei dein unterer Rücken fest auf dem Boden gedrückt bleibt. Dein Körper sollte eine flache „U“- oder Bananenform bilden. Vermeide ein Hohlkreuz. Konzentriere dich auf die gesamte Rumpfspannung."
+  },
+  {
+    "name": "Toter Käfer",
+    "type": "core",
+    "met": { "low": 2.5, "medium": 3.0, "high": 3.5 },
+    "description": "Lege dich auf den Rücken, die Arme zur Decke gestreckt und die Knie im 90-Grad-Winkel über den Hüften gebeugt. Senke langsam einen gegenüberliegenden Arm und ein Bein zum Boden ab. Vermeide ein Hohlkreuz. Konzentriere dich auf eine langsame, kontrollierte Bewegung und Rumpfstabilität."
+  },
+  {
+    "name": "Crunches",
+    "type": "core",
+    "met": { "low": 2.5, "medium": 3.8, "high": 5.0 },
+    "description": "Lege dich auf den Rücken, die Knie gebeugt. Hebe Kopf und Schultern mit deinem Rumpf vom Boden ab. Vermeide es, am Nacken zu ziehen. Konzentriere dich darauf, deine Bauchmuskeln oben anzuspannen."
+  },
+  {
+    "name": "Sit-ups",
+    "type": "core",
+    "met": { "low": 3.0, "medium": 4.5, "high": 5.5 },
+    "description": "Lege dich auf den Rücken, die Knie gebeugt und die Füße auf dem Boden. Hebe deinen gesamten Oberkörper in eine sitzende Position. Vermeide Schwung oder am Nacken zu ziehen. Konzentriere dich auf einen kontrollierten Auf- und Abstieg."
+  },
+  {
+    "name": "Umgekehrte Crunches",
+    "type": "core",
+    "met": { "low": 2.5, "medium": 3.5, "high": 4.5 },
+    "description": "Lege dich auf den Rücken, die Knie im 90-Grad-Winkel gebeugt. Ziehe mit deinen unteren Bauchmuskeln deine Knie zur Brust und hebe deine Hüften vom Boden ab. Vermeide Schwung. Konzentriere dich auf eine kontrollierte Krümmung deiner unteren Wirbelsäule."
+  },
+  {
+    "name": "Tuck-Ups (Knie anziehen)",
+    "type": "core",
+    "met": { "low": 3.5, "medium": 5.0, "high": 6.5 },
+    "description": "Lege dich auf den Rücken. Hebe gleichzeitig deinen Oberkörper an und ziehe deine Knie zur Brust, umarme sie oben. Vermeide Schwung. Konzentriere dich darauf, deinen Rumpf zu komprimieren."
+  },
+  {
+    "name": "V-Ups",
+    "type": "core",
+    "met": { "low": 4.0, "medium": 5.5, "high": 7.0 },
+    "description": "Lege dich auf den Rücken. Hebe gleichzeitig deine Beine und deinen Oberkörper an und strecke deine Hände in Richtung deiner Füße, um eine „V“-Form zu bilden. Vermeide es, die Knie zu sehr zu beugen. Konzentriere dich auf eine kraftvolle, kontrollierte Kontraktion."
+  },
+  {
+    "name": "Fahrrad-Crunches",
+    "type": "core",
+    "met": { "low": 3.0, "medium": 4.0, "high": 5.0 },
+    "description": "Lege dich auf den Rücken und bringe den gegenüberliegenden Ellbogen zum gegenüberliegenden Knie in einer drehenden, radelnden Bewegung. Vermeide es, am Nacken zu ziehen. Konzentriere dich darauf, deinen Oberkörper zu drehen, nicht nur deine Ellbogen."
+  },
+  {
+    "name": "Russische Twists (Körpergewicht)",
+    "type": "core",
+    "met": { "low": 2.5, "medium": 3.5, "high": 4.5 },
+    "description": "Setze dich auf den Boden, lehne dich mit dem Oberkörper in einem 45-Grad-Winkel zurück und hebe deine Füße vom Boden ab. Drehe deinen Oberkörper von Seite zu Seite. Vermeide es, nur deine Arme zu bewegen. Konzentriere dich darauf, deinen gesamten Oberkörper zu drehen."
+  },
+  {
+    "name": "Fersen-Taps (Pinguin-Crunches)",
+    "type": "core",
+    "met": { "low": 2.5, "medium": 3.5, "high": 4.0 },
+    "description": "Lege dich auf den Rücken, die Knie gebeugt und die Füße flach auf dem Boden. Hebe Kopf und Schultern an und greife abwechselnd nach unten, um deine Fersen mit den Fingerspitzen zu berühren. Vermeide es, den Nacken zu überstrecken. Konzentriere dich darauf, deine schrägen Bauchmuskeln für die seitliche Krümmung zu verwenden."
+  },
+  {
+    "name": "Seitliche Crunches",
+    "type": "core",
+    "met": { "low": 2.5, "medium": 3.5, "high": 4.0 },
+    "description": "Lege dich auf die Seite, die Knie leicht gebeugt. Lege deine obere Hand hinter deinen Kopf und beuge deinen Ellbogen in Richtung deiner Hüfte. Vermeide es, am Nacken zu ziehen. Konzentriere dich darauf, den schrägen Bauchmuskel auf der oberen Seite zu isolieren."
+  },
+  {
+    "name": "Beinheben im Liegen",
+    "type": "core",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.5 },
+    "description": "Lege dich auf den Rücken und hebe deine Beine zur Decke, bis sie senkrecht zum Boden stehen. Halte sie gerade. Vermeide Schwung oder ein Hohlkreuz im unteren Rücken. Konzentriere dich auf eine langsame, kontrollierte Bewegung."
+  },
+  {
+    "name": "Beinkreise (im Liegen)",
+    "type": "core",
+    "met": { "low": 2.5, "medium": 3.0, "high": 3.5 },
+    "description": "Lege dich auf den Rücken und hebe deine Beine gerade nach oben. Zeichne langsam große Kreise mit deinen Füßen in die Luft. Halte deinen unteren Rücken auf dem Boden. Vermeide Schwung. Konzentriere dich auf die Rumpfkontrolle."
+  },
+  {
+    "name": "Scheibenwischer (im Liegen)",
+    "type": "core",
+    "met": { "low": 3.0, "medium": 4.0, "high": 5.0 },
+    "description": "Lege dich auf den Rücken, die Beine gerade in der Luft. Senke deine Beine langsam zu einer Seite ab und halte dabei die Schultern auf dem Boden. Kehre zur Mitte zurück und wiederhole auf der anderen Seite. Vermeide es, deine Beine schnell fallen zu lassen. Konzentriere dich auf die Rotationskontrolle."
+  },
+  {
+    "name": "Zehen-Taps (im Liegen)",
+    "type": "core",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.0 },
+    "description": "Lege dich auf den Rücken, die Knie im 90-Grad-Winkel gebeugt (Tischposition). Senke langsam einen Fuß ab und tippe auf den Boden, dann kehre zum Start zurück. Wechsle die Beine. Vermeide ein Hohlkreuz im unteren Rücken. Konzentriere dich auf die Rumpfstabilität."
+  },
+  {
+    "name": "Flatterkicks",
+    "type": "core",
+    "met": { "low": 2.5, "medium": 3.5, "high": 4.5 },
+    "description": "Lege dich auf den Rücken, die Beine gerade. Hebe deine Fersen vom Boden ab und mache kleine, schnelle Auf- und Abbewegungen. Vermeide ein Hohlkreuz im unteren Rücken. Konzentriere dich darauf, deinen Rumpf angespannt zu halten."
+  },
+  {
+    "name": "Scherenkicks",
+    "type": "core",
+    "met": { "low": 2.5, "medium": 3.5, "high": 4.5 },
+    "description": "Lege dich auf den Rücken, die Beine gerade. Hebe deine Fersen vom Boden ab und mache kreuzende, scherenartige Bewegungen mit deinen Beinen. Vermeide ein Hohlkreuz. Konzentriere dich auf die Rumpfstabilität."
+  },
+  {
+    "name": "Planke mit Schulter-Taps",
+    "type": "core",
+    "met": { "low": 3.0, "medium": 4.0, "high": 5.0 },
+    "description": "Hebe aus einer hohen Plank-Position langsam eine Hand an, um die gegenüberliegende Schulter zu berühren. Lege sie wieder auf den Boden und wiederhole auf der anderen Seite. Vermeide es, mit den Hüften zu wackeln. Konzentriere dich darauf, deinen Rumpf und deine Hüften vollkommen still zu halten."
+  },
+  {
+    "name": "Bärenkrabbeln-Halten mit Schulter-Taps",
+    "type": "core",
+    "met": { "low": 3.5, "medium": 4.5, "high": 5.5 },
+    "description": "Beginne auf allen Vieren, die Knie knapp über dem Boden schwebend. Halte diese Position und hebe langsam eine Hand an, um die gegenüberliegende Schulter zu berühren. Vermeide es, mit den Hüften zu wackeln. Konzentriere dich auf die gesamte Körperstabilität."
+  },
+  {
+    "name": "Cross-Body Mountain Climbers",
+    "type": "core",
+    "met": { "low": 6.0, "medium": 8.0, "high": 9.5 },
+    "description": "Führe aus einer Plank-Position dein rechtes Knie zum linken Ellbogen und dann dein linkes Knie zum rechten Ellbogen. Vermeide es, dass deine Hüften ansteigen. Konzentriere dich auf die Drehbewegung, um deine schrägen Bauchmuskeln zu beanspruchen."
+  },
+  {
+    "name": "Inchworm",
+    "type": "core",
+    "met": { "low": 3.0, "medium": 4.0, "high": 5.0 },
+    "description": "Beuge dich aus dem Stand in den Hüften und gehe mit den Händen in eine Plank-Position. Gehe dann mit den Füßen zu deinen Händen. Vermeide es, die Knie mehr als nötig zu beugen. Konzentriere dich auf die Dehnung der Oberschenkelrückseite und die Rumpfstabilität."
+  },
+  {
+    "name": "Vogel-Hund",
+    "type": "core",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.0 },
+    "description": "Beginne auf allen Vieren. Strecke einen Arm gerade nach vorne und das gegenüberliegende Bein gerade nach hinten aus, wobei dein Rücken flach bleibt. Vermeide es, deine Hüften zu drehen. Konzentriere dich auf Gleichgewicht und Rumpfstabilität."
+  },
+  {
+    "name": "Abwechselnder Superman",
+    "type": "core",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.0 },
+    "description": "Lege dich auf den Bauch. Hebe gleichzeitig deinen rechten Arm und dein linkes Bein an. Senke sie kontrolliert ab und wiederhole auf der anderen Seite. Dies ähnelt einem Vogel-Hund, aber aus Bauchlage. Vermeide es, den Nacken zu überstrecken. Konzentriere dich auf die Kontrolle."
+  },
+  {
+    "name": "L-Sitz (Boden)",
+    "type": "core",
+    "met": { "low": 4.5, "medium": 6.5, "high": 8.5 },
+    "description": "Setze dich auf den Boden, die Beine gerade ausgestreckt. Lege deine Hände neben deine Hüften auf den Boden und drücke dich nach unten, um deinen gesamten Körper vom Boden abzuheben. Vermeide es, die Schultern hochzuziehen. Konzentriere dich auf die Kompression des Rumpfes und das Senken der Schulterblätter."
+  },
+  {
+    "name": "Kniebeugen-Sprünge",
+    "type": "full_body_plyo",
+    "met": { "low": 5.0, "medium": 7.0, "high": 8.5 },
+    "description": "Führe eine Körpergewichts-Kniebeuge aus, aber explodiere aus der untersten Position nach oben in einen Sprung. Lande sanft und gehe sofort in die nächste Wiederholung über. Vermeide es, mit steifen Knien zu landen. Konzentriere dich auf Höhe und explosive Kraft."
+  },
+  {
+    "name": "Hocksprünge",
+    "type": "full_body_plyo",
+    "met": { "low": 7.0, "medium": 8.5, "high": 10.0 },
+    "description": "Springe aus dem Stand nach oben und ziehe deine Knie an die Brust. Lande sanft mit gebeugten Knien. Vermeide es, steif zu landen. Konzentriere dich auf explosive Kraft und die Anspannung des Rumpfes, um die Knie anzuheben."
+  },
+  {
+    "name": "Sternsprünge",
+    "type": "full_body_plyo",
+    "met": { "low": 7.0, "medium": 8.5, "high": 9.5 },
+    "description": "Beginne in einer geduckten Position. Springe explosiv nach oben und strecke deine Arme und Beine in der Luft zu einer Sternform aus. Lande sanft wieder in der Hocke. Vermeide es, mit gestreckten Beinen zu landen. Konzentriere dich auf maximale explosive Anstrengung."
+  },
+  {
+    "name": "Weitsprünge aus dem Stand",
+    "type": "full_body_plyo",
+    "met": { "low": 4.0, "medium": 6.0, "high": 7.5 },
+    "description": "Schwinge aus dem Stand deine Arme und springe so weit wie möglich nach vorne. Lande sanft mit gebeugten Knien. Vermeide es, bei der Landung das Gleichgewicht zu verlieren. Konzentriere dich auf die horizontale Distanz und einen kraftvollen Hüftantrieb."
+  },
+  {
+    "name": "Skater-Sprünge",
+    "type": "full_body_plyo",
+    "met": { "low": 6.0, "medium": 7.5, "high": 9.0 },
+    "description": "Springe von Seite zu Seite, lande auf einem Fuß und schwinge das andere Bein hinter dir. Vermeide es, dass dein Oberkörper nach vorne fällt. Konzentriere dich auf seitliche Kraft und Gleichgewicht."
+  },
+  {
+    "name": "Mountain Climbers",
+    "type": "full_body_plyo",
+    "met": { "low": 6.0, "medium": 8.0, "high": 10.0 },
+    "description": "Führe aus einer Plank-Position abwechselnd die Knie in einer Laufbewegung zur Brust. Vermeide es, dass deine Hüften ansteigen. Konzentriere dich auf Geschwindigkeit und einen flachen Rücken."
+  },
+  {
+    "name": "Hohe Knie",
+    "type": "full_body_plyo",
+    "met": { "low": 6.0, "medium": 8.0, "high": 9.0 },
+    "description": "Laufe auf der Stelle und ziehe deine Knie so hoch wie möglich, idealerweise auf Hüfthöhe. Vermeide es, dich nach hinten zu lehnen. Konzentriere dich auf einen schnellen Wechsel und lande leicht auf den Fußballen."
+  },
+  {
+    "name": "Anfersen",
+    "type": "full_body_plyo",
+    "met": { "low": 6.0, "medium": 8.0, "high": 9.0 },
+    "description": "Laufe auf der Stelle und versuche, deine Fersen in Richtung deines Gesäßes zu treten. Vermeide ein Hohlkreuz. Konzentriere dich auf einen schnellen Beinzyklus und spüre eine Dehnung in deinen Oberschenkeln."
+  },
+  {
+    "name": "Hampelmänner",
+    "type": "full_body_plyo",
+    "met": { "low": 6.0, "medium": 8.0, "high": 9.0 },
+    "description": "Springe mit den Füßen seitlich auseinander, während du deine Arme über dem Kopf anhebst. Springe zurück in die Ausgangsposition. Vermeide unvollständige Bewegungen. Konzentriere dich auf ein gleichmäßiges, rhythmisches Tempo."
+  },
+  {
+    "name": "Bärenkrabbeln",
+    "type": "full_body_plyo",
+    "met": { "low": 5.0, "medium": 6.5, "high": 8.0 },
+    "description": "Beginne auf allen Vieren, die Knie knapp über dem Boden schwebend. Krabble vorwärts, indem du den gegenüberliegenden Arm und das Bein gleichzeitig bewegst. Vermeide es, dass deine Hüften zu hoch kommen. Konzentriere dich darauf, deinen Rücken flach und deinen Rumpf angespannt zu halten."
+  },
+  {
+    "name": "Krabbenlauf",
+    "type": "full_body_plyo",
+    "met": { "low": 4.0, "medium": 5.0, "high": 6.0 },
+    "description": "Setze dich auf den Boden, lege deine Hände hinter dich und die Füße vor dich und hebe deine Hüften an. Gehe auf Händen und Füßen vorwärts oder rückwärts. Vermeide, dass deine Hüften durchhängen. Konzentriere dich darauf, deine Hüften hochzuhalten."
+  },
+  {
+    "name": "Burpees",
+    "type": "full_body_plyo",
+    "met": { "low": 7.0, "medium": 9.0, "high": 12.0 },
+    "description": "Falle aus dem Stand in die Hocke, trete mit den Füßen zurück in eine Planke, mache einen Liegestütz, springe dann mit den Füßen zurück in die Hocke und springe explosiv nach oben. Vermeide es, deinen Körper beim Liegestütz durchhängen zu lassen. Konzentriere dich auf einen starken Rumpf."
+  },
+  {
+    "name": "180-Grad-Kniebeugen-Sprung",
+    "type": "full_body_plyo",
+    "met": { "low": 6.0, "medium": 7.5, "high": 9.0 },
+    "description": "Mache eine Kniebeuge und drehe dich beim Hochspringen um 180 Grad in der Luft. Lande sanft in einer Kniebeuge, mit dem Gesicht in die entgegengesetzte Richtung. Vermeide es, das Gleichgewicht zu verlieren. Konzentriere dich auf eine kraftvolle, kontrollierte Drehung."
+  },
+  {
+    "name": "Seal Jacks",
+    "type": "full_body_plyo",
+    "met": { "low": 6.0, "medium": 8.0, "high": 9.0 },
+    "description": "Eine Variante des Hampelmanns, bei der du deine Hände vor der Brust zusammenklatschst, während deine Füße nach außen springen, und deine Arme nach außen schwingst, während deine Füße zurückkehren. Vermeide unvollständige Armbewegungen. Konzentriere dich darauf, Brust und Rücken anzuspannen."
+  },
+  {
+    "name": "Power Skips",
+    "type": "full_body_plyo",
+    "met": { "low": 6.0, "medium": 7.0, "high": 8.0 },
+    "description": "Führe eine Sprungbewegung aus, aber konzentriere dich darauf, bei jedem Sprung so hoch wie möglich zu springen und dein Knie kraftvoll nach oben zu ziehen. Vermeide es, dich nach hinten zu lehnen. Konzentriere dich auf vertikale Höhe und explosive Kraft."
+  },
+  {
+    "name": "Seitliche Sprünge (über eine Linie)",
+    "type": "full_body_plyo",
+    "met": { "low": 6.0, "medium": 7.5, "high": 9.0 },
+    "description": "Stelle dich neben eine imaginäre Linie auf dem Boden. Springe mit beiden Füßen seitlich hin und her über die Linie. Vermeide Pausen zwischen den Sprüngen. Konzentriere dich auf Geschwindigkeit und Beweglichkeit."
+  },
+  {
+    "name": "Vorwärts-/Rückwärtshüpfen",
+    "type": "full_body_plyo",
+    "met": { "low": 5.5, "medium": 7.0, "high": 8.5 },
+    "description": "Hüpfe mit beiden Füßen vorwärts und rückwärts über eine imaginäre Linie. Vermeide Pausen zwischen den Hüpfern. Konzentriere dich auf schnelle, kontrollierte Bewegungen."
+  },
+  {
+    "name": "Plank-Ski-Sprünge",
+    "type": "full_body_plyo",
+    "met": { "low": 5.5, "medium": 7.0, "high": 8.5 },
+    "description": "Springe aus einer hohen Plank-Position mit geschlossenen Füßen von Seite zu Seite, als ob du Buckelpisten fährst. Vermeide es, dass deine Hüften zu hoch steigen. Konzentriere dich auf Rumpfstabilität und die Anspannung der schrägen Bauchmuskeln."
+  },
+  {
+    "name": "Pop Squats",
+    "type": "full_body_plyo",
+    "met": { "low": 5.5, "medium": 7.0, "high": 8.5 },
+    "description": "Beginne mit geschlossenen Füßen. Springe mit den Füßen in eine weite Kniebeugenposition und springe dann sofort wieder zum Start zurück. Vermeide unvollständige Kniebeugen. Konzentriere dich auf Geschwindigkeit und einen kontinuierlichen Rhythmus."
+  },
+  {
+    "name": "Seitliches Shuffle (mit Bodenberührung)",
+    "type": "full_body_plyo",
+    "met": { "low": 5.5, "medium": 7.0, "high": 8.5 },
+    "description": "Mache ein paar seitliche Shuffle-Schritte und berühre dann den Boden mit deiner äußeren Hand. Shuffle zur anderen Seite zurück und wiederhole. Vermeide es, dich in der Taille zu beugen. Konzentriere dich darauf, niedrig und athletisch zu bleiben."
+  },
+  {
+    "name": "Burpee mit Weitsprung",
+    "type": "full_body_plyo",
+    "met": { "low": 7.5, "medium": 9.5, "high": 12.5 },
+    "description": "Mache einen normalen Burpee, aber anstatt gerade nach oben zu springen, springe so weit wie möglich nach vorne. Vermeide es, bei der Landung die Form zu verlieren. Konzentriere dich auf einen explosiven Vorwärtssprung."
+  },
+  {
+    "name": "Einbeiniger Burpee",
+    "type": "full_body_plyo",
+    "met": { "low": 8.0, "medium": 10.0, "high": 13.0 },
+    "description": "Führe einen Burpee durch, während du während der gesamten Bewegung auf einem Bein balancierst. Dies ist eine sehr fortgeschrittene Übung. Vermeide es, das Gleichgewicht zu verlieren. Konzentriere dich auf extreme Kontrolle und Stabilität."
+  },
+  {
+    "name": "Ausfallschritt zu hohem Knie-Hop",
+    "type": "full_body_plyo",
+    "met": { "low": 5.0, "medium": 6.5, "high": 8.0 },
+    "description": "Mache einen umgekehrten Ausfallschritt. Während du zum Start zurückkehrst, treibe dein hinteres Knie in eine hohe Knieposition und füge einen kleinen Hop auf deinem Standbein hinzu. Vermeide es, das Gleichgewicht zu verlieren. Konzentriere dich auf einen kraftvollen, fließenden Übergang."
+  },
+  {
+    "name": "Alligator-Krabbeln",
+    "type": "full_body_plyo",
+    "met": { "low": 6.0, "medium": 7.5, "high": 9.0 },
+    "description": "Bewege dich aus einer Liegestützposition vorwärts, indem du mit einem Arm und dem gegenüberliegenden Bein greifst und deinen Körper so tief wie möglich am Boden hältst. Vermeide es, dass deine Hüften zu hoch kommen. Konzentriere dich darauf, niedrig zu bleiben und deinen ganzen Körper zu benutzen."
+  },
+  {
+    "name": "Gorilla-Lauf",
+    "type": "full_body_plyo",
+    "met": { "low": 5.0, "medium": 6.0, "high": 7.0 },
+    "description": "Beginne in einer tiefen Hocke. Lege deine Hände vor dir auf den Boden und „springe“ mit den Füßen nach vorne, um deine Hände zu treffen. Bewege dich auf diese Weise. Vermeide es, aufzustehen. Konzentriere dich darauf, niedrig zu bleiben und deine Beine zu benutzen."
+  },
+  {
+    "name": "Planke zu Hecht-Sprung",
+    "type": "full_body_plyo",
+    "met": { "low": 5.5, "medium": 7.0, "high": 8.5 },
+    "description": "Springe aus einer hohen Planke mit den Füßen nach vorne zu deinen Händen und hebe dabei deine Hüften in eine Hechtposition. Springe zurück in die Planke. Vermeide es, dass dein Rücken in der Planke durchhängt. Konzentriere dich auf die Kompression des Rumpfes."
+  },
+  {
+    "name": "Breakdancer-Kicks",
+    "type": "full_body_plyo",
+    "met": { "low": 5.0, "medium": 6.5, "high": 8.0 },
+    "description": "Hebe aus einer Bärenkrabbel-Position eine Hand an und trete mit dem gegenüberliegenden Bein durch den Raum unter deinem Körper. Drehe deine Hüften und drehe dich auf deinem Stützfuß. Vermeide es, das Gleichgewicht zu verlieren. Konzentriere dich auf eine fließende, rotatorische Bewegung."
+  },
+  {
+    "name": "Muay-Thai-Knie (abwechselnd)",
+    "type": "full_body_plyo",
+    "met": { "low": 6.5, "medium": 8.0, "high": 9.5 },
+    "description": "Falte deine Hände und halte sie hoch. Treibe explosiv ein Knie nach oben zu deinen Händen, während du deine Bauchmuskeln anspannst und auf dem anderen Fuß hüpfst. Wechsle die Seiten. Vermeide es, nur dein Knie anzuheben. Konzentriere dich auf einen kraftvollen, ganzkörperlichen Crunch."
+  },
+  {
+    "name": "Einbeinige Sprünge (vorwärts)",
+    "type": "full_body_plyo",
+    "met": { "low": 5.0, "medium": 6.5, "high": 8.0 },
+    "description": "Hüpfe kontinuierlich auf einem Bein vorwärts. Vermeide es, dass dein nicht hüpfender Fuß den Boden berührt. Konzentriere dich darauf, das Gleichgewicht und einen gleichmäßigen Rhythmus beizubehalten."
+  },
+  {
+    "name": "Planke-zu-Hocke-Sprünge (Froggers)",
+    "type": "full_body_plyo",
+    "met": { "low": 6.5, "medium": 8.0, "high": 9.5 },
+    "description": "Springe aus einer hohen Planke mit den Füßen nach vorne an die Außenseite deiner Hände und lande in einer tiefen Hocke. Springe zurück in die Plank-Position. Vermeide es, dass deine Hüften in der Planke durchhängen. Konzentriere dich auf einen schnellen, fließenden Übergang."
+  },
+  {
+    "name": "Yoga (Hatha)",
+    "type": "flexibility_mobility",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.0 },
+    "description": "Bewege dich langsam und bewusst und halte jede Pose für mehrere Atemzüge. Richte deinen Körper in jeder Haltung sorgfältig aus. Vermeide es, Posen zu überstürzen oder zu erzwingen. Konzentriere dich auf tiefe, gleichmäßige Atmung, um Geist und Körper zu beruhigen."
+  },
+  {
+    "name": "Pilates",
+    "type": "flexibility_mobility",
+    "met": { "low": 2.5, "medium": 3.0, "high": 4.0 },
+    "description": "Die Bewegungen sind präzise und kontrolliert und gehen vom Rumpf aus. Halte eine neutrale Wirbelsäule und angespannte Bauchmuskeln. Vermeide Schwung. Konzentriere dich auf die Qualität der Bewegung statt auf die Anzahl der Wiederholungen."
+  }
+]
