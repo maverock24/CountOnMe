@@ -1,15 +1,16 @@
 import { useData } from '@/components/data.provider';
 import ModalPicker from '@/components/ModalPicker';
 import Colors from '@/constants/Colors';
+import { Picker } from '@react-native-picker/picker';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import commonStyles from '../styles';
+import { FitnessLevel } from '../utils/intensity.enum';
 
 const SettingsScreen: React.FC = () => {
-  const { audioEnabled, setAudioEnabled } = useData();
+  const { audioEnabled, setAudioEnabled, userWeight, setWeight, setFitness, fitnessLevel } = useData();
   const { t } = useTranslation();
-
   return (
     <View style={commonStyles.container}>
       <View style={[commonStyles.outerContainer]}>
@@ -30,6 +31,27 @@ const SettingsScreen: React.FC = () => {
           ]}
         >
           <ScrollView contentContainerStyle={styles.scrollContent}>
+          <Text style={styles.sectionTitle}>{t('profile')}</Text>
+            <Text style={styles.label}>{t('weight')}</Text>
+            <TextInput
+              style={styles.input}
+              placeholder={t('enter_weight')}
+              placeholderTextColor="lightgray"
+              onChangeText={(text: string) => setWeight(text)}
+              value={userWeight?.toString()}
+            />
+            <Text style={styles.label}>{t('fitness_level')}</Text>
+            <Picker
+              selectedValue={fitnessLevel || FitnessLevel.Beginner}
+              onValueChange={(itemValue) => setFitness(itemValue)}
+              dropdownIconColor="#fff"
+              style={styles.input}
+              itemStyle={{ backgroundColor: 'transparent', color: '#fff' }}
+            >
+              <Picker.Item label={t('beginner')} value={FitnessLevel.Beginner} />
+              <Picker.Item label={t('intermediate')} value={FitnessLevel.Intermediate} />
+              <Picker.Item label={t('expert')} value={FitnessLevel.Expert} />
+            </Picker>
             <Text style={styles.sectionTitle}>{t('general')}</Text>
             <View
               style={{

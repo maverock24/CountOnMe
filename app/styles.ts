@@ -66,7 +66,7 @@ const commonStyles = StyleSheet.create({
     paddingBottom: 10, // Adjust padding based on button height
     height: 50, // Set the button height
     borderRadius: 10,
-    margin: 5,
+    margin: 10,
     boxShadow: '0px 2px 2px rgba(0, 0, 0, 0.8)',
   } as any, // Temporarily cast to avoid web-specific style warnings
   buttonPressed: {

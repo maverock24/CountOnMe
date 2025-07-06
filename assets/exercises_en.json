@@ -1,0 +1,704 @@
+[
+  {
+    "name": "Squats",
+    "type": "legs",
+    "met": { "low": 3.5, "medium": 5.5, "high": 7.5 },
+    "description": "Stand with feet shoulder-width apart, chest up, and core braced. Lower your hips back and down as if sitting in a chair. Avoid letting your knees cave inward or your chest fall forward. Focus on driving up through your heels."
+  },
+  {
+    "name": "Cossack Squats",
+    "type": "legs",
+    "met": { "low": 3.5, "medium": 5.0, "high": 6.0 },
+    "description": "From a wide stance, shift your weight to one side, squatting down as low as possible while keeping the other leg straight. Avoid letting the heel of the squatting leg lift. Focus on hip mobility and control."
+  },
+  {
+    "name": "Sissy Squats",
+    "type": "legs",
+    "met": { "low": 3.0, "medium": 4.5, "high": 6.0 },
+    "description": "A bodyweight quad isolation exercise. Stand with feet close together, rise onto your toes, and lean your torso back as you bend your knees forward. Hold onto a wall or support for balance if needed. Avoid putting stress on the knee joint by controlling the movement. Focus on feeling the stretch in your quads."
+  },
+  {
+    "name": "Pistol Squats (Single Leg Squat)",
+    "type": "legs",
+    "met": { "low": 4.0, "medium": 6.0, "high": 8.0 },
+    "description": "Balance on one leg and extend the other straight out in front. Squat down as low as possible while keeping your heel on the ground. Use a support for balance if needed. Avoid letting your knee collapse inward. Focus on control and balance."
+  },
+  {
+    "name": "Shrimp Squats",
+    "type": "legs",
+    "met": { "low": 3.5, "medium": 5.0, "high": 6.5 },
+    "description": "A single-leg squat variation. Stand on one leg and grab the foot of the other leg behind you. Squat down until your back knee touches the ground. Avoid losing balance. Focus on a controlled descent and ascent."
+  },
+  {
+    "name": "Lunges",
+    "type": "legs",
+    "met": { "low": 3.0, "medium": 5.0, "high": 7.0 },
+    "description": "Step forward and lower your hips until both knees are bent at a 90-degree angle. Your front knee should be above your ankle. Avoid letting your front knee travel past your toes. Focus on pushing off the front foot to return to the start."
+  },
+  {
+    "name": "Reverse Lunges",
+    "type": "legs",
+    "met": { "low": 3.0, "medium": 4.5, "high": 6.5 },
+    "description": "Step backward into a lunge, lowering your hips until both knees are bent at a 90-degree angle. Push off the back foot to return to the start. Avoid leaning your torso too far forward. Focus on stability and control."
+  },
+  {
+    "name": "Walking Lunges",
+    "type": "legs",
+    "met": { "low": 3.5, "medium": 5.0, "high": 7.0 },
+    "description": "Perform a forward lunge, but instead of pushing back to the start, bring your back foot forward to step directly into the next lunge. Avoid losing balance between steps. Focus on a continuous, controlled walking motion."
+  },
+  {
+    "name": "Curtsy Lunges",
+    "type": "legs",
+    "met": { "low": 3.0, "medium": 4.5, "high": 6.0 },
+    "description": "From a standing position, step one leg back and across behind the other, as if doing a curtsy. Lower your hips until your front thigh is parallel to the floor. Avoid twisting your knee. Focus on engaging your glutes."
+  },
+  {
+    "name": "Side Lunges",
+    "type": "legs",
+    "met": { "low": 3.0, "medium": 4.5, "high": 6.0 },
+    "description": "From a standing position, step out to one side, keeping the other leg straight. Hinge at your hips and lower into a squat on the bent leg. Avoid letting your knee go past your toes. Focus on pushing off the foot to return to the center."
+  },
+  {
+    "name": "Lunge Jumps (Split Jumps)",
+    "type": "legs",
+    "met": { "low": 6.0, "medium": 8.0, "high": 9.5 },
+    "description": "Start in a lunge position. Jump explosively, switching the position of your legs in mid-air and landing back in a lunge with the opposite leg forward. Avoid slamming your back knee on the ground. Focus on height and control."
+  },
+  {
+    "name": "Static Lunge / Split Squat",
+    "type": "legs",
+    "met": { "low": 3.0, "medium": 4.0, "high": 5.0 },
+    "description": "Start in a split stance with one foot forward and one foot back. Lower your hips until your back knee is just above the floor. Push back up to the starting position without moving your feet. Avoid leaning too far forward. Focus on keeping your torso upright."
+  },
+  {
+    "name": "Squat Pulses",
+    "type": "legs",
+    "met": { "low": 3.0, "medium": 4.0, "high": 5.0 },
+    "description": "Lower into a squat and hold the bottom position. Perform small, controlled up-and-down movements (pulses) without coming all the way up. Avoid bouncing. Focus on maintaining tension in your quads and glutes."
+  },
+  {
+    "name": "Lunge Pulses",
+    "type": "legs",
+    "met": { "low": 3.0, "medium": 4.0, "high": 5.0 },
+    "description": "Lower into a lunge and hold the bottom position. Perform small, controlled up-and-down movements (pulses) without coming all the way up. Avoid bouncing. Focus on maintaining tension in the front leg."
+  },
+  {
+    "name": "Glute Bridge",
+    "type": "legs",
+    "met": { "low": 2.5, "medium": 3.5, "high": 4.5 },
+    "description": "Lie on your back with knees bent and feet flat on the floor. Lift your hips toward the ceiling, squeezing your glutes. Avoid over-arching your lower back. Focus on a strong glute contraction at the top."
+  },
+  {
+    "name": "Single Leg Glute Bridge",
+    "type": "legs",
+    "met": { "low": 3.0, "medium": 4.0, "high": 5.0 },
+    "description": "Perform a glute bridge but with one leg extended straight out. Avoid letting your hips tilt. Focus on isolating the glute of the supporting leg."
+  },
+  {
+    "name": "Frog Jumps",
+    "type": "legs",
+    "met": { "low": 5.0, "medium": 6.5, "high": 8.0 },
+    "description": "Start in a deep squat position. Jump forward explosively, landing back in the deep squat. Avoid letting your knees collapse inward. Focus on a powerful jump from a low position."
+  },
+  {
+    "name": "Glute Kickbacks",
+    "type": "legs",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.5 },
+    "description": "Start on all fours. Extend one leg straight back, lifting it until it is in line with your body. Squeeze your glute at the top. Avoid arching your back. Focus on a controlled lift."
+  },
+  {
+    "name": "Lying Side Leg Raises",
+    "type": "legs",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.0 },
+    "description": "Lie on your side with legs stacked. Lift the top leg towards the ceiling without rocking your torso. Avoid using momentum. Focus on a slow, controlled movement to target the outer thigh and hip."
+  },
+  {
+    "name": "Inner Thigh Lifts",
+    "type": "legs",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.0 },
+    "description": "Lie on your side with your top leg bent and foot placed on the floor in front of your bottom leg. Lift the bottom, straight leg off the floor. Avoid rocking your body. Focus on isolating the inner thigh."
+  },
+  {
+    "name": "Single Leg Deadlift (Bodyweight)",
+    "type": "legs",
+    "met": { "low": 3.0, "medium": 4.0, "high": 5.0 },
+    "description": "Balance on one leg. Hinge at your hips, extending the other leg straight behind you as you lower your torso. Keep your back straight. Avoid rounding your back or losing balance. Focus on hamstring and glute engagement."
+  },
+  {
+    "name": "Hamstring Curls (Lying)",
+    "type": "legs",
+    "met": { "low": 2.5, "medium": 3.0, "high": 4.0 },
+    "description": "Lie on your stomach. Bend one knee and bring your heel towards your glute, squeezing your hamstring. Lower with control. Avoid lifting your hips off the floor. Focus on isolating the hamstring muscle."
+  },
+  {
+    "name": "Calf Raises",
+    "type": "legs",
+    "met": { "low": 2.0, "medium": 3.0, "high": 4.0 },
+    "description": "Stand on a flat surface or the edge of a step. Raise your heels up as high as possible, then lower them down. Avoid using momentum. Focus on a full range of motion, feeling the stretch at the bottom and the squeeze at the top."
+  },
+  {
+    "name": "Single Leg Calf Raise",
+    "type": "legs",
+    "met": { "low": 2.5, "medium": 3.5, "high": 4.5 },
+    "description": "Perform a calf raise while balancing on one foot. Hold onto a support for balance if needed. Avoid using momentum. Focus on isolating the calf muscle of the working leg."
+  },
+  {
+    "name": "Wall Sit with Calf Raise",
+    "type": "legs",
+    "met": { "low": 2.5, "medium": 3.5, "high": 4.5 },
+    "description": "Hold a wall sit position. While holding, perform calf raises by lifting and lowering your heels. Avoid letting your hips rise. Focus on maintaining the isometric squat while moving your ankles."
+  },
+  {
+    "name": "Wall Push-ups",
+    "type": "upper_body_push",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.0 },
+    "description": "Stand facing a wall and place your hands on it, slightly wider than your shoulders. Lean forward and perform a push-up against the wall. This is a great beginner variation. Avoid letting your back sag. Focus on a controlled movement."
+  },
+  {
+    "name": "Incline Push-ups",
+    "type": "upper_body_push",
+    "met": { "low": 2.5, "medium": 3.5, "high": 4.5 },
+    "description": "Perform a push-up with your hands on an elevated surface like a bench or box. This reduces the difficulty. Keep your body in a straight line. Avoid letting your hips sag. Focus on a full range of motion."
+  },
+  {
+    "name": "Push-ups",
+    "type": "upper_body_push",
+    "met": { "low": 3.8, "medium": 6.0, "high": 8.0 },
+    "description": "Place hands slightly wider than your shoulders. Keep your body in a straight line from head to heels. Lower until your chest is close to the floor. Avoid sagging your hips or flaring your elbows out to the sides. Focus on a tight core."
+  },
+  {
+    "name": "Wide Push-ups",
+    "type": "upper_body_push",
+    "met": { "low": 3.8, "medium": 5.5, "high": 7.5 },
+    "description": "Perform a push-up with your hands placed significantly wider than your shoulders. This places more emphasis on the chest muscles. Avoid flaring your elbows too high. Focus on feeling the stretch in your chest."
+  },
+  {
+    "name": "Staggered Hand Push-ups",
+    "type": "upper_body_push",
+    "met": { "low": 4.0, "medium": 6.0, "high": 8.0 },
+    "description": "Perform a push-up with one hand placed further forward than the other. This challenges core stability and unilateral strength. Switch hand positions between sets. Avoid letting your torso twist. Focus on maintaining a stable core."
+  },
+  {
+    "name": "Diamond Push-ups",
+    "type": "upper_body_push",
+    "met": { "low": 4.0, "medium": 6.5, "high": 8.5 },
+    "description": "Perform a push-up with your hands close together, forming a diamond shape with your thumbs and index fingers. This targets the triceps more. Avoid flaring your elbows. Focus on a controlled movement."
+  },
+  {
+    "name": "Pseudo Planche Push-ups",
+    "type": "upper_body_push",
+    "met": { "low": 5.0, "medium": 6.5, "high": 8.0 },
+    "description": "From a push-up position, lean your body as far forward as possible, bringing your shoulders past your wrists. Perform a push-up in this position. Avoid letting your hips sag. Focus on the extreme forward lean to target the shoulders."
+  },
+  {
+    "name": "Hindu Push-ups",
+    "type": "upper_body_push",
+    "met": { "low": 4.0, "medium": 5.5, "high": 7.0 },
+    "description": "Start in a downward dog position. Swoop your chest down towards the floor, then up into an upward dog position. Reverse the motion to return to the start. Avoid letting your hips touch the floor. Focus on a fluid, wave-like motion."
+  },
+  {
+    "name": "Dive Bomber Push-ups",
+    "type": "upper_body_push",
+    "met": { "low": 4.5, "medium": 6.0, "high": 7.5 },
+    "description": "Similar to a Hindu push-up, but you reverse the motion by pushing back through the swoop to the starting position. It's a more challenging variation. Avoid letting your back sag. Focus on strength in both directions of the movement."
+  },
+  {
+    "name": "Pike Push-ups",
+    "type": "upper_body_push",
+    "met": { "low": 3.5, "medium": 5.0, "high": 6.5 },
+    "description": "Get into a downward dog or pike position with your hips high. Perform a push-up by lowering the top of your head towards the floor. This targets the shoulders. Avoid letting your back sag. Focus on keeping your hips high."
+  },
+  {
+    "name": "Decline Push-ups",
+    "type": "upper_body_push",
+    "met": { "low": 4.0, "medium": 6.5, "high": 8.5 },
+    "description": "Perform a push-up with your feet elevated on a bench or box. This increases the difficulty and targets the upper chest and shoulders. Avoid letting your hips sag below the straight body line. Focus on controlled movement."
+  },
+  {
+    "name": "Archer Push-ups",
+    "type": "upper_body_push",
+    "met": { "low": 4.5, "medium": 6.0, "high": 7.5 },
+    "description": "Perform a push-up, but shift your weight to one side, keeping the working arm's elbow tucked while the other arm extends straight out to the side for support. Avoid letting your hips rotate. Focus on the chest of the working side."
+  },
+  {
+    "name": "One-Arm Push-up (Assisted)",
+    "type": "upper_body_push",
+    "met": { "low": 5.0, "medium": 7.0, "high": 9.0 },
+    "description": "Perform a one-arm push-up using a wider stance for your feet and assisting with your other hand on your thigh or a slightly elevated surface. Avoid letting your torso twist. Focus on a slow, controlled negative."
+  },
+  {
+    "name": "Clapping Push-ups",
+    "type": "upper_body_push",
+    "met": { "low": 6.0, "medium": 7.5, "high": 9.0 },
+    "description": "Perform a push-up with enough explosive power to push your hands off the floor and clap in mid-air. Land softly with bent elbows. Avoid landing with locked arms. Focus on explosive chest power."
+  },
+  {
+    "name": "Spiderman Push-ups",
+    "type": "upper_body_push",
+    "met": { "low": 4.0, "medium": 5.5, "high": 7.0 },
+    "description": "As you lower into a push-up, bring one knee out to the side to meet your elbow. Return the leg as you push up and alternate sides. Avoid letting your hips sag. Focus on core engagement and hip mobility."
+  },
+  {
+    "name": "Tiger Bend Push-ups",
+    "type": "upper_body_push",
+    "met": { "low": 5.0, "medium": 6.5, "high": 8.0 },
+    "description": "From a plank position, lower onto your forearms, then press back up to the plank. This is an advanced exercise for triceps and shoulders. Avoid letting your hips sway. Focus on a strong core and tricep engagement."
+  },
+  {
+    "name": "Bodyweight Tricep Extension",
+    "type": "upper_body_push",
+    "met": { "low": 3.0, "medium": 4.0, "high": 5.0 },
+    "description": "From a kneeling or standing position, place your hands on the floor in front of you and walk them forward. Hinging at the elbows, lower your head towards your hands, then press back up. Avoid flaring your elbows. Focus on isolating the triceps."
+  },
+  {
+    "name": "Floor Dips (Crab Dips)",
+    "type": "upper_body_push",
+    "met": { "low": 3.5, "medium": 4.5, "high": 5.5 },
+    "description": "Sit on the floor with knees bent and feet flat. Place your hands on the floor behind you with fingers pointing towards your body. Lift your hips and bend your elbows to lower your body. Avoid letting your shoulders roll forward. Focus on using your triceps to push up."
+  },
+  {
+    "name": "Handstand Wall Walks",
+    "type": "upper_body_push",
+    "met": { "low": 5.5, "medium": 7.0, "high": 8.5 },
+    "description": "Start in a push-up position with your feet at a wall. Walk your feet up the wall while walking your hands closer to the wall, until you are in a handstand position. Reverse the motion to come down. Avoid arching your back. Focus on shoulder stability and core control."
+  },
+  {
+    "name": "Handstand Push-ups",
+    "type": "upper_body_push",
+    "met": { "low": 6.5, "medium": 8.5, "high": 10.5 },
+    "description": "Kick up to a handstand against a wall. Lower yourself until the top of your head touches the ground, keeping your elbows tucked in. Avoid flaring your elbows. Focus on maintaining a tight core to prevent arching your back."
+  },
+  {
+    "name": "Planche Tuck",
+    "type": "upper_body_push",
+    "met": { "low": 6.0, "medium": 8.0, "high": 10.0 },
+    "description": "From a push-up position, lean forward until your feet lift off the ground, tucking your knees to your chest. Arms should be straight. Avoid bending your arms. Focus on shoulder protraction and extreme forward lean."
+  },
+  {
+    "name": "Superman",
+    "type": "upper_body_back",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.0 },
+    "description": "Lie on your stomach with arms and legs extended. Simultaneously lift your arms, chest, and legs off the floor. Avoid straining your neck by looking up. Focus on squeezing your lower back and glutes."
+  },
+  {
+    "name": "Prone Cobra",
+    "type": "upper_body_back",
+    "met": { "low": 2.5, "medium": 3.0, "high": 3.5 },
+    "description": "Lie face down with arms by your sides, palms down. Lift your head, chest, and hands off the floor, squeezing your shoulder blades together and rotating your thumbs towards the ceiling. Avoid looking up. Focus on upper back engagement."
+  },
+  {
+    "name": "Back Widows",
+    "type": "upper_body_back",
+    "met": { "low": 3.0, "medium": 4.0, "high": 5.0 },
+    "description": "Lie on your back with your knees bent and feet flat on the floor. Place your arms on the floor with elbows bent at 90 degrees. Drive your elbows into the floor to lift your upper back and chest. Avoid pushing with your feet. Focus on contracting your back muscles."
+  },
+  {
+    "name": "Reverse Snow Angels",
+    "type": "upper_body_back",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.0 },
+    "description": "Lie face down with arms extended overhead. Lift your chest and arms off the floor and 'sweep' your arms down to your sides and back up. Avoid arching your neck. Focus on squeezing your shoulder blades together."
+  },
+  {
+    "name": "Floor Angels",
+    "type": "upper_body_back",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.0 },
+    "description": "Lie on your back with knees bent. Flatten your lower back against the floor. Start with arms in a 'W' shape and slide them overhead into a 'Y' shape, keeping your arms and wrists in contact with the floor. Avoid letting your back arch. Focus on shoulder mobility."
+  },
+  {
+    "name": "Prone I-Y-T Raises",
+    "type": "upper_body_back",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.5 },
+    "description": "Lie face down. Lift your arms straight ahead into an 'I' shape, then out to the sides into a 'Y' shape, then out to the sides into a 'T' shape. Avoid using momentum. Focus on engaging your upper back muscles."
+  },
+  {
+    "name": "Scapular Shrugs (in Plank)",
+    "type": "upper_body_back",
+    "met": { "low": 2.5, "medium": 3.0, "high": 3.5 },
+    "description": "Hold a high plank position. Without bending your elbows, pinch your shoulder blades together, then push them apart. Avoid letting your hips move. Focus on isolating the movement to your shoulder blades."
+  },
+  {
+    "name": "Wall Slides",
+    "type": "upper_body_back",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.0 },
+    "description": "Stand with your back against a wall. Place your arms in a 'W' or goalpost position against the wall. Slide your arms up the wall until they are straight, keeping your back, elbows, and wrists in contact with the wall. Avoid letting your back arch. Focus on posture and upper back activation."
+  },
+  {
+    "name": "Plank",
+    "type": "core",
+    "met": { "low": 2.0, "medium": 3.0, "high": 4.0 },
+    "description": "Hold a push-up position on your forearms or hands. Your body should form a straight line from head to heels. Avoid letting your hips sag or rise too high. Focus on bracing your entire core and squeezing your glutes."
+  },
+  {
+    "name": "Side Plank",
+    "type": "core",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.5 },
+    "description": "Support your body on one forearm, keeping your body in a straight line from head to feet. Avoid letting your hip sag. Focus on engaging the oblique on the lower side."
+  },
+  {
+    "name": "Side Plank with Hip Dips",
+    "type": "core",
+    "met": { "low": 2.5, "medium": 3.0, "high": 4.0 },
+    "description": "From a side plank position, lower your hip towards the floor and then raise it back up. Avoid rotating your torso. Focus on a controlled movement driven by your obliques."
+  },
+  {
+    "name": "Reverse Plank",
+    "type": "core",
+    "met": { "low": 2.5, "medium": 3.0, "high": 3.5 },
+    "description": "Sit on the floor with legs extended and hands behind you. Lift your hips until your body forms a straight line from shoulders to heels. Avoid letting your hips sag. Focus on engaging your glutes, hamstrings, and back."
+  },
+  {
+    "name": "Plank Jacks",
+    "type": "core",
+    "met": { "low": 5.0, "medium": 6.5, "high": 8.0 },
+    "description": "From a high plank (on your hands), jump your feet wide and then back together, like a horizontal jumping jack. Avoid letting your hips bounce up and down. Focus on core stability."
+  },
+  {
+    "name": "Plank to Push-up",
+    "type": "core",
+    "met": { "low": 4.0, "medium": 5.0, "high": 6.0 },
+    "description": "Start in a forearm plank. One arm at a time, push up to a high plank (on your hands). Return to the forearm plank one arm at a time. Avoid excessive hip rotation. Focus on maintaining a stable core."
+  },
+  {
+    "name": "Push-up to Side Plank",
+    "type": "core",
+    "met": { "low": 4.0, "medium": 5.5, "high": 7.0 },
+    "description": "Perform a standard push-up. At the top, rotate your body into a side plank, reaching one arm to the ceiling. Return to the start and repeat on the other side. Avoid rushing the rotation. Focus on control."
+  },
+  {
+    "name": "Hollow Body Hold",
+    "type": "core",
+    "met": { "low": 3.0, "medium": 4.0, "high": 5.0 },
+    "description": "Lie on your back and lift your legs and shoulders slightly off the floor, keeping your lower back pressed firmly into the ground. Your body should form a shallow 'U' or banana shape. Avoid letting your lower back arch. Focus on total core tension."
+  },
+  {
+    "name": "Dead Bug",
+    "type": "core",
+    "met": { "low": 2.5, "medium": 3.0, "high": 3.5 },
+    "description": "Lie on your back with arms extended to the ceiling and knees bent at 90 degrees over your hips. Slowly lower one opposite arm and leg towards the floor. Avoid letting your lower back arch. Focus on slow, controlled movement and core stability."
+  },
+  {
+    "name": "Crunches",
+    "type": "core",
+    "met": { "low": 2.5, "medium": 3.8, "high": 5.0 },
+    "description": "Lie on your back with knees bent. Lift your head and shoulders off the floor using your core. Avoid pulling on your neck. Focus on squeezing your abs at the top."
+  },
+  {
+    "name": "Sit-ups",
+    "type": "core",
+    "met": { "low": 3.0, "medium": 4.5, "high": 5.5 },
+    "description": "Lie on your back with knees bent and feet on the floor. Lift your entire torso up to a sitting position. Avoid using momentum or pulling on your neck. Focus on a controlled ascent and descent."
+  },
+  {
+    "name": "Reverse Crunches",
+    "type": "core",
+    "met": { "low": 2.5, "medium": 3.5, "high": 4.5 },
+    "description": "Lie on your back with knees bent at 90 degrees. Use your lower abs to pull your knees towards your chest, lifting your hips off the floor. Avoid using momentum. Focus on a controlled curl of your lower spine."
+  },
+  {
+    "name": "Tuck-Ups (Knee Tucks)",
+    "type": "core",
+    "met": { "low": 3.5, "medium": 5.0, "high": 6.5 },
+    "description": "Lie on your back. Simultaneously lift your torso and pull your knees towards your chest, hugging them at the top. Avoid using momentum. Focus on compressing your core."
+  },
+  {
+    "name": "V-Ups",
+    "type": "core",
+    "met": { "low": 4.0, "medium": 5.5, "high": 7.0 },
+    "description": "Lie on your back. Simultaneously lift your legs and torso, reaching your hands towards your feet to form a 'V' shape. Avoid bending your knees too much. Focus on a powerful, controlled contraction."
+  },
+  {
+    "name": "Bicycle Crunches",
+    "type": "core",
+    "met": { "low": 3.0, "medium": 4.0, "high": 5.0 },
+    "description": "Lie on your back and bring opposite elbow to opposite knee in a twisting, cycling motion. Avoid pulling on your neck. Focus on rotating your torso, not just your elbows."
+  },
+  {
+    "name": "Russian Twists (Bodyweight)",
+    "type": "core",
+    "met": { "low": 2.5, "medium": 3.5, "high": 4.5 },
+    "description": "Sit on the floor, lean back with your torso at a 45-degree angle, and lift your feet off the ground. Twist your torso from side to side. Avoid moving just your arms. Focus on rotating your entire upper body."
+  },
+  {
+    "name": "Heel Taps (Penguin Crunches)",
+    "type": "core",
+    "met": { "low": 2.5, "medium": 3.5, "high": 4.0 },
+    "description": "Lie on your back with knees bent and feet flat on the floor. Lift your head and shoulders, and alternate reaching down to tap your heels with your fingertips. Avoid straining your neck. Focus on using your obliques to crunch side-to-side."
+  },
+  {
+    "name": "Side Crunches",
+    "type": "core",
+    "met": { "low": 2.5, "medium": 3.5, "high": 4.0 },
+    "description": "Lie on your side with your knees slightly bent. Place your top hand behind your head and crunch your elbow towards your hip. Avoid pulling on your neck. Focus on isolating the oblique muscle on the top side."
+  },
+  {
+    "name": "Lying Leg Raises",
+    "type": "core",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.5 },
+    "description": "Lie on your back and raise your legs towards the ceiling until they are perpendicular to the floor. Keep them straight. Avoid using momentum or letting your lower back arch off the floor. Focus on a slow, controlled movement."
+  },
+  {
+    "name": "Leg Circles (Lying)",
+    "type": "core",
+    "met": { "low": 2.5, "medium": 3.0, "high": 3.5 },
+    "description": "Lie on your back and lift your legs straight up. Slowly trace large circles in the air with your feet. Keep your lower back on the floor. Avoid using momentum. Focus on core control."
+  },
+  {
+    "name": "Windshield Wipers (Lying)",
+    "type": "core",
+    "met": { "low": 3.0, "medium": 4.0, "high": 5.0 },
+    "description": "Lie on your back with legs straight up in the air. Slowly lower your legs to one side, keeping your shoulders on the floor. Return to the center and repeat on the other side. Avoid letting your legs drop quickly. Focus on rotational control."
+  },
+  {
+    "name": "Toe Taps (Lying)",
+    "type": "core",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.0 },
+    "description": "Lie on your back with your knees bent at a 90-degree angle (tabletop position). Slowly lower one foot and tap the floor, then return to the start. Alternate legs. Avoid letting your lower back arch. Focus on core stability."
+  },
+  {
+    "name": "Flutter Kicks",
+    "type": "core",
+    "met": { "low": 2.5, "medium": 3.5, "high": 4.5 },
+    "description": "Lie on your back with legs straight. Lift your heels off the floor and make small, rapid up-and-down kicking motions. Avoid letting your lower back arch. Focus on keeping your core tight."
+  },
+  {
+    "name": "Scissor Kicks",
+    "type": "core",
+    "met": { "low": 2.5, "medium": 3.5, "high": 4.5 },
+    "description": "Lie on your back with legs straight. Lift your heels off the floor and make crossing, scissor-like motions with your legs. Avoid arching your back. Focus on core stability."
+  },
+  {
+    "name": "Plank with Shoulder Taps",
+    "type": "core",
+    "met": { "low": 3.0, "medium": 4.0, "high": 5.0 },
+    "description": "From a high plank position, slowly lift one hand to tap the opposite shoulder. Return it to the floor and repeat on the other side. Avoid rocking your hips. Focus on keeping your core and hips perfectly still."
+  },
+  {
+    "name": "Bear Crawl Hold with Shoulder Taps",
+    "type": "core",
+    "met": { "low": 3.5, "medium": 4.5, "high": 5.5 },
+    "description": "Start on all fours with knees hovering just off the floor. Hold this position and slowly lift one hand to tap the opposite shoulder. Avoid rocking your hips. Focus on total body stability."
+  },
+  {
+    "name": "Cross-Body Mountain Climbers",
+    "type": "core",
+    "met": { "low": 6.0, "medium": 8.0, "high": 9.5 },
+    "description": "From a plank position, drive your right knee towards your left elbow, then your left knee towards your right elbow. Avoid letting your hips rise. Focus on the twisting motion to engage your obliques."
+  },
+  {
+    "name": "Inchworm",
+    "type": "core",
+    "met": { "low": 3.0, "medium": 4.0, "high": 5.0 },
+    "description": "From a standing position, hinge at the hips and walk your hands out to a plank position. Then, walk your feet towards your hands. Avoid bending your knees more than necessary. Focus on the hamstring stretch and core stability."
+  },
+  {
+    "name": "Bird-Dog",
+    "type": "core",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.0 },
+    "description": "Start on all fours. Extend one arm straight forward and the opposite leg straight back, keeping your back flat. Avoid rotating your hips. Focus on balance and core stability."
+  },
+  {
+    "name": "Alternating Superman",
+    "type": "core",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.0 },
+    "description": "Lie on your stomach. Lift your right arm and left leg simultaneously. Lower with control and repeat on the other side. This is similar to a Bird-Dog, but from a prone position. Avoid straining your neck. Focus on control."
+  },
+  {
+    "name": "L-Sit (Floor)",
+    "type": "core",
+    "met": { "low": 4.5, "medium": 6.5, "high": 8.5 },
+    "description": "Sit on the floor with legs straight out. Place your hands on the floor beside your hips and press down, lifting your entire body off the floor. Avoid shrugging your shoulders. Focus on core compression and depressing your scapula."
+  },
+  {
+    "name": "Squat Jumps",
+    "type": "full_body_plyo",
+    "met": { "low": 5.0, "medium": 7.0, "high": 8.5 },
+    "description": "Perform a bodyweight squat, but explode upwards into a jump from the bottom position. Land softly and immediately go into the next rep. Avoid landing with stiff knees. Focus on height and explosive power."
+  },
+  {
+    "name": "Tuck Jumps",
+    "type": "full_body_plyo",
+    "met": { "low": 7.0, "medium": 8.5, "high": 10.0 },
+    "description": "From a standing position, jump up and bring your knees to your chest. Land softly with bent knees. Avoid landing stiffly. Focus on explosive power and core engagement to lift the knees."
+  },
+  {
+    "name": "Star Jumps",
+    "type": "full_body_plyo",
+    "met": { "low": 7.0, "medium": 8.5, "high": 9.5 },
+    "description": "Start in a crouched position. Jump up explosively, extending your arms and legs out into a star shape in mid-air. Land softly back in the crouch. Avoid landing with straight legs. Focus on maximum explosive effort."
+  },
+  {
+    "name": "Broad Jumps",
+    "type": "full_body_plyo",
+    "met": { "low": 4.0, "medium": 6.0, "high": 7.5 },
+    "description": "From a standing position, swing your arms and jump forward as far as possible. Land softly with your knees bent. Avoid losing balance on the landing. Focus on horizontal distance and a powerful hip drive."
+  },
+  {
+    "name": "Skater Jumps",
+    "type": "full_body_plyo",
+    "met": { "low": 6.0, "medium": 7.5, "high": 9.0 },
+    "description": "Jump from side to side, landing on one foot and sweeping the other leg behind you. Avoid letting your torso collapse forward. Focus on lateral power and balance."
+  },
+  {
+    "name": "Mountain Climbers",
+    "type": "full_body_plyo",
+    "met": { "low": 6.0, "medium": 8.0, "high": 10.0 },
+    "description": "From a plank position, alternate driving your knees towards your chest in a running motion. Avoid letting your hips rise. Focus on speed and maintaining a flat back."
+  },
+  {
+    "name": "High Knees",
+    "type": "full_body_plyo",
+    "met": { "low": 6.0, "medium": 8.0, "high": 9.0 },
+    "description": "Run in place, driving your knees up as high as possible, aiming for hip height. Avoid leaning back. Focus on a quick turnover and landing lightly on the balls of your feet."
+  },
+  {
+    "name": "Butt Kicks",
+    "type": "full_body_plyo",
+    "met": { "low": 6.0, "medium": 8.0, "high": 9.0 },
+    "description": "Run in place, trying to kick your heels towards your glutes. Avoid arching your back. Focus on a quick leg cycle and feeling a stretch in your quads."
+  },
+  {
+    "name": "Jumping Jacks",
+    "type": "full_body_plyo",
+    "met": { "low": 6.0, "medium": 8.0, "high": 9.0 },
+    "description": "Jump your feet out to the sides while raising your arms overhead. Jump back to the starting position. Avoid incomplete movements. Focus on a steady, rhythmic pace."
+  },
+  {
+    "name": "Bear Crawls",
+    "type": "full_body_plyo",
+    "met": { "low": 5.0, "medium": 6.5, "high": 8.0 },
+    "description": "Start on all fours with your knees hovering just off the floor. Crawl forward by moving the opposite arm and leg simultaneously. Avoid letting your hips get too high. Focus on keeping your back flat and core engaged."
+  },
+  {
+    "name": "Crab Walk",
+    "type": "full_body_plyo",
+    "met": { "low": 4.0, "medium": 5.0, "high": 6.0 },
+    "description": "Sit on the floor, place your hands behind you and feet in front, and lift your hips. Walk forward or backward on your hands and feet. Avoid letting your hips sag. Focus on keeping your hips elevated."
+  },
+  {
+    "name": "Burpees",
+    "type": "full_body_plyo",
+    "met": { "low": 7.0, "medium": 9.0, "high": 12.0 },
+    "description": "From standing, drop into a squat, kick your feet back to a plank, perform a push-up, then jump your feet back to the squat and jump up explosively. Avoid snaking your body up during the push-up. Focus on maintaining a strong core."
+  },
+  {
+    "name": "180 Degree Squat Jump",
+    "type": "full_body_plyo",
+    "met": { "low": 6.0, "medium": 7.5, "high": 9.0 },
+    "description": "Perform a squat and, as you jump up, rotate your body 180 degrees in the air. Land softly in a squat, facing the opposite direction. Avoid losing balance. Focus on a powerful, controlled rotation."
+  },
+  {
+    "name": "Seal Jacks",
+    "type": "full_body_plyo",
+    "met": { "low": 6.0, "medium": 8.0, "high": 9.0 },
+    "description": "A variation of jumping jacks where you clap your hands in front of your chest as your feet jump out, and swing your arms out as your feet return. Avoid incomplete arm movements. Focus on squeezing your chest and back."
+  },
+  {
+    "name": "Power Skips",
+    "type": "full_body_plyo",
+    "met": { "low": 6.0, "medium": 7.0, "high": 8.0 },
+    "description": "Perform a skipping motion, but focus on jumping as high as possible with each skip, driving your knee up powerfully. Avoid leaning back. Focus on vertical height and explosive power."
+  },
+  {
+    "name": "Lateral Jumps (over line)",
+    "type": "full_body_plyo",
+    "met": { "low": 6.0, "medium": 7.5, "high": 9.0 },
+    "description": "Stand with an imaginary line on the floor. Jump back and forth laterally over the line with both feet. Avoid pausing between jumps. Focus on speed and agility."
+  },
+  {
+    "name": "Forward/Backward Hops",
+    "type": "full_body_plyo",
+    "met": { "low": 5.5, "medium": 7.0, "high": 8.5 },
+    "description": "Hop forward and backward over an imaginary line with both feet. Avoid pausing between hops. Focus on quick, controlled movements."
+  },
+  {
+    "name": "Plank Ski Jumps",
+    "type": "full_body_plyo",
+    "met": { "low": 5.5, "medium": 7.0, "high": 8.5 },
+    "description": "From a high plank position, keep your feet together and jump them from side to side, as if you were skiing moguls. Avoid letting your hips rise too high. Focus on core stability and oblique engagement."
+  },
+  {
+    "name": "Pop Squats",
+    "type": "full_body_plyo",
+    "met": { "low": 5.5, "medium": 7.0, "high": 8.5 },
+    "description": "Start with feet together. Jump your feet out into a wide squat position, then immediately jump them back to the start. Avoid incomplete squats. Focus on speed and a continuous rhythm."
+  },
+  {
+    "name": "Side Shuffle (Touch Down)",
+    "type": "full_body_plyo",
+    "met": { "low": 5.5, "medium": 7.0, "high": 8.5 },
+    "description": "Shuffle laterally for a few steps and then touch the ground with your outside hand. Shuffle back to the other side and repeat. Avoid bending at the waist. Focus on staying low and athletic."
+  },
+  {
+    "name": "Burpee with Broad Jump",
+    "type": "full_body_plyo",
+    "met": { "low": 7.5, "medium": 9.5, "high": 12.5 },
+    "description": "Perform a standard burpee, but instead of jumping straight up, jump forward as far as you can. Avoid losing form on the landing. Focus on an explosive forward jump."
+  },
+  {
+    "name": "One-Legged Burpee",
+    "type": "full_body_plyo",
+    "met": { "low": 8.0, "medium": 10.0, "high": 13.0 },
+    "description": "Perform a burpee while balancing on one leg for the entire movement. This is a highly advanced exercise. Avoid losing balance. Focus on extreme control and stability."
+  },
+  {
+    "name": "Lunge to High Knee Hop",
+    "type": "full_body_plyo",
+    "met": { "low": 5.0, "medium": 6.5, "high": 8.0 },
+    "description": "Perform a reverse lunge. As you return to the start, drive your back knee up into a high knee position, adding a small hop on your standing leg. Avoid losing balance. Focus on a powerful, fluid transition."
+  },
+  {
+    "name": "Alligator Crawl",
+    "type": "full_body_plyo",
+    "met": { "low": 6.0, "medium": 7.5, "high": 9.0 },
+    "description": "From a push-up position, move forward by reaching with one arm and the opposite leg, keeping your body as low to the ground as possible. Avoid letting your hips get too high. Focus on staying low and using your whole body."
+  },
+  {
+    "name": "Gorilla Walk",
+    "type": "full_body_plyo",
+    "met": { "low": 5.0, "medium": 6.0, "high": 7.0 },
+    "description": "Start in a deep squat. Place your hands on the floor in front of you and 'jump' your feet forward to meet your hands. Move around in this manner. Avoid standing up. Focus on staying low and using your legs."
+  },
+  {
+    "name": "Plank to Pike Jump",
+    "type": "full_body_plyo",
+    "met": { "low": 5.5, "medium": 7.0, "high": 8.5 },
+    "description": "From a high plank, jump your feet forward towards your hands, lifting your hips into a pike position. Jump back to the plank. Avoid letting your back sag in the plank. Focus on core compression."
+  },
+  {
+    "name": "Breakdancer Kicks",
+    "type": "full_body_plyo",
+    "met": { "low": 5.0, "medium": 6.5, "high": 8.0 },
+    "description": "From a bear crawl position, lift one hand and kick the opposite leg through the space underneath your body. Rotate your hips and pivot on your supporting foot. Avoid losing balance. Focus on a fluid, rotational movement."
+  },
+  {
+    "name": "Muay Thai Knees (Alternating)",
+    "type": "full_body_plyo",
+    "met": { "low": 6.5, "medium": 8.0, "high": 9.5 },
+    "description": "Clasp your hands together and hold them high. Explosively drive one knee up towards your hands while crunching your abs and hopping on the other foot. Alternate sides. Avoid just lifting your knee. Focus on a powerful, full-body crunch."
+  },
+  {
+    "name": "Single Leg Hops (Forward)",
+    "type": "full_body_plyo",
+    "met": { "low": 5.0, "medium": 6.5, "high": 8.0 },
+    "description": "Hop forward continuously on one leg. Avoid letting your non-hopping foot touch the ground. Focus on maintaining balance and a consistent rhythm."
+  },
+  {
+    "name": "Plank-to-Squat Jumps (Froggers)",
+    "type": "full_body_plyo",
+    "met": { "low": 6.5, "medium": 8.0, "high": 9.5 },
+    "description": "From a high plank, jump your feet forward to the outside of your hands, landing in a deep squat. Jump back to the plank position. Avoid letting your hips sag in the plank. Focus on a quick, fluid transition."
+  },
+  {
+    "name": "Yoga (Hatha)",
+    "type": "flexibility_mobility",
+    "met": { "low": 2.0, "medium": 2.5, "high": 3.0 },
+    "description": "Move slowly and deliberately, holding each pose for several breaths. Align your body carefully in each posture. Avoid rushing or forcing poses. Focus on deep, steady breathing to calm the mind and body."
+  },
+  {
+    "name": "Pilates",
+    "type": "flexibility_mobility",
+    "met": { "low": 2.5, "medium": 3.0, "high": 4.0 },
+    "description": "Movements are precise and controlled, originating from the core. Maintain a neutral spine and engaged abdominals. Avoid using momentum. Focus on quality of movement over quantity of reps."
+  }
+]

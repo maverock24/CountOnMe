@@ -33,12 +33,17 @@ interface DataContextType {
   setCurrentMusicBeingPlayed: (music: string | null) => void;
   currentLanguage: string | null;
   setLanguage: (language: string | null) => void;
+  setWeight: (newWeight: string | null) => Promise<void>;
+  userWeight: string | null;
+  setFitness: (newFitness: string | null) => Promise<void>;
+  fitnessLevel: string | null;
 }
+
+export const prefixKey = '@countOnMe_';
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const prefixKey = '@countOnMe_';
   const [storedItems, setStoredItems] = useState<StoredItem[]>([]);
   const [workoutItems, setWorkoutItems] = useState<StoredItem[]>([]);
   const [currentLanguage, setLanguage] = useState<string | null>(null);
@@ -49,6 +54,33 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const [audioEnabled, setAudioEnabledState] = useState(true);
   const [currentMusicBeingPlayed, setCurrentMusicBeingPlayed] = useState<string | null>(null);
+
+  const [userWeight, setUserWeight] = useState<string | null>(null);
+  const [fitnessLevel, setFitnessLevel] = useState<string | null>(null);
+
+  const setWeight = useCallback(
+    async (newWeight: string | null) => {
+      setUserWeight(newWeight);
+      try {
+        await AsyncStorage.setItem(`${prefixKey}profileWeight`, newWeight || '');
+        console.log('Weight saved:', newWeight);
+      } catch (error) {
+        console.error('Failed to save weight', error);
+      }
+    },
+    []);
+  
+  const setFitness = useCallback(
+    async (newFitness: string | null) => {
+      setFitnessLevel(newFitness);
+      try {
+        await AsyncStorage.setItem(`${prefixKey}profileFitness`, newFitness || '');
+        console.log('Fitness level saved:', newFitness);
+      } catch (error) {
+        console.error('Failed to save fitness level', error);
+      }
+    },
+    []);
 
   const setAudioEnabled = useCallback(async (enabled: boolean) => {
     setAudioEnabledState(enabled);
@@ -199,6 +231,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       'successSound',
       'audioThreshold',
       'language',
+      'profileWeight',
+      'profileFitness',
+      'tutorialSeen',
     ];
     try {
       // Get all keys from AsyncStorage that start with the prefix
@@ -225,7 +260,15 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (value && value !== i18n.language) {
               i18n.changeLanguage(value);
             }
+          case 'audioEnabled':
+            setAudioEnabledState(value === 'true');
             break;
+          case 'profileWeight':
+            setUserWeight(value);
+            break;
+          case 'profileFitness':  
+            setFitnessLevel(value);
+            break;    
         }
         return { key: trimmedKey, value };
       });
@@ -306,6 +349,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           currentMusicBeingPlayed,
           setCurrentMusicBeingPlayed,
           getStoredItem,
+          setWeight,
+          userWeight,
+          setFitness,
+          fitnessLevel
         }}
       >
         {children}
