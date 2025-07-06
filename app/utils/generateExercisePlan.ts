@@ -42,6 +42,7 @@ export enum FitnessLevel {
     reps: string; // e.g., "2;3;2;3;2" for exercise and break
     estimatedCalories: number;
     notes: string;
+    intensity: 'low' | 'medium' | 'high'; // Always present, not optional
   }
   
   // --- Core Calculation Logic ---
@@ -57,6 +58,7 @@ export enum FitnessLevel {
     exercisesData: ExerciseData[]
   ): ExercisePlan | null {
     
+    const intensity = request.intensity
     // 1. Find the requested exercise in the data
     const exercise = exercisesData.find(
       (ex) => ex.name.toLowerCase() === request.exerciseName.toLowerCase()
@@ -166,6 +168,7 @@ export enum FitnessLevel {
       ...plan,
       estimatedCalories,
       notes,
+      intensity: request.intensity, // Always set intensity from request
     };
   }
   
@@ -230,4 +233,3 @@ export enum FitnessLevel {
   //   notes: '...'
   // }
   */
-  

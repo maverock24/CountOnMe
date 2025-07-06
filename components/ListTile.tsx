@@ -27,6 +27,10 @@ const ListTile = ({
   const [workoutStage, setWorkoutStage] = useState(currentIndex || 0);
   const { t } = useTranslation();
   
+  const exerciseData = value?.split('|') || [];
+  const workoutData = exerciseData[0] || '';
+  const intensityData = exerciseData[1] || '';
+  const calorysData = exerciseData[2] || '';
 
   useEffect(() => {
     if (currentIndex !== undefined) {
@@ -34,10 +38,22 @@ const ListTile = ({
     }
   }, [currentIndex]);
 
-  const level = 'Intermediate' as 'Beginner' | 'Intermediate' | 'Expert';
-  let filledStars = 1;
-  if (level === 'Intermediate') filledStars = 2;
-  if (level === 'Expert') filledStars = 3;
+
+  let filledStars = 0;
+  switch (intensityData) {
+    case 'low':
+      filledStars = 1;
+      break;
+    case 'medium':
+      filledStars = 2;
+      break;
+    case 'high':
+      filledStars = 3;
+      break; 
+    default:
+      filledStars = 0; 
+  }
+
   const totalStars = 3;
 
   return (
@@ -79,7 +95,7 @@ const ListTile = ({
               }}
             >
               <Text style={commonStyles.listItemTitle}>{title}</Text>
-              <Text style={{ fontSize: 12, color: '#b0e0e6', marginBottom: 5 }}>{t('calories_colon')} 120</Text>
+              <Text style={{ fontSize: 12, color: '#b0e0e6', marginBottom: 5 }}>{t('calories_colon')} {calorysData}</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
                 <Text style={{ fontSize: 12, color: '#b0e0e6', marginRight: 5 }}>{t('level_colon')}</Text>
                 {[...Array(totalStars)].map((_, i) => (
@@ -97,8 +113,8 @@ const ListTile = ({
             <View
               style={{ flexDirection: 'row', width: '100%', paddingHorizontal: 15, marginTop: 10 }}
             >
-              {value &&
-                value.split(';').map((time, index) => (
+              {workoutData &&
+                workoutData.split(';').map((time, index) => (
                   <Text
                     key={index}
                     style={

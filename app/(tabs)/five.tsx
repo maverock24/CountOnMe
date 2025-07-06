@@ -27,6 +27,7 @@ const AnalyzerScreen: React.FC = () => {
     calories: number;
     explanation: string;
     exercise?: string;
+    intensity?: string;
   } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -133,11 +134,15 @@ const AnalyzerScreen: React.FC = () => {
     // Use exercise as name, reps as unit (convert to seconds if needed)
     const name = aiResult.exercise || t('ai_workout');
     // Convert reps to seconds string (e.g. "2;3;2" => "120;180;120")
-    const unitInSeconds = aiResult.reps
+    let unitInMinutes = aiResult.reps
       .split(';')
       .map((time) => (isNaN(Number(time)) ? 0 : parseFloat(time) * 60))
       .join(';');
-    storeItem(name, unitInSeconds);
+    // Use aiResult.intensity if present, otherwise fallback to current intensity state
+    const intensityString = aiResult.intensity ||
+      (intensity === IntensityLevel.Light ? 'low' : intensity === IntensityLevel.Moderate ? 'medium' : 'high');
+    unitInMinutes = unitInMinutes + '|' + intensityString + '|' + aiResult.calories; // Append calories for reference
+    storeItem(name, unitInMinutes);
   };
 
   // Validation for enabling Analyze button
@@ -289,10 +294,10 @@ const AnalyzerScreen: React.FC = () => {
               </View>
               <Text style={styles.trainingLevelLabel}>
                 {intensity === IntensityLevel.Light
-                  ? t('light')
+                  ? t('low')
                   : intensity === IntensityLevel.Moderate
-                  ? t('moderate')
-                  : t('hard')}
+                  ? t('medium')
+                  : t('high')}
               </Text>
             </View>
 
@@ -322,7 +327,7 @@ const AnalyzerScreen: React.FC = () => {
         </View>
         {aiResult && (
           <View style={styles.resultBox}>
-            <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+            <View style={{ flexDirection: 'row', width: '100%'}}>
               <View style={{ flex: 1 }}>
                 <Text style={styles.resultLabel}>{t('repetitions_breaks')}</Text>
                 <Text style={styles.resultValue}>{aiResult.reps} min</Text>
@@ -335,7 +340,7 @@ const AnalyzerScreen: React.FC = () => {
                 <TimerButton
                   text={t('add_to_workouts')}
                   onPress={handleAddAiWorkout}
-                  style={{ marginTop: 0, minWidth: 150 }}
+                  style={{ marginTop: 0, minWidth: 150, marginRight: -5 }}
                 />
               </View>
             </View>

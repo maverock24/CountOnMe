@@ -109,5 +109,9 @@
   "explanation_full": "Explanation",
   "trainer": "Trainer",
   "intensity": "Intensity",
-  "fitness_level": "Fitness Level"
+  "fitness_level": "Fitness Level",
+  "profile": "Profile",
+  "low": "Low",
+  "medium": "Medium",
+  "high": "High"
 }

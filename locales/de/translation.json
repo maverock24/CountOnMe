@@ -67,7 +67,7 @@
   "strength": "Kraft",
   "speed": "Geschwindigkeit",
   "endurance": "Ausdauer",
-  "ai_workout_analyzer": "KI-Workout-Analysator",
+  "ai_workout_analyzer": "Neues Workout",
   "weight_kg": "Gewicht(kg)",
   "enter_your_weight_placeholder": "Gib dein Gewicht ein",
   "eg_running_push_ups": "z.B. Laufen, Liegestütze",
@@ -75,7 +75,7 @@
   "enter_calories_to_burn_optional": "Gib die zu verbrennenden Kalorien ein (optional)",
   "analyzing": "Analysiere...",
   "failed_to_analyze": "Analyse fehlgeschlagen. Bitte versuche es erneut.",
-  "add_to_workouts": "Zu den Workouts hinzufügen",
+  "add_to_workouts": "Hinzufügen",
   "repetitions_breaks": "Wiederholungen/Pausen",
   "expected_calories_burned": "Erwarteter Kalorienverbrauch",
   "explanation": "Erklärung",
@@ -110,5 +110,9 @@
   "repetitions_breaks_full": "Wiederholungen/Pausen",
   "explanation_full": "Erklärung",
   "fitness_level": "Fitnesslevel",
-  "intensity": "Intensität"
+  "intensity": "Intensität",
+  "profile": "Profil",
+  "low": "Niedrig",
+  "medium": "Mittel",
+  "high": "Hoch"
 }
