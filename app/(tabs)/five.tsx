@@ -191,7 +191,7 @@ const AnalyzerScreen: React.FC = () => {
                   top: 50,
                   left: '5%',
                   width: '90%',
-                  backgroundColor: '#222',
+                  backgroundColor: 'rgb(17, 24, 30)',
                   borderRadius: 8,
                   maxHeight: 180,
                   zIndex: 99999,
