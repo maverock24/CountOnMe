@@ -1,8 +1,7 @@
-import React, { ReactNode } from 'react';
-import { View, Text, ViewStyle, Animated } from 'react-native';
-import { useEffect, useRef, useState } from 'react';
+import React, { ReactNode, useEffect, useRef, useState } from 'react';
+import { Animated, Text, View, ViewStyle } from 'react-native';
 import commonStyles from '../app/styles';
-import { gradients, gradientDirections, addShineEffect } from '../utils/gradients';
+import { addShineEffect, gradientDirections, gradients } from '../utils/gradients';
 
 interface GradientTileProps {
   title?: string;

@@ -1,7 +1,9 @@
+import CustomPicker from '@/components/CustomPicker';
 import { useData } from '@/components/data.provider';
 import ModalPicker from '@/components/ModalPicker';
 import Colors from '@/constants/Colors';
-import { Picker } from '@react-native-picker/picker';
+import { language as languageData } from '@/constants/media';
+import i18n from '@/i18n';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
@@ -9,8 +11,34 @@ import commonStyles from '../styles';
 import { FitnessLevel } from '../utils/intensity.enum';
 
 const SettingsScreen: React.FC = () => {
-  const { audioEnabled, setAudioEnabled, userWeight, setWeight, setFitness, fitnessLevel } = useData();
+  const { audioEnabled, setAudioEnabled, userWeight, setWeight, setFitness, fitnessLevel, storeItem, getStoredItem } = useData();
   const { t } = useTranslation();
+  
+  const [currentLanguage, setCurrentLanguage] = React.useState(i18n.language);
+
+  React.useEffect(() => {
+    const loadLanguage = async () => {
+      try {
+        const storedLanguage = await getStoredItem('language');
+        if (storedLanguage) {
+          setCurrentLanguage(storedLanguage);
+        }
+      } catch (error) {
+        console.error('Error loading language:', error);
+      }
+    };
+    loadLanguage();
+  }, []);
+
+  const handleLanguageChange = async (languageCode: string) => {
+    try {
+      await storeItem('language', languageCode);
+      setCurrentLanguage(languageCode);
+      i18n.changeLanguage(languageCode);
+    } catch (error) {
+      console.error('Error saving language:', error);
+    }
+  };
   return (
     <View style={commonStyles.container}>
       <View style={[commonStyles.outerContainer]}>
@@ -41,17 +69,16 @@ const SettingsScreen: React.FC = () => {
               value={userWeight?.toString()}
             />
             <Text style={styles.label}>{t('fitness_level')}</Text>
-            <Picker
+            <CustomPicker
               selectedValue={fitnessLevel || FitnessLevel.Beginner}
-              onValueChange={(itemValue) => setFitness(itemValue)}
+              onValueChange={(itemValue: string) => setFitness(itemValue as FitnessLevel)}
+              items={[
+                { label: t('beginner'), value: FitnessLevel.Beginner },
+                { label: t('intermediate'), value: FitnessLevel.Intermediate },
+                { label: t('expert'), value: FitnessLevel.Expert },
+              ]}
               dropdownIconColor="#fff"
-              style={styles.input}
-              itemStyle={{ backgroundColor: 'transparent', color: '#fff' }}
-            >
-              <Picker.Item label={t('beginner')} value={FitnessLevel.Beginner} />
-              <Picker.Item label={t('intermediate')} value={FitnessLevel.Intermediate} />
-              <Picker.Item label={t('expert')} value={FitnessLevel.Expert} />
-            </Picker>
+            />
             <Text style={styles.sectionTitle}>{t('general')}</Text>
             <View
               style={{
@@ -74,7 +101,13 @@ const SettingsScreen: React.FC = () => {
             <ModalPicker label={t('break')} dataKey="breakMusic" />
             <ModalPicker label={t('success')} dataKey="successSound" />
             <Text style={styles.sectionTitle}>{t('language')}</Text>
-            <ModalPicker label={t('selected_language')} dataKey="language" />
+            <Text style={styles.label}>{t('selected_language')}</Text>
+            <CustomPicker
+              selectedValue={currentLanguage}
+              onValueChange={handleLanguageChange}
+              items={languageData}
+              dropdownIconColor="#fff"
+            />
           </ScrollView>
         </View>
       </View>
@@ -115,21 +148,15 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   input: {
-    backgroundColor: 'rgb(45, 55, 73)',
+    fontSize: 16,
+    backgroundColor: 'rgb(49, 67, 77)',
+    borderRadius: 5,
+    marginBottom: 10,
+    minHeight: 50,
+    justifyContent: 'center',
+    paddingHorizontal: 8,
     color: '#fff',
-    paddingHorizontal: 10,
     paddingVertical: 8,
-    borderRadius: 5,
-    marginBottom: 15,
-  },
-  pickerContainer: {
-    backgroundColor: 'rgb(45, 55, 73)',
-    borderRadius: 5,
-    marginBottom: 15,
-  },
-  picker: {
-    backgroundColor: 'rgb(45, 55, 73)',
-    color: '#fff',
   },
   saveButton: {
     marginTop: 20,

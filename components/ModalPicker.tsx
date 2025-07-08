@@ -1,5 +1,5 @@
 import { Text } from '@/components/Themed';
-import i18n from '@/i18n';
+import { DataKey } from '@/constants/media';
 import { FontAwesome } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
 import { Audio } from 'expo-av';
@@ -12,10 +12,10 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import { DataKey, useData } from './data.provider';
+import { useData } from './data.provider';
 import { useSound } from './sound.provider';
 
-export type setting = 'breakMusic' | 'workoutMusic' | 'successSound' | 'language';
+export type setting = 'breakMusic' | 'workoutMusic' | 'successSound';
 
 interface MusicPickerProps {
   label: string;
@@ -25,7 +25,7 @@ interface MusicPickerProps {
 const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
   const [selectedValue, setSelectedValue] = useState<string>('');
   const [previewKey, setPreviewKey] = useState<number>(0);
-  const { workoutMusic, breakMusic, successSound, language, storeItem, getStoredItem } = useData();
+  const { workoutMusic, breakMusic, successSound, storeItem, getStoredItem } = useData();
   const [modalVisible, setModalVisible] = useState(false);
   const { loadMusicSettings } = useSound();
   const [isPlaying, setIsPlaying] = useState(false);
@@ -67,9 +67,6 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
       case 'successSound':
         options = successSound;
         break;
-      case 'language':
-        options = language;
-        break;
       default:
         options = [];
     }
@@ -96,12 +93,7 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
       storeItem(dataKey, value);
       setSelectedValue(value);
       setPreviewKey((prev) => prev + 1);
-      if (dataKey !== 'language') {
-        loadMusicSettings();
-      }
-      if (dataKey === 'language') {
-        i18n.changeLanguage(value);
-      }
+      loadMusicSettings();
     } catch (e) {
       console.error(`Error saving ${dataKey} setting:`, e);
     }
@@ -198,17 +190,13 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
               justifyContent: 'space-between',
             }}
           >
-            {dataKey !== 'language' && (
-              <TouchableOpacity style={styles.pickerButton} onPress={handlePlay}>
-                <FontAwesome name="play" size={20} color="white" />
-              </TouchableOpacity>
-            )}
+            <TouchableOpacity style={styles.pickerButton} onPress={handlePlay}>
+              <FontAwesome name="play" size={20} color="white" />
+            </TouchableOpacity>
             <TouchableOpacity onPress={() => setModalVisible(true)}>
               <View style={{ flex: 1, alignItems: 'center' }}>
                 <Text style={styles.selectedValueText}>
-                  {dataKey === 'language'
-                    ? options.find((item) => item.value === i18n.language)?.label
-                    : selectedValue}
+                  {selectedValue}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -239,7 +227,7 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
                         selectedValue === item.label && styles.selectedOptionItem,
                       ]}
                       onPress={() => {
-                        handleValueChange(dataKey === 'language' ? item.value : item.label);
+                        handleValueChange(item.label);
                         setModalVisible(false);
                       }}
                     >
