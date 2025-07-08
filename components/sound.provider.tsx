@@ -143,6 +143,13 @@ export const SoundProvider: React.FC<{
     }
   }, [audioReady, workoutMusic, breakMusic, successSound]);
 
+  // React to changes in selected music
+  useEffect(() => {
+    if (audioReady) {
+      loadMusicSettings();
+    }
+  }, [selectedWorkoutMusic, selectedBreakMusic, selectedSuccessSound, audioReady]);
+
   const stopSound = async () => {
     if (!currentSound) return;
 
@@ -163,6 +170,13 @@ export const SoundProvider: React.FC<{
   };
 
   const loadMusicSettings = async () => {
+    console.log('loadMusicSettings called with:', {
+      selectedWorkoutMusic,
+      selectedBreakMusic,
+      selectedSuccessSound,
+      audioReady
+    });
+    
     if (!audioReady) {
       console.log('Audio not ready yet');
       return;
@@ -175,9 +189,11 @@ export const SoundProvider: React.FC<{
 
     try {
       const workoutFile = getSoundFileByLabel(selectedWorkoutMusic);
-      console.log('Selected workout music:', workoutFile);
+      console.log('Selected workout music file:', selectedWorkoutMusic, '→', workoutFile);
       const breakFile = getSoundFileByLabel(selectedBreakMusic);
+      console.log('Selected break music file:', selectedBreakMusic, '→', breakFile);
       const successFile = getSoundFileByLabel(selectedSuccessSound);
+      console.log('Selected success sound file:', selectedSuccessSound, '→', successFile);
 
       if (workoutFile) {
         setSelectedWorkoutMusicFile(workoutFile);
