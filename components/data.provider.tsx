@@ -3,7 +3,6 @@ import React, { createContext, useCallback, useContext, useEffect, useReducer } 
 
 import i18n from '@/i18n';
 
-import { SoundProvider } from './sound.provider'; // Adjust the import based on your file structure
 import {
   breakMusic as breakMusicData,
   DataKey,
@@ -11,6 +10,7 @@ import {
   successSound as successSoundData,
   workoutMusic as workoutMusicData,
 } from '@/constants/media';
+import { SoundProvider } from './sound.provider'; // Adjust the import based on your file structure
 
 export interface StoredItem {
   key: string;
@@ -62,9 +62,9 @@ type Action =
   | { type: 'SET_STORED_ITEMS'; payload: StoredItem[] }
   | { type: 'SET_WORKOUT_ITEMS'; payload: StoredItem[] }
   | { type: 'SET_LANGUAGE'; payload: string | null }
-  | { type: 'SET_SELECTED_ACTION_MUSIC'; payload: string }
-  | { type: 'SET_SELECTED_BREAK_MUSIC'; payload: string }
-  | { type: 'SET_SELECTED_SUCCESS_SOUND'; payload: string }
+  | { type: 'SET_SELECTED_ACTION_MUSIC'; payload: string | null }
+  | { type: 'SET_SELECTED_BREAK_MUSIC'; payload: string | null }
+  | { type: 'SET_SELECTED_SUCCESS_SOUND'; payload: string | null }
   | { type: 'SET_AUDIO_ENABLED'; payload: boolean }
   | { type: 'SET_CURRENT_MUSIC_BEING_PLAYED'; payload: string | null }
   | { type: 'SET_USER_WEIGHT'; payload: string | null }
@@ -92,11 +92,11 @@ function reducer(state: State, action: Action): State {
     case 'SET_LANGUAGE':
       return { ...state, currentLanguage: action.payload };
     case 'SET_SELECTED_ACTION_MUSIC':
-      return { ...state, selectedActionMusic: action.payload };
+      return { ...state, selectedActionMusic: action.payload || 'Action: Upbeat' };
     case 'SET_SELECTED_BREAK_MUSIC':
-      return { ...state, selectedBreakMusic: action.payload };
+      return { ...state, selectedBreakMusic: action.payload || 'Break: Chill' };
     case 'SET_SELECTED_SUCCESS_SOUND':
-      return { ...state, selectedSuccessSound: action.payload };
+      return { ...state, selectedSuccessSound: action.payload || 'Success: Yeah' };
     case 'SET_AUDIO_ENABLED':
       return { ...state, audioEnabled: action.payload };
     case 'SET_CURRENT_MUSIC_BEING_PLAYED':
