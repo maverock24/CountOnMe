@@ -144,7 +144,7 @@ export default function RootLayout() {
   // Simplified component structure - no need for separate RootLayoutNav
   return (
     <ThemeProvider value={CustomDarkTheme}>
-      <GlobalStyle css="input {outline: none;}" />
+      <GlobalStyle css="input {outline: none;} select {outline: none;}" />
       <DataProvider>
         <Stack
           screenOptions={{
