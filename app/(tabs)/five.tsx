@@ -68,38 +68,52 @@ const AnalyzerScreen: React.FC = () => {
     loadProfile();
   }, []);
 
+  // Auto-analyze when required fields are filled
+  React.useEffect(() => {
+    const shouldAutoAnalyze = weight && exercise && fitnessLevel && intensity && !loading;
+    
+    if (shouldAutoAnalyze) {
+      // Add a small delay to prevent excessive API calls during rapid typing
+      const timeoutId = setTimeout(() => {
+        handleAnalyze();
+      }, 500);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [weight, exercise, fitnessLevel, intensity, calories]);
+
+  // Clear results when any input changes to prevent showing stale data
+  React.useEffect(() => {
+    if (aiResult) {
+      setAiResult(null);
+      setError('');
+    }
+  }, [weight, exercise, fitnessLevel, intensity, calories]);
+
   const handleAnalyze = async () => {
+    // Prevent multiple concurrent analyses
+    if (loading) return;
+    
     setLoading(true);
     setError('');
     setAiResult(null);
+    
     try {
-      // const body = calories ? { calories } : { weight, exercise, intensity };
-      // const response = await fetch('/.netlify/functions/analyze', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(body),
-      // });
-      // const data = await response.json();
-      // if (!response.ok) throw new Error(data.error || t('failed_to_analyze'));
-      // setAiResult(data);
-      // // If user only entered calories, update fields with AI suggestion
-      // if (calories && data.weight) setWeight(data.weight.toString());
-      // if (calories && data.exercise) setExercise(data.exercise);
-      // if (calories && data.intensity) setIntensity(data.intensity as IntensityLevel);
-
       // Use local generateExercisePlan instead of API
       const weightKg = parseFloat(weight);
       const targetCalories = calories ? parseFloat(calories) : undefined;
       let intensityKey: 'low' | 'medium' | 'high' = 'low';
       if (intensity === IntensityLevel.Moderate) intensityKey = 'medium';
       else if (intensity === IntensityLevel.Hard) intensityKey = 'high';
+      
       // Only call if valid
-      if (!isNaN(weightKg) && exercise) {
+      if (!isNaN(weightKg) && exercise && fitnessLevel && intensity) {
         // Map exerciseList to correct ExerciseData type
         const mappedExerciseList = exerciseList.map((ex: any) => ({
           ...ex,
           type: ex.type as 'legs' | 'upper_body_push' | 'upper_body_back' | 'core' | 'full_body_plyo' | 'flexibility_mobility',
         }));
+        
         const plan = generateExercisePlan({
           weightKg,
           exerciseName: exercise,
@@ -107,6 +121,7 @@ const AnalyzerScreen: React.FC = () => {
           intensity: intensityKey,
           targetCalories,
         }, mappedExerciseList);
+        
         if (plan) {
           setAiResult({
             reps: plan.reps,
@@ -145,12 +160,8 @@ const AnalyzerScreen: React.FC = () => {
     storeItem(name, unitInMinutes);
   };
 
-  // Validation for enabling Analyze button
-  const isAnalyzeDisabled =
-    !weight ||
-    !exercise ||
-    !fitnessLevel ||
-    !intensity;
+  // Validation for showing analyze button (now mainly for manual re-analysis)
+  const isAnalyzeDisabled = loading || !weight || !exercise || !fitnessLevel || !intensity;
 
   return (
     <View style={commonStyles.container}>
@@ -209,6 +220,7 @@ const AnalyzerScreen: React.FC = () => {
                         onPress={() => {
                           setExercise(item.name);
                           setShowExerciseSuggestions(false);
+                          setError(''); // Clear any previous errors
                         }}
                         style={{ padding: 10, borderBottomColor: '#444', borderBottomWidth: 1 }}
                       >
