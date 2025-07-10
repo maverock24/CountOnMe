@@ -113,5 +113,18 @@
   "profile": "Profile",
   "low": "Low",
   "medium": "Medium",
-  "high": "High"
+  "high": "High",
+  "enter_group_name": "Enter group name",
+  "select_multiple": "Select multiple",
+  "cancel_selection": "Cancel selection",
+  "clear_selection": "Clear Selection",
+  "add_group": "Add group",
+  "group_management": "Group Management",
+  "group_name": "Group Name",
+  "workout_and_group_management": "Workout & Group Management",
+  "view_group": "View Group",
+  "select_group_to_view": "Select group to view",
+  "no_group_selected": "No group selected",
+  "all": "All",
+  "drag_to_reorder": "Hold and drag to reorder workouts within group"
 }

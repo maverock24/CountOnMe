@@ -17,17 +17,44 @@ export interface StoredItem {
   value: string | null;
 }
 
+export interface WorkoutItem {
+  name: string;
+  workout: string;
+  group?: string;
+}
+
+export interface GroupWorkoutItem {
+  orderId: number;
+  name: string;
+}
+
+export interface GroupItem {
+  name: string;
+  workouts: GroupWorkoutItem[]; // Array of workout items with order
+}
+
 interface DataContextType {
   breakMusic: DataKey[];
   workoutMusic: DataKey[];
   successSound: DataKey[];
   language: DataKey[];
   storedItems: StoredItem[];
-  workoutItems: StoredItem[];
+  workoutItems: WorkoutItem[];
+  groupItems: GroupItem[];
   reload: () => Promise<void>;
   storeItem: (key: string, value: string) => Promise<void>;
+  storeWorkout: (workout: WorkoutItem) => Promise<void>;
+  storeGroup: (group: GroupItem) => Promise<void>;
   getStoredItem: (key: string) => Promise<string | null>;
   deleteItem: (key: string) => Promise<void>;
+  deleteWorkout: (name: string) => Promise<void>;
+  deleteGroup: (name: string) => Promise<void>;
+  addWorkoutToGroup: (groupName: string, workoutName: string) => Promise<void>;
+  removeWorkoutFromGroup: (groupName: string, workoutName: string) => Promise<void>;
+  reorderWorkoutInGroup: (groupName: string, workoutName: string, newOrderId: number) => Promise<void>;
+  reorderWorkoutsInGroup: (groupName: string, workoutNames: string[]) => Promise<void>;
+  getOrderedWorkoutsForGroup: (groupName: string) => WorkoutItem[];
+  getWorkoutsByGroup: (groupName: string) => WorkoutItem[];
   isCountOnMeKey: (key: string) => boolean;
   setAudioEnabled: (enabled: boolean) => void;
   audioEnabled: boolean;
@@ -47,7 +74,8 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 
 interface State {
   storedItems: StoredItem[];
-  workoutItems: StoredItem[];
+  workoutItems: WorkoutItem[];
+  groupItems: GroupItem[];
   currentLanguage: string | null;
   selectedActionMusic: string;
   selectedBreakMusic: string;
@@ -60,7 +88,8 @@ interface State {
 
 type Action = 
   | { type: 'SET_STORED_ITEMS'; payload: StoredItem[] }
-  | { type: 'SET_WORKOUT_ITEMS'; payload: StoredItem[] }
+  | { type: 'SET_WORKOUT_ITEMS'; payload: WorkoutItem[] }
+  | { type: 'SET_GROUP_ITEMS'; payload: GroupItem[] }
   | { type: 'SET_LANGUAGE'; payload: string | null }
   | { type: 'SET_SELECTED_ACTION_MUSIC'; payload: string | null }
   | { type: 'SET_SELECTED_BREAK_MUSIC'; payload: string | null }
@@ -73,6 +102,7 @@ type Action =
 const initialState: State = {
   storedItems: [],
   workoutItems: [],
+  groupItems: [],
   currentLanguage: null,
   selectedActionMusic: 'Action: Upbeat',
   selectedBreakMusic: 'Break: Chill',
@@ -89,6 +119,8 @@ function reducer(state: State, action: Action): State {
       return { ...state, storedItems: action.payload };
     case 'SET_WORKOUT_ITEMS':
       return { ...state, workoutItems: action.payload };
+    case 'SET_GROUP_ITEMS':
+      return { ...state, groupItems: action.payload };
     case 'SET_LANGUAGE':
       return { ...state, currentLanguage: action.payload };
     case 'SET_SELECTED_ACTION_MUSIC':
@@ -187,8 +219,59 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         return { key: trimmedKey, value };
       });
-      const workoutItems = items.filter((item) => !reservedKeys.includes(item.key));
+
+      // Parse workouts with new structure
+      const workoutItems: WorkoutItem[] = [];
+      const groupItems: GroupItem[] = [];
+      
+      items.forEach((item) => {
+        if (!reservedKeys.includes(item.key)) {
+          try {
+            // Try to parse as new format first
+            const parsed = JSON.parse(item.value || '{}');
+            if (parsed.name && parsed.workout) {
+              // New format: { name: 'workout1', workout: '1;2;1;2', group?: 'group1' }
+              workoutItems.push(parsed);
+            } else if (parsed.name && parsed.workouts) {
+              // Group format: { name: 'group1', workouts: [{ orderId: 1, name: 'workout1' }] }
+              // Handle both old and new group formats
+              if (Array.isArray(parsed.workouts)) {
+                if (parsed.workouts.length > 0 && typeof parsed.workouts[0] === 'string') {
+                  // Old format: convert string array to GroupWorkoutItem array
+                  const convertedWorkouts = parsed.workouts.map((workoutName: string, index: number) => ({
+                    orderId: index + 1,
+                    name: workoutName
+                  }));
+                  groupItems.push({
+                    name: parsed.name,
+                    workouts: convertedWorkouts
+                  });
+                } else {
+                  // New format: already has orderId and name
+                  groupItems.push(parsed);
+                }
+              }
+            } else {
+              // Legacy format: convert old key-value pairs to new format
+              workoutItems.push({
+                name: item.key,
+                workout: item.value || '',
+                group: undefined
+              });
+            }
+          } catch {
+            // Fallback for legacy format
+            workoutItems.push({
+              name: item.key,
+              workout: item.value || '',
+              group: undefined
+            });
+          }
+        }
+      });
+
       dispatch({ type: 'SET_WORKOUT_ITEMS', payload: workoutItems });
+      dispatch({ type: 'SET_GROUP_ITEMS', payload: groupItems });
       dispatch({ type: 'SET_STORED_ITEMS', payload: items });
     } catch (e) {
       console.error('Error loading AsyncStorage data:', e);
@@ -217,6 +300,42 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const storeWorkout = async (workout: WorkoutItem) => {
+    try {
+      await AsyncStorage.setItem(`${prefixKey}workout_${workout.name}`, JSON.stringify(workout));
+      await reload();
+    } catch (e) {
+      console.error('Error storing workout:', e);
+    }
+  };
+
+  const storeGroup = async (group: GroupItem) => {
+    try {
+      await AsyncStorage.setItem(`${prefixKey}group_${group.name}`, JSON.stringify(group));
+      await reload();
+    } catch (e) {
+      console.error('Error storing group:', e);
+    }
+  };
+
+  const deleteWorkout = async (name: string) => {
+    try {
+      await AsyncStorage.removeItem(`${prefixKey}workout_${name}`);
+      await reload();
+    } catch (e) {
+      console.error('Error deleting workout:', e);
+    }
+  };
+
+  const deleteGroup = async (name: string) => {
+    try {
+      await AsyncStorage.removeItem(`${prefixKey}group_${name}`);
+      await reload();
+    } catch (e) {
+      console.error('Error deleting group:', e);
+    }
+  };
+
   const isCountOnMeKey = (key: string) => {
     return key.startsWith(prefixKey);
   };
@@ -228,6 +347,114 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (e) {
       console.error('Error deleting data:', e);
     }
+  };
+
+  const addWorkoutToGroup = async (groupName: string, workoutName: string) => {
+    try {
+      const group = state.groupItems.find(g => g.name === groupName);
+      if (!group) return;
+
+      const maxOrderId = group.workouts.length > 0 
+        ? Math.max(...group.workouts.map(w => w.orderId)) 
+        : 0;
+
+      const updatedGroup = {
+        ...group,
+        workouts: [...group.workouts, { orderId: maxOrderId + 1, name: workoutName }]
+      };
+
+      await AsyncStorage.setItem(`${prefixKey}group_${groupName}`, JSON.stringify(updatedGroup));
+      await reload();
+    } catch (e) {
+      console.error('Error adding workout to group:', e);
+    }
+  };
+
+  const removeWorkoutFromGroup = async (groupName: string, workoutName: string) => {
+    try {
+      const group = state.groupItems.find(g => g.name === groupName);
+      if (!group) return;
+
+      const updatedGroup = {
+        ...group,
+        workouts: group.workouts.filter(w => w.name !== workoutName)
+      };
+
+      await AsyncStorage.setItem(`${prefixKey}group_${groupName}`, JSON.stringify(updatedGroup));
+      await reload();
+    } catch (e) {
+      console.error('Error removing workout from group:', e);
+    }
+  };
+
+  const reorderWorkoutInGroup = async (groupName: string, workoutName: string, newOrderId: number) => {
+    try {
+      const group = state.groupItems.find(g => g.name === groupName);
+      if (!group) return;
+
+      const updatedWorkouts = group.workouts.map(w => {
+        if (w.name === workoutName) {
+          return { ...w, orderId: newOrderId };
+        }
+        return w;
+      });
+
+      // Re-sort by orderId to maintain order
+      updatedWorkouts.sort((a, b) => a.orderId - b.orderId);
+
+      const updatedGroup = {
+        ...group,
+        workouts: updatedWorkouts
+      };
+
+      await AsyncStorage.setItem(`${prefixKey}group_${groupName}`, JSON.stringify(updatedGroup));
+      await reload();
+    } catch (e) {
+      console.error('Error reordering workout in group:', e);
+    }
+  };
+
+  const reorderWorkoutsInGroup = async (groupName: string, workoutNames: string[]) => {
+    try {
+      const group = state.groupItems.find(g => g.name === groupName);
+      if (!group) return;
+
+      // Create updated workouts with new order
+      const updatedWorkouts = workoutNames.map((name, index) => ({
+        orderId: index + 1,
+        name: name
+      }));
+
+      const updatedGroup = {
+        ...group,
+        workouts: updatedWorkouts
+      };
+
+      await AsyncStorage.setItem(`${prefixKey}group_${groupName}`, JSON.stringify(updatedGroup));
+      await reload();
+    } catch (e) {
+      console.error('Error reordering workouts in group:', e);
+    }
+  };
+
+  const getOrderedWorkoutsForGroup = (groupName: string): WorkoutItem[] => {
+    const group = state.groupItems.find(g => g.name === groupName);
+    if (!group) return [];
+
+    // Sort by orderId and return corresponding WorkoutItems
+    const sortedGroupWorkouts = [...group.workouts].sort((a, b) => a.orderId - b.orderId);
+    
+    return sortedGroupWorkouts
+      .map(gw => state.workoutItems.find(wi => wi.name === gw.name))
+      .filter((item): item is WorkoutItem => item !== undefined);
+  };
+
+  const getWorkoutsByGroup = (groupName: string): WorkoutItem[] => {
+    const group = state.groupItems.find(g => g.name === groupName);
+    if (!group) return [];
+
+    const groupWorkoutNames = new Set(group.workouts.map(gw => gw.name));
+    return state.workoutItems.filter(wi => groupWorkoutNames.has(wi.name));
   };
 
   useEffect(() => {
@@ -251,6 +478,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           isCountOnMeKey,
           storedItems: state.storedItems,
           workoutItems: state.workoutItems,
+          groupItems: state.groupItems,
           breakMusic: breakMusicData,
           workoutMusic: workoutMusicData,
           successSound: successSoundData,
@@ -259,7 +487,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setLanguage: (lang) => dispatch({ type: 'SET_LANGUAGE', payload: lang }),
           reload,
           storeItem,
+          storeWorkout,
+          storeGroup,
           deleteItem,
+          deleteWorkout,
+          deleteGroup,
+          addWorkoutToGroup,
+          removeWorkoutFromGroup,
+          reorderWorkoutInGroup,
+          reorderWorkoutsInGroup,
+          getOrderedWorkoutsForGroup,
+          getWorkoutsByGroup,
           setAudioEnabled,
           audioEnabled: state.audioEnabled,
           currentMusicBeingPlayed: state.currentMusicBeingPlayed,

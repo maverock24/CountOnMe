@@ -50,11 +50,9 @@ const commonStyles = StyleSheet.create({
     backgroundColor: 'rgb(32, 40, 52)',
     paddingLeft: 10,
     paddingRight: 10,
-    paddingTop: baseButtonHeight * 0.2, // Adjust padding based on button height
-    paddingBottom: baseButtonHeight * 0.2, // Adjust padding based on button height
     borderRadius: 10,
     height: 50, // Set the button height
-    margin: 10,
+    margin: 5,
     opacity: 0.5,
   },
   button: {
@@ -66,7 +64,7 @@ const commonStyles = StyleSheet.create({
     paddingBottom: 10, // Adjust padding based on button height
     height: 50, // Set the button height
     borderRadius: 10,
-    margin: 10,
+    margin: 5,
     boxShadow: '0px 2px 2px rgba(0, 0, 0, 0.8)',
   } as any, // Temporarily cast to avoid web-specific style warnings
   buttonPressed: {
@@ -98,6 +96,7 @@ const commonStyles = StyleSheet.create({
     height: 30, // Set the button height
     borderRadius: 10,
     boxShadow: '0px 2px 2px rgba(0, 0, 0, 0.8)',
+    margin: 5,
     elevation: 5, // For Android
   } as any, // Temporarily cast to avoid web-specific style warnings
   buttonSmallPressed: {
@@ -106,6 +105,7 @@ const commonStyles = StyleSheet.create({
     //backgroundColor: 'rgb(45, 55, 73)',
     backgroundColor: 'rgb(32, 40, 52)',
     paddingLeft: 7,
+    margin: 5,
     paddingRight: 7,
     height: 30, // Set the button height
     borderRadius: 10,
