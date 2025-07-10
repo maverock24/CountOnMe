@@ -16,6 +16,8 @@ const ListTile = ({
   onPressTile,
   onPressBtn,
   currentIndex,
+  onLongPress,
+  style,
 }: {
   isSelected?: boolean;
   title: string;
@@ -23,6 +25,8 @@ const ListTile = ({
   onPressTile?: () => void;
   onPressBtn?: () => void;
   currentIndex?: number;
+  onLongPress?: () => void;
+  style?: any;
 }) => {
   const [workoutStage, setWorkoutStage] = useState(currentIndex || 0);
   const { t } = useTranslation();
@@ -58,11 +62,15 @@ const ListTile = ({
 
   return (
     <Pressable
-      style={{
-        paddingBottom: 0,
-        paddingTop: 0,
-      }}
+      style={[
+        {
+          paddingBottom: 0,
+          paddingTop: 0,
+        },
+        style
+      ]}
       onPress={onPressTile}
+      onLongPress={onLongPress}
     >
       <LinearGradient
         style={[

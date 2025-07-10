@@ -114,5 +114,18 @@
   "profile": "Profil",
   "low": "Niedrig",
   "medium": "Mittel",
-  "high": "Hoch"
+  "high": "Hoch",
+  "enter_group_name": "Gruppennamen eingeben",
+  "select_multiple": "Mehrfach auswählen",
+  "cancel_selection": "Auswahl abbrechen",
+  "clear_selection": "Auswahl löschen",
+  "add_group": "Gruppe hinzufügen",
+  "group_management": "Gruppenverwaltung",
+  "group_name": "Gruppenname",
+  "workout_and_group_management": "Workout & Gruppenverwaltung",
+  "view_group": "Gruppe anzeigen",
+  "select_group_to_view": "Gruppe zum Anzeigen auswählen",
+  "no_group_selected": "Keine Gruppe ausgewählt",
+  "all": "Alle",
+  "drag_to_reorder": "Halten und ziehen, um Workouts in der Gruppe neu zu ordnen"
 }

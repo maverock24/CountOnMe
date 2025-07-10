@@ -11,7 +11,7 @@ import {
   StyleSheet,
   Switch,
   Text,
-  View,
+  View
 } from 'react-native';
 import Svg, { Circle, Defs, FeGaussianBlur, FeMerge, FeMergeNode, Filter } from 'react-native-svg';
 
@@ -22,6 +22,7 @@ import TimerButton from '@/components/TimerButton';
 import TimerItem from '@/components/TimerItem';
 import Colors from '@/constants/Colors';
 
+import CustomPicker from '@/components/CustomPicker';
 import commonStyles from '../styles';
 
 const { height } = Dimensions.get('window');
@@ -44,8 +45,10 @@ const formatTime = (seconds: number) => {
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const TabTwoScreen: React.FC = () => {
-  const { workoutItems, isCountOnMeKey, audioEnabled, setAudioEnabled, currentMusicBeingPlayed } =
+  const { workoutItems, groupItems, isCountOnMeKey, audioEnabled, setAudioEnabled, currentMusicBeingPlayed, getOrderedWorkoutsForGroup } =
     useData();
+
+  const [selectedGroup, setSelectedGroup] = useState<string>('all');
 
   const { audioReady, stopSound, playSegmentMusic } = useSound();
 
@@ -72,6 +75,11 @@ const TabTwoScreen: React.FC = () => {
   const [progressKey, setProgressKey] = useState(0);
 
   const { t } = useTranslation();
+
+  const groupData = [
+    { label: t('all'), value: 'all' },
+    ...groupItems.map(group => ({ label: group.name, value: group.name }))
+  ];
 
   useEffect(() => {
     let pulseDuration = 350;
@@ -163,9 +171,9 @@ const TabTwoScreen: React.FC = () => {
     }
   }, [elapsedTime, totalTime, progress]);
 
-  const selectSet = (value: string) => {
-    // Split the value string into an array of objects
-    const items = value.split(';').map((time, index) => ({
+  const selectSet = (workout: string) => {
+    // Split the workout string into an array of objects
+    const items = workout.split(';').map((time, index) => ({
       id: index.toString(),
       time: parseInt(time),
       segment: index % 2 === 0 ? 'workout' : 'break',
@@ -181,6 +189,27 @@ const TabTwoScreen: React.FC = () => {
       handleReset(items);
     }
   };
+
+  const toggleSelectSet = (name: string, workout: string) => {
+    setSelectedItem((prev) => {
+      if (prev === name) {
+        handleReset();
+        setTimers([]);
+        setTime(0);
+        return null;
+      }
+      selectSet(workout);
+      return name;
+    });
+  };
+
+  const handleGroupChange = (groupName: string) => {
+    setSelectedGroup(groupName);
+  };
+
+  const filteredWorkouts = selectedGroup === 'all' 
+    ? workoutItems 
+    : getOrderedWorkoutsForGroup(selectedGroup);
 
   const handleResetButtonPress = () => handleReset();
 
@@ -239,19 +268,6 @@ const TabTwoScreen: React.FC = () => {
       progress.setValue(100);
       setProgressKey((k) => k + 1); // force re-render
     }
-  };
-
-  const toggleSelectSet = (key: string, value: string) => {
-    setSelectedItem((prev) => {
-      if (prev === key) {
-        handleReset();
-        setTimers([]);
-        setTime(0);
-        return null;
-      }
-      selectSet(value);
-      return key;
-    });
   };
 
   const handleAddNew = () => {
@@ -382,18 +398,21 @@ const TabTwoScreen: React.FC = () => {
                 onPress={handleStart}
                 disabled={disabled}
                 text={t('start')}
+                small
               />
               <TimerButton
                 style={{ width: 100 }}
                 onPress={handleStop}
                 disabled={disabled}
                 text={t('stop')}
+                small
               />
               <TimerButton
                 style={{ width: 100 }}
                 onPress={handleResetButtonPress}
                 disabled={disabled}
                 text={t('reset')}
+                small
               />
             </View>
           </View>
@@ -401,21 +420,30 @@ const TabTwoScreen: React.FC = () => {
         <View style={commonStyles.outerContainer}>
           <Text style={commonStyles.tileTitle}>{t('workouts')}</Text>
           <View style={[commonStyles.tile, { flex: 1, padding: 5 }]}>
+            <CustomPicker
+              containerStyle={{ width: '95%' }}
+              style={{ width: '95%' }}
+              selectedValue={selectedGroup}
+              onValueChange={handleGroupChange}
+              items={groupData}
+              dropdownIconColor="#fff"
+            />
+
             {noWorkout && <TimerButton text={t('add_button')} onPress={handleAddNew} maxWidth />}
-            {/* <View style={{ width: '95%', flex: 1 }}> */}
+            
             <FlatList
               style={styles.listContainer}
-              data={workoutItems}
+              data={filteredWorkouts}
               renderItem={({ item }) => (
                 <ListTile
-                  isSelected={selectedItem === item.key?.toString()}
-                  title={item.key}
-                  value={item.value}
+                  isSelected={selectedItem === item.name}
+                  title={item.name}
+                  value={item.workout}
                   currentIndex={currentIndex}
-                  onPressTile={() => toggleSelectSet(item.key, item.value?.toString() ?? '')}
+                  onPressTile={() => toggleSelectSet(item.name, item.workout)}
                 />
               )}
-              keyExtractor={(item) => item.key}
+              keyExtractor={(item) => item.name}
             />
           </View>
         </View>
@@ -538,3 +566,4 @@ const styles = StyleSheet.create({
 });
 
 export default TabTwoScreen;
+

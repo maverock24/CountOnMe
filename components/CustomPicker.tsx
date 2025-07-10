@@ -2,12 +2,12 @@ import Colors from '@/constants/Colors';
 import { FontAwesome } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
-    FlatList,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    View
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View
 } from 'react-native';
 
 export interface PickerItem {
@@ -71,7 +71,7 @@ const CustomPicker: React.FC<CustomPickerProps> = ({
   );
 
   return (
-    <View style={[styles.container]}>
+    <View style={[styles.container, style]}>
       <View style={[styles.pickerContainer, containerStyle]}>
         <TouchableOpacity
           style={[styles.pickerButton, style]}
