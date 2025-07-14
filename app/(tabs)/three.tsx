@@ -31,6 +31,7 @@ export default function TabThreeScreen() {
 
   const [nameError, setNameError] = useState<string | null>(null);
   const [unitError, setUnitError] = useState<string | null>(null);
+  const [removeGroupDisabled, setRemoveGroupDisabled] = useState<boolean>(false);
 
   const noWorkout = workoutItems.length === 0;
 
@@ -153,12 +154,14 @@ export default function TabThreeScreen() {
     setViewingGroup(groupName);
     if (groupName && groupName !== 'all') {
       // Get ordered workouts for the group and select them
+      setRemoveGroupDisabled(false);
       const groupWorkouts = getOrderedWorkoutsForGroup(groupName);
       const groupWorkoutNames = new Set(groupWorkouts.map(w => w.name));
       setSelectedItems(groupWorkoutNames);
     } else {
       // Clear selection if 'all' is selected or no group is selected
       setSelectedItems(new Set());
+      setRemoveGroupDisabled(true);
     }
   };
 
@@ -181,16 +184,20 @@ export default function TabThreeScreen() {
         <Text style={commonStyles.tileTitle}>{t('workout_and_group_management')}</Text>
         <View style={commonStyles.tile}>
           <View style={styles.innerWrapperTopTile}>
-            <Text style={styles.label}>{t('name')}</Text>
+            <View style={{ width: '90%', flexDirection: 'row', justifyContent: 'space-between' }}>
+
+            <View style={{ flexDirection: 'column', width: '70%' }}>
+            <Text style={styles.label}>{t('workout')}</Text>
             <TextInput
               style={styles.input}
               value={name}
               onChangeText={setName}
               onFocus={handleOnFocus}
             />
+          
             {nameError && <Text style={{ color: 'red', width: '90%' }}>{nameError}</Text>}
 
-            <Text style={styles.label}>{t('workout_set')}</Text>
+            <Text style={styles.label}>{t('repetitions_breaks')}</Text>
             <TextInput
               style={styles.input}
               value={unit}
@@ -200,51 +207,9 @@ export default function TabThreeScreen() {
               onFocus={handleOnFocus}
             />
             {unitError && <Text style={{ color: 'red', width: '90%' }}>{unitError}</Text>}
-            
-            {/* Group Viewing Section */}
-            <Text style={styles.label}>{t('view_group')}</Text>
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start', width: '100%', paddingLeft: 25, paddingTop: 10 }}>
-              <CustomPicker
-                selectedValue={viewingGroup}
-                onValueChange={handleGroupViewSelection}
-                items={[
-                  { label: t('all'), value: 'all' },
-                  ...groupItems.map(group => ({ label: group.name, value: group.name }))
-                ]}
-                dropdownIconColor="#fff"
-                placeholder={t('select_group_to_view')}
-              />
-              <TimerButton
-                text={t('delete_workout_group')}
-                onPress={() => handleGroupViewSelection(viewingGroup)}
-              />
             </View>
-            
-            {/* Group Management Section */}
-            <Text style={styles.label}>{t('group_management')}</Text>
-            <TextInput
-              style={styles.input}
-              placeholder={t('enter_group_name')}
-              placeholderTextColor="#999"
-              value={groupName}
-              onChangeText={setGroupName}
-            />
-
-            {/* All buttons in one row */}
-            <View style={styles.buttonRow}>
-              {/* <TimerButton
-                text={t('clear_selection')}
-                onPress={() => {
-                  setSelectedItems(new Set());
-                }}
-                style={[styles.actionButton, { backgroundColor: '#ff4444' }]}
-              /> */}
-              <TimerButton
-                text={t('add_group')}
-                onPress={handleAddGroup}
-                disabled={selectedItems.size === 0 || !groupName.trim()}
-              />
-              <TimerButton
+            <View style={{ flexDirection: 'column', width: '30%' }}>
+            <TimerButton
                 disabled={selectedItem ? false : true}
                 text={t('delete')}
                 onPress={() => deleteItemHandler(selectedItem!)}
@@ -255,6 +220,48 @@ export default function TabThreeScreen() {
                 onPress={addItem}
               />
             </View>
+            </View>
+            <View style={{ width: '100%', borderTopColor:'white', borderTopWidth:0, margin:10}}/>
+            
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '90%', marginBottom: 10 }}>
+              <View style={{ flexDirection: 'column', width: '70%' }}>
+              <Text style={styles.label}>{t('group_management')}</Text>
+            <TextInput
+              style={styles.input}
+              placeholder={t('enter_group_name')}
+              placeholderTextColor="#999"
+              value={groupName}
+              onChangeText={setGroupName}
+            />
+              <CustomPicker
+                style={{ width: '90%' }}
+                selectedValue={viewingGroup}
+                onValueChange={handleGroupViewSelection}
+                items={[
+                  { label: t('all'), value: 'all' },
+                  ...groupItems.map(group => ({ label: group.name, value: group.name }))
+                ]}
+                dropdownIconColor="#fff"
+                placeholder={t('select_group_to_view')}
+              />
+              
+              </View>
+              <View style={{ flexDirection: 'column', width: '30%', marginTop: 4 }}>
+              
+                <TimerButton
+                text={t('add_group')}
+                onPress={handleAddGroup}
+                disabled={selectedItems.size === 0 || !groupName.trim()}
+              />
+              <TimerButton
+                disabled={removeGroupDisabled}
+                text={t('delete_workout_group')}
+                onPress={() => handleGroupViewSelection(viewingGroup)}
+                
+              />
+              </View>
+            </View>
+      
           </View>
         </View>
         

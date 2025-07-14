@@ -74,7 +74,7 @@ const ListTile = ({
           shadowColor: Colors.glow,
           shadowOpacity: 1,
           shadowRadius: 1,
-          boxShadow: '0px 0px 8px rgba(0, 188, 212, 0.5)',
+          boxShadow: '0px 0px 8px rgba(0, 162, 212, 0.5)',
           elevation: 6,
         },
         style

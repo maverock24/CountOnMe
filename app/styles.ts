@@ -65,10 +65,10 @@ const commonStyles = StyleSheet.create({
     paddingRight: 10,
     height: 50, // Set the button height
     borderRadius: 5,
-    margin: 10,
+    margin: 5,
     padding: 10,
     borderColor: 'rgb(27, 41, 46)',
-    backgroundColor: 'rgb(31, 47, 55)',
+    backgroundColor: Colors.backgroundColor,
   } as any, // Temporarily cast to avoid web-specific style warnings
   buttonPressed: {
     // alignItems: 'center',

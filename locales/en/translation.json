@@ -119,12 +119,13 @@
   "cancel_selection": "Cancel selection",
   "clear_selection": "Clear Selection",
   "add_group": "Add group",
-  "group_management": "Group Management",
+  "group_management": "Workout Group",
   "group_name": "Group Name",
   "workout_and_group_management": "Workout & Group Management",
   "view_group": "Group",
   "select_group_to_view": "Select group to view",
   "no_group_selected": "No group selected",
   "all": "All",
-  "select_workout_group": "Select workout group"
+  "select_workout_group": "Select workout group",
+  "delete_workout_group": "Remove"
 }

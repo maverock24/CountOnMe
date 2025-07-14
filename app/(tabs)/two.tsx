@@ -302,9 +302,9 @@ const TabTwoScreen: React.FC = () => {
               >
                 <Text style={styles.label}>{t('sound_on_off')}</Text>
                 <Switch
-                  style={{ marginRight: 10, marginTop: 10 }}
-                  trackColor={{ false: 'white', true: 'rgb(74, 125, 118)' }}
-                  thumbColor={audioEnabled ? 'white' : 'grey'}
+                  // style={{ marginRight: 10, marginTop: 10 }}
+                  // trackColor={{ false: 'gray', true: 'white' }}
+                  // thumbColor={audioEnabled ? 'white' : 'gray'}
                   onValueChange={setAudioEnabled}
                   value={audioEnabled}
                 />
@@ -420,16 +420,17 @@ const TabTwoScreen: React.FC = () => {
         <View style={commonStyles.outerContainer}>
           <Text style={commonStyles.tileTitle}>{t('workouts')}</Text>
           <View style={[commonStyles.tile, { flex: 1, padding: 5 }]}>
-            
+            <View style={{ alignItems: 'center', justifyContent: 'center' }}>
             <Text style={styles.label}>{t('select_workout_group')}</Text>
             <CustomPicker
-              containerStyle={{ width: '99%', margin: 2 }}
-              style={{ width: '100%', alignSelf: 'flex-start' }}
+              containerStyle={{ width: 200, margin: 2, justifyContent: 'center' }}
+              style={{ width: '100%', alignSelf: 'center', justifyContent: 'center' }}
               selectedValue={selectedGroup}
               onValueChange={handleGroupChange}
               items={groupData}
               dropdownIconColor="#fff"
             />
+            </View>
       
             {noWorkout && <TimerButton text={t('add_button')} onPress={handleAddNew} maxWidth />}
             
@@ -461,7 +462,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'lightgray',
     marginBottom: 5,
-    alignSelf: 'flex-start',
+    
   },
   currentMusicLabel: {
     position: 'absolute',

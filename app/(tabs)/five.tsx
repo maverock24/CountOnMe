@@ -260,7 +260,7 @@ const AnalyzerScreen: React.FC = () => {
                           : 'star-o'
                       }
                       size={30}
-                      color="#00bcd4"
+                      color='white'
                     />
                   </Pressable>
                 ))}

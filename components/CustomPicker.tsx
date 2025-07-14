@@ -75,7 +75,7 @@ const CustomPicker: React.FC<CustomPickerProps> = ({
         {item.label}
       </Text>
       {item.value === selectedValue && (
-        <FontAwesome name="check" size={16} color="#00bcd4" />
+        <FontAwesome name="check" size={16} color="white" />
       )}
     </TouchableOpacity>
   );
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgb(31, 39, 44)',
   },
   selectedDropdownItem: {
-    backgroundColor: Colors.glow,
+    backgroundColor: Colors.highlight,
   },
   dropdownItemText: {
     color: '#fff',
