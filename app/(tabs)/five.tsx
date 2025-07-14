@@ -229,6 +229,7 @@ const AnalyzerScreen: React.FC = () => {
                       </TouchableOpacity>
                     )}
                     keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={false}
                   />
                 </View>
               )}
