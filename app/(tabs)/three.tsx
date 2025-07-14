@@ -184,7 +184,7 @@ export default function TabThreeScreen() {
         <Text style={commonStyles.tileTitle}>{t('workout_and_group_management')}</Text>
         <View style={commonStyles.tile}>
           <View style={styles.innerWrapperTopTile}>
-            <View style={{ width: '90%', flexDirection: 'row', justifyContent: 'space-between' }}>
+            <View style={{ width: '95%', flexDirection: 'row', justifyContent: 'space-between', borderRadius: 10, borderColor: '#2A2E33', borderWidth: 1, padding: 10 }}>
 
             <View style={{ flexDirection: 'column', width: '70%' }}>
             <Text style={styles.label}>{t('workout')}</Text>
@@ -223,7 +223,7 @@ export default function TabThreeScreen() {
             </View>
             <View style={{ width: '100%', borderTopColor:'white', borderTopWidth:0, margin:10}}/>
             
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '90%', marginBottom: 10 }}>
+            <View style={{ width: '95%', flexDirection: 'row', justifyContent: 'space-between', borderRadius: 10, borderColor: '#2A2E33', borderWidth: 1, padding: 10, marginBottom: 10 }}>
               <View style={{ flexDirection: 'column', width: '70%' }}>
               <Text style={styles.label}>{t('group_management')}</Text>
             <TextInput
