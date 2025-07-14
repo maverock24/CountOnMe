@@ -48,7 +48,12 @@ const TabTwoScreen: React.FC = () => {
   const { workoutItems, groupItems, isCountOnMeKey, audioEnabled, setAudioEnabled, currentMusicBeingPlayed, getOrderedWorkoutsForGroup } =
     useData();
 
-  const [selectedGroup, setSelectedGroup] = useState<string>('all');
+  const [selectedGroup, setSelectedGroup] = useState<string>('All');
+
+  const groupData = [
+    { label: 'All', value: 'All' },
+    ...groupItems.map(group => ({ label: group.name, value: group.name }))
+  ];
 
   const { audioReady, stopSound, playSegmentMusic } = useSound();
 
@@ -75,11 +80,6 @@ const TabTwoScreen: React.FC = () => {
   const [progressKey, setProgressKey] = useState(0);
 
   const { t } = useTranslation();
-
-  const groupData = [
-    { label: t('all'), value: 'all' },
-    ...groupItems.map(group => ({ label: group.name, value: group.name }))
-  ];
 
   useEffect(() => {
     let pulseDuration = 350;
@@ -207,7 +207,7 @@ const TabTwoScreen: React.FC = () => {
     setSelectedGroup(groupName);
   };
 
-  const filteredWorkouts = selectedGroup === 'all' 
+  const filteredWorkouts = selectedGroup === 'All' 
     ? workoutItems 
     : getOrderedWorkoutsForGroup(selectedGroup);
 
@@ -420,15 +420,17 @@ const TabTwoScreen: React.FC = () => {
         <View style={commonStyles.outerContainer}>
           <Text style={commonStyles.tileTitle}>{t('workouts')}</Text>
           <View style={[commonStyles.tile, { flex: 1, padding: 5 }]}>
+            
+            <Text style={styles.label}>{t('select_workout_group')}</Text>
             <CustomPicker
-              containerStyle={{ width: '95%' }}
-              style={{ width: '95%' }}
+              containerStyle={{ width: '99%', margin: 2 }}
+              style={{ width: '100%', alignSelf: 'flex-start' }}
               selectedValue={selectedGroup}
               onValueChange={handleGroupChange}
               items={groupData}
               dropdownIconColor="#fff"
             />
-
+      
             {noWorkout && <TimerButton text={t('add_button')} onPress={handleAddNew} maxWidth />}
             
             <FlatList
@@ -454,11 +456,12 @@ const TabTwoScreen: React.FC = () => {
 
 const styles = StyleSheet.create({
   label: {
-    marginTop: 15,
+    marginTop: 0,
     marginRight: 10,
     fontSize: 14,
     color: 'lightgray',
     marginBottom: 5,
+    alignSelf: 'flex-start',
   },
   currentMusicLabel: {
     position: 'absolute',

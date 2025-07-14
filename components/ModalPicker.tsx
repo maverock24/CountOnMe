@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
   musicPickerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgb(49, 67, 77)',
+    backgroundColor: 'rgb(31, 39, 44)',
     borderRadius: 5,
     marginBottom: 15,
     justifyContent: 'space-between',

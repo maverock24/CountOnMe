@@ -17,7 +17,7 @@ const commonStyles = StyleSheet.create({
   listItemValueText: {
     flex: 1,
     alignSelf: 'flex-end',
-    fontSize: 14,
+    fontSize: 12,
     letterSpacing: 2,
     fontWeight: 'bold',
     color: 'rgb(157, 242, 246)',
@@ -45,27 +45,30 @@ const commonStyles = StyleSheet.create({
     paddingBottom: 5,
   },
   buttonDisabled: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgb(32, 40, 52)',
-    paddingLeft: 10,
-    paddingRight: 10,
-    borderRadius: 10,
-    height: 50, // Set the button height
-    margin: 5,
-    opacity: 0.5,
+    backgroundColor: 'rgba(25, 49, 53, 0.2)',
+    borderColor: 'transparent',
   },
   button: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingLeft: 10,
     paddingRight: 10,
-    paddingTop: 10, // Adjust padding based on button height
-    paddingBottom: 10, // Adjust padding based on button height
     height: 50, // Set the button height
     borderRadius: 10,
     margin: 5,
     boxShadow: '0px 2px 2px rgba(0, 0, 0, 0.8)',
+  } as any, // Temporarily cast to avoid web-specific style warnings
+  listTile: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingLeft: 10,
+    paddingRight: 10,
+    height: 50, // Set the button height
+    borderRadius: 5,
+    margin: 10,
+    padding: 10,
+    borderColor: 'rgb(27, 41, 46)',
+    backgroundColor: 'rgb(31, 47, 55)',
   } as any, // Temporarily cast to avoid web-specific style warnings
   buttonPressed: {
     // alignItems: 'center',
@@ -94,9 +97,9 @@ const commonStyles = StyleSheet.create({
     paddingLeft: 7,
     paddingRight: 7,
     height: 30, // Set the button height
-    borderRadius: 10,
-    boxShadow: '0px 2px 2px rgba(0, 0, 0, 0.8)',
+    borderRadius: 5,
     margin: 5,
+    boxShadow: '0px 2px 2px rgba(0, 0, 0, 0.8)',
     elevation: 5, // For Android
   } as any, // Temporarily cast to avoid web-specific style warnings
   buttonSmallPressed: {
@@ -105,10 +108,9 @@ const commonStyles = StyleSheet.create({
     //backgroundColor: 'rgb(45, 55, 73)',
     backgroundColor: 'rgb(32, 40, 52)',
     paddingLeft: 7,
-    margin: 5,
     paddingRight: 7,
     height: 30, // Set the button height
-    borderRadius: 10,
+    borderRadius: 5,
     borderColor: 'rgb(38, 47, 62)',
     borderWidth: 0,
     boxShadow: '0px 0px 2px rgba(0, 0, 0, 0.8)',
@@ -143,9 +145,8 @@ const commonStyles = StyleSheet.create({
     width: '100%',
   },
   listItemTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: 'white',
+    fontSize: 14,   
+    color: 'rgb(201, 213, 215)',
     marginBottom: 5,
   },
   listItemValue: {
@@ -154,7 +155,7 @@ const commonStyles = StyleSheet.create({
     fontSize: 12,
     letterSpacing: 2,
     fontWeight: 'bold',
-    color: '#b0e0e6',
+    color: 'rgb(176, 224, 230)',
   },
   tile: {
     maxWidth: 600,

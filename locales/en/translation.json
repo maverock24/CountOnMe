@@ -122,9 +122,9 @@
   "group_management": "Group Management",
   "group_name": "Group Name",
   "workout_and_group_management": "Workout & Group Management",
-  "view_group": "View Group",
+  "view_group": "Group",
   "select_group_to_view": "Select group to view",
   "no_group_selected": "No group selected",
   "all": "All",
-  "drag_to_reorder": "Hold and drag to reorder workouts within group"
+  "select_workout_group": "Select workout group"
 }

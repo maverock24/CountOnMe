@@ -3,7 +3,6 @@ import { View } from '@/components/Themed';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, Keyboard, SafeAreaView, StyleSheet, Text, TextInput } from 'react-native';
-import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flatlist';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import CustomPicker from '@/components/CustomPicker';
@@ -18,8 +17,7 @@ export default function TabThreeScreen() {
     storeWorkout, 
     storeGroup, 
     deleteWorkout,
-    getOrderedWorkoutsForGroup,
-    reorderWorkoutsInGroup
+    getOrderedWorkoutsForGroup
   } = useData();
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
 
@@ -177,27 +175,6 @@ export default function TabThreeScreen() {
 
   const orderedWorkoutItems = getOrderedWorkoutList();
 
-  const handleDragEnd = async (data: any[]) => {
-    if (viewingGroup && viewingGroup !== 'all') {
-      // Extract workout names in the new order
-      const workoutNames = data.map(item => item.name);
-      await reorderWorkoutsInGroup(viewingGroup, workoutNames);
-    }
-  };
-
-  const renderDraggableItem = ({ item, drag, isActive }: RenderItemParams<any>) => (
-    <ListTile
-      isSelected={selectedItems.has(item.name) || selectedItem === item.name}
-      title={item.name}
-      value={item.workout}
-      onPressTile={() => toggleSelectSet(item.name)}
-      onLongPress={drag}
-      style={[
-        isActive && { backgroundColor: '#333' }
-      ]}
-    />
-  );
-
   return (
     <View style={commonStyles.container}>
       <View style={commonStyles.outerContainer}>
@@ -226,18 +203,22 @@ export default function TabThreeScreen() {
             
             {/* Group Viewing Section */}
             <Text style={styles.label}>{t('view_group')}</Text>
-            <CustomPicker
-              containerStyle={{ width: '90%' }}
-              style={{ width: '90%' }}
-              selectedValue={viewingGroup}
-              onValueChange={handleGroupViewSelection}
-              items={[
-                { label: t('all'), value: 'all' },
-                ...groupItems.map(group => ({ label: group.name, value: group.name }))
-              ]}
-              dropdownIconColor="#fff"
-              placeholder={t('select_group_to_view')}
-            />
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start', width: '100%', paddingLeft: 25, paddingTop: 10 }}>
+              <CustomPicker
+                selectedValue={viewingGroup}
+                onValueChange={handleGroupViewSelection}
+                items={[
+                  { label: t('all'), value: 'all' },
+                  ...groupItems.map(group => ({ label: group.name, value: group.name }))
+                ]}
+                dropdownIconColor="#fff"
+                placeholder={t('select_group_to_view')}
+              />
+              <TimerButton
+                text={t('delete_workout_group')}
+                onPress={() => handleGroupViewSelection(viewingGroup)}
+              />
+            </View>
             
             {/* Group Management Section */}
             <Text style={styles.label}>{t('group_management')}</Text>
@@ -251,37 +232,27 @@ export default function TabThreeScreen() {
 
             {/* All buttons in one row */}
             <View style={styles.buttonRow}>
-              <TimerButton
+              {/* <TimerButton
                 text={t('clear_selection')}
                 onPress={() => {
                   setSelectedItems(new Set());
                 }}
-                style={[{ backgroundColor: '#ff4444' }]}
-                small
-              />
+                style={[styles.actionButton, { backgroundColor: '#ff4444' }]}
+              /> */}
               <TimerButton
                 text={t('add_group')}
                 onPress={handleAddGroup}
                 disabled={selectedItems.size === 0 || !groupName.trim()}
-                small
-                style={[{ 
-                  backgroundColor: '#4CAF50', 
-                  opacity: (selectedItems.size === 0 || !groupName.trim()) ? 0.5 : 1 
-                }]}
               />
               <TimerButton
                 disabled={selectedItem ? false : true}
                 text={t('delete')}
                 onPress={() => deleteItemHandler(selectedItem!)}
-                style={[styles.actionButton, { backgroundColor: '#ff6b6b' }]}
-                small
               />
               <TimerButton
                 disabled={unit !== '' && name !== '' ? false : true}
                 text={t('add')}
                 onPress={addItem}
-                style={[ { backgroundColor: '#4CAF50' }]}
-                small
               />
             </View>
           </View>
@@ -303,34 +274,20 @@ export default function TabThreeScreen() {
                 {t('no_workouts_available')}
               </Text>
             )}
-            {viewingGroup && viewingGroup !== 'all' && (
-              <Text style={styles.dragHint}>
-                {t('drag_to_reorder')}
-              </Text>
-            )}
             <SafeAreaProvider style={{ width: '100%' }}>
               <SafeAreaView style={styles.flatList}>
-                {viewingGroup && viewingGroup !== 'all' ? (
-                  <DraggableFlatList
-                    data={orderedWorkoutItems}
-                    renderItem={renderDraggableItem}
-                    keyExtractor={(item) => item.name}
-                    onDragEnd={({ data }) => handleDragEnd(data)}
-                  />
-                ) : (
-                  <FlatList
-                    data={orderedWorkoutItems}
-                    renderItem={({ item }) => (
-                      <ListTile
-                        isSelected={selectedItems.has(item.name) || selectedItem === item.name}
-                        title={item.name}
-                        value={item.workout}
-                        onPressTile={() => toggleSelectSet(item.name)}
-                      />
-                    )}
-                    keyExtractor={(item) => item.name}
-                  />
-                )}
+                <FlatList
+                  data={orderedWorkoutItems}
+                  renderItem={({ item }) => (
+                    <ListTile
+                      isSelected={selectedItems.has(item.name) || selectedItem === item.name}
+                      title={item.name}
+                      value={item.workout}
+                      onPressTile={() => toggleSelectSet(item.name)}
+                    />
+                  )}
+                  keyExtractor={(item) => item.name}
+                />
               </SafeAreaView>
             </SafeAreaProvider>
           </View>
@@ -400,24 +357,9 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
   },
-  actionButton: {
-    flex: 1,
-    marginHorizontal: 2,
-    paddingVertical: 8,
-    paddingHorizontal: 8,
-    borderRadius: 5,
-    alignItems: 'center',
-  },
   groupViewingIndicator: {
     fontSize: 14,
     fontWeight: 'normal',
     color: '#888',
-  },
-  dragHint: {
-    fontSize: 12,
-    color: '#aaa',
-    textAlign: 'center',
-    fontStyle: 'italic',
-    marginBottom: 5,
   },
 });

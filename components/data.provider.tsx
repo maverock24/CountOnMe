@@ -4,11 +4,11 @@ import React, { createContext, useCallback, useContext, useEffect, useReducer } 
 import i18n from '@/i18n';
 
 import {
-  breakMusic as breakMusicData,
-  DataKey,
-  language as languageData,
-  successSound as successSoundData,
-  workoutMusic as workoutMusicData,
+    breakMusic as breakMusicData,
+    DataKey,
+    language as languageData,
+    successSound as successSoundData,
+    workoutMusic as workoutMusicData,
 } from '@/constants/media';
 import { SoundProvider } from './sound.provider'; // Adjust the import based on your file structure
 
@@ -52,7 +52,6 @@ interface DataContextType {
   addWorkoutToGroup: (groupName: string, workoutName: string) => Promise<void>;
   removeWorkoutFromGroup: (groupName: string, workoutName: string) => Promise<void>;
   reorderWorkoutInGroup: (groupName: string, workoutName: string, newOrderId: number) => Promise<void>;
-  reorderWorkoutsInGroup: (groupName: string, workoutNames: string[]) => Promise<void>;
   getOrderedWorkoutsForGroup: (groupName: string) => WorkoutItem[];
   getWorkoutsByGroup: (groupName: string) => WorkoutItem[];
   isCountOnMeKey: (key: string) => boolean;
@@ -414,29 +413,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const reorderWorkoutsInGroup = async (groupName: string, workoutNames: string[]) => {
-    try {
-      const group = state.groupItems.find(g => g.name === groupName);
-      if (!group) return;
-
-      // Create updated workouts with new order
-      const updatedWorkouts = workoutNames.map((name, index) => ({
-        orderId: index + 1,
-        name: name
-      }));
-
-      const updatedGroup = {
-        ...group,
-        workouts: updatedWorkouts
-      };
-
-      await AsyncStorage.setItem(`${prefixKey}group_${groupName}`, JSON.stringify(updatedGroup));
-      await reload();
-    } catch (e) {
-      console.error('Error reordering workouts in group:', e);
-    }
-  };
-
   const getOrderedWorkoutsForGroup = (groupName: string): WorkoutItem[] => {
     const group = state.groupItems.find(g => g.name === groupName);
     if (!group) return [];
@@ -495,7 +471,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           addWorkoutToGroup,
           removeWorkoutFromGroup,
           reorderWorkoutInGroup,
-          reorderWorkoutsInGroup,
           getOrderedWorkoutsForGroup,
           getWorkoutsByGroup,
           setAudioEnabled,
