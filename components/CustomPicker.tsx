@@ -1,8 +1,9 @@
 import Colors from '@/constants/Colors';
 import { FontAwesome } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   FlatList,
+  Modal,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -35,12 +36,21 @@ const CustomPicker: React.FC<CustomPickerProps> = ({
   dropdownIconColor = '#fff',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [buttonLayout, setButtonLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
+  const buttonRef = useRef<View>(null);
 
   const selectedItem = items.find((item) => item.value === selectedValue);
   const displayText = selectedItem ? selectedItem.label : placeholder;
 
   const toggleDropdown = () => {
-    setIsOpen(!isOpen);
+    if (!isOpen && buttonRef.current) {
+      buttonRef.current.measureInWindow((x, y, width, height) => {
+        setButtonLayout({ x, y, width, height });
+        setIsOpen(true);
+      });
+    } else {
+      setIsOpen(false);
+    }
   };
 
   const handleItemPress = (value: string) => {
@@ -72,7 +82,7 @@ const CustomPicker: React.FC<CustomPickerProps> = ({
 
   return (
     <View style={[styles.container, style]}>
-      <View style={[styles.pickerContainer, containerStyle]}>
+      <View ref={buttonRef} style={[styles.pickerContainer, containerStyle]}>
         <TouchableOpacity
           style={[styles.pickerButton, style]}
           onPress={toggleDropdown}
@@ -88,21 +98,39 @@ const CustomPicker: React.FC<CustomPickerProps> = ({
       </View>
 
       {isOpen && (
-        <>
+        <Modal
+          transparent={true}
+          visible={isOpen}
+          animationType="none"
+          onRequestClose={() => setIsOpen(false)}
+        >
           <TouchableWithoutFeedback onPress={() => setIsOpen(false)}>
-            <View style={styles.overlay} />
+            <View style={styles.modalOverlay}>
+              <View 
+                style={[
+                  styles.dropdown,
+                  {
+                    position: 'absolute',
+                    top: buttonLayout.y + buttonLayout.height + 5,
+                    left: buttonLayout.x,
+                    width: buttonLayout.width,
+                    minWidth: buttonLayout.width,
+                    maxWidth: Math.max(buttonLayout.width, 300),
+                  }
+                ]}
+              >
+                <FlatList
+                  data={items}
+                  renderItem={renderItem}
+                  keyExtractor={(item) => item.value}
+                  style={styles.dropdownList}
+                  showsVerticalScrollIndicator={false}
+                  nestedScrollEnabled={true}
+                />
+              </View>
+            </View>
           </TouchableWithoutFeedback>
-          <View style={styles.dropdown}>
-            <FlatList
-              data={items}
-              renderItem={renderItem}
-              keyExtractor={(item) => item.value}
-              style={styles.dropdownList}
-              showsVerticalScrollIndicator={false}
-              nestedScrollEnabled={true}
-            />
-          </View>
-        </>
+        </Modal>
       )}
     </View>
   );
@@ -111,21 +139,23 @@ const CustomPicker: React.FC<CustomPickerProps> = ({
 const styles = StyleSheet.create({
   container: {
     position: 'relative',
-    zIndex: 1,
+    width: '40%',
   },
   pickerContainer: {
-    backgroundColor: 'rgb(49, 67, 77)',
+    backgroundColor: 'rgb(31, 39, 44)',
     borderRadius: 5,
     marginBottom: 10,
-    minHeight: 50,
+    minHeight: 40,
     justifyContent: 'center',
     paddingHorizontal: 5,
+    borderWidth: 1,
+    borderColor: '#2A2E33',
   },
   pickerButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    height: 50,
+    height: 40,
     paddingHorizontal: 5,
   },
   selectedText: {
@@ -136,25 +166,17 @@ const styles = StyleSheet.create({
   dropdownIcon: {
     marginLeft: 10,
   },
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 999,
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
   },
   dropdown: {
-    position: 'absolute',
-    top: 45, // Position right below the picker (60px height - 15px margin)
-    left: 0,
-    right: 0,
     backgroundColor: 'rgb(17, 24, 30)',
     borderRadius: 5,
     borderWidth: 1,
     borderColor: '#2A2E33',
     maxHeight: 200,
-    zIndex: 1000,
+    minWidth: 200,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -162,7 +184,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-    elevation: 5,
+    elevation: 50,
   },
   dropdownList: {
     maxHeight: 200,
@@ -174,7 +196,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 15,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(42, 46, 51, 0.3)',
+    borderBottomColor: 'rgb(42, 46, 51)',
+    backgroundColor: 'rgb(31, 39, 44)',
   },
   selectedDropdownItem: {
     backgroundColor: Colors.glow,

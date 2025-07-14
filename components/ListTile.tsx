@@ -1,5 +1,4 @@
 import { FontAwesome } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
@@ -63,31 +62,26 @@ const ListTile = ({
   return (
     <Pressable
       style={[
+        commonStyles.listTile,
         {
-          paddingBottom: 0,
-          paddingTop: 0,
+          flexDirection: 'row',
+          flex: 1,
+          borderWidth: 3
+        },
+        isSelected && {
+          borderColor: 'rgb(2, 248, 240)',
+          borderWidth:3,
+          shadowColor: Colors.glow,
+          shadowOpacity: 1,
+          shadowRadius: 1,
+          boxShadow: '0px 0px 8px rgba(0, 188, 212, 0.5)',
+          elevation: 6,
         },
         style
       ]}
       onPress={onPressTile}
       onLongPress={onLongPress}
     >
-      <LinearGradient
-        style={[
-          commonStyles.button,
-          { flexDirection: 'row', flex: 1, borderWidth: 3, borderColor: 'transparent' },
-          isSelected && {
-            borderColor: Colors.glow,
-            borderWidth: 2,
-            shadowColor: Colors.glow,
-            shadowOpacity: 1,
-            shadowRadius: 1,
-            boxShadow: `0px 0px 5px 1px ${Colors.glow}`,
-            elevation: 6,
-          },
-        ]}
-        colors={['rgb(49, 67, 77)', 'rgb(38, 48, 54)', 'rgb(28, 37, 43)']}
-      >
         <>
           <View style={{ flexDirection: 'column', alignItems: 'flex-start', width: '100%' }}>
             {/* Info row: mock values for calories and training level, now below the title */}
@@ -103,9 +97,9 @@ const ListTile = ({
               }}
             >
               <Text style={commonStyles.listItemTitle}>{title}</Text>
-              <Text style={{ fontSize: 12, color: '#b0e0e6', marginBottom: 5 }}>{t('calories_colon')} {calorysData}</Text>
+              <Text style={{ fontSize: 14, color: '#b0e0e6', marginBottom: 5 }}>{t('calories_colon')} {calorysData}</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
-                <Text style={{ fontSize: 12, color: '#b0e0e6', marginRight: 5 }}>{t('level_colon')}</Text>
+                <Text style={{ fontSize: 14, color: '#b0e0e6', marginRight: 5 }}>{t('level_colon')}</Text>
                 {[...Array(totalStars)].map((_, i) => (
                   <FontAwesome
                     key={i}
@@ -138,7 +132,6 @@ const ListTile = ({
           </View>
         </>
         {onPressBtn && <TimerButton text="Delete" onPress={onPressBtn} small />}
-      </LinearGradient>
     </Pressable>
   );
 };

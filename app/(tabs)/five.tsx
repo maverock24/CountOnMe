@@ -328,7 +328,6 @@ const AnalyzerScreen: React.FC = () => {
             <TimerButton
               text={loading ? t('analyzing') : t('analyze')}
               onPress={handleAnalyze}
-              style={styles.analyzeButton}
               disabled={isAnalyzeDisabled}
             />
           </View>

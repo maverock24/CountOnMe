@@ -123,9 +123,10 @@
   "group_management": "Gruppenverwaltung",
   "group_name": "Gruppenname",
   "workout_and_group_management": "Workout & Gruppenverwaltung",
-  "view_group": "Gruppe anzeigen",
+  "view_group": "Gruppe",
   "select_group_to_view": "Gruppe zum Anzeigen auswählen",
   "no_group_selected": "Keine Gruppe ausgewählt",
   "all": "Alle",
-  "drag_to_reorder": "Halten und ziehen, um Workouts in der Gruppe neu zu ordnen"
+  "select_workout_group": "Gruppe auswählen",
+  "delete_workout_group": "Gruppe löschen"
 }
