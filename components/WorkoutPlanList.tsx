@@ -1,7 +1,7 @@
 import { FlatList, SafeAreaView, Text, View } from 'react-native';
-import { useData } from './data.provider';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import commonStyles from '../app/styles';
+import { useData } from './data.provider';
 
 export default function WorkoutPlanList() {
   const { storedItems } = useData();
@@ -17,6 +17,7 @@ export default function WorkoutPlanList() {
             </View>
           )}
           keyExtractor={(item) => item.key}
+          showsVerticalScrollIndicator={false}
         />
       </SafeAreaView>
     </SafeAreaProvider>

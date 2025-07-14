@@ -294,6 +294,7 @@ export default function TabThreeScreen() {
                     />
                   )}
                   keyExtractor={(item) => item.name}
+                  showsVerticalScrollIndicator={false}
                 />
               </SafeAreaView>
             </SafeAreaProvider>

@@ -447,6 +447,7 @@ const TabTwoScreen: React.FC = () => {
                 />
               )}
               keyExtractor={(item) => item.name}
+              showsVerticalScrollIndicator={false}
             />
           </View>
         </View>

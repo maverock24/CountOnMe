@@ -58,7 +58,7 @@ const SettingsScreen: React.FC = () => {
             },
           ]}
         >
-          <ScrollView contentContainerStyle={styles.scrollContent}>
+          <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <Text style={styles.sectionTitle}>{t('profile')}</Text>
             <Text style={styles.label}>{t('weight')}</Text>
             <TextInput

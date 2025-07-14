@@ -245,6 +245,7 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
                     </TouchableOpacity>
                   )}
                   style={styles.optionsList}
+                  showsVerticalScrollIndicator={false}
                 />
               </View>
             </TouchableWithoutFeedback>
