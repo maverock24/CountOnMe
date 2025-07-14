@@ -90,8 +90,8 @@ const SettingsScreen: React.FC = () => {
               <Text style={styles.label}>{t('sound_on_off')}</Text>
               <Switch
                 style={{ marginRight: 10, marginTop: 10 }}
-                trackColor={{ false: 'white', true: 'rgb(74, 125, 118)' }}
-                thumbColor={audioEnabled ? 'white' : 'grey'}
+                trackColor={{ false: 'gray', true: 'white' }}
+                thumbColor={audioEnabled ? 'gray' : 'white'}
                 onValueChange={setAudioEnabled}
                 value={audioEnabled}
               />
