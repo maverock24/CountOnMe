@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgb(31, 39, 44)',
     borderRadius: 5,
     marginBottom: 10,
-    minHeight: 40,
+    minHeight: 30,
     justifyContent: 'center',
     paddingHorizontal: 5,
     borderWidth: 1,
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    height: 40,
+    height: 30,
     paddingHorizontal: 5,
   },
   selectedText: {
