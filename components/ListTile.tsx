@@ -66,11 +66,11 @@ const ListTile = ({
         {
           flexDirection: 'row',
           flex: 1,
-          borderWidth: 3
+          borderWidth: 1,
         },
         isSelected && {
           borderColor: 'rgb(2, 248, 240)',
-          borderWidth:3,
+          borderWidth:1,
           shadowColor: Colors.glow,
           shadowOpacity: 1,
           shadowRadius: 1,

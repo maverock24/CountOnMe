@@ -1,5 +1,6 @@
-import { faBed, faRunning } from '@fortawesome/free-solid-svg-icons';
+import { faArrowDown, faArrowUp, faBed, faGripVertical, faRunning } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -11,6 +12,7 @@ import {
   StyleSheet,
   Switch,
   Text,
+  TouchableOpacity,
   View
 } from 'react-native';
 import Svg, { Circle, Defs, FeGaussianBlur, FeMerge, FeMergeNode, Filter } from 'react-native-svg';
@@ -27,7 +29,7 @@ import commonStyles from '../styles';
 
 const { height } = Dimensions.get('window');
 
-const baseRadius = 140;
+const baseRadius = 120;
 const radius = height > 800 ? baseRadius * 1.2 : baseRadius;
 
 interface Timer {
@@ -45,10 +47,24 @@ const formatTime = (seconds: number) => {
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const TabTwoScreen: React.FC = () => {
-  const { workoutItems, groupItems, isCountOnMeKey, audioEnabled, setAudioEnabled, currentMusicBeingPlayed, getOrderedWorkoutsForGroup } =
-    useData();
+  const { 
+    workoutItems, 
+    groupItems, 
+    isCountOnMeKey, 
+    audioEnabled, 
+    setAudioEnabled, 
+    currentMusicBeingPlayed, 
+    getOrderedWorkoutsForGroup,
+    reorderWorkoutInGroup,
+    reload
+  } = useData();
 
   const [selectedGroup, setSelectedGroup] = useState<string>('All');
+
+  // State for managing workout order
+  const [reorderableWorkouts, setReorderableWorkouts] = useState<any[]>([]);
+  const [isReorderMode, setIsReorderMode] = useState<boolean>(false);
+  const [globalWorkoutOrder, setGlobalWorkoutOrder] = useState<string[]>([]);
 
   const groupData = [
     { label: 'All', value: 'All' },
@@ -81,17 +97,33 @@ const TabTwoScreen: React.FC = () => {
 
   const { t } = useTranslation();
 
+  // Load saved workout order on component mount
+  useEffect(() => {
+    const loadWorkoutOrder = async () => {
+      try {
+        const savedOrder = await AsyncStorage.getItem('@countOnMe_workoutOrder');
+        if (savedOrder) {
+          setGlobalWorkoutOrder(JSON.parse(savedOrder));
+        }
+      } catch (error) {
+        console.error('Error loading workout order:', error);
+      }
+    };
+    loadWorkoutOrder();
+  }, []);
+
   // Auto-progression functionality
   const autoSelectNextWorkout = () => {
     if (!selectedItem) return;
     
-    const currentWorkoutIndex = filteredWorkouts.findIndex(workout => workout.name === selectedItem);
-    if (currentWorkoutIndex === -1 || currentWorkoutIndex >= filteredWorkouts.length - 1) {
+    const currentWorkouts = orderedWorkouts;
+    const currentWorkoutIndex = currentWorkouts.findIndex(workout => workout.name === selectedItem);
+    if (currentWorkoutIndex === -1 || currentWorkoutIndex >= currentWorkouts.length - 1) {
       // No next workout available
       return;
     }
     
-    const nextWorkout = filteredWorkouts[currentWorkoutIndex + 1];
+    const nextWorkout = currentWorkouts[currentWorkoutIndex + 1];
     
     // Complete reset of current state
     stopSound();
@@ -223,12 +255,15 @@ const TabTwoScreen: React.FC = () => {
     } else {
       if (currentIndex === timers.length - 1 && !stopped && timers.length > 0) {
         if (audioReady) {
+          if(audioEnabled) {
+      
           playSegmentMusic('successSound', () => {
             // Workout completed, try to auto-progress to next workout
             setTimeout(() => {
               autoSelectNextWorkout();
             }, 1000); // Give time for success sound to play
           });
+          }
         } else {
           // No audio, proceed immediately with auto-progression
           setTimeout(() => {
@@ -302,9 +337,194 @@ const TabTwoScreen: React.FC = () => {
     setSelectedGroup(groupName);
   };
 
+  // Functions for handling workout reordering
+  const moveWorkoutUp = (index: number) => {
+    if (index > 0) {
+      const newWorkouts = [...reorderableWorkouts];
+      [newWorkouts[index], newWorkouts[index - 1]] = [newWorkouts[index - 1], newWorkouts[index]];
+      setReorderableWorkouts(newWorkouts);
+    }
+  };
+
+  const moveWorkoutDown = (index: number) => {
+    if (index < reorderableWorkouts.length - 1) {
+      const newWorkouts = [...reorderableWorkouts];
+      [newWorkouts[index], newWorkouts[index + 1]] = [newWorkouts[index + 1], newWorkouts[index]];
+      setReorderableWorkouts(newWorkouts);
+    }
+  };
+
+  const toggleReorderMode = async () => {
+    if (!isReorderMode) {
+      // Enter reorder mode - copy current workouts to reorderable state
+      setReorderableWorkouts([...orderedWorkouts]);
+    } else {
+      // Exit reorder mode - save the new order
+      if (selectedGroup !== 'All') {
+        // Save the new order for the specific group by updating localStorage directly
+        try {
+          const groupKey = `@countOnMe_group_${selectedGroup}`;
+          const existingGroupData = await AsyncStorage.getItem(groupKey);
+          
+          if (existingGroupData) {
+            const groupData = JSON.parse(existingGroupData);
+            
+            // Update the workouts array with new order
+            const updatedWorkouts = reorderableWorkouts.map((workout, index) => ({
+              orderId: index + 1,
+              name: workout.name
+            }));
+            
+            // Update the group data
+            const updatedGroupData = {
+              ...groupData,
+              workouts: updatedWorkouts
+            };
+            
+            // Save back to localStorage
+            await AsyncStorage.setItem(groupKey, JSON.stringify(updatedGroupData));
+            
+            // Reload data provider to reflect changes
+            await reload();
+            
+            console.log('Group workout order saved successfully');
+          }
+        } catch (error) {
+          console.error('Error saving group workout order:', error);
+        }
+      } else {
+        // For 'All' workouts, create or update a special "All" group
+        try {
+          const allGroupKey = '@countOnMe_group_All';
+          
+          // Create the workouts array with new order
+          const updatedWorkouts = reorderableWorkouts.map((workout, index) => ({
+            orderId: index + 1,
+            name: workout.name
+          }));
+          
+          // Create or update the "All" group data
+          const allGroupData = {
+            name: 'All',
+            workouts: updatedWorkouts
+          };
+          
+          // Save to localStorage
+          await AsyncStorage.setItem(allGroupKey, JSON.stringify(allGroupData));
+          
+          // Reload data provider to reflect changes
+          await reload();
+          
+          console.log('Global workout order saved successfully');
+        } catch (error) {
+          console.error('Error saving global workout order:', error);
+        }
+      }
+    }
+    setIsReorderMode(!isReorderMode);
+  };
+
   const filteredWorkouts = selectedGroup === 'All' 
     ? workoutItems 
     : getOrderedWorkoutsForGroup(selectedGroup);
+
+  // Apply saved global order to workouts when in 'All' mode
+  const getOrderedWorkouts = () => {
+    if (selectedGroup !== 'All') {
+      return filteredWorkouts;
+    }
+    
+    // Check if there's an "All" group with saved order
+    const allGroup = groupItems.find(group => group.name === 'All');
+    if (allGroup && allGroup.workouts.length > 0) {
+      // Use the group ordering function for the "All" group
+      return getOrderedWorkoutsForGroup('All');
+    }
+    
+    // Fallback to original workout order if no "All" group exists
+    if (globalWorkoutOrder.length === 0) {
+      return filteredWorkouts;
+    }
+    
+    // Sort workouts according to saved order (legacy support)
+    const orderedWorkouts = [];
+    const remainingWorkouts = [...filteredWorkouts];
+    
+    // First, add workouts in the saved order
+    globalWorkoutOrder.forEach(workoutName => {
+      const workoutIndex = remainingWorkouts.findIndex(w => w.name === workoutName);
+      if (workoutIndex !== -1) {
+        orderedWorkouts.push(remainingWorkouts[workoutIndex]);
+        remainingWorkouts.splice(workoutIndex, 1);
+      }
+    });
+    
+    // Then, add any new workouts that weren't in the saved order
+    orderedWorkouts.push(...remainingWorkouts);
+    
+    return orderedWorkouts;
+  };
+
+  const orderedWorkouts = getOrderedWorkouts();
+
+  // Use reorderable workouts when in reorder mode, otherwise use ordered workouts
+  const displayWorkouts = isReorderMode ? reorderableWorkouts : orderedWorkouts;
+
+  // Custom render item for reorderable list
+  const renderWorkoutItem = ({ item, index }: { item: any, index: number }) => {
+    if (isReorderMode) {
+      return (
+        <View style={styles.reorderableItem}>
+          <View style={styles.reorderControls}>
+            <TouchableOpacity 
+              onPress={() => moveWorkoutUp(index)}
+              disabled={index === 0}
+              style={[styles.reorderButton, index === 0 && styles.disabledButton]}
+            >
+              <FontAwesomeIcon 
+                icon={faArrowUp} 
+                size={16} 
+                color={index === 0 ? '#666' : '#fff'} 
+              />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={() => moveWorkoutDown(index)}
+              disabled={index === displayWorkouts.length - 1}
+              style={[styles.reorderButton, index === displayWorkouts.length - 1 && styles.disabledButton]}
+            >
+              <FontAwesomeIcon 
+                icon={faArrowDown} 
+                size={16} 
+                color={index === displayWorkouts.length - 1 ? '#666' : '#fff'} 
+              />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.workoutInfo}>
+            <ListTile
+              isSelected={false}
+              title={item.name}
+              value={item.workout}
+              currentIndex={currentIndex}
+              onPressTile={() => {}} // Disabled in reorder mode
+            />
+          </View>
+          <View style={styles.gripHandle}>
+            <FontAwesomeIcon icon={faGripVertical} size={20} color="#666" />
+          </View>
+        </View>
+      );
+    } else {
+      return (
+        <ListTile
+          isSelected={selectedItem === item.name}
+          title={item.name}
+          value={item.workout}
+          currentIndex={currentIndex}
+          onPressTile={() => toggleSelectSet(item.name, item.workout)}
+        />
+      );
+    }
+  };
 
   const handleResetButtonPress = () => handleReset();
 
@@ -485,7 +705,7 @@ const TabTwoScreen: React.FC = () => {
                   intervalRef={intervalRef}
                   soundEnabled={audioEnabled}
                 />
-                <View style={styles.nextTimerContainer}>
+                {/* <View style={styles.nextTimerContainer}>
                   {timers.length > 0 && (
                     <Text style={styles.nextTimerText}>
                 {t('next')}{' '}
@@ -494,7 +714,7 @@ const TabTwoScreen: React.FC = () => {
                   : t('finished')}
               </Text>
                   )}
-                </View>
+                </View> */}
               </View>
             </View>
             <View style={styles.buttonContainer}>
@@ -525,32 +745,47 @@ const TabTwoScreen: React.FC = () => {
         <View style={commonStyles.outerContainer}>
           <Text style={commonStyles.tileTitle}>{t('workouts')}</Text>
           <View style={[commonStyles.tile, { flex: 1, padding: 5 }]}>
-            <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={styles.label}>{t('select_workout_group')}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 }}>
+            {/* <Text style={styles.label}>{t('select_workout_group')}</Text> */}
             <CustomPicker
-              containerStyle={{ width: 200, margin: 2, justifyContent: 'center' }}
-              style={{ width: '100%', alignSelf: 'center', justifyContent: 'center' }}
+              containerStyle={{ margin: 2, justifyContent: 'center', width: 150 }}
+              style={{ alignSelf: 'center', justifyContent: 'center'}}
               selectedValue={selectedGroup}
               onValueChange={handleGroupChange}
               items={groupData}
               dropdownIconColor="#fff"
             />
+
+              {/* <TouchableOpacity 
+                style={[styles.reorderToggleButton, isReorderMode && styles.reorderToggleButtonActive]}
+                onPress={toggleReorderMode}
+              >
+                <FontAwesomeIcon 
+                  icon={faGripVertical} 
+                  size={16} 
+                  color={isReorderMode ? '#000' : '#fff'} 
+                />
+                <Text style={[styles.reorderToggleText, isReorderMode && styles.reorderToggleTextActive]}>
+                  {isReorderMode ? t('done') || 'Done' : t('reorder') || 'Reorder'}
+                </Text>
+              </TouchableOpacity> */}
+              <TimerButton 
+                text={isReorderMode ? t('done') || 'Done' : t('reorder') || 'Reorder'}
+                onPress={toggleReorderMode}
+                isSelected={isReorderMode}
+                style={{ width:100}}
+              />
             </View>
+            
+            {/* Reorder Mode Toggle */}
+          
       
             {noWorkout && <TimerButton text={t('add_button')} onPress={handleAddNew} maxWidth />}
             
             <FlatList
               style={styles.listContainer}
-              data={filteredWorkouts}
-              renderItem={({ item }) => (
-                <ListTile
-                  isSelected={selectedItem === item.name}
-                  title={item.name}
-                  value={item.workout}
-                  currentIndex={currentIndex}
-                  onPressTile={() => toggleSelectSet(item.name, item.workout)}
-                />
-              )}
+              data={displayWorkouts}
+              renderItem={renderWorkoutItem}
               keyExtractor={(item) => item.name}
               showsVerticalScrollIndicator={false}
             />
@@ -584,7 +819,7 @@ const styles = StyleSheet.create({
   // Your existing styles remain the same
   innerWrapperTopTile: {
     paddingTop: 0,
-    paddingBottom: 20,
+    paddingBottom: 5,
     width: '95%',
     backgroundColor: 'transparent',
     alignItems: 'center',
@@ -672,6 +907,71 @@ const styles = StyleSheet.create({
     fontSize: 70,
     fontWeight: 'bold',
     color: 'white',
+  },
+  // Reorder mode styles
+  reorderToggleContainer: {
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  reorderToggleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#2A2E33',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#fff',
+  },
+  reorderToggleButtonActive: {
+    backgroundColor: '#fff',
+    borderColor: '#2A2E33',
+  },
+  reorderToggleText: {
+    color: '#fff',
+    marginLeft: 8,
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  reorderToggleTextActive: {
+    color: '#000',
+  },
+  reorderableItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1A1E23',
+    marginVertical: 2,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#333',
+  },
+  reorderControls: {
+    flexDirection: 'column',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  reorderButton: {
+    backgroundColor: '#2A2E33',
+    borderRadius: 4,
+    padding: 6,
+    marginVertical: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 30,
+  },
+  disabledButton: {
+    backgroundColor: '#1A1A1A',
+    opacity: 0.5,
+  },
+  workoutInfo: {
+    flex: 1,
+    paddingRight: 10,
+  },
+  gripHandle: {
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

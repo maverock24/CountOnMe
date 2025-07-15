@@ -68,8 +68,8 @@ const TimerButton = ({
           width: maxWidth ? '100%' : 'auto', 
           alignItems: 'center',
           borderRadius: 5,
-          margin: 10,
-          padding: 10,
+          margin: 7,
+          padding: 7,
           borderWidth: 1,
           borderColor: 'rgb(83, 90, 92)',
           backgroundColor: Colors.backgroundColor,
@@ -80,6 +80,10 @@ const TimerButton = ({
           // backgroundColor: 'rgba(15, 19, 20, 0.2)',
         },
         disabled && commonStyles.buttonDisabled,
+        isSelected && {
+          borderColor: 'rgb(2, 248, 240)',
+          boxShadow: '0px 0px 8px rgba(0, 188, 212, 0.5)',
+        },
         style, 
       ]}
     >
