@@ -76,7 +76,7 @@
   "analyzing": "Analysiere...",
   "failed_to_analyze": "Analyse fehlgeschlagen. Bitte versuche es erneut.",
   "add_to_workouts": "Hinzufügen",
-  "repetitions_breaks": "Wiederholungen/Pausen",
+  "repetitions_breaks": "Wiederholungen/Pausen min",
   "expected_calories_burned": "Erwarteter Kalorienverbrauch",
   "explanation": "Erklärung",
   "ai_workout": "KI-Workout",
@@ -86,7 +86,7 @@
   "add_button": "Hinzufügen",
   "name": "Name",
   "workout_set": "Workout-Set",
-  "workout_set_placeholder": "z.B. 30;10;30;10 (Arbeit;Pause;Arbeit;Pause)",
+  "workout_set_placeholder": "z.B. 3;1;3",
   "no_workouts_available": "Keine Workouts verfügbar.",
   "name_cannot_be_empty": "Name darf nicht leer sein.",
   "name_already_exists": "Name existiert bereits.",
@@ -128,5 +128,6 @@
   "no_group_selected": "Keine Gruppe ausgewählt",
   "all": "Alle",
   "select_workout_group": "Gruppe auswählen",
-  "delete_workout_group": "Gruppe löschen"
+  "delete_workout_group": "Gruppe löschen",
+  "remove_from_group": "Entfernen"
 }

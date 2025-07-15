@@ -4,11 +4,11 @@ import React, { createContext, useCallback, useContext, useEffect, useReducer } 
 import i18n from '@/i18n';
 
 import {
-    breakMusic as breakMusicData,
-    DataKey,
-    language as languageData,
-    successSound as successSoundData,
-    workoutMusic as workoutMusicData,
+  breakMusic as breakMusicData,
+  DataKey,
+  language as languageData,
+  successSound as successSoundData,
+  workoutMusic as workoutMusicData,
 } from '@/constants/media';
 import { SoundProvider } from './sound.provider'; // Adjust the import based on your file structure
 
@@ -224,44 +224,78 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const groupItems: GroupItem[] = [];
       
       items.forEach((item) => {
-        if (!reservedKeys.includes(item.key)) {
+        const trimmedKey = item.key;
+        
+        if (!reservedKeys.includes(trimmedKey)) {
           try {
-            // Try to parse as new format first
-            const parsed = JSON.parse(item.value || '{}');
-            if (parsed.name && parsed.workout) {
-              // New format: { name: 'workout1', workout: '1;2;1;2', group?: 'group1' }
-              workoutItems.push(parsed);
-            } else if (parsed.name && parsed.workouts) {
-              // Group format: { name: 'group1', workouts: [{ orderId: 1, name: 'workout1' }] }
-              // Handle both old and new group formats
-              if (Array.isArray(parsed.workouts)) {
-                if (parsed.workouts.length > 0 && typeof parsed.workouts[0] === 'string') {
-                  // Old format: convert string array to GroupWorkoutItem array
-                  const convertedWorkouts = parsed.workouts.map((workoutName: string, index: number) => ({
-                    orderId: index + 1,
-                    name: workoutName
-                  }));
-                  groupItems.push({
-                    name: parsed.name,
-                    workouts: convertedWorkouts
-                  });
-                } else {
-                  // New format: already has orderId and name
-                  groupItems.push(parsed);
+            // Check if this is a group item (starts with 'group_')
+            if (trimmedKey.startsWith('group_')) {
+              const parsed = JSON.parse(item.value || '{}');
+              if (parsed.name && parsed.workouts) {
+                // Group format: { name: 'group1', workouts: [{ orderId: 1, name: 'workout1' }] }
+                if (Array.isArray(parsed.workouts)) {
+                  if (parsed.workouts.length > 0 && typeof parsed.workouts[0] === 'string') {
+                    // Old format: convert string array to GroupWorkoutItem array
+                    const convertedWorkouts = parsed.workouts.map((workoutName: string, index: number) => ({
+                      orderId: index + 1,
+                      name: workoutName
+                    }));
+                    groupItems.push({
+                      name: parsed.name,
+                      workouts: convertedWorkouts
+                    });
+                  } else {
+                    // New format: already has orderId and name
+                    groupItems.push(parsed);
+                  }
                 }
               }
-            } else {
-              // Legacy format: convert old key-value pairs to new format
-              workoutItems.push({
-                name: item.key,
-                workout: item.value || '',
-                group: undefined
-              });
+            }
+            // Check if this is a workout item (starts with 'workout_')
+            else if (trimmedKey.startsWith('workout_')) {
+              const parsed = JSON.parse(item.value || '{}');
+              if (parsed.name && parsed.workout) {
+                // New format: { name: 'workout1', workout: '1;2;1;2', group?: 'group1' }
+                workoutItems.push(parsed);
+              }
+            }
+            // Legacy format handling
+            else {
+              const parsed = JSON.parse(item.value || '{}');
+              if (parsed.name && parsed.workout) {
+                // New format: { name: 'workout1', workout: '1;2;1;2', group?: 'group1' }
+                workoutItems.push(parsed);
+              } else if (parsed.name && parsed.workouts) {
+                // Group format
+                if (Array.isArray(parsed.workouts)) {
+                  if (parsed.workouts.length > 0 && typeof parsed.workouts[0] === 'string') {
+                    // Old format: convert string array to GroupWorkoutItem array
+                    const convertedWorkouts = parsed.workouts.map((workoutName: string, index: number) => ({
+                      orderId: index + 1,
+                      name: workoutName
+                    }));
+                    groupItems.push({
+                      name: parsed.name,
+                      workouts: convertedWorkouts
+                    });
+                  } else {
+                    // New format: already has orderId and name
+                    groupItems.push(parsed);
+                  }
+                }
+              } else {
+                // Legacy format: convert old key-value pairs to new format
+                workoutItems.push({
+                  name: trimmedKey,
+                  workout: item.value || '',
+                  group: undefined
+                });
+              }
             }
           } catch {
             // Fallback for legacy format
             workoutItems.push({
-              name: item.key,
+              name: trimmedKey,
               workout: item.value || '',
               group: undefined
             });
@@ -319,6 +353,31 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const deleteWorkout = async (name: string) => {
     try {
+      // First, remove the workout from all groups that contain it
+      const groupsToUpdate = state.groupItems.filter(group => 
+        group.workouts.some(w => w.name === name)
+      );
+      
+      for (const group of groupsToUpdate) {
+        const updatedWorkouts = group.workouts.filter(w => w.name !== name);
+        
+        if (updatedWorkouts.length === 0) {
+          // If the group becomes empty, delete the entire group
+          await AsyncStorage.removeItem(`${prefixKey}group_${group.name}`);
+        } else {
+          // Otherwise, update the group with remaining workouts
+          const updatedGroup = {
+            ...group,
+            workouts: updatedWorkouts.map((workout, index) => ({
+              ...workout,
+              orderId: index + 1 // Reorder remaining workouts
+            }))
+          };
+          await AsyncStorage.setItem(`${prefixKey}group_${group.name}`, JSON.stringify(updatedGroup));
+        }
+      }
+      
+      // Then delete the workout itself
       await AsyncStorage.removeItem(`${prefixKey}workout_${name}`);
       await reload();
     } catch (e) {

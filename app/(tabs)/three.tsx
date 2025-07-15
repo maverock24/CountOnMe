@@ -1,12 +1,13 @@
 import { useData } from '@/components/data.provider';
 import { View } from '@/components/Themed';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Keyboard, SafeAreaView, StyleSheet, Text, TextInput } from 'react-native';
+import { Keyboard, SafeAreaView, StyleSheet, Text, TextInput } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import CustomPicker from '@/components/CustomPicker';
-import ListTile from '@/components/ListTile';
+import ReorderableWorkoutList from '@/components/ReorderableWorkoutList';
 import TimerButton from '@/components/TimerButton';
 import commonStyles from '../styles';
 
@@ -17,7 +18,8 @@ export default function TabThreeScreen() {
     storeWorkout, 
     storeGroup, 
     deleteWorkout,
-    getOrderedWorkoutsForGroup
+    getOrderedWorkoutsForGroup,
+    reload
   } = useData();
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
 
@@ -32,6 +34,9 @@ export default function TabThreeScreen() {
   const [nameError, setNameError] = useState<string | null>(null);
   const [unitError, setUnitError] = useState<string | null>(null);
   const [removeGroupDisabled, setRemoveGroupDisabled] = useState<boolean>(false);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [editingWorkoutName, setEditingWorkoutName] = useState<string | null>(null);
+  const [isAssigning, setIsAssigning] = useState<boolean>(false);
 
   const noWorkout = workoutItems.length === 0;
 
@@ -42,7 +47,11 @@ export default function TabThreeScreen() {
       setNameError(t('name_cannot_be_empty'));
       return false;
     }
-    const isNameValid = workoutItems.every((item) => item.name !== name);
+    
+    // Allow same name if we're editing the same workout
+    const isEditingSameName = isEditing && name === editingWorkoutName;
+    const isNameValid = isEditingSameName || workoutItems.every((item) => item.name !== name);
+    
     if (!isNameValid) {
       setNameError(t('name_already_exists'));
       return false;
@@ -88,12 +97,27 @@ export default function TabThreeScreen() {
     Keyboard.dismiss();
   };
 
-  const deleteItemHandler = (key: string) => {
-    if (key) {
-      deleteWorkout(key);
+  const deleteItemHandler = async (workoutName?: string) => {
+    // Determine which workouts to delete
+    const workoutsToDelete = workoutName ? [workoutName] : Array.from(selectedItems);
+    
+    if (workoutsToDelete.length === 0) return;
+
+    try {
+      // Delete each selected workout (data provider will handle group removal automatically)
+      for (const workout of workoutsToDelete) {
+        await deleteWorkout(workout);
+      }
+
+      // Clear selections and editing state after successful deletion
       setSelectedItem(null);
+      setSelectedItems(new Set());
       setNameError(null);
       setUnitError(null);
+      cancelEdit(); // Clear editing state
+      
+    } catch (error) {
+      console.error('Failed to delete workouts:', error);
     }
   };
 
@@ -101,7 +125,77 @@ export default function TabThreeScreen() {
     setUnit(text);
   };
 
-  const toggleSelectSet = (name: string) => {
+  const loadWorkoutForEditing = (workoutName: string) => {
+    const workout = workoutItems.find(item => item.name === workoutName);
+    if (workout) {
+      setName(workoutName);
+      // Convert seconds back to minutes for display
+      const unitInMinutes = workout.workout
+        .split(';')
+        .map(time => (parseFloat(time) / 60).toString())
+        .join(';');
+      setUnit(unitInMinutes);
+      setIsEditing(true);
+      setEditingWorkoutName(workoutName);
+    }
+  };
+
+  const saveWorkoutChanges = async () => {
+    if (!editingWorkoutName) return;
+    
+    const isNameValid = validateName(name);
+    const isUnitValid = validateUnit(unit);
+    
+    // Allow same name if we're editing the same workout
+    const isEditingSameName = name === editingWorkoutName;
+    const nameValidForEdit = isEditingSameName || isNameValid;
+    
+    if (!nameValidForEdit || !isUnitValid) return;
+
+    try {
+      // Convert minutes to seconds
+      const unitInSeconds = unit
+        .split(';')
+        .map((time) => parseFloat(time) * 60)
+        .join(';');
+
+      // Always delete the original workout first (this ensures we overwrite, not duplicate)
+      await deleteWorkout(editingWorkoutName);
+
+      // Save the updated workout (this will overwrite if name is same, or create new if name changed)
+      const updatedWorkout = {
+        name: name,
+        workout: unitInSeconds,
+        group: undefined
+      };
+
+      await storeWorkout(updatedWorkout);
+      
+      // Clear form and editing state
+      setName('');
+      setUnit('');
+      setIsEditing(false);
+      setEditingWorkoutName(null);
+      setSelectedItem(null);
+      setSelectedItems(new Set());
+      
+      Keyboard.dismiss();
+    } catch (error) {
+      console.error('Failed to save workout changes:', error);
+    }
+  };
+
+  const cancelEdit = () => {
+    setName('');
+    setUnit('');
+    setIsEditing(false);
+    setEditingWorkoutName(null);
+    setNameError(null);
+    setUnitError(null);
+    setIsAssigning(false); // Clear assignment mode when canceling edit
+  };
+
+  const toggleSelectSet = (name: string, workout: string) => {
     // Handle multi-select for group creation
     const newSelectedItems = new Set(selectedItems);
     const isCurrentlySelected = newSelectedItems.has(name);
@@ -121,11 +215,25 @@ export default function TabThreeScreen() {
       // If we're deselecting the currently selected item, clear single selection
       setSelectedItem(null);
     }
+
+    // Handle edit mode: ALWAYS when exactly one item is selected, load it for editing
+    if (newSelectedItems.size === 1) {
+      const selectedWorkoutName = Array.from(newSelectedItems)[0];
+      loadWorkoutForEditing(selectedWorkoutName);
+    } else {
+      // Clear editing mode if multiple items are selected or none
+      cancelEdit();
+    }
   };
 
   const handleAddGroup = async () => {
-    if (!groupName.trim() || selectedItems.size === 0) {
+    if (!groupName.trim()) {
       return;
+    }
+
+    // Prevent creating groups named "All" (case-insensitive)
+    if (groupName.trim().toLowerCase() === 'all') {
+      return; // Silently prevent creating "All" group
     }
 
     const newGroup = {
@@ -145,13 +253,119 @@ export default function TabThreeScreen() {
     }
   };
 
+  const handleAssignToGroup = async (targetGroupName: string) => {
+    if (!isAssigning || selectedItems.size === 0 || !targetGroupName || targetGroupName === 'all') {
+      return;
+    }
+
+    try {
+      // Get the existing group
+      const existingGroup = groupItems.find(group => group.name === targetGroupName);
+      if (!existingGroup) return;
+
+      // Get existing workout names in the group
+      const existingWorkoutNames = new Set(existingGroup.workouts.map(w => w.name));
+      
+      // Add new workouts that aren't already in the group
+      const newWorkouts = Array.from(selectedItems).filter(workoutName => 
+        !existingWorkoutNames.has(workoutName)
+      );
+      
+      if (newWorkouts.length > 0) {
+        const maxOrderId = existingGroup.workouts.length > 0 
+          ? Math.max(...existingGroup.workouts.map(w => w.orderId)) 
+          : 0;
+        
+        const updatedGroup = {
+          ...existingGroup,
+          workouts: [
+            ...existingGroup.workouts,
+            ...newWorkouts.map((workoutName, index) => ({
+              orderId: maxOrderId + index + 1,
+              name: workoutName
+            }))
+          ]
+        };
+
+        await storeGroup(updatedGroup);
+      }
+      
+      // Clear assignment mode and selections
+      setIsAssigning(false);
+      setSelectedItems(new Set());
+      
+      // Switch to viewing the group we just assigned to
+      setViewingGroup(targetGroupName);
+    } catch (error) {
+      console.error('Failed to assign workouts to group:', error);
+    }
+  };
+
+  const handleRemoveFromGroup = async () => {
+    if (!viewingGroup || viewingGroup === 'all' || selectedItems.size === 0) {
+      return;
+    }
+
+    try {
+      // Get the existing group
+      const existingGroup = groupItems.find(group => group.name === viewingGroup);
+      if (!existingGroup) return;
+
+      // Remove selected workouts from the group
+      const remainingWorkouts = existingGroup.workouts.filter(workout => 
+        !selectedItems.has(workout.name)
+      );
+
+      if (remainingWorkouts.length === 0) {
+        // If no workouts remain, delete the entire group
+        await AsyncStorage.removeItem(`@countOnMe_group_${viewingGroup}`);
+        
+        // Switch back to 'all' view since the group is deleted
+        setViewingGroup('all');
+        setRemoveGroupDisabled(true);
+      } else {
+        // Update the group with remaining workouts, maintaining order
+        const updatedGroup = {
+          ...existingGroup,
+          workouts: remainingWorkouts.map((workout, index) => ({
+            ...workout,
+            orderId: index + 1 // Reorder the remaining workouts
+          }))
+        };
+
+        await storeGroup(updatedGroup);
+      }
+
+      // Clear selections and reload data
+      setSelectedItems(new Set());
+      setSelectedItem(null);
+      
+    } catch (error) {
+      console.error('Failed to remove workouts from group:', error);
+    }
+  };
+
   const handleOnFocus = () => {
     setNameError(null);
     setUnitError(null);
   };
 
+  const handleReorderComplete = async () => {
+    // Refresh the data after reordering is complete
+    await reload();
+  };
+
   const handleGroupViewSelection = (groupName: string) => {
+    // If in assignment mode and a group is selected (not 'all'), automatically assign
+    if (isAssigning && selectedItems.size > 0 && groupName !== 'all') {
+      handleAssignToGroup(groupName);
+      return; // Exit early after assignment
+    }
+
     setViewingGroup(groupName);
+    cancelEdit(); // Clear editing state when switching views
+    setIsAssigning(false); // Clear assignment mode when switching views
+    
     if (groupName && groupName !== 'all') {
       // Get ordered workouts for the group and select them
       setRemoveGroupDisabled(false);
@@ -210,14 +424,19 @@ export default function TabThreeScreen() {
             </View>
             <View style={{ flexDirection: 'column', width: '30%' }}>
             <TimerButton
-                disabled={selectedItem ? false : true}
-                text={t('delete')}
-                onPress={() => deleteItemHandler(selectedItem!)}
+                disabled={selectedItem === null && selectedItems.size === 0}
+                text={selectedItems.size > 1 ? t('delete_selected') || `Delete (${selectedItems.size})` : t('delete')}
+                onPress={() => deleteItemHandler()}
               />
               <TimerButton
-                disabled={unit !== '' && name !== '' ? false : true}
+                disabled={unit === '' || name === '' || isEditing}
                 text={t('add')}
                 onPress={addItem}
+              />
+              <TimerButton
+                disabled={!isEditing || selectedItems.size !== 1 || unit === '' || name === ''}
+                text={t('save') || 'Save'}
+                onPress={saveWorkoutChanges}
               />
             </View>
             </View>
@@ -239,7 +458,9 @@ export default function TabThreeScreen() {
                 onValueChange={handleGroupViewSelection}
                 items={[
                   { label: t('all'), value: 'all' },
-                  ...groupItems.map(group => ({ label: group.name, value: group.name }))
+                  ...groupItems
+                    .filter(group => group.name.toLowerCase() !== 'all') // Filter out any "All" groups
+                    .map(group => ({ label: group.name, value: group.name }))
                 ]}
                 dropdownIconColor="#fff"
                 placeholder={t('select_group_to_view')}
@@ -251,13 +472,18 @@ export default function TabThreeScreen() {
                 <TimerButton
                 text={t('add_group')}
                 onPress={handleAddGroup}
-                disabled={selectedItems.size === 0 || !groupName.trim()}
+                disabled={!groupName.trim()}
               />
               <TimerButton
-                disabled={removeGroupDisabled}
-                text={t('delete_workout_group')}
-                onPress={() => handleGroupViewSelection(viewingGroup)}
-                
+                disabled={removeGroupDisabled || selectedItems.size === 0}
+                text={t('remove_from_group') || 'Remove'}
+                onPress={handleRemoveFromGroup}
+              />
+              <TimerButton
+                isSelected={isAssigning}
+                text={t('assign') || 'Assign'}
+                onPress={() => setIsAssigning(!isAssigning)}
+                disabled={selectedItems.size === 0}
               />
               </View>
             </View>
@@ -281,23 +507,19 @@ export default function TabThreeScreen() {
                 {t('no_workouts_available')}
               </Text>
             )}
-            <SafeAreaProvider style={{ width: '100%' }}>
-              <SafeAreaView style={styles.flatList}>
-                <FlatList
-                  data={orderedWorkoutItems}
-                  renderItem={({ item }) => (
-                    <ListTile
-                      isSelected={selectedItems.has(item.name) || selectedItem === item.name}
-                      title={item.name}
-                      value={item.workout}
-                      onPressTile={() => toggleSelectSet(item.name)}
-                    />
-                  )}
-                  keyExtractor={(item) => item.name}
-                  showsVerticalScrollIndicator={false}
-                />
-              </SafeAreaView>
-            </SafeAreaProvider>
+            {!noWorkout && (
+              <ReorderableWorkoutList
+                key={`${viewingGroup}-${groupItems.length}`}
+                workouts={orderedWorkoutItems}
+                selectedGroup={viewingGroup}
+                selectedItem={selectedItem}
+                selectedItems={selectedItems}
+                onWorkoutSelect={toggleSelectSet}
+                showReorderButton={true}
+                multiSelect={true}
+                onReorderComplete={handleReorderComplete}
+              />
+            )}
           </View>
         </View>
       </View>
