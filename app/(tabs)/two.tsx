@@ -81,6 +81,71 @@ const TabTwoScreen: React.FC = () => {
 
   const { t } = useTranslation();
 
+  // Auto-progression functionality
+  const autoSelectNextWorkout = () => {
+    if (!selectedItem) return;
+    
+    const currentWorkoutIndex = filteredWorkouts.findIndex(workout => workout.name === selectedItem);
+    if (currentWorkoutIndex === -1 || currentWorkoutIndex >= filteredWorkouts.length - 1) {
+      // No next workout available
+      return;
+    }
+    
+    const nextWorkout = filteredWorkouts[currentWorkoutIndex + 1];
+    
+    // Complete reset of current state
+    stopSound();
+    setIsRunning(false);
+    setStopped(true);
+    
+    // Clear any running intervals
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    
+    // Reset all timing and progress state
+    setElapsedTime(0);
+    setCurrentIndex(0);
+    progress.setValue(0);
+    
+    // Reset animation
+    Animated.timing(translateY, {
+      toValue: 0,
+      duration: 0,
+      useNativeDriver: true,
+    }).start();
+    
+    // Small delay to ensure state is completely reset
+    setTimeout(() => {
+      // Select the next workout
+      setSelectedItem(nextWorkout.name);
+      
+      // Parse and set up the new workout
+      const newTimers = nextWorkout.workout.split(';').map((time, index) => ({
+        id: index.toString(),
+        time: parseInt(time),
+        segment: index % 2 === 0 ? 'workout' : 'break',
+      }));
+      
+      setTimers(newTimers);
+      
+      // Set initial time for the first segment of new workout
+      if (newTimers.length > 0) {
+        setTime(newTimers[0].time);
+      }
+      
+      // Force re-render with new progress key
+      setProgressKey((k) => k + 1);
+      
+      // Start the next workout after a brief pause
+      setTimeout(() => {
+        setStopped(false);
+        setIsRunning(true);
+      }, 800);
+    }, 200);
+  };
+
   useEffect(() => {
     let pulseDuration = 350;
     let pulseUpDuration = 125;
@@ -158,7 +223,17 @@ const TabTwoScreen: React.FC = () => {
     } else {
       if (currentIndex === timers.length - 1 && !stopped && timers.length > 0) {
         if (audioReady) {
-          playSegmentMusic('successSound', handleReset);
+          playSegmentMusic('successSound', () => {
+            // Workout completed, try to auto-progress to next workout
+            setTimeout(() => {
+              autoSelectNextWorkout();
+            }, 1000); // Give time for success sound to play
+          });
+        } else {
+          // No audio, proceed immediately with auto-progression
+          setTimeout(() => {
+            autoSelectNextWorkout();
+          }, 500);
         }
       }
     }
@@ -172,6 +247,12 @@ const TabTwoScreen: React.FC = () => {
   }, [elapsedTime, totalTime, progress]);
 
   const selectSet = (workout: string) => {
+    // Stop any currently running timer first
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    
     // Split the workout string into an array of objects
     const items = workout.split(';').map((time, index) => ({
       id: index.toString(),
@@ -179,14 +260,28 @@ const TabTwoScreen: React.FC = () => {
       segment: index % 2 === 0 ? 'workout' : 'break',
     }));
 
+    // Set the new timers
     setTimers(items);
 
     // Ensure we have valid data before setting time
     if (items.length > 0) {
+      // Reset all progress and timing state
       progress.setValue(0);
       setElapsedTime(0);
+      setCurrentIndex(0);
+      setTime(items[0].time); // Set to first segment time
       setProgressKey((k) => k + 1); // force re-render
-      handleReset(items);
+      
+      // Reset animation position
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration: 0,
+        useNativeDriver: true,
+      }).start();
+      
+      // Ensure stopped state
+      setStopped(true);
+      setIsRunning(false);
     }
   };
 
@@ -240,31 +335,41 @@ const TabTwoScreen: React.FC = () => {
   };
 
   const handleReset = (items?: Timer[]) => {
-    //stop any currently playing sounds
+    // Stop any currently playing sounds
     stopSound();
+    
+    // Clear any running intervals first
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    
+    // Reset state flags
     setStopped(true);
     setIsRunning(false);
 
     const timerItems = items || timers;
     if (timerItems.length > 0) {
+      // Reset to first timer
       setTime(timerItems[0].time);
       setCurrentIndex(0);
 
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-
+      // Reset animations
       Animated.timing(translateY, {
         toValue: 0,
         duration: 500,
         useNativeDriver: true,
       }).start();
 
+      // Reset progress and elapsed time
       progress.setValue(0);
       setElapsedTime(0);
       setProgressKey((k) => k + 1); // force re-render
     } else {
+      // No timers available
+      setTime(0);
+      setCurrentIndex(0);
+      setElapsedTime(0);
       progress.setValue(100);
       setProgressKey((k) => k + 1); // force re-render
     }
