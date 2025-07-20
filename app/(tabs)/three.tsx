@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { Keyboard, StyleSheet, Text, TextInput } from 'react-native';
 
 import CustomPicker from '@/components/CustomPicker';
+import type { WorkoutItem } from '@/components/ReorderableWorkoutList';
 import ReorderableWorkoutList from '@/components/ReorderableWorkoutList';
 import TimerButton from '@/components/TimerButton';
 import commonStyles from '../styles';
@@ -75,7 +76,7 @@ export default function TabThreeScreen() {
     setUnitError(t('invalid_unit_format'));
     return false;
   };
-  const addItem = () => {
+  const addItem = async () => {
     const isNameValid = validateName(name);
     const isUnitValid = validateUnit(unit);
     if (!isNameValid || !isUnitValid) return;
@@ -90,7 +91,10 @@ export default function TabThreeScreen() {
       group: undefined
     };
 
-    storeWorkout(newWorkout);
+    await storeWorkout(newWorkout);
+    await reload();
+  await syncAllGroup();
+
     setName('');
     setUnit('');
     //unfocus the input
@@ -115,7 +119,8 @@ export default function TabThreeScreen() {
       setNameError(null);
       setUnitError(null);
       cancelEdit(); // Clear editing state
-      
+      await reload();
+      await syncAllGroup();
     } catch (error) {
       console.error('Failed to delete workouts:', error);
     }
@@ -170,7 +175,9 @@ export default function TabThreeScreen() {
       };
 
       await storeWorkout(updatedWorkout);
-      
+      await reload();
+      await syncAllGroup();
+
       // Clear form and editing state
       setName('');
       setUnit('');
@@ -391,18 +398,25 @@ export default function TabThreeScreen() {
       .map(group => ({ label: group.name, value: group.name }))
   ];
 
-  // Create filtered workout list: show only group workouts when a group is selected, all workouts when 'all' is selected
-  const getOrderedWorkoutList = () => {
-    if (!filteredGroup || filteredGroup === 'all') {
-      return workoutItems;
+  // Workouts are now loaded and ordered by ReorderableWorkoutList
+  const [orderedWorkoutItems, setOrderedWorkoutItems] = useState<WorkoutItem[]>([]);
+
+  // Sync 'All' group in storage with current workoutItems
+  const syncAllGroup = async () => {
+    const allGroupKey = '@countOnMe_group_All';
+    try {
+      const keys = await AsyncStorage.getAllKeys();
+      const workoutKeys = keys.filter(k => k.startsWith('@countOnMe_') && !k.startsWith('@countOnMe_group_'));
+      const workoutEntries = await AsyncStorage.multiGet(workoutKeys);
+      const workoutsArr = workoutEntries.map(([key, value], idx) => {
+        const name = key.replace('@countOnMe_', '');
+        return { orderId: idx + 1, name };
+      });
+      await AsyncStorage.setItem(allGroupKey, JSON.stringify({ name: 'All', workouts: workoutsArr }));
+    } catch (err) {
+      console.error('Failed to sync All group:', err);
     }
-
-    // Return only workouts belonging to the selected group, in order
-    const groupWorkouts = getOrderedWorkoutsForGroup(filteredGroup);
-    return groupWorkouts;
   };
-
-  const orderedWorkoutItems = getOrderedWorkoutList();
 
   return (
     <View style={commonStyles.container}>
@@ -517,16 +531,17 @@ export default function TabThreeScreen() {
             {!noWorkout && (
               <ReorderableWorkoutList
                 key={`${filteredGroup}-${groupItems.length}`}
-                workouts={orderedWorkoutItems}
-                selectedGroup={filteredGroup}
                 groupData={groupData}
+                selectedGroup={filteredGroup}
+                onGroupChange={handleWorkoutListGroupFilter}
                 selectedItem={selectedItem}
                 selectedItems={selectedItems}
                 onWorkoutSelect={toggleSelectSet}
                 showReorderButton={true}
                 onReorderComplete={handleReorderComplete}
-                onGroupChange={handleWorkoutListGroupFilter}
                 currentIndex={selectedItem ? orderedWorkoutItems.findIndex(w => w.name === selectedItem) : 0}
+                onWorkoutsChanged={setOrderedWorkoutItems}
+                allWorkouts={workoutItems}
               />
             )}
           </View>

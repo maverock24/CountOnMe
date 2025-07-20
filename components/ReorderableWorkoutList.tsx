@@ -1,7 +1,7 @@
 import { faArrowDown, faArrowUp, faGripVertical } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 
@@ -10,16 +10,16 @@ import ListTile from '@/components/ListTile';
 import TimerButton from '@/components/TimerButton';
 import CustomPicker from './CustomPicker';
 
-interface WorkoutItem {
+export interface WorkoutItem {
   name: string;
   workout: string;
   group?: string;
+  orderId?: number;
 }
 
-export interface ReorderableWorkoutListProps {
-  workouts: WorkoutItem[];
-  selectedGroup: string;
+interface ReorderableWorkoutListProps {
   groupData: { label: string; value: string }[];
+  selectedGroup: string;
   onGroupChange: (groupName: string) => void;
   selectedItem: string | null;
   selectedItems?: Set<string>;
@@ -27,12 +27,13 @@ export interface ReorderableWorkoutListProps {
   currentIndex: number;
   showReorderButton?: boolean;
   onReorderComplete?: () => Promise<void>;
+  onWorkoutsChanged?: (workouts: WorkoutItem[]) => void;
+  allWorkouts?: WorkoutItem[]; // Pass all workouts from parent for 'All' group merging
 }
 
 const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
-  workouts,
-  selectedGroup,
   groupData,
+  selectedGroup,
   onGroupChange,
   selectedItem,
   selectedItems = new Set(),
@@ -40,13 +41,74 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
   currentIndex,
   showReorderButton = true,
   onReorderComplete,
+  onWorkoutsChanged,
+  allWorkouts,
 }) => {
   const { reload } = useData();
   const { t } = useTranslation();
-  
   const [isReorderMode, setIsReorderMode] = useState<boolean>(false);
   const [reorderableWorkouts, setReorderableWorkouts] = useState<WorkoutItem[]>([]);
+  const [workouts, setWorkouts] = useState<WorkoutItem[]>([]);
 
+  // Load workouts for selected group from localStorage
+  useEffect(() => {
+    const loadWorkouts = async () => {
+      let groupKey = selectedGroup === 'All' || selectedGroup === 'all'
+        ? '@countOnMe_group_All'
+        : `@countOnMe_group_${selectedGroup}`;
+      try {
+        const groupDataStr = await AsyncStorage.getItem(groupKey);
+        let loadedWorkouts: WorkoutItem[] = [];
+        if (groupDataStr) {
+          const groupObj = JSON.parse(groupDataStr);
+          if (Array.isArray(groupObj.workouts)) {
+            loadedWorkouts = groupObj.workouts.map((w: any) => ({
+              name: w.name,
+              workout: w.workout || '',
+              group: selectedGroup,
+              orderId: w.orderId || 0,
+            }));
+          }
+        }
+        // For 'All' group, merge with allWorkouts to ensure all are present
+        if ((selectedGroup === 'All' || selectedGroup === 'all') && Array.isArray(allWorkouts)) {
+          // Add missing workouts from allWorkouts, and ensure all have correct workout value
+          const existingNames = new Set(loadedWorkouts.map(w => w.name));
+          const missingWorkouts = allWorkouts.filter(w => !existingNames.has(w.name));
+          // For all workouts, ensure workout value is correct
+          // First, update loadedWorkouts with correct workout value from allWorkouts
+          loadedWorkouts = loadedWorkouts.map((lw, idx) => {
+            const full = allWorkouts.find(aw => aw.name === lw.name);
+            return {
+              ...lw,
+              workout: full?.workout || lw.workout || '',
+              group: 'All',
+              orderId: lw.orderId ?? idx + 1,
+            };
+          });
+          // Then, add missing ones
+          loadedWorkouts = [
+            ...loadedWorkouts,
+            ...missingWorkouts.map((w, idx) => ({
+              ...w,
+              group: 'All',
+              orderId: loadedWorkouts.length + idx + 1,
+            }))
+          ];
+        }
+        // Sort by orderId if present
+        loadedWorkouts.sort((a, b) => (a.orderId ?? 0) - (b.orderId ?? 0));
+        setWorkouts(loadedWorkouts);
+        if (onWorkoutsChanged) onWorkoutsChanged(loadedWorkouts);
+      } catch (err) {
+        setWorkouts([]);
+        if (onWorkoutsChanged) onWorkoutsChanged([]);
+      }
+    };
+    loadWorkouts();
+  }, [selectedGroup, allWorkouts]);
+
+  // Move workout up/down in reorder mode
   const moveWorkoutUp = (index: number) => {
     if (index > 0) {
       const newWorkouts = [...reorderableWorkouts];
@@ -54,7 +116,6 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
       setReorderableWorkouts(newWorkouts);
     }
   };
-
   const moveWorkoutDown = (index: number) => {
     if (index < reorderableWorkouts.length - 1) {
       const newWorkouts = [...reorderableWorkouts];
@@ -65,79 +126,41 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
 
   const toggleReorderMode = async () => {
     if (!isReorderMode) {
-      // Enter reorder mode - copy current workouts to reorderable state
       setReorderableWorkouts([...workouts]);
     } else {
-      // Exit reorder mode - save the new order
       await saveReorderedWorkouts();
     }
     setIsReorderMode(!isReorderMode);
   };
 
+  // Save reordered workouts to localStorage
   const saveReorderedWorkouts = async () => {
     try {
-      if (selectedGroup !== 'All' && selectedGroup !== 'all') {
-        // Save the new order for the specific group by updating localStorage directly
-        const groupKey = `@countOnMe_group_${selectedGroup}`;
-        const existingGroupData = await AsyncStorage.getItem(groupKey);
-        
-        if (existingGroupData) {
-          const groupData = JSON.parse(existingGroupData);
-          
-          // Update the workouts array with new order
-          const updatedWorkouts = reorderableWorkouts.map((workout, index) => ({
-            orderId: index + 1,
-            name: workout.name
-          }));
-          
-          // Update the group data
-          const updatedGroupData = {
-            ...groupData,
-            workouts: updatedWorkouts
-          };
-          
-          // Save back to localStorage
-          await AsyncStorage.setItem(groupKey, JSON.stringify(updatedGroupData));
-          
-          console.log('Group workout order saved successfully');
-        }
-      } else {
-        // For 'All' workouts, create or update a special "All" group
-        const allGroupKey = '@countOnMe_group_All';
-        
-        // Create the workouts array with new order
-        const updatedWorkouts = reorderableWorkouts.map((workout, index) => ({
-          orderId: index + 1,
-          name: workout.name
-        }));
-        
-        // Create or update the "All" group data
-        const allGroupData = {
-          name: 'All',
-          workouts: updatedWorkouts
-        };
-        
-        // Save to localStorage
-        await AsyncStorage.setItem(allGroupKey, JSON.stringify(allGroupData));
-        
-        console.log('Global workout order saved successfully');
-      }
-      
-      // Reload data provider to reflect changes
+      let groupKey = selectedGroup === 'All' || selectedGroup === 'all'
+        ? '@countOnMe_group_All'
+        : `@countOnMe_group_${selectedGroup}`;
+      const updatedWorkouts = reorderableWorkouts.map((workout, index) => ({
+        ...workout,
+        orderId: index + 1,
+      }));
+      const groupObj = {
+        name: selectedGroup,
+        workouts: updatedWorkouts,
+      };
+      await AsyncStorage.setItem(groupKey, JSON.stringify(groupObj));
+      setWorkouts(updatedWorkouts);
+      if (onWorkoutsChanged) onWorkoutsChanged(updatedWorkouts);
       await reload();
-      
-      // Notify parent component if callback provided
-      if (onReorderComplete) {
-        onReorderComplete();
-      }
+      if (onReorderComplete) onReorderComplete();
     } catch (error) {
       console.error('Error saving workout order:', error);
     }
   };
 
-  // Use reorderable workouts when in reorder mode, otherwise use provided workouts
+  // Use reorderable workouts when in reorder mode, otherwise use loaded workouts
   const displayWorkouts = isReorderMode ? reorderableWorkouts : workouts;
 
+  // Render workout item
   const renderWorkoutItem = ({ item, index }: { item: WorkoutItem, index: number }) => {
     if (isReorderMode) {
       return (
@@ -215,7 +238,6 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
           />
         )}
       </View>
-      
       <FlatList
         style={styles.listContainer}
         data={displayWorkouts}
