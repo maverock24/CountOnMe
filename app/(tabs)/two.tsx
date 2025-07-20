@@ -34,6 +34,12 @@ interface Timer {
   segment: string;
 }
 
+interface WorkoutItem {
+  name: string;
+  workout: string;
+  group?: string;
+}
+
 const formatTime = (seconds: number) => {
   const mins = Math.floor((seconds % 3600) / 60);
   const secs = seconds % 60;
@@ -46,16 +52,16 @@ const TabTwoScreen: React.FC = () => {
   const { 
     workoutItems, 
     groupItems, 
-    isCountOnMeKey, 
     audioEnabled, 
     setAudioEnabled, 
     currentMusicBeingPlayed, 
     getOrderedWorkoutsForGroup,
-    reorderWorkoutInGroup,
     reload
   } = useData();
 
   const [selectedGroup, setSelectedGroup] = useState<string>('All');
+
+  console.log('workoutItems', workoutItems);
 
   // Remove duplicate 'All' entry in groupData
   const groupData = [
@@ -89,11 +95,6 @@ const TabTwoScreen: React.FC = () => {
   const [progressKey, setProgressKey] = useState(0);
 
   const { t } = useTranslation();
-
-  // Load saved workout order on component mount
-  useEffect(() => {
-    // This is now handled by the ReorderableWorkoutList component
-  }, []);
 
   // Auto-progression functionality
   const autoSelectNextWorkout = () => {
@@ -312,28 +313,8 @@ const TabTwoScreen: React.FC = () => {
     await reload();
   };
 
-  const filteredWorkouts = selectedGroup === 'All' 
-    ? workoutItems 
-    : getOrderedWorkoutsForGroup(selectedGroup);
-
-  // Apply saved global order to workouts when in 'All' mode
-  const getOrderedWorkouts = () => {
-    if (selectedGroup !== 'All') {
-      return filteredWorkouts;
-    }
-    
-    // Check if there's an "All" group with saved order
-    const allGroup = groupItems.find(group => group.name === 'All');
-    if (allGroup && allGroup.workouts.length > 0) {
-      // Use the group ordering function for the "All" group
-      return getOrderedWorkoutsForGroup('All');
-    }
-    
-    // Fallback to original workout order if no "All" group exists
-    return filteredWorkouts;
-  };
-
-  const orderedWorkouts = getOrderedWorkouts();
+  // Workouts are now loaded and ordered by ReorderableWorkoutList
+  const [orderedWorkouts, setOrderedWorkouts] = useState<WorkoutItem[]>([]);
 
   const toggleSelectSet = (name: string, workout: string) => {
     setSelectedItem((prev) => {
@@ -576,9 +557,8 @@ const TabTwoScreen: React.FC = () => {
             
             <ReorderableWorkoutList
               key={`${selectedGroup}-${groupItems.length}`}
-              workouts={orderedWorkouts}
-              selectedGroup={selectedGroup}
               groupData={groupData}
+              selectedGroup={selectedGroup}
               onGroupChange={handleGroupChange}
               selectedItem={selectedItem}
               selectedItems={selectedItem ? new Set([selectedItem]) : new Set()}
@@ -586,6 +566,8 @@ const TabTwoScreen: React.FC = () => {
               currentIndex={currentIndex}
               showReorderButton={true}
               onReorderComplete={handleReorderComplete}
+              onWorkoutsChanged={setOrderedWorkouts}
+              allWorkouts={workoutItems}
             />
           </View>
         </View>
