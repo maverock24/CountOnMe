@@ -1,6 +1,5 @@
 import { faBed, faRunning } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -22,7 +21,6 @@ import TimerButton from '@/components/TimerButton';
 import TimerItem from '@/components/TimerItem';
 import Colors from '@/constants/Colors';
 
-import CustomPicker from '@/components/CustomPicker';
 import commonStyles from '../styles';
 
 const { height } = Dimensions.get('window');
@@ -59,10 +57,12 @@ const TabTwoScreen: React.FC = () => {
 
   const [selectedGroup, setSelectedGroup] = useState<string>('All');
 
+  // Remove duplicate 'All' entry in groupData
   const groupData = [
-    { label: 'All', value: 'All' },
-    ...groupItems.map(group => ({ label: group.name, value: group.name }))
+    ...groupItems.filter(group => group.name.toLowerCase() !== 'all').map(group => ({ label: group.name, value: group.name })),
   ];
+  // Add 'All' at the top
+  groupData.unshift({ label: 'All', value: 'All' });
 
   const { audioReady, stopSound, playSegmentMusic } = useSound();
 
@@ -569,14 +569,7 @@ const TabTwoScreen: React.FC = () => {
           <View style={[commonStyles.tile, { flex: 1, padding: 5 }]}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 }}>
             {/* <Text style={styles.label}>{t('select_workout_group')}</Text> */}
-            <CustomPicker
-              containerStyle={{ margin: 2, justifyContent: 'center', width: 150 }}
-              style={{ alignSelf: 'center', justifyContent: 'center'}}
-              selectedValue={selectedGroup}
-              onValueChange={handleGroupChange}
-              items={groupData}
-              dropdownIconColor="#fff"
-            />
+            {/* CustomPicker is now rendered inside ReorderableWorkoutList */}
             </View>
             
             {noWorkout && <TimerButton text={t('add_button')} onPress={handleAddNew} maxWidth />}
@@ -585,7 +578,10 @@ const TabTwoScreen: React.FC = () => {
               key={`${selectedGroup}-${groupItems.length}`}
               workouts={orderedWorkouts}
               selectedGroup={selectedGroup}
+              groupData={groupData}
+              onGroupChange={handleGroupChange}
               selectedItem={selectedItem}
+              selectedItems={selectedItem ? new Set([selectedItem]) : new Set()}
               onWorkoutSelect={toggleSelectSet}
               currentIndex={currentIndex}
               showReorderButton={true}

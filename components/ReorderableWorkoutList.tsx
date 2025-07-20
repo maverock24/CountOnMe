@@ -3,11 +3,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import { useData } from '@/components/data.provider';
 import ListTile from '@/components/ListTile';
 import TimerButton from '@/components/TimerButton';
+import CustomPicker from './CustomPicker';
 
 interface WorkoutItem {
   name: string;
@@ -15,28 +16,30 @@ interface WorkoutItem {
   group?: string;
 }
 
-interface ReorderableWorkoutListProps {
+export interface ReorderableWorkoutListProps {
   workouts: WorkoutItem[];
   selectedGroup: string;
-  selectedItem?: string | null;
+  groupData: { label: string; value: string }[];
+  onGroupChange: (groupName: string) => void;
+  selectedItem: string | null;
   selectedItems?: Set<string>;
-  onWorkoutSelect?: (name: string, workout: string) => void;
-  currentIndex?: number;
+  onWorkoutSelect: (name: string, workout: string) => void;
+  currentIndex: number;
   showReorderButton?: boolean;
-  onReorderComplete?: () => void;
-  multiSelect?: boolean;
+  onReorderComplete?: () => Promise<void>;
 }
 
 const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
   workouts,
   selectedGroup,
+  groupData,
+  onGroupChange,
   selectedItem,
-  selectedItems,
+  selectedItems = new Set(),
   onWorkoutSelect,
-  currentIndex = 0,
+  currentIndex,
   showReorderButton = true,
   onReorderComplete,
-  multiSelect = false
 }) => {
   const { reload } = useData();
   const { t } = useTranslation();
@@ -178,10 +181,8 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
         </View>
       );
     } else {
-      const isSelected = multiSelect 
-        ? selectedItems?.has(item.name) || selectedItem === item.name
-        : selectedItem === item.name;
-        
+      // Multi-select: highlight if item is in selectedItems
+      const isSelected = selectedItems.has(item.name);
       return (
         <ListTile
           isSelected={isSelected}
@@ -195,17 +196,25 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
   };
 
   return (
-    <View style={styles.container}>
-      {showReorderButton && (
-        <View style={styles.reorderButtonContainer}>
+    <View style={{ flex: 1, width: '100%' }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 }}>
+        <CustomPicker
+          containerStyle={{ margin: 2, justifyContent: 'center', width: 150 }}
+          style={{ alignSelf: 'center', justifyContent: 'center'}}
+          selectedValue={selectedGroup}
+          onValueChange={onGroupChange}
+          items={groupData}
+          dropdownIconColor="#fff"
+        />
+        {showReorderButton && (
           <TimerButton 
             text={isReorderMode ? t('done') || 'Done' : t('reorder') || 'Reorder'}
             onPress={toggleReorderMode}
             isSelected={isReorderMode}
             style={{ width: 100 }}
           />
-        </View>
-      )}
+        )}
+      </View>
       
       <FlatList
         style={styles.listContainer}

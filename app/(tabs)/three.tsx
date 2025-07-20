@@ -3,8 +3,7 @@ import { View } from '@/components/Themed';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Keyboard, SafeAreaView, StyleSheet, Text, TextInput } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Keyboard, StyleSheet, Text, TextInput } from 'react-native';
 
 import CustomPicker from '@/components/CustomPicker';
 import ReorderableWorkoutList from '@/components/ReorderableWorkoutList';
@@ -29,7 +28,8 @@ export default function TabThreeScreen() {
   // Group management state
   const [groupName, setGroupName] = useState<string>('');
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
-  const [viewingGroup, setViewingGroup] = useState<string>('all'); // Default to 'all'
+  const [viewingGroup, setViewingGroup] = useState<string>('all'); // For Group section dropdown
+  const [filteredGroup, setFilteredGroup] = useState<string>('all'); // For workout list filter dropdown
 
   const [nameError, setNameError] = useState<string | null>(null);
   const [unitError, setUnitError] = useState<string | null>(null);
@@ -379,14 +379,26 @@ export default function TabThreeScreen() {
     }
   };
 
+  const handleWorkoutListGroupFilter = (groupName: string) => {
+    setFilteredGroup(groupName);
+  };
+
+  // Construct groupData for dropdown
+  const groupData = [
+    { label: t('all'), value: 'all' },
+    ...groupItems
+      .filter(group => group.name.toLowerCase() !== 'all')
+      .map(group => ({ label: group.name, value: group.name }))
+  ];
+
   // Create filtered workout list: show only group workouts when a group is selected, all workouts when 'all' is selected
   const getOrderedWorkoutList = () => {
-    if (!viewingGroup || viewingGroup === 'all') {
+    if (!filteredGroup || filteredGroup === 'all') {
       return workoutItems;
     }
 
     // Return only workouts belonging to the selected group, in order
-    const groupWorkouts = getOrderedWorkoutsForGroup(viewingGroup);
+    const groupWorkouts = getOrderedWorkoutsForGroup(filteredGroup);
     return groupWorkouts;
   };
 
@@ -456,12 +468,7 @@ export default function TabThreeScreen() {
                 style={{ width: '90%' }}
                 selectedValue={viewingGroup}
                 onValueChange={handleGroupViewSelection}
-                items={[
-                  { label: t('all'), value: 'all' },
-                  ...groupItems
-                    .filter(group => group.name.toLowerCase() !== 'all') // Filter out any "All" groups
-                    .map(group => ({ label: group.name, value: group.name }))
-                ]}
+                items={groupData}
                 dropdownIconColor="#fff"
                 placeholder={t('select_group_to_view')}
               />
@@ -509,15 +516,17 @@ export default function TabThreeScreen() {
             )}
             {!noWorkout && (
               <ReorderableWorkoutList
-                key={`${viewingGroup}-${groupItems.length}`}
+                key={`${filteredGroup}-${groupItems.length}`}
                 workouts={orderedWorkoutItems}
-                selectedGroup={viewingGroup}
+                selectedGroup={filteredGroup}
+                groupData={groupData}
                 selectedItem={selectedItem}
                 selectedItems={selectedItems}
                 onWorkoutSelect={toggleSelectSet}
                 showReorderButton={true}
-                multiSelect={true}
                 onReorderComplete={handleReorderComplete}
+                onGroupChange={handleWorkoutListGroupFilter}
+                currentIndex={selectedItem ? orderedWorkoutItems.findIndex(w => w.name === selectedItem) : 0}
               />
             )}
           </View>

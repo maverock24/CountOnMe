@@ -39,7 +39,8 @@ const CustomPicker: React.FC<CustomPickerProps> = ({
   const [buttonLayout, setButtonLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const buttonRef = useRef<View>(null);
 
-  const selectedItem = items.find((item) => item.value === selectedValue);
+  const itemsArray = items ?? [];
+  const selectedItem = itemsArray.find((item) => item.value === selectedValue);
   const displayText = selectedItem ? selectedItem.label : placeholder;
 
   const toggleDropdown = () => {
