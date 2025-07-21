@@ -128,5 +128,6 @@
   "all": "All",
   "select_workout_group": "Select workout group",
   "delete_workout_group": "Remove",
-   "remove_from_group": "Remove"
+  "remove_from_group": "Remove",
+  "reorder": "Sort"
 }

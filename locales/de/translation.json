@@ -129,5 +129,6 @@
   "all": "Alle",
   "select_workout_group": "Gruppe auswählen",
   "delete_workout_group": "Gruppe löschen",
-  "remove_from_group": "Entfernen"
+  "remove_from_group": "Entfernen",
+  "reorder": "Sortieren"
 }
