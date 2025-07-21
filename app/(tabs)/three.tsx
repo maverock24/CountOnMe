@@ -326,10 +326,10 @@ export default function TabThreeScreen() {
       if (remainingWorkouts.length === 0) {
         // If no workouts remain, delete the entire group
         await AsyncStorage.removeItem(`@countOnMe_group_${viewingGroup}`);
-        
         // Switch back to 'all' view since the group is deleted
         setViewingGroup('all');
         setRemoveGroupDisabled(true);
+        await reload(); // Immediately reload group list
       } else {
         // Update the group with remaining workouts, maintaining order
         const updatedGroup = {
@@ -339,14 +339,13 @@ export default function TabThreeScreen() {
             orderId: index + 1 // Reorder the remaining workouts
           }))
         };
-
         await storeGroup(updatedGroup);
+        await reload(); // Immediately reload group list
       }
 
       // Clear selections and reload data
       setSelectedItems(new Set());
       setSelectedItem(null);
-      
     } catch (error) {
       console.error('Failed to remove workouts from group:', error);
     }
@@ -374,13 +373,13 @@ export default function TabThreeScreen() {
     setIsAssigning(false); // Clear assignment mode when switching views
     
     if (groupName && groupName !== 'all') {
-      // Get ordered workouts for the group and select them
+      // Enable remove button for any group except 'all'
       setRemoveGroupDisabled(false);
       const groupWorkouts = getOrderedWorkoutsForGroup(groupName);
       const groupWorkoutNames = new Set(groupWorkouts.map(w => w.name));
       setSelectedItems(groupWorkoutNames);
     } else {
-      // Clear selection if 'all' is selected or no group is selected
+      // Disable remove button only for 'all'
       setSelectedItems(new Set());
       setRemoveGroupDisabled(true);
     }

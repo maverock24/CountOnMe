@@ -62,31 +62,22 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
         if (groupDataStr) {
           const groupObj = JSON.parse(groupDataStr);
           if (Array.isArray(groupObj.workouts)) {
-            loadedWorkouts = groupObj.workouts.map((w: any) => ({
-              name: w.name,
-              workout: w.workout || '',
-              group: selectedGroup,
-              orderId: w.orderId || 0,
-            }));
+            // Hydrate each group workout with full data from allWorkouts
+            loadedWorkouts = groupObj.workouts.map((w: any, idx: number) => {
+              const full = Array.isArray(allWorkouts) ? allWorkouts.find(aw => aw.name === w.name) : undefined;
+              return {
+                name: w.name,
+                workout: full?.workout || w.workout || '',
+                group: selectedGroup,
+                orderId: w.orderId || idx + 1,
+              };
+            });
           }
         }
         // For 'All' group, merge with allWorkouts to ensure all are present
         if ((selectedGroup === 'All' || selectedGroup === 'all') && Array.isArray(allWorkouts)) {
-          // Add missing workouts from allWorkouts, and ensure all have correct workout value
           const existingNames = new Set(loadedWorkouts.map(w => w.name));
           const missingWorkouts = allWorkouts.filter(w => !existingNames.has(w.name));
-          // For all workouts, ensure workout value is correct
-          // First, update loadedWorkouts with correct workout value from allWorkouts
-          loadedWorkouts = loadedWorkouts.map((lw, idx) => {
-            const full = allWorkouts.find(aw => aw.name === lw.name);
-            return {
-              ...lw,
-              workout: full?.workout || lw.workout || '',
-              group: 'All',
-              orderId: lw.orderId ?? idx + 1,
-            };
-          });
-          // Then, add missing ones
           loadedWorkouts = [
             ...loadedWorkouts,
             ...missingWorkouts.map((w, idx) => ({
