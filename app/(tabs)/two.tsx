@@ -419,6 +419,20 @@ const TabTwoScreen: React.FC = () => {
     extrapolate: 'clamp',
   });
 
+  useEffect(() => {
+    if (!audioEnabled) {
+      stopSound();
+    } else if (audioEnabled && isRunning && timers.length > 0 && timers[currentIndex]) {
+      // Play current segment music when sound is enabled and timer is running
+      const segment = timers[currentIndex].segment;
+      if (segment === 'workout') {
+        playSegmentMusic('actionSound');
+      } else if (segment === 'break') {
+        playSegmentMusic('breakSound');
+      }
+    }
+  }, [audioEnabled]);
+
   return (
     <View style={commonStyles.container}>
       <View style={commonStyles.outerContainer}>
