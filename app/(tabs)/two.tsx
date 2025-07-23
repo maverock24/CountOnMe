@@ -99,39 +99,42 @@ const TabTwoScreen: React.FC = () => {
   // Auto-progression functionality
   const autoSelectNextWorkout = () => {
     if (!selectedItem) return;
-    
+
     const currentWorkouts = orderedWorkouts;
     const currentWorkoutIndex = currentWorkouts.findIndex(workout => workout.name === selectedItem);
     if (currentWorkoutIndex === -1 || currentWorkoutIndex >= currentWorkouts.length - 1) {
       // No next workout available
       return;
     }
-    
+
+    // Perform a full reset before moving to the next workout
+    handleReset();
+
     const nextWorkout = currentWorkouts[currentWorkoutIndex + 1];
-    
+
     // Complete reset of current state
     stopSound();
     setIsRunning(false);
     setStopped(true);
-    
+
     // Clear any running intervals
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
-    
+
     // Reset all timing and progress state
     setElapsedTime(0);
     setCurrentIndex(0);
     progress.setValue(0);
-    
+
     // Reset animation
     Animated.timing(translateY, {
       toValue: 0,
       duration: 0,
       useNativeDriver: true,
     }).start();
-    
+
     // Small delay to ensure state is completely reset
     setTimeout(() => {
       // Select the next workout
@@ -157,15 +160,13 @@ const TabTwoScreen: React.FC = () => {
       // Start the next workout after a brief pause
       setTimeout(() => {
         setStopped(false);
-        // Play sound for the first segment of the new workout
-        if (newTimers.length > 0) {
-          if (newTimers[0].segment === 'workout') {
+        stopSound();
+        setTimeout(() => {
+          if (newTimers.length > 0) {
             playSegmentMusic('actionSound');
-          } else {
-            playSegmentMusic('breakSound');
           }
-        }
-        setIsRunning(true);
+          setIsRunning(true);
+        }, 200);
       }, 800);
     }, 200);
   };
