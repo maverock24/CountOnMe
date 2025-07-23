@@ -260,51 +260,51 @@ export default function TabThreeScreen() {
     }
   };
 
+  // Assignment flow: supports both (1) select workouts -> assign -> select group, and (2) select group -> select workouts -> assign
+  // Assignment now REPLACES the group's workouts with the current selection
   const handleAssignToGroup = async (targetGroupName: string) => {
-    if (!isAssigning || selectedItems.size === 0 || !targetGroupName || targetGroupName === 'all') {
+    if (selectedItems.size === 0 || !targetGroupName || targetGroupName === 'all') {
+      // Invalid assignment
       return;
     }
-
     try {
-      // Get the existing group
       const existingGroup = groupItems.find(group => group.name === targetGroupName);
       if (!existingGroup) return;
-
-      // Get existing workout names in the group
-      const existingWorkoutNames = new Set(existingGroup.workouts.map(w => w.name));
-      
-      // Add new workouts that aren't already in the group
-      const newWorkouts = Array.from(selectedItems).filter(workoutName => 
-        !existingWorkoutNames.has(workoutName)
-      );
-      
-      if (newWorkouts.length > 0) {
-        const maxOrderId = existingGroup.workouts.length > 0 
-          ? Math.max(...existingGroup.workouts.map(w => w.orderId)) 
-          : 0;
-        
-        const updatedGroup = {
-          ...existingGroup,
-          workouts: [
-            ...existingGroup.workouts,
-            ...newWorkouts.map((workoutName, index) => ({
-              orderId: maxOrderId + index + 1,
-              name: workoutName
-            }))
-          ]
-        };
-
-        await storeGroup(updatedGroup);
-      }
-      
+      // Replace the group's workouts with the current selection, preserving order of selection
+      const newWorkouts = Array.from(selectedItems).map((workoutName, index) => ({
+        orderId: index + 1,
+        name: workoutName
+      }));
+      const updatedGroup = {
+        ...existingGroup,
+        workouts: newWorkouts
+      };
+      await storeGroup(updatedGroup);
       // Clear assignment mode and selections
       setIsAssigning(false);
       setSelectedItems(new Set());
-      
-      // Switch to viewing the group we just assigned to
       setViewingGroup(targetGroupName);
     } catch (error) {
       console.error('Failed to assign workouts to group:', error);
+    }
+  };
+
+  // Handles clicking the Assign button
+  const handleAssignButton = () => {
+    if (!isAssigning) {
+      // Enter assignment mode
+      setIsAssigning(true);
+      // If a group is already selected and not 'all', and workouts are selected, assign immediately
+      if (viewingGroup && viewingGroup !== 'all' && selectedItems.size > 0) {
+        handleAssignToGroup(viewingGroup);
+      }
+      // Otherwise, wait for user to select a group
+    } else {
+      // Already in assignment mode: if group and workouts are selected, assign
+      if (viewingGroup && viewingGroup !== 'all' && selectedItems.size > 0) {
+        handleAssignToGroup(viewingGroup);
+      }
+      // Otherwise, stay in assignment mode and prompt user to select a group
     }
   };
 
@@ -362,24 +362,20 @@ export default function TabThreeScreen() {
   };
 
   const handleGroupViewSelection = (groupName: string) => {
-    // If in assignment mode and a group is selected (not 'all'), automatically assign
-    if (isAssigning && selectedItems.size > 0 && groupName !== 'all') {
-      handleAssignToGroup(groupName);
-      return; // Exit early after assignment
-    }
-
     setViewingGroup(groupName);
     cancelEdit(); // Clear editing state when switching views
-    setIsAssigning(false); // Clear assignment mode when switching views
-    
+    // If in assignment mode and a group is selected (not 'all'), and workouts are selected, assign
+    if (isAssigning && selectedItems.size > 0 && groupName !== 'all') {
+      handleAssignToGroup(groupName);
+      return;
+    }
+    setIsAssigning(false); // Clear assignment mode when switching views (unless in assignment flow)
     if (groupName && groupName !== 'all') {
-      // Enable remove button for any group except 'all'
       setRemoveGroupDisabled(false);
       const groupWorkouts = getOrderedWorkoutsForGroup(groupName);
       const groupWorkoutNames = new Set(groupWorkouts.map(w => w.name));
       setSelectedItems(groupWorkoutNames);
     } else {
-      // Disable remove button only for 'all'
       setSelectedItems(new Set());
       setRemoveGroupDisabled(true);
     }
@@ -501,8 +497,12 @@ export default function TabThreeScreen() {
               />
               <TimerButton
                 isSelected={isAssigning}
-                text={t('assign') || 'Assign'}
-                onPress={() => setIsAssigning(!isAssigning)}
+                text={
+                  isAssigning
+                    ? (viewingGroup === 'all' ? t('select_group_to_assign') || 'Select group to assign' : t('assign') || 'Assign')
+                    : t('assign') || 'Assign'
+                }
+                onPress={handleAssignButton}
                 disabled={selectedItems.size === 0}
               />
               </View>

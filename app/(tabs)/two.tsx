@@ -136,27 +136,35 @@ const TabTwoScreen: React.FC = () => {
     setTimeout(() => {
       // Select the next workout
       setSelectedItem(nextWorkout.name);
-      
+
       // Parse and set up the new workout
       const newTimers = nextWorkout.workout.split(';').map((time, index) => ({
         id: index.toString(),
         time: parseInt(time),
         segment: index % 2 === 0 ? 'workout' : 'break',
       }));
-      
+
       setTimers(newTimers);
-      
+
       // Set initial time for the first segment of new workout
       if (newTimers.length > 0) {
         setTime(newTimers[0].time);
       }
-      
+
       // Force re-render with new progress key
       setProgressKey((k) => k + 1);
-      
+
       // Start the next workout after a brief pause
       setTimeout(() => {
         setStopped(false);
+        // Play sound for the first segment of the new workout
+        if (newTimers.length > 0) {
+          if (newTimers[0].segment === 'workout') {
+            playSegmentMusic('actionSound');
+          } else {
+            playSegmentMusic('breakSound');
+          }
+        }
         setIsRunning(true);
       }, 800);
     }, 200);
