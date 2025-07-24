@@ -646,7 +646,7 @@ const styles = StyleSheet.create({
   },
   timerContainerWrapper: {
     position: 'absolute',
-    top: '40%',
+    top: '45%',
     backgroundColor: 'transparent',
   },
   switchContainer: {
