@@ -1,7 +1,6 @@
-import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, StyleSheet, Text } from 'react-native';
 import { Audio, AVPlaybackStatusSuccess } from 'expo-av';
-import { Platform } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { Animated, Easing, Platform, StyleSheet, Text } from 'react-native';
 import { useSound } from './sound.provider';
 
 // Define the props for the TimerItem component
@@ -170,7 +169,7 @@ const TimerItem: React.FC<TimerItemProps> = ({
 const styles = StyleSheet.create({
   count: {
     marginTop: -20,
-    fontSize: 70,
+    fontSize: 60,
     fontWeight: 'bold',
     color: 'white',
   },
