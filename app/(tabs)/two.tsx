@@ -589,8 +589,7 @@ const TabTwoScreen: React.FC = () => {
               currentIndex={currentIndex}
               showReorderButton={true}
               onReorderComplete={handleReorderComplete}
-              onWorkoutsChanged={setOrderedWorkouts}
-              allWorkouts={workoutItems}
+              onWorkoutsChanged={setOrderedWorkouts}  
             />
           </View>
         </View>
