@@ -335,7 +335,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const storeWorkout = async (workout: WorkoutItem) => {
     try {
-      await AsyncStorage.setItem(`${prefixKey}workout_${workout.name}`, JSON.stringify(workout));
+      await AsyncStorage.setItem(`${prefixKey}${workout.name}`, JSON.stringify(workout));
       await reload();
     } catch (e) {
       console.error('Error storing workout:', e);
@@ -378,7 +378,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       // Then delete the workout itself
-      await AsyncStorage.removeItem(`${prefixKey}workout_${name}`);
+      await AsyncStorage.removeItem(`${prefixKey}${name}`);
       await reload();
     } catch (e) {
       console.error('Error deleting workout:', e);
