@@ -4,11 +4,11 @@ import ModalPicker from '@/components/ModalPicker';
 import Colors from '@/constants/Colors';
 import { language as languageData } from '@/constants/media';
 import i18n from '@/i18n';
+import { FitnessLevel } from '@/utils/intensity.enum';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import commonStyles from '../styles';
-import { FitnessLevel } from '../utils/intensity.enum';
 
 const SettingsScreen: React.FC = () => {
   const { audioEnabled, setAudioEnabled, userWeight, setWeight, setFitness, fitnessLevel, storeItem, getStoredItem } = useData();

@@ -4,6 +4,7 @@ import React, { useRef, useState } from 'react';
 import {
   FlatList,
   Modal,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -178,13 +179,20 @@ const styles = StyleSheet.create({
     borderColor: '#2A2E33',
     maxHeight: 200,
     minWidth: 200,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    ...Platform.select({
+      web: {
+        boxShadow: '0px 2px 3.84px rgba(0, 0, 0, 0.25)',
+      },
+      default: {
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+      },
+    }),
     elevation: 50,
   },
   dropdownList: {

@@ -540,7 +540,6 @@ export default function TabThreeScreen() {
                 onReorderComplete={handleReorderComplete}
                 currentIndex={selectedItem ? orderedWorkoutItems.findIndex(w => w.name === selectedItem) : 0}
                 onWorkoutsChanged={setOrderedWorkoutItems}
-                allWorkouts={workoutItems}
               />
             )}
           </View>
