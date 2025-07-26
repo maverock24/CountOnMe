@@ -19,6 +19,7 @@ export default function TabThreeScreen() {
     storeGroup, 
     deleteWorkout,
     getOrderedWorkoutsForGroup,
+    syncAllGroup,
     reload
   } = useData();
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
@@ -395,23 +396,6 @@ export default function TabThreeScreen() {
 
   // Workouts are now loaded and ordered by ReorderableWorkoutList
   const [orderedWorkoutItems, setOrderedWorkoutItems] = useState<WorkoutItem[]>([]);
-
-  // Sync 'All' group in storage with current workoutItems
-  const syncAllGroup = async () => {
-    const allGroupKey = '@countOnMe_group_All';
-    try {
-      const keys = await AsyncStorage.getAllKeys();
-      const workoutKeys = keys.filter(k => k.startsWith('@countOnMe_') && !k.startsWith('@countOnMe_group_'));
-      const workoutEntries = await AsyncStorage.multiGet(workoutKeys);
-      const workoutsArr = workoutEntries.map(([key, value], idx) => {
-        const name = key.replace('@countOnMe_', '');
-        return { orderId: idx + 1, name };
-      });
-      await AsyncStorage.setItem(allGroupKey, JSON.stringify({ name: 'All', workouts: workoutsArr }));
-    } catch (err) {
-      console.error('Failed to sync All group:', err);
-    }
-  };
 
   return (
     <View style={commonStyles.container}>
