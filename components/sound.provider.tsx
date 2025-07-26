@@ -384,7 +384,7 @@ export const SoundProvider: React.FC<{
 
       let volume = (status as AVPlaybackStatusSuccess).volume ?? 1;
       const duration = 800;
-      const steps = 5;
+      const steps = 6.5; // Number of steps for fadeout
       const decrement = volume / steps;
 
       for (let i = 0; i < steps; i++) {
