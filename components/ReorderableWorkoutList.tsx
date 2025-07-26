@@ -86,11 +86,6 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
   };
 
   const toggleReorderMode = async () => {
-    // Don't allow reordering for 'All' group
-    if ((selectedGroup === 'All' || selectedGroup === 'all') && !isReorderMode) {
-      console.warn('Reordering not supported for "All" group');
-      return;
-    }
 
     if (!isReorderMode) {
       setReorderableWorkouts([...workouts]);
@@ -201,7 +196,7 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
           items={groupData}
           dropdownIconColor="#fff"
         />
-        {showReorderButton && (selectedGroup !== 'All' && selectedGroup !== 'all') && (
+        {showReorderButton && (
           <TimerButton 
             text={isReorderMode ? t('done') || 'Done' : t('reorder') || 'Reorder'}
             onPress={toggleReorderMode}
