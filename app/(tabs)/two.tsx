@@ -255,13 +255,22 @@ const TabTwoScreen: React.FC = () => {
       if (currentIndex === timers.length - 1 && !stopped && timers.length > 0) {
         if (audioReady) {
           if(audioEnabled) {
-      
-          playSegmentMusic('successSound', () => {
-            // Workout completed, try to auto-progress to next workout
-            setTimeout(() => {
-              autoSelectNextWorkout();
-            }, 1000); // Give time for success sound to play
-          });
+            const currentWorkoutIndex = orderedWorkouts.findIndex(workout => workout.name === selectedItem);
+            if (currentWorkoutIndex < orderedWorkouts.length - 1) {
+              playSegmentMusic('nextExerciseSound', () => {
+                // Workout completed, try to auto-progress to next workout
+                setTimeout(() => {
+                  autoSelectNextWorkout();
+                }, 1000); // Give time for success sound to play
+              });
+            } else {
+              playSegmentMusic('successSound', () => {
+                // Workout completed, try to auto-progress to next workout
+                setTimeout(() => {
+                  autoSelectNextWorkout();
+                }, 1000); // Give time for success sound to play
+              });
+            }
           }
         } else {
           // No audio, proceed immediately with auto-progression

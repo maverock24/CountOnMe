@@ -80,6 +80,7 @@ interface State {
   selectedActionMusic: string;
   selectedBreakMusic: string;
   selectedSuccessSound: string;
+  selectedNextExerciseSound: string;
   audioEnabled: boolean;
   currentMusicBeingPlayed: string | null;
   userWeight: string | null;
@@ -94,6 +95,7 @@ type Action =
   | { type: 'SET_SELECTED_ACTION_MUSIC'; payload: string | null }
   | { type: 'SET_SELECTED_BREAK_MUSIC'; payload: string | null }
   | { type: 'SET_SELECTED_SUCCESS_SOUND'; payload: string | null }
+  | { type: 'SET_SELECTED_NEXT_EXERCISE_SOUND'; payload: string | null }
   | { type: 'SET_AUDIO_ENABLED'; payload: boolean }
   | { type: 'SET_CURRENT_MUSIC_BEING_PLAYED'; payload: string | null }
   | { type: 'SET_USER_WEIGHT'; payload: string | null }
@@ -107,6 +109,7 @@ const initialState: State = {
   selectedActionMusic: 'Action: Upbeat',
   selectedBreakMusic: 'Break: Chill',
   selectedSuccessSound: 'Success: Yeah',
+  selectedNextExerciseSound: 'Next Exercise',
   audioEnabled: true,
   currentMusicBeingPlayed: null,
   userWeight: null,
@@ -129,6 +132,8 @@ function reducer(state: State, action: Action): State {
       return { ...state, selectedBreakMusic: action.payload || 'Break: Chill' };
     case 'SET_SELECTED_SUCCESS_SOUND':
       return { ...state, selectedSuccessSound: action.payload || 'Success: Yeah' };
+    case 'SET_SELECTED_NEXT_EXERCISE_SOUND':
+      return { ...state, selectedNextExerciseSound: action.payload || 'Next Exercise' };
     case 'SET_AUDIO_ENABLED':
       return { ...state, audioEnabled: action.payload };
     case 'SET_CURRENT_MUSIC_BEING_PLAYED':
@@ -509,6 +514,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       selectedBreakMusic={state.selectedBreakMusic}
       selectedWorkoutMusic={state.selectedActionMusic}
       selectedSuccessSound={state.selectedSuccessSound}
+      selectedNextExerciseSound={state.selectedNextExerciseSound}
     >
       <DataContext.Provider
         value={{
