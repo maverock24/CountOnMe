@@ -3,12 +3,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useContext, useEffect, useReducer } from 'react';
 
 import {
-  breakMusic as breakMusicData,
-  DataKey,
-  language as languageData,
-  nextExerciseSound,
-  successSound as successSoundData,
-  workoutMusic as workoutMusicData,
+    breakMusic as breakMusicData,
+    DataKey,
+    language as languageData,
+    nextExerciseSound,
+    successSound as successSoundData,
+    workoutMusic as workoutMusicData,
 } from '@/constants/media';
 import { SoundProvider } from './sound.provider';
 
@@ -17,9 +17,9 @@ import { prefixKey } from './data/constants';
 import { initialState as defaultInitialState, stateReducer } from './data/reducer';
 import { DataParser, StorageService } from './data/storage';
 import {
-  GroupItem,
-  StoredItem,
-  WorkoutItem
+    GroupItem,
+    StoredItem,
+    WorkoutItem
 } from './data/types';
 import { WorkoutService } from './data/workoutService';
 
@@ -52,7 +52,6 @@ interface DataContextType {
   removeWorkoutFromGroup: (groupName: string, workoutName: string) => Promise<void>;
   reorderWorkoutInGroup: (groupName: string, workoutName: string, newOrderId: number) => Promise<void>;
   reorderEntireGroup: (groupName: string, orderedWorkoutNames: string[]) => Promise<void>;
-  syncAllGroup: () => Promise<void>;
   getOrderedWorkoutsForGroup: (groupName: string) => WorkoutItem[];
   getWorkoutsByGroup: (groupName: string) => WorkoutItem[];
   
@@ -281,15 +280,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const syncAllGroup = async () => {
-    try {
-      await WorkoutService.syncAllGroup();
-      await reload();
-    } catch (e) {
-      console.error('Error syncing All group:', e);
-    }
-  };
-
   // Query operations
   const getOrderedWorkoutsForGroup = (groupName: string): WorkoutItem[] => {
     return WorkoutService.getOrderedWorkoutsForGroup(state.workoutItems, state.groupItems, groupName);
@@ -355,7 +345,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           removeWorkoutFromGroup,
           reorderWorkoutInGroup,
           reorderEntireGroup,
-          syncAllGroup,
           getOrderedWorkoutsForGroup,
           getWorkoutsByGroup,
           
