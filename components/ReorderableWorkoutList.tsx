@@ -41,7 +41,7 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
   onReorderComplete,
   onWorkoutsChanged,
 }) => {
-  const { workoutItems, groupItems, getOrderedWorkoutsForGroup, reorderWorkoutInGroup, reload } = useData();
+  const { workoutItems, groupItems, getOrderedWorkoutsForGroup, reorderWorkoutInGroup, reorderEntireGroup, reload } = useData();
   const { t } = useTranslation();
   const [isReorderMode, setIsReorderMode] = useState<boolean>(false);
   const [reorderableWorkouts, setReorderableWorkouts] = useState<WorkoutItem[]>([]);
@@ -51,13 +51,9 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
   useEffect(() => {
     let loadedWorkouts: WorkoutItem[] = [];
     
-    if (selectedGroup === 'All' || selectedGroup === 'all') {
-      // For 'All' group, show all workout items
-      loadedWorkouts = [...workoutItems];
-    } else {
-      // For specific groups, use the data provider's method to get ordered workouts
-      loadedWorkouts = getOrderedWorkoutsForGroup(selectedGroup);
-    }
+    // Always use the data provider's method to get ordered workouts
+    // This will handle both regular groups and the "All" group correctly
+    loadedWorkouts = getOrderedWorkoutsForGroup(selectedGroup);
     
     // Add orderId for display purposes if not present
     loadedWorkouts = loadedWorkouts.map((workout, idx) => ({
@@ -98,17 +94,9 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
   // Save reordered workouts using data provider
   const saveReorderedWorkouts = async () => {
     try {
-      // For 'All' group, we don't support reordering since it shows all workouts
-      if (selectedGroup === 'All' || selectedGroup === 'all') {
-        console.warn('Reordering not supported for "All" group');
-        return;
-      }
-
-      // Update each workout's orderId in the group using data provider method
-      for (let i = 0; i < reorderableWorkouts.length; i++) {
-        const workout = reorderableWorkouts[i];
-        await reorderWorkoutInGroup(selectedGroup, workout.name, i + 1);
-      }
+      // Use the batch reorder function to efficiently update all orderIds at once
+      const orderedWorkoutNames = reorderableWorkouts.map(workout => workout.name);
+      await reorderEntireGroup(selectedGroup, orderedWorkoutNames);
 
       // Update local state
       const updatedWorkouts = reorderableWorkouts.map((workout, index) => ({

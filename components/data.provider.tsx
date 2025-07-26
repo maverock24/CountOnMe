@@ -53,6 +53,7 @@ interface DataContextType {
   addWorkoutToGroup: (groupName: string, workoutName: string) => Promise<void>;
   removeWorkoutFromGroup: (groupName: string, workoutName: string) => Promise<void>;
   reorderWorkoutInGroup: (groupName: string, workoutName: string, newOrderId: number) => Promise<void>;
+  reorderEntireGroup: (groupName: string, orderedWorkoutNames: string[]) => Promise<void>;
   getOrderedWorkoutsForGroup: (groupName: string) => WorkoutItem[];
   getWorkoutsByGroup: (groupName: string) => WorkoutItem[];
   isCountOnMeKey: (key: string) => boolean;
@@ -466,9 +467,15 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Re-sort by orderId to maintain order
       updatedWorkouts.sort((a, b) => a.orderId - b.orderId);
 
+      // Reassign sequential orderIds to prevent duplicates
+      const finalWorkouts = updatedWorkouts.map((w, index) => ({
+        ...w,
+        orderId: index + 1
+      }));
+
       const updatedGroup = {
         ...group,
-        workouts: updatedWorkouts
+        workouts: finalWorkouts
       };
 
       await AsyncStorage.setItem(`${prefixKey}group_${groupName}`, JSON.stringify(updatedGroup));
@@ -478,7 +485,71 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const reorderEntireGroup = async (groupName: string, orderedWorkoutNames: string[]) => {
+    try {
+      // Handle "All" group specially
+      if (groupName === 'All' || groupName === 'all') {
+        // For "All" group, create or update it with all available workouts in the specified order
+        const allGroupName = 'All';
+        
+        // Create new workouts array with sequential orderIds based on the provided order
+        const reorderedWorkouts = orderedWorkoutNames.map((workoutName, index) => ({
+          name: workoutName,
+          orderId: index + 1
+        }));
+
+        const allGroup = {
+          name: allGroupName,
+          workouts: reorderedWorkouts
+        };
+
+        await AsyncStorage.setItem(`${prefixKey}group_${allGroupName}`, JSON.stringify(allGroup));
+        await reload();
+        return;
+      }
+
+      // Handle regular groups
+      const group = state.groupItems.find(g => g.name === groupName);
+      if (!group) return;
+
+      // Create new workouts array with sequential orderIds based on the provided order
+      const reorderedWorkouts = orderedWorkoutNames.map((workoutName, index) => {
+        const existingWorkout = group.workouts.find(w => w.name === workoutName);
+        return {
+          name: workoutName,
+          orderId: index + 1
+        };
+      });
+
+      const updatedGroup = {
+        ...group,
+        workouts: reorderedWorkouts
+      };
+
+      await AsyncStorage.setItem(`${prefixKey}group_${groupName}`, JSON.stringify(updatedGroup));
+      await reload();
+    } catch (e) {
+      console.error('Error reordering entire group:', e);
+    }
+  };
+
   const getOrderedWorkoutsForGroup = (groupName: string): WorkoutItem[] => {
+    // Handle "All" group specially
+    if (groupName === 'All' || groupName === 'all') {
+      const allGroup = state.groupItems.find(g => g.name === 'All');
+      if (allGroup) {
+        // If "All" group exists, use its ordering
+        const sortedGroupWorkouts = [...allGroup.workouts].sort((a, b) => a.orderId - b.orderId);
+        return sortedGroupWorkouts
+          .map(gw => state.workoutItems.find(wi => wi.name === gw.name))
+          .filter((item): item is WorkoutItem => item !== undefined);
+      } else {
+        // If "All" group doesn't exist, return all workouts in default order
+        return [...state.workoutItems];
+      }
+    }
+
+    // Handle regular groups
     const group = state.groupItems.find(g => g.name === groupName);
     if (!group) return [];
 
@@ -538,6 +609,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           addWorkoutToGroup,
           removeWorkoutFromGroup,
           reorderWorkoutInGroup,
+          reorderEntireGroup,
           getOrderedWorkoutsForGroup,
           getWorkoutsByGroup,
           setAudioEnabled,
