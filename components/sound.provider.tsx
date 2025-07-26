@@ -15,6 +15,7 @@ interface SoundContextType {
   selectedWorkoutFile: any;
   selectedBreakFile: any;
   selectedSuccessFile: any;
+  selectedNextExerciseFile: any;
   playSound: (soundFile: any, loop?: boolean, volume?: number) => Promise<Audio.Sound | null>;
   stopSound: () => Promise<void>;
   fadeOutSound: () => Promise<void>;
@@ -28,6 +29,7 @@ const SoundContext = createContext<SoundContextType>({
   selectedWorkoutFile: null,
   selectedBreakFile: null,
   selectedSuccessFile: null,
+  selectedNextExerciseFile: null,
   playSound: async () => null,
   stopSound: async () => {},
   fadeOutSound: async () => {},
@@ -40,19 +42,23 @@ export const SoundProvider: React.FC<{
   workoutMusic: any[];
   breakMusic: any[];
   successSound: any[];
+  nextExerciseSound: any;
   selectedWorkoutMusic: string;
   selectedBreakMusic: string;
   selectedSuccessSound: string;
+  selectedNextExerciseSound: string;
   setCurrentMusicBeingPlayed: (label: string) => void;
 }> = ({
   children,
   workoutMusic,
   breakMusic,
   successSound,
+  nextExerciseSound,
   setCurrentMusicBeingPlayed,
   selectedBreakMusic,
   selectedSuccessSound,
   selectedWorkoutMusic,
+  selectedNextExerciseSound,
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioReady, setAudioReady] = useState(false);
@@ -60,6 +66,7 @@ export const SoundProvider: React.FC<{
   const [selectedWorkoutFile, setSelectedWorkoutMusicFile] = useState();
   const [selectedBreakFile, setSelectedBreakMusicFile] = useState();
   const [selectedSuccessFile, setSelectedSuccessSoundFile] = useState();
+  const [selectedNextExerciseFile, setSelectedNextExerciseSoundFile] = useState();
 
   useEffect(() => {
     let isMounted = true;
@@ -148,7 +155,7 @@ export const SoundProvider: React.FC<{
     if (audioReady) {
       loadMusicSettings();
     }
-  }, [selectedWorkoutMusic, selectedBreakMusic, selectedSuccessSound, audioReady]);
+  }, [selectedWorkoutMusic, selectedBreakMusic, selectedSuccessSound, selectedNextExerciseSound, audioReady]);
 
   const stopSound = async () => {
     if (!currentSound) return;
@@ -174,6 +181,7 @@ export const SoundProvider: React.FC<{
       selectedWorkoutMusic,
       selectedBreakMusic,
       selectedSuccessSound,
+      selectedNextExerciseSound,
       audioReady
     });
     
@@ -194,6 +202,8 @@ export const SoundProvider: React.FC<{
       console.log('Selected break music file:', selectedBreakMusic, '→', breakFile);
       const successFile = getSoundFileByLabel(selectedSuccessSound);
       console.log('Selected success sound file:', selectedSuccessSound, '→', successFile);
+      const nextExerciseFile = getSoundFileByLabel(selectedNextExerciseSound);
+      console.log('Selected next exercise sound file:', selectedNextExerciseSound, '→', nextExerciseFile);
 
       if (workoutFile) {
         setSelectedWorkoutMusicFile(workoutFile);
@@ -215,12 +225,20 @@ export const SoundProvider: React.FC<{
         console.warn('Could not find success sound for:', selectedSuccessSound);
         if (successSound.length > 0) setSelectedSuccessSoundFile(successSound[0].value);
       }
+
+      if (nextExerciseFile) {
+        setSelectedNextExerciseSoundFile(nextExerciseFile);
+      } else {
+        console.warn('Could not find next exercise sound for:', selectedNextExerciseSound);
+        if (nextExerciseSound) setSelectedNextExerciseSoundFile(nextExerciseSound.value);
+      }
     } catch (error) {
       console.error('Error loading music settings:', error);
 
       if (workoutMusic.length > 0) setSelectedWorkoutMusicFile(workoutMusic[0].value);
       if (breakMusic.length > 0) setSelectedBreakMusicFile(breakMusic[0].value);
       if (successSound.length > 0) setSelectedSuccessSoundFile(successSound[0].value);
+      if (nextExerciseSound) setSelectedNextExerciseSoundFile(nextExerciseSound.value);
     }
   };
 
@@ -239,6 +257,10 @@ export const SoundProvider: React.FC<{
       if (successSound && Array.isArray(successSound)) {
         const successMatch = successSound.find((sound) => sound && sound.label === label);
         if (successMatch && successMatch.value) return successMatch.value;
+      }
+
+      if (nextExerciseSound && nextExerciseSound.label === label) {
+        return nextExerciseSound.value;
       }
 
       if (workoutMusic?.length > 0) return workoutMusic[0].value;
@@ -283,7 +305,7 @@ export const SoundProvider: React.FC<{
     }
 
     let foundLabel: string | null = null;
-    const allMusic = [...(workoutMusic || []), ...(breakMusic || []), ...(successSound || [])];
+    const allMusic = [...(workoutMusic || []), ...(breakMusic || []), ...(successSound || []), nextExerciseSound];
     for (const item of allMusic) {
       if (item && item.value) {
         if (
@@ -420,6 +442,8 @@ export const SoundProvider: React.FC<{
       }
     } else if (segment === 'successSound' && selectedSuccessSound) {
       await playSound(selectedSuccessFile, false, 1.0, callback);
+    } else if (segment === 'nextExerciseSound' && selectedNextExerciseSound) {
+      await playSound(selectedNextExerciseFile, false, 1.0, callback);
     } else {
       console.warn('No matching music for segment:', segment);
     }
@@ -431,6 +455,7 @@ export const SoundProvider: React.FC<{
     selectedWorkoutFile,
     selectedBreakFile,
     selectedSuccessFile,
+    selectedNextExerciseFile,
     playSound,
     stopSound,
     fadeOutSound,
