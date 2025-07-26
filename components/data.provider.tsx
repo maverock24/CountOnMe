@@ -7,6 +7,7 @@ import {
   breakMusic as breakMusicData,
   DataKey,
   language as languageData,
+  nextExerciseSound,
   successSound as successSoundData,
   workoutMusic as workoutMusicData,
 } from '@/constants/media';
@@ -501,6 +502,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       workoutMusic={workoutMusicData}
       breakMusic={breakMusicData}
       successSound={successSoundData}
+      nextExerciseSound={nextExerciseSound}
       setCurrentMusicBeingPlayed={(music) =>
         dispatch({ type: 'SET_CURRENT_MUSIC_BEING_PLAYED', payload: music })
       }

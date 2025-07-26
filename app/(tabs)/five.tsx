@@ -1,5 +1,7 @@
 import { prefixKey, useData } from '@/components/data.provider';
 import TimerButton from '@/components/TimerButton';
+import { generateExercisePlan } from '@/utils/generateExercisePlan';
+import { FitnessLevel, IntensityLevel } from '@/utils/intensity.enum';
 import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useMemo, useState } from 'react';
@@ -9,8 +11,6 @@ import exercisesDe from '../../assets/exercises_de.json';
 import exercisesEn from '../../assets/exercises_en.json';
 import { PROFILE_FITNESS_LEVEL_KEY, PROFILE_WEIGHT_KEY } from '../_layout';
 import commonStyles from '../styles';
-import { generateExercisePlan } from '../utils/generateExercisePlan';
-import { FitnessLevel, IntensityLevel } from '../utils/intensity.enum';
 
 const AnalyzerScreen: React.FC = () => {
   const { i18n, t } = useTranslation();

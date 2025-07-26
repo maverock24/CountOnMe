@@ -46,7 +46,13 @@ const formatTime = (seconds: number) => {
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+// Create a wrapper to filter out React Native specific props
+const CircleWrapper = (props: any) => {
+  const { collapsable, ...svgProps } = props;
+  return <Circle {...svgProps} />;
+};
+
+const AnimatedCircle = Animated.createAnimatedComponent(CircleWrapper);
 
 const TabTwoScreen: React.FC = () => {
   const { 
@@ -481,14 +487,13 @@ const TabTwoScreen: React.FC = () => {
                       </FeMerge>
                     </Filter>
                   </Defs>
-                  <Circle
+                  <CircleWrapper
                     cx={radius + strokeWidth / 2}
                     cy={radius + strokeWidth / 2}
                     r={radius}
                     stroke="#2A2E33"
                     strokeWidth={strokeWidth}
                     fill="none"
-                    {...({ collapsable: 'false' } as any)}
                   />
                   <AnimatedCircle
                     cx={radius + strokeWidth / 2}
@@ -503,7 +508,6 @@ const TabTwoScreen: React.FC = () => {
                       radius + strokeWidth / 2
                     })`}
                     filter="url(#glow)"
-                    {...({ collapsable: 'false' } as any)}
                   />
                 </Svg>
               </Animated.View>

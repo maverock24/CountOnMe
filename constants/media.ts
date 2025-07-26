@@ -105,6 +105,11 @@ export const successSound: Array<DataKey> = [
     { label: 'Yeah Choir', value: require('../assets/sounds/yeah_choir.mp3') },
 ];
 
+export const nextExerciseSound: DataKey = {
+    label: 'Next Exercise',
+    value: require('../assets/sounds/nextExercise.wav')
+};
+
 export const language = [
     { label: 'English', value: 'en' },
     { label: 'German', value: 'de' },
