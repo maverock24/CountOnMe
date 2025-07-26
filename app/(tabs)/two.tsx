@@ -265,18 +265,25 @@ const TabTwoScreen: React.FC = () => {
               });
             } else {
               playSegmentMusic('successSound', () => {
-                // Workout completed, try to auto-progress to next workout
+                // Last workout finished, reset the timer
                 setTimeout(() => {
-                  autoSelectNextWorkout();
-                }, 1000); // Give time for success sound to play
+                  handleReset();
+                }, 1000);
               });
             }
           }
         } else {
-          // No audio, proceed immediately with auto-progression
-          setTimeout(() => {
-            autoSelectNextWorkout();
-          }, 500);
+          // No audio, proceed immediately with auto-progression or reset
+          const currentWorkoutIndex = orderedWorkouts.findIndex(workout => workout.name === selectedItem);
+          if (currentWorkoutIndex < orderedWorkouts.length - 1) {
+            setTimeout(() => {
+              autoSelectNextWorkout();
+            }, 500);
+          } else {
+            setTimeout(() => {
+              handleReset();
+            }, 500);
+          }
         }
       }
     }
