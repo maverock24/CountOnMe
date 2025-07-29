@@ -16,7 +16,6 @@ import Svg, { Circle, Defs, FeGaussianBlur, FeMerge, FeMergeNode, Filter } from 
 
 import { useData } from '@/components/data.provider';
 import ReorderableWorkoutList from '@/components/ReorderableWorkoutList';
-import { useSound } from '@/components/sound.provider';
 import TimerButton from '@/components/TimerButton';
 import TimerItem from '@/components/TimerItem';
 import Colors from '@/constants/Colors';
@@ -62,12 +61,39 @@ const TabTwoScreen: React.FC = () => {
     setAudioEnabled, 
     currentMusicBeingPlayed, 
     getOrderedWorkoutsForGroup,
-    reload
+    reload,
+    // Centralized Timer & Sound Management functions
+    handleTimerStart,
+    handleTimerStop,
+    handleTimerReset,
+    handleTimerSegmentChange,
+    handleAudioToggle,
+    // Centralized Timer State
+    timerIsRunning: isRunning,
+    timerCurrentTime: time,
+    timerCurrentIndex: currentIndex,
+    timerElapsedTime: elapsedTime,
+    timers,
+    timerStopped: stopped,
+    timerDisabled: disabled,
+    timerSelectedItem: selectedItem,
+    timerProgressKey: progressKey,
+    // Centralized Timer Actions
+    startTimer,
+    stopTimer,
+    resetTimer,
+    setTimers,
+    setTimerSelectedItem,
+    updateTimerTime,
+    setCurrentIndex,
+    incrementElapsedTime,
+    setWorkoutCompleteCallback,
+    handleWorkoutCompleteFlow,
+    getCurrentSegment,
+    getTotalTime
   } = useData();
 
   const [selectedGroup, setSelectedGroup] = useState<string>('All');
-
-  console.log('workoutItems', workoutItems);
 
   // Remove duplicate 'All' entry in groupData
   const groupData = [
@@ -76,106 +102,27 @@ const TabTwoScreen: React.FC = () => {
   // Add 'All' at the top
   groupData.unshift({ label: 'All', value: 'All' });
 
-  const { audioReady, stopSound, playSegmentMusic } = useSound();
-
-  const [timers, setTimers] = useState<Timer[]>([]);
   const noWorkout = workoutItems.length === 0;
-  const totalTime = timers.reduce((acc, timer) => acc + timer.time, 0);
+  const totalTime = getTotalTime();
 
-  const [time, setTime] = useState<number>(0);
-  const [isRunning, setIsRunning] = useState<boolean>(false);
-  const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const [elapsedTime, setElapsedTime] = useState<number>(0);
+  // Keep local refs for animations and UI
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const translateY = useRef(new Animated.Value(0)).current;
   const progress = useRef(new Animated.Value(0)).current;
-  const [selectedItem, setSelectedItem] = useState<string | null>(null);
-
-  const [stopped, setStopped] = useState<boolean>(false);
-
-  const [disabled, setDisabled] = useState<boolean>(true);
 
   const scaleValue = useRef(new Animated.Value(1)).current;
   const pulseAnimationRef = useRef<Animated.CompositeAnimation | null>(null);
 
-  const [progressKey, setProgressKey] = useState(0);
+  // Keep local functions for UI-specific state only
+  const setProgressKey = (value: number | ((prev: number) => number)) => {
+    // This will be handled by centralized timer state - kept for compatibility
+  };
+  const setSelectedItem = (value: string | null | ((prev: string | null) => string | null)) => {
+    const newValue = typeof value === 'function' ? value(selectedItem) : value;
+    setTimerSelectedItem(newValue);
+  };
 
   const { t } = useTranslation();
-
-  // Auto-progression functionality
-  const autoSelectNextWorkout = () => {
-    if (!selectedItem) return;
-
-    const currentWorkouts = orderedWorkouts;
-    const currentWorkoutIndex = currentWorkouts.findIndex(workout => workout.name === selectedItem);
-    if (currentWorkoutIndex === -1 || currentWorkoutIndex >= currentWorkouts.length - 1) {
-      // No next workout available
-      return;
-    }
-
-    // Perform a full reset before moving to the next workout
-    handleReset();
-
-    const nextWorkout = currentWorkouts[currentWorkoutIndex + 1];
-
-    // Complete reset of current state
-    stopSound();
-    setIsRunning(false);
-    setStopped(true);
-
-    // Clear any running intervals
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-
-    // Reset all timing and progress state
-    setElapsedTime(0);
-    setCurrentIndex(0);
-    progress.setValue(0);
-
-    // Reset animation
-    Animated.timing(translateY, {
-      toValue: 0,
-      duration: 0,
-      useNativeDriver: true,
-    }).start();
-
-    // Small delay to ensure state is completely reset
-    setTimeout(() => {
-      // Select the next workout
-      setSelectedItem(nextWorkout.name);
-
-      // Parse and set up the new workout
-      const newTimers = nextWorkout.workout.split(';').map((time, index) => ({
-        id: index.toString(),
-        time: parseInt(time),
-        segment: index % 2 === 0 ? 'workout' : 'break',
-      }));
-
-      setTimers(newTimers);
-
-      // Set initial time for the first segment of new workout
-      if (newTimers.length > 0) {
-        setTime(newTimers[0].time);
-      }
-
-      // Force re-render with new progress key
-      setProgressKey((k) => k + 1);
-
-      // Start the next workout after a brief pause
-      setTimeout(() => {
-        setStopped(false);
-        stopSound();
-        setTimeout(() => {
-          if (newTimers.length > 0) {
-            playSegmentMusic('actionSound');
-          }
-          setIsRunning(true);
-        }, 200);
-      }, 800);
-    }, 200);
-  };
 
   useEffect(() => {
     let pulseDuration = 350;
@@ -215,86 +162,46 @@ const TabTwoScreen: React.FC = () => {
   }, [isRunning, scaleValue, currentMusicBeingPlayed]);
 
   useEffect(() => {
-    if (timers.length > 0) {
-      setDisabled(false);
-    } else {
-      setDisabled(true);
-    }
+    // This is now handled by centralized timer state - disabled is computed automatically
   }, [timers]);
 
   useEffect(() => {
+    // Timer progression is now handled entirely by centralized timer management in data provider
+    // This useEffect is kept for UI animations only
     if (time === 0 && currentIndex < timers.length - 1) {
+      // Only handle UI animations - timer progression is centralized
       const nextIndex = currentIndex + 1;
-      setCurrentIndex(nextIndex);
-      setTime(timers[nextIndex].time);
       Animated.timing(translateY, {
         toValue: -nextIndex * height,
         duration: 500,
         useNativeDriver: true,
       }).start();
-      setIsRunning(true);
     }
   }, [time, currentIndex, timers, height]);
 
   useEffect(() => {
-    if (isRunning) {
-      const interval = setInterval(() => {
-        setElapsedTime((prev) => {
-          const newElapsedTime = prev + 1;
-          const progressValue = totalTime > 0 ? (newElapsedTime / totalTime) * 100 : 0;
-          Animated.timing(progress, {
-            toValue: progressValue,
-            duration: 500,
-            useNativeDriver: false,
-          }).start();
-          return newElapsedTime;
-        });
-      }, 1000);
-      return () => clearInterval(interval);
-    } else {
-      if (currentIndex === timers.length - 1 && !stopped && timers.length > 0) {
-        if (audioReady) {
-          if(audioEnabled) {
-            const currentWorkoutIndex = orderedWorkouts.findIndex(workout => workout.name === selectedItem);
-            if (currentWorkoutIndex < orderedWorkouts.length - 1) {
-              playSegmentMusic('nextExerciseSound', () => {
-                // Workout completed, try to auto-progress to next workout
-                setTimeout(() => {
-                  autoSelectNextWorkout();
-                }, 1000); // Give time for success sound to play
-              });
-            } else {
-              playSegmentMusic('successSound', () => {
-                // Last workout finished, reset the timer
-                setTimeout(() => {
-                  handleReset();
-                }, 1000);
-              });
-            }
-          }
-        } else {
-          // No audio, proceed immediately with auto-progression or reset
-          const currentWorkoutIndex = orderedWorkouts.findIndex(workout => workout.name === selectedItem);
-          if (currentWorkoutIndex < orderedWorkouts.length - 1) {
-            setTimeout(() => {
-              autoSelectNextWorkout();
-            }, 500);
-          } else {
-            setTimeout(() => {
-              handleReset();
-            }, 500);
-          }
-        }
+    // Progress animation based on current segment completion
+    let progressValue = 0;
+    
+    if (timers.length > 0 && currentIndex < timers.length) {
+      const currentTimer = timers[currentIndex];
+      const currentSegmentTime = currentTimer.time;
+      
+      // Calculate progress within the current segment (0-100)
+      // When time decreases from initial value to 0, progress should increase from 0 to 100
+      if (currentSegmentTime > 0) {
+        progressValue = ((currentSegmentTime - time) / currentSegmentTime) * 100;
+        // Ensure progress is between 0 and 100
+        progressValue = Math.max(0, Math.min(100, progressValue));
       }
     }
-  }, [isRunning, currentIndex, timers.length, stopped, totalTime, audioReady]);
-
-  // Ensure progress is set to 100 when timer completes
-  useEffect(() => {
-    if (elapsedTime >= totalTime && totalTime > 0) {
-      progress.setValue(100);
-    }
-  }, [elapsedTime, totalTime, progress]);
+    
+    Animated.timing(progress, {
+      toValue: progressValue,
+      duration: 200, // Shorter duration for smoother updates
+      useNativeDriver: false,
+    }).start();
+  }, [time, currentIndex, timers, progress]);
 
   const selectSet = (workout: string) => {
     // Stop any currently running timer first
@@ -317,10 +224,9 @@ const TabTwoScreen: React.FC = () => {
     if (items.length > 0) {
       // Reset all progress and timing state
       progress.setValue(0);
-      setElapsedTime(0);
       setCurrentIndex(0);
-      setTime(items[0].time); // Set to first segment time
-      setProgressKey((k) => k + 1); // force re-render
+      updateTimerTime(items[0].time); // Set to first segment time
+      setProgressKey((k: number) => k + 1); // force re-render
       
       // Reset animation position
       Animated.timing(translateY, {
@@ -329,9 +235,7 @@ const TabTwoScreen: React.FC = () => {
         useNativeDriver: true,
       }).start();
       
-      // Ensure stopped state
-      setStopped(true);
-      setIsRunning(false);
+      // Centralized timer reset handles stopped and isRunning state
     }
   };
 
@@ -352,7 +256,7 @@ const TabTwoScreen: React.FC = () => {
       if (prev === name) {
         handleReset();
         setTimers([]);
-        setTime(0);
+        updateTimerTime(0);
         return null;
       }
       selectSet(workout);
@@ -365,32 +269,47 @@ const TabTwoScreen: React.FC = () => {
   const handleStart = () => {
     if (timers.length > 0) {
       if (totalTime > 0 && elapsedTime >= totalTime) {
-        handleReset();
+        resetTimer();
       }
 
       setTimeout(() => {
         if (time === 0 && timers[currentIndex]) {
-          setTime(timers[currentIndex].time);
+          updateTimerTime(timers[currentIndex].time);
         }
-        setIsRunning(true);
-        setStopped(false);
+        
+        // Use centralized timer start
+        const currentSegment = timers.length > 0 ? timers[currentIndex].segment : '';
+        if (currentSegment) {
+          startTimer(currentSegment);
+        }
       }, 0);
     }
   };
 
   const handleStop = () => {
-    setIsRunning(false);
-    setStopped(true);
-    stopSound();
+    stopTimer();
+    handleTimerStop();
     // If timer is at the end, force progress to 100
     if (elapsedTime >= totalTime && totalTime > 0) {
       progress.setValue(100);
     }
   };
 
+  // Callback for when a timer segment ends
+  const handleTimerEnd = () => {
+    // This is handled by the existing useEffect that watches for time === 0
+  };
+
+  // Callback for when segment changes
+  const handleSegmentChange = (newSegment: string) => {
+    handleTimerSegmentChange(newSegment);
+  };
+
+  // Fadeout logic is now handled centrally in data provider - removed from here
+
   const handleReset = (items?: Timer[]) => {
     // Stop any currently playing sounds
-    stopSound();
+    handleTimerReset();
     
     // Clear any running intervals first
     if (intervalRef.current) {
@@ -398,15 +317,13 @@ const TabTwoScreen: React.FC = () => {
       intervalRef.current = null;
     }
     
-    // Reset state flags
-    setStopped(true);
-    setIsRunning(false);
+    // Use centralized reset
+    resetTimer();
 
     const timerItems = items || timers;
     if (timerItems.length > 0) {
-      // Reset to first timer
-      setTime(timerItems[0].time);
-      setCurrentIndex(0);
+      // Set initial time after reset
+      updateTimerTime(timerItems[0].time);
 
       // Reset animations
       Animated.timing(translateY, {
@@ -415,19 +332,25 @@ const TabTwoScreen: React.FC = () => {
         useNativeDriver: true,
       }).start();
 
-      // Reset progress and elapsed time
+      // Reset progress
       progress.setValue(0);
-      setElapsedTime(0);
       setProgressKey((k) => k + 1); // force re-render
     } else {
-      // No timers available
-      setTime(0);
-      setCurrentIndex(0);
-      setElapsedTime(0);
+      // No timers available - reset to initial state
+      updateTimerTime(0);
       progress.setValue(100);
       setProgressKey((k) => k + 1); // force re-render
     }
   };
+
+  // Set up workout completion callback after all functions are defined
+  useEffect(() => {
+    const handleWorkoutCompleteCallback = () => {
+      handleWorkoutCompleteFlow(orderedWorkouts);
+    };
+
+    setWorkoutCompleteCallback(handleWorkoutCompleteCallback);
+  }, [orderedWorkouts, handleWorkoutCompleteFlow, setWorkoutCompleteCallback]);
 
   const handleAddNew = () => {
     router.push('/three');
@@ -437,23 +360,14 @@ const TabTwoScreen: React.FC = () => {
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = progress.interpolate({
     inputRange: [0, 100],
-    outputRange: [circumference, 0],
+    outputRange: [circumference, 0], // Start with full offset (empty circle), end with 0 offset (full circle)
     extrapolate: 'clamp',
   });
 
   useEffect(() => {
-    if (!audioEnabled) {
-      stopSound();
-    } else if (audioEnabled && isRunning && timers.length > 0 && timers[currentIndex]) {
-      // Play current segment music when sound is enabled and timer is running
-      const segment = timers[currentIndex].segment;
-      if (segment === 'workout') {
-        playSegmentMusic('actionSound');
-      } else if (segment === 'break') {
-        playSegmentMusic('breakSound');
-      }
-    }
-  }, [audioEnabled]);
+    const currentSegment = timers.length > 0 && timers[currentIndex] ? timers[currentIndex].segment : undefined;
+    handleAudioToggle(audioEnabled, isRunning, currentSegment);
+  }, [audioEnabled, isRunning, timers, currentIndex, handleAudioToggle]);
 
   return (
     <View style={commonStyles.container}>
@@ -540,16 +454,10 @@ const TabTwoScreen: React.FC = () => {
                 ))}
               <View style={styles.timerContainerWrapper}>
                 <TimerItem
-                  title={timers.length > 0 ? timers[currentIndex].segment : ''}
                   key={`timer-${
                     timers.length > 0 ? timers[currentIndex].id : 'empty'
                   }-${currentIndex}`}
-                  time={time}
-                  isRunning={isRunning}
-                  setIsRunning={setIsRunning}
-                  setTime={setTime}
-                  intervalRef={intervalRef}
-                  soundEnabled={audioEnabled}
+                  onSegmentChange={handleSegmentChange}
                 />
                 {/* <View style={styles.nextTimerContainer}>
                   {timers.length > 0 && (

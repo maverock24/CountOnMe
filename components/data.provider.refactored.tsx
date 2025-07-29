@@ -88,7 +88,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
     try {
       await AsyncStorage.setItem(`${prefixKey}profileWeight`, newWeight || '');
-      console.log('Weight saved:', newWeight);
     } catch (error) {
       console.error('Failed to save weight', error);
     }
@@ -101,7 +100,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
     try {
       await AsyncStorage.setItem(`${prefixKey}profileFitness`, newFitness || '');
-      console.log('Fitness level saved:', newFitness);
     } catch (error) {
       console.error('Failed to save fitness level', error);
     }
@@ -115,7 +113,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
     try {
       await AsyncStorage.setItem('audioEnabled', String(enabled));
-      console.log('Audio setting saved:', enabled);
     } catch (error) {
       console.error('Failed to save audio setting', error);
     }

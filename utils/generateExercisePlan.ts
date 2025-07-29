@@ -199,9 +199,7 @@ export enum FitnessLevel {
     intensity: 'low',
   };
   
-  const workoutPlan1 = generateExercisePlan(userRequest1, allExercises);
-  console.log('--- Beginner, Default Duration ---');
-  console.log(workoutPlan1);
+  // const workoutPlan1 = generateExercisePlan(userRequest1, allExercises);
   // Expected output: 3 sets, default work duration
   // {
   //   exercise: 'Kniebeugen',
@@ -221,9 +219,7 @@ export enum FitnessLevel {
     targetCalories: 150, // High target
   };
   
-  const workoutPlan2 = generateExercisePlan(userRequest2, allExercises);
-  console.log('\n--- Beginner, High Calorie Target ---');
-  console.log(workoutPlan2);
+  // const workoutPlan2 = generateExercisePlan(userRequest2, allExercises);
   // Expected output: 3 sets (for beginner), but work duration is increased to meet calorie goal
   // {
   //   exercise: 'Kniebeugen',

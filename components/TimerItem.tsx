@@ -1,17 +1,10 @@
-import { Audio, AVPlaybackStatusSuccess } from 'expo-av';
 import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, Platform, StyleSheet, Text } from 'react-native';
-import { useSound } from './sound.provider';
+import { Animated, Easing, StyleSheet, Text } from 'react-native';
+import { useData } from './data.provider';
 
 // Define the props for the TimerItem component
 interface TimerItemProps {
-  title: string; // The title of the timer item (e.g., 'workout' or 'break')
-  time: number; // The remaining time in seconds
-  isRunning: boolean; // Indicates if the timer is currently running
-  setIsRunning: React.Dispatch<React.SetStateAction<boolean>>; // Function to update the running state
-  setTime: React.Dispatch<React.SetStateAction<number>>; // Function to update the remaining time
-  intervalRef: React.MutableRefObject<NodeJS.Timeout | null>; // Ref to store the interval ID
-  soundEnabled: boolean; // Indicates if sound is enabled
+  onSegmentChange?: (newSegment: string) => void; // Optional callback when segment changes
 }
 
 // Helper function to format time in MM:SS
@@ -21,110 +14,53 @@ const formatTime = (seconds: number) => {
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
-// Module-scoped variable for tracking the current playing sound
-let currentSound: Audio.Sound | null = null;
-
-// Stop sound function
-export const stopSound = async () => {
-  if (!currentSound) return;
-
-  try {
-    const status = await currentSound.getStatusAsync();
-    if (status.isLoaded) {
-      if ((status as AVPlaybackStatusSuccess).isPlaying) {
-        await currentSound.stopAsync();
-      }
-      await currentSound.unloadAsync();
-    }
-  } catch (error) {
-    console.error('Error stopping sound:', error);
-  } finally {
-    currentSound = null;
-  }
-};
-
 const TimerItem: React.FC<TimerItemProps> = ({
-  title,
-  time,
-  isRunning,
-  setIsRunning,
-  setTime,
-  intervalRef,
-  soundEnabled,
+  onSegmentChange,
 }) => {
-  const alarmPlayedRef = useRef(false);
-  const { playSegmentMusic, audioReady, fadeOutSound } = useSound();
+  // Get centralized timer state and functions
+  const { 
+    timerIsRunning: isRunning,
+    timerCurrentTime: time,
+    timerCurrentIndex: currentIndex,
+    timers,
+    updateTimerTime,
+    setCurrentIndex,
+    incrementElapsedTime,
+    stopTimer,
+    getCurrentSegment
+  } = useData();
+  
   const scaleValue = useRef(new Animated.Value(1)).current;
   const pulseAnimationRef = useRef<Animated.CompositeAnimation | null>(null);
+  const prevTitleRef = useRef<string | null>(null); // Track title changes for segment callbacks
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Play the appropriate sound when the timer starts
+  // Get current title from centralized state
+  const title = getCurrentSegment();
+
+  // Handle segment changes and notify parent
   useEffect(() => {
-    let soundTimeout: NodeJS.Timeout | null = null;
-
-    if (isRunning && soundEnabled && audioReady) {
-      // Add slight delay for Android to ensure audio system is ready
-      soundTimeout = setTimeout(
-        () => {
-          if (title === 'workout') {
-            playSegmentMusic('workout');
-          } else if (title === 'break') {
-            playSegmentMusic('break');
-          }
-        },
-        Platform.OS === 'android' ? 500 : 0
-      );
+    const prevTitle = prevTitleRef.current;
+    
+    // Only notify on actual title changes while running
+    if (isRunning && title !== prevTitle && prevTitle !== null && onSegmentChange) {
+      onSegmentChange(title);
     }
+    
+    prevTitleRef.current = title;
+  }, [title, isRunning, onSegmentChange]);
 
-    return () => {
-      if (soundTimeout) clearTimeout(soundTimeout);
-    };
-  }, [isRunning, soundEnabled, title, audioReady]);
-
-  // Fade out sound as timer nears completion
+  // Timer display logic - NO interval management here (handled by data provider)
+  // This component is now purely for display and segment change notifications
   useEffect(() => {
-    // Reset alarmPlayedRef when time changes to > 5
-    if (time > 5) {
-      alarmPlayedRef.current = false;
-    }
-
-    // Trigger fadeout when time gets low
-    if (
-      soundEnabled &&
-      (title === 'break' || title === 'workout') &&
-      time <= 4 &&
-      time > 0 &&
-      !alarmPlayedRef.current
-    ) {
-      fadeOutSound();
-      alarmPlayedRef.current = true;
-    }
-  }, [time, soundEnabled, title]);
-
-  // Timer interval logic
-  useEffect(() => {
-    if (isRunning) {
-      intervalRef.current = setInterval(() => {
-        setTime((prevTime) => {
-          if (prevTime <= 0) {
-            clearInterval(intervalRef.current!);
-            setIsRunning(false);
-            return 0;
-          }
-          return prevTime - 1;
-        });
-      }, 1000);
-    } else if (!isRunning && intervalRef.current) {
-      clearInterval(intervalRef.current);
-    }
-
-    // Cleanup function
+    // Clean up any existing intervals when component unmounts
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
     };
-  }, [isRunning, setTime, intervalRef]);
+  }, []);
 
   // Pulse animation: run when isRunning is true
   useEffect(() => {
@@ -156,14 +92,11 @@ const TimerItem: React.FC<TimerItemProps> = ({
     }
   }, [isRunning, scaleValue]);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      stopSound().catch((err) => console.error('Error stopping sound:', err));
-    };
-  }, []);
-
-  return <Text style={styles.count}>{formatTime(time)}</Text>;
+  return (
+    <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
+      <Text style={styles.count}>{formatTime(time)}</Text>
+    </Animated.View>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -175,5 +108,4 @@ const styles = StyleSheet.create({
   },
 });
 
-// Export sound-related functions for use in parent components
 export default TimerItem;
