@@ -34,6 +34,25 @@ export interface AudioSettings {
   currentMusicBeingPlayed: string | null;
 }
 
+// Timer-related types
+export interface Timer {
+  id: string;
+  time: number;
+  segment: string;
+}
+
+export interface TimerState {
+  isRunning: boolean;
+  currentTime: number;
+  currentIndex: number;
+  elapsedTime: number;
+  timers: Timer[];
+  stopped: boolean;
+  disabled: boolean;
+  selectedItem: string | null;
+  progressKey: number;
+}
+
 export interface AppState {
   storedItems: StoredItem[];
   workoutItems: WorkoutItem[];
@@ -41,4 +60,5 @@ export interface AppState {
   currentLanguage: string | null;
   audioSettings: AudioSettings;
   userProfile: UserProfile;
+  timerState: TimerState;
 }

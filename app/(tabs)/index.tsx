@@ -167,10 +167,7 @@ export default function TabOneScreen() {
         if (nativeRecorder && nativeRecorder.isRecording) {
           nativeRecorder
             .stop()
-            .then(() => console.log('Unmount: Native recorder stopped successfully.'))
             .catch((e) => console.error('Unmount: Error stopping native recorder:', e));
-        } else {
-          console.log('Unmount: Native recorder not active or not available at unmount time.');
         }
       }
     };
@@ -202,11 +199,6 @@ export default function TabOneScreen() {
           maxDbThreshold - (sensitivitySetting / 100) * (maxDbThreshold - minDbThreshold)
         );
         if (audioLevel > nativeThreshold) {
-          console.log(
-            `Native Clap Detected! Level: ${audioLevel.toFixed(
-              1
-            )}dB, Threshold: ${nativeThreshold}dB.`
-          );
           triggered = true;
         }
       }
@@ -256,7 +248,6 @@ export default function TabOneScreen() {
       return;
     }
     if (isListening || audioContextRef.current) {
-      console.log(t('web_already_listening'));
       return;
     }
     let stream: MediaStream | null = null;

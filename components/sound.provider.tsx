@@ -4,7 +4,7 @@ import {
   InterruptionModeAndroid,
   InterruptionModeIOS,
 } from 'expo-av';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 
 let currentSound: Audio.Sound | null = null;
@@ -62,6 +62,10 @@ export const SoundProvider: React.FC<{
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioReady, setAudioReady] = useState(false);
+  const isLoadingSoundRef = useRef(false);
+  const isPlayingSegmentRef = useRef<string | null>(null);
+  const playSoundInProgressRef = useRef(false);
+  const globalSoundLockRef = useRef(false);
 
   const [selectedWorkoutFile, setSelectedWorkoutMusicFile] = useState();
   const [selectedBreakFile, setSelectedBreakMusicFile] = useState();
@@ -157,7 +161,7 @@ export const SoundProvider: React.FC<{
     }
   }, [selectedWorkoutMusic, selectedBreakMusic, selectedSuccessSound, selectedNextExerciseSound, audioReady]);
 
-  const stopSound = async () => {
+  const stopSound = async (preserveGlobalLock: boolean = false) => {
     if (!currentSound) return;
 
     try {
@@ -173,37 +177,29 @@ export const SoundProvider: React.FC<{
     } finally {
       currentSound = null;
       setIsPlaying(false);
+      // Clear all locks when sound is stopped, unless preserving global lock
+      isPlayingSegmentRef.current = null;
+      playSoundInProgressRef.current = false;
+      if (!preserveGlobalLock) {
+        globalSoundLockRef.current = false;
+      }
     }
   };
 
   const loadMusicSettings = async () => {
-    console.log('loadMusicSettings called with:', {
-      selectedWorkoutMusic,
-      selectedBreakMusic,
-      selectedSuccessSound,
-      selectedNextExerciseSound,
-      audioReady
-    });
-    
     if (!audioReady) {
-      console.log('Audio not ready yet');
       return;
     }
 
     if (workoutMusic.length === 0 && breakMusic.length === 0 && successSound.length === 0) {
-      console.log('No music data available');
       return;
     }
 
     try {
       const workoutFile = getSoundFileByLabel(selectedWorkoutMusic);
-      console.log('Selected workout music file:', selectedWorkoutMusic, '→', workoutFile);
       const breakFile = getSoundFileByLabel(selectedBreakMusic);
-      console.log('Selected break music file:', selectedBreakMusic, '→', breakFile);
       const successFile = getSoundFileByLabel(selectedSuccessSound);
-      console.log('Selected success sound file:', selectedSuccessSound, '→', successFile);
       const nextExerciseFile = getSoundFileByLabel(selectedNextExerciseSound);
-      console.log('Selected next exercise sound file:', selectedNextExerciseSound, '→', nextExerciseFile);
 
       if (workoutFile) {
         setSelectedWorkoutMusicFile(workoutFile);
@@ -223,7 +219,9 @@ export const SoundProvider: React.FC<{
         setSelectedSuccessSoundFile(successFile);
       } else {
         console.warn('Could not find success sound for:', selectedSuccessSound);
-        if (successSound.length > 0) setSelectedSuccessSoundFile(successSound[0].value);
+        if (successSound.length > 0) {
+          setSelectedSuccessSoundFile(successSound[0].value);
+        }
       }
 
       if (nextExerciseFile) {
@@ -244,23 +242,61 @@ export const SoundProvider: React.FC<{
 
   const getSoundFileByLabel = (label: string) => {
     try {
+      // First check success sounds specifically for success-related labels
+      if (label && label.toLowerCase().includes('success')) {
+        if (successSound && Array.isArray(successSound)) {
+          const successMatch = successSound.find((sound) => sound && sound.label === label);
+          if (successMatch && successMatch.value) {
+            return successMatch.value;
+          }
+        }
+      }
+      
+      // Check workout music for workout-related labels
+      if (label && (label.toLowerCase().includes('action') || label.toLowerCase().includes('upbeat') || label.toLowerCase().includes('chill'))) {
+        if (workoutMusic && Array.isArray(workoutMusic)) {
+          const workoutMatch = workoutMusic.find((music) => music && music.label === label);
+          if (workoutMatch && workoutMatch.value) {
+            return workoutMatch.value;
+          }
+        }
+      }
+      
+      // Check break music for break-related labels
+      if (label && label.toLowerCase().includes('break')) {
+        if (breakMusic && Array.isArray(breakMusic)) {
+          const breakMatch = breakMusic.find((music) => music && music.label === label);
+          if (breakMatch && breakMatch.value) {
+            return breakMatch.value;
+          }
+        }
+      }
+      
+      // Check next exercise sound
+      if (nextExerciseSound && nextExerciseSound.label === label) {
+        return nextExerciseSound.value;
+      }
+      
+      // Fallback: search all arrays in order (but this should be avoided)
+      if (successSound && Array.isArray(successSound)) {
+        const successMatch = successSound.find((sound) => sound && sound.label === label);
+        if (successMatch && successMatch.value) {
+          return successMatch.value;
+        }
+      }
+
       if (workoutMusic && Array.isArray(workoutMusic)) {
         const workoutMatch = workoutMusic.find((music) => music && music.label === label);
-        if (workoutMatch && workoutMatch.value) return workoutMatch.value;
+        if (workoutMatch && workoutMatch.value) {
+          return workoutMatch.value;
+        }
       }
 
       if (breakMusic && Array.isArray(breakMusic)) {
         const breakMatch = breakMusic.find((music) => music && music.label === label);
-        if (breakMatch && breakMatch.value) return breakMatch.value;
-      }
-
-      if (successSound && Array.isArray(successSound)) {
-        const successMatch = successSound.find((sound) => sound && sound.label === label);
-        if (successMatch && successMatch.value) return successMatch.value;
-      }
-
-      if (nextExerciseSound && nextExerciseSound.label === label) {
-        return nextExerciseSound.value;
+        if (breakMatch && breakMatch.value) {
+          return breakMatch.value;
+        }
       }
 
       if (workoutMusic?.length > 0) return workoutMusic[0].value;
@@ -278,13 +314,17 @@ export const SoundProvider: React.FC<{
     const filtered = musicArray.filter(
       (item) => item.label && item.label.toLowerCase().includes(label.toLowerCase())
     );
-    if (filtered.length === 0) return null;
+    
+    if (filtered.length === 0) {
+      console.warn('No tracks found matching label:', label);
+      return null;
+    }
 
-    const shuffled = filtered
-      .map((value) => ({ value, sort: Math.random() }))
-      .sort((a, b) => a.sort - b.sort)
-      .map(({ value }) => value);
-    return shuffled[0].value;
+    // Generate a truly random index each time
+    const randomIndex = Math.floor(Math.random() * filtered.length);
+    const selectedTrack = filtered[randomIndex];
+    
+    return selectedTrack.value;
   };
 
   const playSound = async (
@@ -304,33 +344,42 @@ export const SoundProvider: React.FC<{
       return null;
     }
 
-    let foundLabel: string | null = null;
-    const allMusic = [...(workoutMusic || []), ...(breakMusic || []), ...(successSound || []), nextExerciseSound];
-    for (const item of allMusic) {
-      if (item && item.value) {
-        if (
-          item.value === soundFile ||
-          (item.value?.uri && soundFile?.uri && item.value.uri === soundFile.uri) ||
-          (typeof item.value === 'string' &&
-            typeof soundFile === 'string' &&
-            item.value === soundFile) ||
-          (typeof item.value === 'object' &&
-            typeof soundFile === 'object' &&
-            JSON.stringify(item.value) === JSON.stringify(soundFile))
-        ) {
-          foundLabel = item.label;
-          break;
-        }
-      }
-    }
-    if (foundLabel) {
-      setCurrentMusicBeingPlayed(foundLabel);
+    // Prevent overlapping playSound calls
+    if (playSoundInProgressRef.current) {
+      return null;
     }
 
+    // Don't check global lock here since playSegmentMusic manages it
+    // The global lock is meant to prevent external overlapping calls, not internal ones
+
     try {
+      playSoundInProgressRef.current = true;
+
+      let foundLabel: string | null = null;
+      const allMusic = [...(workoutMusic || []), ...(breakMusic || []), ...(successSound || []), nextExerciseSound];
+      for (const item of allMusic) {
+        if (item && item.value) {
+          if (
+            item.value === soundFile ||
+            (item.value?.uri && soundFile?.uri && item.value.uri === soundFile.uri) ||
+            (typeof item.value === 'string' &&
+              typeof soundFile === 'string' &&
+              item.value === soundFile) ||
+            (typeof item.value === 'object' &&
+              typeof soundFile === 'object' &&
+              JSON.stringify(item.value) === JSON.stringify(soundFile))
+          ) {
+            foundLabel = item.label;
+            break;
+          }
+        }
+      }
+      if (foundLabel) {
+        setCurrentMusicBeingPlayed(foundLabel);
+      }
+
       await stopSound();
       await new Promise((resolve) => setTimeout(resolve, 150));
-      console.log('Playing sound file:', foundLabel || soundFile);
 
       if (Platform.OS === 'android') {
         await new Promise((resolve) => setTimeout(resolve, 200));
@@ -368,6 +417,9 @@ export const SoundProvider: React.FC<{
       currentSound = null;
       setIsPlaying(false);
       return null;
+    } finally {
+      // Always clear the lock when done
+      playSoundInProgressRef.current = false;
     }
   };
 
@@ -383,14 +435,16 @@ export const SoundProvider: React.FC<{
       }
 
       let volume = (status as AVPlaybackStatusSuccess).volume ?? 1;
-      const duration = 800;
-      const steps = 6.5; // Number of steps for fadeout
+      const steps = 5; // Fewer steps for simpler, faster fadeout
+      const stepDuration = 400; // Shorter duration per step
       const decrement = volume / steps;
 
       for (let i = 0; i < steps; i++) {
         volume = Math.max(volume - decrement, 0);
-        await currentSound.setVolumeAsync(volume);
-        await new Promise((resolve) => setTimeout(resolve, duration));
+        if (currentSound) {
+          await currentSound.setVolumeAsync(volume);
+        }
+        await new Promise((resolve) => setTimeout(resolve, stepDuration));
       }
     } catch (error) {
       console.error('Error during fadeout:', error);
@@ -398,27 +452,56 @@ export const SoundProvider: React.FC<{
   };
 
   const playSegmentMusic = async (segment: string, callback?: () => void) => {
-    console.log('playSegmentMusic called for segment:', segment);
-    if (!audioReady) return;
+    if (!audioReady) {
+      return;
+    }
 
-    await stopSound();
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    // Check if we're already playing this exact segment
+    if (isPlayingSegmentRef.current === segment) {
+      return;
+    }
 
-    if (segment === 'workout') {
+    // Global lock to prevent any overlapping sound operations
+    if (globalSoundLockRef.current) {
+      return;
+    }
+
+    try {
+      globalSoundLockRef.current = true;
+      
+      // Only stop existing sound if we're switching to a different segment
+      // Don't stop if we're just re-triggering the same segment
+      if (isPlayingSegmentRef.current && isPlayingSegmentRef.current !== segment) {
+        // Don't clear the global lock when stopping sound during playSegmentMusic
+        const preserveGlobalLock = true;
+        await stopSound(preserveGlobalLock);
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      } else if (!isPlayingSegmentRef.current) {
+        // No existing sound, proceeding with new segment
+      }
+      
+      // Update the segment reference before playing
+      isPlayingSegmentRef.current = segment;
+
+      if (segment === 'workout') {
       if (selectedWorkoutMusic === 'random:Action') {
         const playRandom = async () => {
-          const randomAction = getRandomTrackByLabel(workoutMusic, 'action:');
+          const randomAction = getRandomTrackByLabel(workoutMusic, 'action');
           if (randomAction) {
             await playSound(randomAction, false, 1.0, undefined, playRandom);
+          } else {
+            console.warn('No action music found for random selection');
           }
         };
         await playRandom();
         return;
       } else if (selectedWorkoutMusic === 'random:Chill') {
         const playRandom = async () => {
-          const randomChill = getRandomTrackByLabel(workoutMusic, 'chill:');
+          const randomChill = getRandomTrackByLabel(workoutMusic, 'chill');
           if (randomChill) {
             await playSound(randomChill, false, 1.0, undefined, playRandom);
+          } else {
+            console.warn('No chill music found for random selection');
           }
         };
         await playRandom();
@@ -429,23 +512,48 @@ export const SoundProvider: React.FC<{
     } else if (segment === 'break') {
       if (selectedBreakMusic === 'random:Chill') {
         const playRandom = async () => {
-          const randomChill = getRandomTrackByLabel(breakMusic, 'chill:');
+          const randomChill = getRandomTrackByLabel(breakMusic, 'chill');
           if (randomChill) {
             await playSound(randomChill, false, 1.0, undefined, playRandom);
+          } else {
+            console.warn('No chill break music found for random selection');
           }
         };
         await playRandom();
         return;
       } else {
-        console.log('Playing selected break music');
         await playSound(selectedBreakFile, true);
       }
-    } else if (segment === 'successSound' && selectedSuccessSound) {
-      await playSound(selectedSuccessFile, false, 1.0, callback);
-    } else if (segment === 'nextExerciseSound' && selectedNextExerciseSound) {
-      await playSound(selectedNextExerciseFile, false, 1.0, callback);
+    } else if (segment === 'successSound') {
+      if (selectedSuccessFile) {
+        await playSound(selectedSuccessFile, false, 1.0, callback);
+      } else {
+        console.warn('No success sound file available, using fallback');
+        // Fallback to first available success sound if selectedSuccessFile is not set
+        if (successSound && successSound.length > 0) {
+          await playSound(successSound[0].value, false, 1.0, callback);
+        }
+      }
+    } else if (segment === 'nextExerciseSound') {
+      if (selectedNextExerciseFile) {
+        await playSound(selectedNextExerciseFile, false, 1.0, callback);
+      } else {
+        console.warn('No next exercise sound file available, using fallback');
+        // Fallback to nextExerciseSound if selectedNextExerciseFile is not set
+        if (nextExerciseSound) {
+          await playSound(nextExerciseSound.value, false, 1.0, callback);
+        }
+      }
     } else {
       console.warn('No matching music for segment:', segment);
+    }
+    
+    } catch (error) {
+      console.error('Error in playSegmentMusic:', error);
+    } finally {
+      // Clear both locks when done
+      isPlayingSegmentRef.current = null;
+      globalSoundLockRef.current = false;
     }
   };
 
