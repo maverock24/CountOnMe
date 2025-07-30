@@ -644,6 +644,28 @@ const DataProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
     try {
       const items = await StorageService.getAllStoredItems();
       
+      // Check if this is the first time setup (no audio settings exist)
+      const hasWorkoutMusic = items.some(item => item.key === 'workoutMusic');
+      const hasBreakMusic = items.some(item => item.key === 'breakMusic');
+      const hasSuccessSound = items.some(item => item.key === 'successSound');
+      
+      // If this is the first time, set default values in storage
+      if (!hasWorkoutMusic || !hasBreakMusic || !hasSuccessSound) {
+        if (!hasWorkoutMusic) {
+          await StorageService.storeItem('workoutMusic', 'random:Action');
+        }
+        if (!hasBreakMusic) {
+          await StorageService.storeItem('breakMusic', 'random:Chill');
+        }
+        if (!hasSuccessSound) {
+          await StorageService.storeItem('successSound', 'Oh Yeah');
+        }
+        
+        // Reload items after setting defaults
+        const updatedItems = await StorageService.getAllStoredItems();
+        items.push(...updatedItems.filter(item => !items.some(existing => existing.key === item.key)));
+      }
+      
       // Process reserved keys for settings
       items.forEach((item) => {
         const trimmedKey = item.key;
@@ -651,19 +673,19 @@ const DataProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
           case 'workoutMusic':
             dispatch({ 
               type: 'SET_AUDIO_SETTINGS', 
-              payload: { selectedActionMusic: item.value || 'Action: Upbeat' } 
+              payload: { selectedActionMusic: item.value || 'random:Action' } 
             });
             break;
           case 'breakMusic':
             dispatch({ 
               type: 'SET_AUDIO_SETTINGS', 
-              payload: { selectedBreakMusic: item.value || 'Break: Chill' } 
+              payload: { selectedBreakMusic: item.value || 'random:Chill' } 
             });
             break;
           case 'successSound':
             dispatch({ 
               type: 'SET_AUDIO_SETTINGS', 
-              payload: { selectedSuccessSound: item.value || 'Success: Yeah' } 
+              payload: { selectedSuccessSound: item.value || 'Oh Yeah' } 
             });
             break;
           case 'language':
@@ -957,19 +979,19 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             case 'workoutMusic':
               dispatch({ 
                 type: 'SET_AUDIO_SETTINGS', 
-                payload: { selectedActionMusic: item.value || 'Action: Upbeat' } 
+                payload: { selectedActionMusic: item.value || 'random:Action' } 
               });
               break;
             case 'breakMusic':
               dispatch({ 
                 type: 'SET_AUDIO_SETTINGS', 
-                payload: { selectedBreakMusic: item.value || 'Break: Chill' } 
+                payload: { selectedBreakMusic: item.value || 'random:Chill' } 
               });
               break;
             case 'successSound':
               dispatch({ 
                 type: 'SET_AUDIO_SETTINGS', 
-                payload: { selectedSuccessSound: item.value || 'Success: Yeah' } 
+                payload: { selectedSuccessSound: item.value || 'Oh Yeah' } 
               });
               break;
           }

@@ -14,9 +14,9 @@ export const RESERVED_KEYS = [
 
 export const DEFAULT_AUDIO_SETTINGS = {
   enabled: true,
-  selectedActionMusic: 'Action: Upbeat',
-  selectedBreakMusic: 'Break: Chill',
-  selectedSuccessSound: 'Success: Yeah',
+  selectedActionMusic: 'random:Action',
+  selectedBreakMusic: 'random:Chill',
+  selectedSuccessSound: 'Oh Yeah',
   selectedNextExerciseSound: 'Next Exercise',
   currentMusicBeingPlayed: null,
 };
