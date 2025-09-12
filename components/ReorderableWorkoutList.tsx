@@ -25,8 +25,11 @@ interface ReorderableWorkoutListProps {
   onWorkoutSelect: (name: string, workout: string) => void;
   currentIndex: number;
   showReorderButton?: boolean;
+  showSingleSelect?: boolean;
   onReorderComplete?: () => Promise<void>;
   onWorkoutsChanged?: (workouts: WorkoutItem[]) => void;
+  // NEW: notify parent when Single/All mode changes
+  onSingleSelectChange?: (enabled: boolean) => void;
 }
 
 const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
@@ -38,12 +41,15 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
   onWorkoutSelect,
   currentIndex,
   showReorderButton = true,
+  showSingleSelect = false,
   onReorderComplete,
   onWorkoutsChanged,
+  onSingleSelectChange,
 }) => {
   const { workoutItems, groupItems, getOrderedWorkoutsForGroup, reorderWorkoutInGroup, reorderEntireGroup, reload } = useData();
   const { t } = useTranslation();
   const [isReorderMode, setIsReorderMode] = useState<boolean>(false);
+  const [isSingleSelect, setIsSingleSelect] = useState<boolean>(false);
   const [reorderableWorkouts, setReorderableWorkouts] = useState<WorkoutItem[]>([]);
   const [workouts, setWorkouts] = useState<WorkoutItem[]>([]);
 
@@ -89,6 +95,13 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
       await saveReorderedWorkouts();
     }
     setIsReorderMode(!isReorderMode);
+  };
+
+  const toggleSingleSelect = () => {
+    const next = !isSingleSelect;
+    setIsSingleSelect(next);
+    // Inform parent about the change so it can adjust completion behavior
+    onSingleSelectChange?.(next);
   };
 
   // Save reordered workouts using data provider
@@ -177,13 +190,21 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
     <View style={{ flex: 1, width: '100%' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 }}>
         <CustomPicker
-          containerStyle={{ margin: 2, justifyContent: 'center', width: 150 }}
+          containerStyle={{ margin: 2, justifyContent: 'center' }}
           style={{ alignSelf: 'center', justifyContent: 'center'}}
           selectedValue={selectedGroup}
           onValueChange={onGroupChange}
           items={groupData}
           dropdownIconColor="#fff"
         />
+        {showSingleSelect && (
+          <TimerButton 
+            text={isSingleSelect ? t('Single') || 'Single' : t('all') || 'All'}
+            onPress={toggleSingleSelect}
+            isSelected={isSingleSelect}
+            style={{ width: 100 }}
+          />
+        )}
         {showReorderButton && (
           <TimerButton 
             text={isReorderMode ? t('done') || 'Done' : t('reorder') || 'Reorder'}

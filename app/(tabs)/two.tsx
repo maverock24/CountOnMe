@@ -1,7 +1,7 @@
 import { faBed, faRunning } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { router } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Animated,
@@ -94,6 +94,8 @@ const TabTwoScreen: React.FC = () => {
   } = useData();
 
   const [selectedGroup, setSelectedGroup] = useState<string>('All');
+  // Track whether single-select mode is enabled in the list
+  const [singleSelectMode, setSingleSelectMode] = useState<boolean>(false);
 
   // Remove duplicate 'All' entry in groupData
   const groupData = [
@@ -346,11 +348,18 @@ const TabTwoScreen: React.FC = () => {
   // Set up workout completion callback after all functions are defined
   useEffect(() => {
     const handleWorkoutCompleteCallback = () => {
+      if (singleSelectMode) {
+        // In single-select mode: stop at the end of the current workout and do not advance
+        handleTimerReset();
+        resetTimer();
+        return;
+      }
+      // Default behavior: proceed using centralized flow (may auto-advance)
       handleWorkoutCompleteFlow(orderedWorkouts);
     };
 
     setWorkoutCompleteCallback(handleWorkoutCompleteCallback);
-  }, [orderedWorkouts, handleWorkoutCompleteFlow, setWorkoutCompleteCallback]);
+  }, [orderedWorkouts, handleWorkoutCompleteFlow, setWorkoutCompleteCallback, singleSelectMode, handleTimerReset, resetTimer]);
 
   const handleAddNew = () => {
     router.push('/three');
@@ -498,12 +507,7 @@ const TabTwoScreen: React.FC = () => {
         </View>
         <View style={commonStyles.outerContainer}>
           <Text style={commonStyles.tileTitle}>{t('workouts')}</Text>
-          <View style={[commonStyles.tile, { flex: 1, padding: 5 }]}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 }}>
-            {/* <Text style={styles.label}>{t('select_workout_group')}</Text> */}
-            {/* CustomPicker is now rendered inside ReorderableWorkoutList */}
-            </View>
-            
+          <View style={[commonStyles.tile, { flex: 1, padding: 5 }]}>            
             {noWorkout && <TimerButton text={t('add_button')} onPress={handleAddNew} maxWidth />}
             
             <ReorderableWorkoutList
@@ -516,8 +520,11 @@ const TabTwoScreen: React.FC = () => {
               onWorkoutSelect={toggleSelectSet}
               currentIndex={currentIndex}
               showReorderButton={true}
+              showSingleSelect={true}
               onReorderComplete={handleReorderComplete}
-              onWorkoutsChanged={setOrderedWorkouts}  
+              onWorkoutsChanged={setOrderedWorkouts}
+              // NEW: capture Single/All toggle changes
+              onSingleSelectChange={setSingleSelectMode}
             />
           </View>
         </View>
