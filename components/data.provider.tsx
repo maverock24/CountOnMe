@@ -2,6 +2,9 @@ import i18n from '@/i18n';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useContext, useEffect, useReducer, useRef } from 'react';
 
+// Bridge to allow SoundProvider (parent) to update inner provider state
+let setCurrentMusicBeingPlayedBridge: ((music: string | null) => void) | null = null;
+
 import {
   breakMusic as breakMusicData,
   DataKey,
@@ -139,6 +142,19 @@ const DataProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
   const currentSegmentRef = useRef<string | null>(null);
   const soundCallInProgressRef = useRef(false);
   const globalAudioLockRef = useRef(false);
+
+  // Expose setter so parent SoundProvider can update this state
+  useEffect(() => {
+    setCurrentMusicBeingPlayedBridge = (music: string | null) => {
+      dispatch({ 
+        type: 'SET_AUDIO_SETTINGS', 
+        payload: { currentMusicBeingPlayed: music } 
+      });
+    };
+    return () => {
+      setCurrentMusicBeingPlayedBridge = null;
+    };
+  }, []);
 
   // === CENTRALIZED SOUND MANAGEMENT SYSTEM ===
   
@@ -1010,12 +1026,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       breakMusic={breakMusicData}
       successSound={successSoundData}
       nextExerciseSound={nextExerciseSound}
-      setCurrentMusicBeingPlayed={(music) =>
-        dispatch({ 
-          type: 'SET_AUDIO_SETTINGS', 
-          payload: { currentMusicBeingPlayed: music } 
-        })
-      }
+      setCurrentMusicBeingPlayed={(music) => setCurrentMusicBeingPlayedBridge?.(music)}
       selectedBreakMusic={state.audioSettings.selectedBreakMusic}
       selectedWorkoutMusic={state.audioSettings.selectedActionMusic}
       selectedSuccessSound={state.audioSettings.selectedSuccessSound}
