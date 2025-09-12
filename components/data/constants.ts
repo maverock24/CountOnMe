@@ -4,6 +4,10 @@ export const RESERVED_KEYS = [
   'workoutMusic',
   'breakMusic',
   'successSound',
+  // Custom user-added audio lists
+  'custom_workoutMusic',
+  'custom_breakMusic',
+  'custom_successSound',
   'audioEnabled',
   'audioThreshold',
   'language',

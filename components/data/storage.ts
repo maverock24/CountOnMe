@@ -61,6 +61,113 @@ export class StorageService {
     }
   }
 
+  private static safeParseArray(raw: string | null): Array<{ label: string; uri: string }> {
+    if (!raw) return [];
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Append a custom audio entry to a list under a reserved key
+   */
+  // Add custom audio item to a list (with deduplication and quota management)
+  static async addCustomAudio(
+    key: 'custom_workoutMusic' | 'custom_breakMusic' | 'custom_successSound',
+    item: { label: string; uri: string }
+  ): Promise<void> {
+    try {
+      // Validate that we're not storing large data URIs in AsyncStorage
+      // Allow blob URLs for web environments, but reject data URIs
+      const isWeb = typeof window !== 'undefined';
+      if (item.uri.startsWith('data:') && !isWeb) {
+        throw new Error('Cannot store data URIs directly in storage. Convert to file URI first.');
+      }
+      if (item.uri.startsWith('data:') && isWeb) {
+        // For web, warn but allow small data URIs (the conversion should have created blob URLs anyway)
+        const dataSize = item.uri.length;
+        if (dataSize > 100000) { // 100KB limit for data URIs on web
+          throw new Error('Data URI too large for storage. Please use a smaller file.');
+        }
+        console.warn(`Storing data URI of size ${dataSize} chars in web environment`);
+      }
+      
+      const existing = await this.getCustomAudio(key);
+      
+      // Remove any existing item with the same URI to avoid duplicates
+      const filtered = existing.filter((x) => x.uri !== item.uri);
+      
+      // Add the new item
+      const updated = [...filtered, item];
+      
+      // Check storage size before saving
+      const jsonString = JSON.stringify(updated);
+      const estimatedSize = new Blob([jsonString]).size;
+      
+      // Warn if approaching AsyncStorage limits (typically 6MB on mobile)
+      if (estimatedSize > 5 * 1024 * 1024) { // 5MB warning threshold
+        console.warn(`Storage for ${key} is getting large (${Math.round(estimatedSize / 1024)}KB). Consider cleaning up old files.`);
+      }
+      
+      await AsyncStorage.setItem(`@countOnMe_${key}`, jsonString);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('QuotaExceededError')) {
+        // Try to free up space by removing oldest items
+        try {
+          const existing = await this.getCustomAudio(key);
+          if (existing.length > 1) {
+            // Keep only the most recent 10 items
+            const trimmed = existing.slice(-9); // Keep 9, add 1 new = 10 total
+            const updated = [...trimmed, item];
+            await AsyncStorage.setItem(`@countOnMe_${key}`, JSON.stringify(updated));
+            console.warn(`Storage quota exceeded. Trimmed ${key} to most recent ${updated.length} items.`);
+            return;
+          }
+        } catch (trimError) {
+          console.error('Failed to trim storage after quota error:', trimError);
+        }
+        
+        throw new Error('Storage quota exceeded and unable to free space. Please clear some custom audio files manually.');
+      }
+      
+      console.error('Error adding custom audio:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get a custom audio list
+   */
+  static async getCustomAudio(listKey: 'custom_workoutMusic' | 'custom_breakMusic' | 'custom_successSound'): Promise<Array<{ label: string; uri: string }>> {
+    try {
+      const key = `${prefixKey}${listKey}`;
+      const raw = await AsyncStorage.getItem(key);
+      return this.safeParseArray(raw);
+    } catch (error) {
+      console.error('Error getting custom audio list:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Remove one custom audio by uri
+   */
+  static async removeCustomAudio(listKey: 'custom_workoutMusic' | 'custom_breakMusic' | 'custom_successSound', uri: string): Promise<void> {
+    try {
+      const key = `${prefixKey}${listKey}`;
+      const raw = await AsyncStorage.getItem(key);
+      const existing = this.safeParseArray(raw);
+      const filtered = existing.filter((x) => x.uri !== uri);
+      await AsyncStorage.setItem(key, JSON.stringify(filtered));
+    } catch (error) {
+      console.error('Error removing custom audio:', error);
+      throw error;
+    }
+  }
+
   /**
    * Store a workout
    */

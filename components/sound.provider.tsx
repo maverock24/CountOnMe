@@ -1,13 +1,44 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-  Audio,
-  AVPlaybackStatusSuccess,
-  InterruptionModeAndroid,
-  InterruptionModeIOS,
+    Audio,
+    AVPlaybackStatusSuccess,
+    InterruptionModeAndroid,
+    InterruptionModeIOS,
 } from 'expo-av';
+import * as FileSystem from 'expo-file-system';
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 
 let currentSound: Audio.Sound | null = null;
+
+// Persist a data: URI to a cache file and return a file:// path
+async function persistDataUriToFile(dataUri: string, suggestedName?: string) {
+  try {
+    const matches = dataUri.match(/^data:([^;]+);base64,(.+)$/);
+    if (!matches) return dataUri;
+    const mime = matches[1] || 'application/octet-stream';
+    const extMap: Record<string, string> = {
+      'audio/mpeg': 'mp3',
+      'audio/mp3': 'mp3',
+      'audio/wav': 'wav',
+      'audio/x-wav': 'wav',
+      'audio/aac': 'aac',
+      'audio/ogg': 'ogg',
+      'audio/m4a': 'm4a',
+      'audio/x-m4a': 'm4a',
+    };
+    const inferredExt = extMap[mime] || mime.split('/').pop() || 'bin';
+    const fileName = suggestedName && suggestedName.includes('.')
+      ? suggestedName
+      : `audio_${Date.now()}.${inferredExt}`;
+    const path = `${FileSystem.cacheDirectory}${fileName}`;
+    await FileSystem.writeAsStringAsync(path, matches[2], { encoding: FileSystem.EncodingType.Base64 });
+    return path;
+  } catch (e) {
+    console.warn('Failed to persist data URI, using original:', e);
+    return dataUri;
+  }
+}
 
 interface SoundContextType {
   isPlaying: boolean;
@@ -60,12 +91,40 @@ export const SoundProvider: React.FC<{
   selectedWorkoutMusic,
   selectedNextExerciseSound,
 }) => {
+  // Friendly label derivation for URI/data sources
+  const deriveLabelFromSource = (src: any): string | null => {
+    const uri = typeof src === 'string' ? src : src?.uri;
+    if (!uri) return null;
+    try {
+      if (uri.startsWith('data:')) return 'Custom audio';
+      if (uri.startsWith('http')) {
+        try {
+          const u = new URL(uri);
+          return u.hostname || 'Stream';
+        } catch {
+          return 'Stream';
+        }
+      }
+      if (uri.startsWith('file:') || uri.startsWith('content:')) {
+        const last = uri.split('/').pop() || uri;
+        return decodeURIComponent(last);
+      }
+    } catch {}
+    return null;
+  };
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioReady, setAudioReady] = useState(false);
   const isLoadingSoundRef = useRef(false);
   const isPlayingSegmentRef = useRef<string | null>(null);
   const playSoundInProgressRef = useRef(false);
   const globalSoundLockRef = useRef(false);
+
+  // Store selected file labels for custom picks
+  const selectedWorkoutLabelRef = useRef<string | null>(null);
+  const selectedBreakLabelRef = useRef<string | null>(null);
+  const selectedSuccessLabelRef = useRef<string | null>(null);
+  const selectedNextExerciseLabelRef = useRef<string | null>(null);
 
   const [selectedWorkoutFile, setSelectedWorkoutMusicFile] = useState();
   const [selectedBreakFile, setSelectedBreakMusicFile] = useState();
@@ -196,29 +255,54 @@ export const SoundProvider: React.FC<{
     }
 
     try {
-      const workoutFile = getSoundFileByLabel(selectedWorkoutMusic);
-      const breakFile = getSoundFileByLabel(selectedBreakMusic);
-      const successFile = getSoundFileByLabel(selectedSuccessSound);
-      const nextExerciseFile = getSoundFileByLabel(selectedNextExerciseSound);
+      // Prefer the latest values from storage so changes apply instantly
+      const [wmStored, bmStored, smStored, nmStored, wmLabel, bmLabel, smLabel, nmLabel] = await Promise.all([
+        AsyncStorage.getItem('@countOnMe_workoutMusic'),
+        AsyncStorage.getItem('@countOnMe_breakMusic'),
+        AsyncStorage.getItem('@countOnMe_successSound'),
+        AsyncStorage.getItem('@countOnMe_nextExerciseSound'),
+        AsyncStorage.getItem('@countOnMe_workoutMusicLabel'),
+        AsyncStorage.getItem('@countOnMe_breakMusicLabel'),
+        AsyncStorage.getItem('@countOnMe_successSoundLabel'),
+        AsyncStorage.getItem('@countOnMe_nextExerciseSoundLabel'),
+      ]);
+
+      selectedWorkoutLabelRef.current = wmLabel;
+      selectedBreakLabelRef.current = bmLabel;
+      selectedSuccessLabelRef.current = smLabel;
+      selectedNextExerciseLabelRef.current = nmLabel;
+
+      const wm = wmStored ?? selectedWorkoutMusic;
+      const bm = bmStored ?? selectedBreakMusic;
+      const sm = smStored ?? selectedSuccessSound;
+      const nm = nmStored ?? selectedNextExerciseSound;
+
+      // If user stored a URI (local file or stream), use it directly
+      const isUri = (v?: string) => !!v && (v.startsWith('file:') || v.startsWith('content:') || v.startsWith('http') || v.startsWith('data:'));
+
+      const workoutFile = isUri(wm) ? { uri: wm } : getSoundFileByLabel(wm);
+      const breakFile = isUri(bm) ? { uri: bm } : getSoundFileByLabel(bm);
+      const successFile = isUri(sm) ? { uri: sm } : getSoundFileByLabel(sm);
+      const nextExerciseFile = isUri(nm) ? { uri: nm } : getSoundFileByLabel(nm);
 
       if (workoutFile) {
         setSelectedWorkoutMusicFile(workoutFile);
       } else {
-        console.warn('Could not find workout music for:', selectedWorkoutMusic);
+        console.warn('Could not find workout music for:', wm);
         if (workoutMusic.length > 0) setSelectedWorkoutMusicFile(workoutMusic[0].value);
       }
 
       if (breakFile) {
         setSelectedBreakMusicFile(breakFile);
       } else {
-        console.warn('Could not find break music for:', selectedBreakMusic);
+        console.warn('Could not find break music for:', bm);
         if (breakMusic.length > 0) setSelectedBreakMusicFile(breakMusic[0].value);
       }
 
       if (successFile) {
         setSelectedSuccessSoundFile(successFile);
       } else {
-        console.warn('Could not find success sound for:', selectedSuccessSound);
+        console.warn('Could not find success sound for:', sm);
         if (successSound.length > 0) {
           setSelectedSuccessSoundFile(successSound[0].value);
         }
@@ -227,7 +311,7 @@ export const SoundProvider: React.FC<{
       if (nextExerciseFile) {
         setSelectedNextExerciseSoundFile(nextExerciseFile);
       } else {
-        console.warn('Could not find next exercise sound for:', selectedNextExerciseSound);
+        console.warn('Could not find next exercise sound for:', nm);
         if (nextExerciseSound) setSelectedNextExerciseSoundFile(nextExerciseSound.value);
       }
     } catch (error) {
@@ -242,6 +326,11 @@ export const SoundProvider: React.FC<{
 
   const getSoundFileByLabel = (label: string) => {
     try {
+      // New: If label is actually a URI, return it directly
+      if (label && (label.startsWith('file:') || label.startsWith('content:') || label.startsWith('http') || label.startsWith('data:'))) {
+        return { uri: label };
+      }
+
       // First check success sounds specifically for success-related labels
       if (label && label.toLowerCase().includes('success')) {
         if (successSound && Array.isArray(successSound)) {
@@ -253,7 +342,7 @@ export const SoundProvider: React.FC<{
       }
       
       // Check workout music for workout-related labels
-      if (label && (label.toLowerCase().includes('action') || label.toLowerCase().includes('upbeat') || label.toLowerCase().includes('chill'))) {
+      if (label && (label.toLowerCase().includes('action') || label.toLowerCase().includes('upbeat') || label.toLowerCase().includes('chill') || label.toLowerCase().includes('radio'))) {
         if (workoutMusic && Array.isArray(workoutMusic)) {
           const workoutMatch = workoutMusic.find((music) => music && music.label === label);
           if (workoutMatch && workoutMatch.value) {
@@ -263,7 +352,7 @@ export const SoundProvider: React.FC<{
       }
       
       // Check break music for break-related labels
-      if (label && label.toLowerCase().includes('break')) {
+      if (label) {
         if (breakMusic && Array.isArray(breakMusic)) {
           const breakMatch = breakMusic.find((music) => music && music.label === label);
           if (breakMatch && breakMatch.value) {
@@ -277,7 +366,7 @@ export const SoundProvider: React.FC<{
         return nextExerciseSound.value;
       }
       
-      // Fallback: search all arrays in order (but this should be avoided)
+      // Fallback searches
       if (successSound && Array.isArray(successSound)) {
         const successMatch = successSound.find((sound) => sound && sound.label === label);
         if (successMatch && successMatch.value) {
@@ -374,8 +463,29 @@ export const SoundProvider: React.FC<{
           }
         }
       }
+
+      // Fallback: match against currently selected custom files and use stored labels
+      const getUri = (s: any) => (typeof s === 'string' ? s : s?.uri);
+      if (!foundLabel) {
+        const sfUri = getUri(soundFile);
+        if (sfUri && getUri(selectedWorkoutFile) === sfUri) {
+          foundLabel = selectedWorkoutLabelRef.current || deriveLabelFromSource(soundFile);
+        } else if (sfUri && getUri(selectedBreakFile) === sfUri) {
+          foundLabel = selectedBreakLabelRef.current || deriveLabelFromSource(soundFile);
+        } else if (sfUri && getUri(selectedSuccessFile) === sfUri) {
+          foundLabel = selectedSuccessLabelRef.current || deriveLabelFromSource(soundFile);
+        } else if (sfUri && getUri(selectedNextExerciseFile) === sfUri) {
+          foundLabel = selectedNextExerciseLabelRef.current || deriveLabelFromSource(soundFile);
+        }
+      }
+
+      if (!foundLabel) {
+        foundLabel = deriveLabelFromSource(soundFile);
+      }
       if (foundLabel) {
         setCurrentMusicBeingPlayed(foundLabel);
+      } else {
+        setCurrentMusicBeingPlayed('');
       }
 
       await stopSound();
@@ -385,7 +495,17 @@ export const SoundProvider: React.FC<{
         await new Promise((resolve) => setTimeout(resolve, 200));
       }
 
-      const { sound } = await Audio.Sound.createAsync(soundFile, {
+      // NEW: Convert data: URIs to cached files before loading
+      let source: any = soundFile;
+      if (typeof source === 'string' && source.startsWith('data:')) {
+        const persisted = await persistDataUriToFile(source);
+        source = { uri: persisted };
+      } else if (typeof source === 'object' && source?.uri?.startsWith?.('data:')) {
+        const persisted = await persistDataUriToFile(source.uri);
+        source = { uri: persisted };
+      }
+
+      const { sound } = await Audio.Sound.createAsync(source, {
         volume: volume,
         isLooping: loop,
         progressUpdateIntervalMillis: 1000,
