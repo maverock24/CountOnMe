@@ -133,10 +133,26 @@ export const SoundProvider: React.FC<{
     if (!source) return 'Unknown';
     const uri = typeof source === 'string' ? source : source.uri;
     if (!uri) return 'Unknown';
+    
     try {
-      return decodeURIComponent(uri.split('/').pop() || 'Unknown');
+      // Handle blob URLs (show a more user-friendly name)
+      if (uri.includes('blob:')) {
+        return 'Custom Audio File';
+      }
+      // Handle regular file paths
+      const filename = decodeURIComponent(uri.split('/').pop() || 'Unknown');
+      // Clean up common file extensions and make it more readable
+      return filename
+        .replace(/\.(mp3|wav|aac|ogg|m4a)$/i, '')
+        .replace(/_/g, ' ')
+        .replace(/([a-z])([A-Z])/g, '$1 $2')
+        .trim() || 'Unknown';
     } catch {
-      return uri.split('/').pop() || 'Unknown';
+      const filename = uri.split('/').pop() || 'Unknown';
+      return filename
+        .replace(/\.(mp3|wav|aac|ogg|m4a)$/i, '')
+        .replace(/_/g, ' ')
+        .trim() || 'Unknown';
     }
   };
 
@@ -282,13 +298,24 @@ export const SoundProvider: React.FC<{
       const wm = await AsyncStorage.getItem('@countOnMe_workoutMusic');
       const bm = await AsyncStorage.getItem('@countOnMe_breakMusic');
       const ss = await AsyncStorage.getItem('@countOnMe_successSound');
+      
+      // Load labels for display purposes
+      const wmLabel = await AsyncStorage.getItem('@countOnMe_workoutMusicLabel');
+      const bmLabel = await AsyncStorage.getItem('@countOnMe_breakMusicLabel');
+      const ssLabel = await AsyncStorage.getItem('@countOnMe_successSoundLabel');
 
       console.log(`[loadMusicSettings] Retrieved from storage - wm: ${wm}, bm: ${bm}, ss: ${ss}`);
+      console.log(`[loadMusicSettings] Retrieved labels - wmLabel: ${wmLabel}, bmLabel: ${bmLabel}, ssLabel: ${ssLabel}`);
 
       // Handle workout music
       if (wm) {
         console.log(`[loadMusicSettings] Setting workout music to: ${wm}`);
         updateSelectedWorkoutMusic(wm);
+        // Set the label for display
+        if (wmLabel) {
+          selectedWorkoutLabelRef.current = wmLabel;
+          console.log(`[loadMusicSettings] Set workout label to: ${wmLabel}`);
+        }
         const workoutFile = await getSoundFileByLabel(wm);
         if (workoutFile) {
           setSelectedWorkoutMusicFile(workoutFile);
@@ -296,11 +323,13 @@ export const SoundProvider: React.FC<{
           setSelectedWorkoutMusicFile(null);
         } else {
           updateSelectedWorkoutMusic('random:Action');
+          selectedWorkoutLabelRef.current = 'Random Action Music';
           setSelectedWorkoutMusicFile(await getSoundFileByLabel('random:Action'));
         }
       } else {
         console.log(`[loadMusicSettings] No workout music stored, setting default: random:Action`);
         updateSelectedWorkoutMusic('random:Action');
+        selectedWorkoutLabelRef.current = 'Random Action Music';
         setSelectedWorkoutMusicFile(await getSoundFileByLabel('random:Action'));
       }
 
@@ -308,6 +337,11 @@ export const SoundProvider: React.FC<{
       if (bm) {
         console.log(`[loadMusicSettings] Setting break music to: ${bm}`);
         updateSelectedBreakMusic(bm);
+        // Set the label for display
+        if (bmLabel) {
+          selectedBreakLabelRef.current = bmLabel;
+          console.log(`[loadMusicSettings] Set break label to: ${bmLabel}`);
+        }
         const breakFile = await getSoundFileByLabel(bm);
         console.log(`[loadMusicSettings] Break file retrieved:`, breakFile);
         if (breakFile) {
@@ -318,6 +352,7 @@ export const SoundProvider: React.FC<{
         } else {
           console.log(`[loadMusicSettings] Break file not found, setting default`);
           updateSelectedBreakMusic('random:Chill');
+          selectedBreakLabelRef.current = 'Random Chill Music';
           const defaultBreakFile = await getSoundFileByLabel('random:Chill');
           console.log(`[loadMusicSettings] Default break file:`, defaultBreakFile);
           setSelectedBreakMusicFile(defaultBreakFile);
@@ -325,6 +360,7 @@ export const SoundProvider: React.FC<{
       } else {
         console.log(`[loadMusicSettings] No break music stored, setting default: random:Chill`);
         updateSelectedBreakMusic('random:Chill');
+        selectedBreakLabelRef.current = 'Random Chill Music';
         const defaultBreakFile = await getSoundFileByLabel('random:Chill');
         console.log(`[loadMusicSettings] Default break file retrieved:`, defaultBreakFile);
         setSelectedBreakMusicFile(defaultBreakFile);
@@ -334,6 +370,11 @@ export const SoundProvider: React.FC<{
       if (ss) {
         console.log(`[loadMusicSettings] Setting success sound to: ${ss}`);
         updateSelectedSuccessSound(ss);
+        // Set the label for display
+        if (ssLabel) {
+          selectedSuccessLabelRef.current = ssLabel;
+          console.log(`[loadMusicSettings] Set success label to: ${ssLabel}`);
+        }
         const successFile = await getSoundFileByLabel(ss);
         if (successFile) {
           setSelectedSuccessSoundFile(successFile);
@@ -341,11 +382,13 @@ export const SoundProvider: React.FC<{
           setSelectedSuccessSoundFile(null);
         } else {
           updateSelectedSuccessSound('Crowd Cheer');
+          selectedSuccessLabelRef.current = 'Crowd Cheer';
           setSelectedSuccessSoundFile(await getSoundFileByLabel('Crowd Cheer'));
         }
       } else {
         console.log(`[loadMusicSettings] No success sound stored, setting default: Crowd Cheer`);
         updateSelectedSuccessSound('Crowd Cheer');
+        selectedSuccessLabelRef.current = 'Crowd Cheer';
         setSelectedSuccessSoundFile(await getSoundFileByLabel('Crowd Cheer'));
       }
 
