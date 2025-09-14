@@ -139,7 +139,7 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 // Inner component that has access to sound context
 const DataProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(stateReducer, defaultInitialState);
-  const { audioReady, playSegmentMusic, stopSound, fadeOutSound, selectedWorkoutFile, selectedBreakFile } = useSound();
+  const { isAudioReady, playSegmentMusic, stopSound, fadeOutSound, selectedWorkoutFile, selectedBreakFile } = useSound();
   const lastSoundPlayTimeRef = useRef<number>(0);
   const currentSegmentRef = useRef<string | null>(null);
   const soundCallInProgressRef = useRef(false);
@@ -167,25 +167,30 @@ const DataProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
    * @param loop - Whether to loop the sound (currently unused)
    */
   const playSound = useCallback(async (soundType: string, callback?: () => void, loop?: boolean) => {
-    if (!state.audioSettings.enabled || !audioReady) {
+    console.log(`[DataProvider.playSound] Called with soundType: "${soundType}", audioEnabled: ${state.audioSettings.enabled}, audioReady: ${isAudioReady}`);
+    
+    if (!state.audioSettings.enabled || !isAudioReady) {
       // If audio is disabled, still call the callback
+      console.log(`[DataProvider.playSound] Audio disabled or not ready, skipping playback`);
       if (callback) callback();
       return;
     }
 
     // Simple protection against rapid duplicate calls
     if (soundCallInProgressRef.current) {
+      console.log(`[DataProvider.playSound] Sound call already in progress, skipping`);
       return;
     }
 
     try {
       soundCallInProgressRef.current = true;
+      console.log(`[DataProvider.playSound] Calling playSegmentMusic with: "${soundType}"`);
       await playSegmentMusic(soundType, callback);
     } finally {
       // Always clear the flag when done
       soundCallInProgressRef.current = false;
     }
-  }, [state.audioSettings.enabled, audioReady, playSegmentMusic]);
+  }, [state.audioSettings.enabled, isAudioReady, playSegmentMusic]);
 
   /**
    * Stops all currently playing sounds
@@ -205,7 +210,10 @@ const DataProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
    * @param isAutoTransition - Whether this is an automatic segment transition
    */
   const handleTimerStart = useCallback(async (isRunning: boolean, currentSegment?: string, isAutoTransition = false) => {
+    console.log(`[DataProvider.handleTimerStart] Called with isRunning: ${isRunning}, currentSegment: "${currentSegment}", isAutoTransition: ${isAutoTransition}`);
+    
     if (!isRunning || !currentSegment) {
+      console.log(`[DataProvider.handleTimerStart] Early return - isRunning: ${isRunning}, currentSegment: "${currentSegment}"`);
       return;
     }
 
@@ -213,6 +221,7 @@ const DataProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
     if (isAutoTransition) {
       lastSoundPlayTimeRef.current = Date.now();
       currentSegmentRef.current = currentSegment;
+      console.log(`[DataProvider.handleTimerStart] Auto transition - calling playSound with: "${currentSegment}"`);
       await playSound(currentSegment);
       return;
     }
@@ -224,12 +233,14 @@ const DataProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
     
     // Only debounce if it's the same segment within a short time (manual calls should be more intentional)
     if (isSameSegment && timeSinceLastCall < 500) {
+      console.log(`[DataProvider.handleTimerStart] Debounced - same segment within 500ms`);
       return;
     }
 
     lastSoundPlayTimeRef.current = now;
     currentSegmentRef.current = currentSegment;
     
+    console.log(`[DataProvider.handleTimerStart] Calling playSound with: "${currentSegment}"`);
     await playSound(currentSegment);
   }, [playSound]);
 
@@ -324,7 +335,7 @@ const DataProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
    * Test function to verify audio is working
    */
   const testAudio = useCallback(async () => {
-    if (!audioReady) {
+    if (!isAudioReady) {
       return;
     }
     
@@ -333,7 +344,7 @@ const DataProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
     }
     
     await playSound('workout');
-  }, [audioReady, state.audioSettings.enabled, playSound]);
+  }, [isAudioReady, state.audioSettings.enabled, playSound]);
   
   /**
    * Plays workout music
@@ -527,7 +538,7 @@ const DataProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
     const currentWorkoutIndex = orderedWorkouts.findIndex(workout => workout.name === selectedItem);
     const hasNextWorkout = currentWorkoutIndex !== -1 && currentWorkoutIndex < orderedWorkouts.length - 1;
     
-    if (audioReady && state.audioSettings.enabled) {
+    if (isAudioReady && state.audioSettings.enabled) {
       // Play appropriate completion sound and handle progression after sound completes
       handleWorkoutCompletion(hasNextWorkout, () => {
         if (hasNextWorkout) {
@@ -548,7 +559,7 @@ const DataProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
         handleTimerReset();
       }
     }
-  }, [state.timerState.selectedItem, state.audioSettings.enabled, audioReady, handleWorkoutCompletion, autoSelectNextWorkout, handleTimerReset]);
+  }, [state.timerState.selectedItem, state.audioSettings.enabled, isAudioReady, handleWorkoutCompletion, autoSelectNextWorkout, handleTimerReset]);
 
   // Timer interval management - centralized countdown logic
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -578,6 +589,9 @@ const DataProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
             // Move to next segment
             const nextIndex = currentIndex + 1;
             const nextSegment = timers[nextIndex].segment;
+            
+            console.log(`[Timer Transition] Moving from index ${currentIndex} (${timers[currentIndex]?.segment}) to index ${nextIndex} (${nextSegment})`);
+            console.log(`[Timer Transition] Current timers:`, timers.map((t, i) => `${i}: ${t.time}s ${t.segment}`));
             
             dispatch({ type: 'SET_CURRENT_INDEX', payload: nextIndex });
             dispatch({ type: 'UPDATE_TIMER_TIME', payload: timers[nextIndex].time });
@@ -912,7 +926,7 @@ const DataProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
               type: 'SET_AUDIO_SETTINGS', 
               payload: { currentMusicBeingPlayed: music } 
             }),
-          audioReady,
+          audioReady: isAudioReady,
           selectedWorkoutFile,
           selectedBreakFile,
           
@@ -1024,6 +1038,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loadInitialState();
   }, []);
 
+  console.log('[DataProvider] Rendering SoundProvider with:', {
+    workoutMusicCount: workoutMusicData?.length,
+    breakMusicCount: breakMusicData?.length,
+    successSoundCount: successSoundData?.length,
+    breakMusicSample: breakMusicData?.slice(0, 3)?.map(m => m.label)
+  });
+
   return (
     <SoundProvider
       workoutMusic={workoutMusicData}
@@ -1031,10 +1052,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       successSound={successSoundData}
       nextExerciseSound={nextExerciseSound}
       setCurrentMusicBeingPlayed={(music) => setCurrentMusicBeingPlayedBridge?.(music)}
-      selectedBreakMusic={state.audioSettings.selectedBreakMusic}
-      selectedWorkoutMusic={state.audioSettings.selectedActionMusic}
-      selectedSuccessSound={state.audioSettings.selectedSuccessSound}
-      selectedNextExerciseSound={state.audioSettings.selectedNextExerciseSound}
     >
       <DataProviderInner>{children}</DataProviderInner>
     </SoundProvider>
