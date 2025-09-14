@@ -4,13 +4,13 @@ import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-    Animated,
-    Dimensions,
-    Easing,
-    StyleSheet,
-    Switch,
-    Text,
-    View
+  Animated,
+  Dimensions,
+  Easing,
+  StyleSheet,
+  Switch,
+  Text,
+  View
 } from 'react-native';
 import Svg, { Circle, Defs, FeGaussianBlur, FeMerge, FeMergeNode, Filter } from 'react-native-svg';
 
@@ -212,12 +212,16 @@ const TabTwoScreen: React.FC = () => {
       intervalRef.current = null;
     }
     
+    console.log(`[selectSet] Parsing workout string: "${workout}"`);
+    
     // Split the workout string into an array of objects
     const items = workout.split(';').map((time, index) => ({
       id: index.toString(),
       time: parseInt(time),
       segment: index % 2 === 0 ? 'workout' : 'break',
     }));
+
+    console.log(`[selectSet] Parsed segments:`, items.map((item, i) => `${i}: ${item.time}s ${item.segment}`));
 
     // Set the new timers
     setTimers(items);

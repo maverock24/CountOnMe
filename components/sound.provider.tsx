@@ -99,6 +99,12 @@ export const SoundProvider: React.FC<{
   
   const [customAudioFiles, setCustomAudioFiles] = useState<Map<string, { label: string; uri: string }>>(new Map());
 
+  // Debug effect to track break file changes
+  useEffect(() => {
+    console.log('[SoundProvider] selectedBreakFile changed:', selectedBreakFile);
+    console.log('[SoundProvider] selectedBreakMusic:', selectedBreakMusic);
+  }, [selectedBreakFile, selectedBreakMusic]);
+
   const playSoundInProgressRef = useRef(false);
   const globalSoundLockRef = useRef(false);
   const isPlayingSegmentRef = useRef<string | null>(null);
@@ -200,15 +206,74 @@ export const SoundProvider: React.FC<{
       return { uri: label };
     }
 
+    // Check for random patterns first - handle both "random:Category" and "RANDOM_CATEGORY" formats
+    if (label && (label.startsWith('random:') || label.startsWith('RANDOM_'))) {
+      let category = '';
+      if (label.startsWith('random:')) {
+        category = label.replace('random:', '');
+      } else if (label.startsWith('RANDOM_')) {
+        // Convert RANDOM_CHILL to Chill, RANDOM_ACTION to Action
+        category = label.replace('RANDOM_', '').toLowerCase();
+        category = category.charAt(0).toUpperCase() + category.slice(1);
+      }
+      
+      console.log(`[getSoundFileByLabel] Random category requested: "${category}" (from label: "${label}")`);
+      console.log(`[getSoundFileByLabel] Available breakMusic count: ${breakMusic?.length}, workoutMusic count: ${workoutMusic?.length}`);
+      
+      if (category === 'Action' && workoutMusic?.length > 0) {
+        const selected = workoutMusic[Math.floor(Math.random() * workoutMusic.length)];
+        console.log(`[getSoundFileByLabel] Returning random workout music:`, selected);
+        return selected.value;
+      } else if (category === 'Chill' && breakMusic?.length > 0) {
+        const selected = breakMusic[Math.floor(Math.random() * breakMusic.length)];
+        console.log(`[getSoundFileByLabel] Returning random break music:`, selected);
+        return selected.value;
+      }
+    }
+
     const allSounds = [...workoutMusic, ...breakMusic, ...successSound, nextExerciseSound];
-    const match = allSounds.find(s => s && s.label === label);
-    if (match) {
-      console.log(`[getSoundFileByLabel] Found in provided sound lists.`);
-      return match.value;
+    console.log(`[getSoundFileByLabel] Searching in ${allSounds.length} total sounds for label: "${label}"`);
+    console.log(`[getSoundFileByLabel] First few sound labels:`, allSounds.slice(0, 5).map(s => s?.label));
+    
+    // First try to find by exact label match
+    const labelMatch = allSounds.find(s => s && s.label === label);
+    if (labelMatch) {
+      console.log(`[getSoundFileByLabel] Found exact label match in provided sound lists:`, labelMatch);
+      return labelMatch.value;
+    }
+    
+    // If no label match, try to find by file path/value match (for direct file paths)
+    if (label && (label.includes('/assets/') || label.includes('.mp3') || label.includes('.wav'))) {
+      console.log(`[getSoundFileByLabel] Label appears to be a file path, searching by value...`);
+      const valueMatch = allSounds.find(s => s && s.value && (
+        s.value === label || 
+        (typeof s.value === 'object' && s.value.uri === label) ||
+        (typeof s.value === 'string' && s.value.includes(label.split('/').pop()?.split('?')[0] || ''))
+      ));
+      if (valueMatch) {
+        console.log(`[getSoundFileByLabel] Found value match in provided sound lists:`, valueMatch);
+        return valueMatch.value;
+      }
     }
 
     console.log('[getSoundFileByLabel] No match found. Falling back to default sounds.');
-    if (workoutMusic?.length > 0) return workoutMusic[0].value;
+    console.log(`[getSoundFileByLabel] Checking label "${label}" for break music indicators...`);
+    
+    // Return appropriate default based on context - first check if it's a break music request
+    if (label && (label.includes('Chill') || label.includes('break') || label.includes('LoFi') || label.includes('Ambient') || label.includes('Moonphase') || label.includes('Patate'))) {
+      console.log(`[getSoundFileByLabel] Label contains break music indicator, returning first break music`);
+      if (breakMusic?.length > 0) {
+        console.log(`[getSoundFileByLabel] Returning break music fallback:`, breakMusic[0]);
+        return breakMusic[0].value;
+      }
+    }
+    
+    // Default to workout music
+    console.log(`[getSoundFileByLabel] Defaulting to workout music`);
+    if (workoutMusic?.length > 0) {
+      console.log(`[getSoundFileByLabel] Returning workout music fallback:`, workoutMusic[0]);
+      return workoutMusic[0].value;
+    }
     return null;
   };
 
@@ -218,6 +283,9 @@ export const SoundProvider: React.FC<{
       const bm = await AsyncStorage.getItem('@countOnMe_breakMusic');
       const ss = await AsyncStorage.getItem('@countOnMe_successSound');
 
+      console.log(`[loadMusicSettings] Retrieved from storage - wm: ${wm}, bm: ${bm}, ss: ${ss}`);
+
+      // Handle workout music
       if (wm) {
         console.log(`[loadMusicSettings] Setting workout music to: ${wm}`);
         updateSelectedWorkoutMusic(wm);
@@ -230,20 +298,39 @@ export const SoundProvider: React.FC<{
           updateSelectedWorkoutMusic('random:Action');
           setSelectedWorkoutMusicFile(await getSoundFileByLabel('random:Action'));
         }
+      } else {
+        console.log(`[loadMusicSettings] No workout music stored, setting default: random:Action`);
+        updateSelectedWorkoutMusic('random:Action');
+        setSelectedWorkoutMusicFile(await getSoundFileByLabel('random:Action'));
       }
+
+      // Handle break music
       if (bm) {
         console.log(`[loadMusicSettings] Setting break music to: ${bm}`);
         updateSelectedBreakMusic(bm);
         const breakFile = await getSoundFileByLabel(bm);
+        console.log(`[loadMusicSettings] Break file retrieved:`, breakFile);
         if (breakFile) {
           setSelectedBreakMusicFile(breakFile);
+          console.log(`[loadMusicSettings] Break file set successfully`);
         } else if (bm === 'web-reselect') {
           setSelectedBreakMusicFile(null);
         } else {
+          console.log(`[loadMusicSettings] Break file not found, setting default`);
           updateSelectedBreakMusic('random:Chill');
-          setSelectedBreakMusicFile(await getSoundFileByLabel('random:Chill'));
+          const defaultBreakFile = await getSoundFileByLabel('random:Chill');
+          console.log(`[loadMusicSettings] Default break file:`, defaultBreakFile);
+          setSelectedBreakMusicFile(defaultBreakFile);
         }
+      } else {
+        console.log(`[loadMusicSettings] No break music stored, setting default: random:Chill`);
+        updateSelectedBreakMusic('random:Chill');
+        const defaultBreakFile = await getSoundFileByLabel('random:Chill');
+        console.log(`[loadMusicSettings] Default break file retrieved:`, defaultBreakFile);
+        setSelectedBreakMusicFile(defaultBreakFile);
       }
+
+      // Handle success sound
       if (ss) {
         console.log(`[loadMusicSettings] Setting success sound to: ${ss}`);
         updateSelectedSuccessSound(ss);
@@ -255,6 +342,19 @@ export const SoundProvider: React.FC<{
         } else {
           updateSelectedSuccessSound('Crowd Cheer');
           setSelectedSuccessSoundFile(await getSoundFileByLabel('Crowd Cheer'));
+        }
+      } else {
+        console.log(`[loadMusicSettings] No success sound stored, setting default: Crowd Cheer`);
+        updateSelectedSuccessSound('Crowd Cheer');
+        setSelectedSuccessSoundFile(await getSoundFileByLabel('Crowd Cheer'));
+      }
+
+      // Set up next exercise sound
+      console.log(`[loadMusicSettings] Setting up next exercise sound`);
+      if (nextExerciseSound) {
+        const nextExerciseFile = await getSoundFileByLabel(nextExerciseSound.label);
+        if (nextExerciseFile) {
+          setSelectedNextExerciseFile(nextExerciseFile);
         }
       }
     } catch (error) {
@@ -378,9 +478,71 @@ export const SoundProvider: React.FC<{
     }
   };
 
-  const fadeOutSound = async () => { /* ... implementation ... */ };
-  const playSegmentMusic = async (segment: string, callback?: () => void) => { /* ... implementation ... */ };
-  const addCustomAudioFile = async (label: string, uri: string) => { /* ... implementation ... */ };
+  const fadeOutSound = async () => {
+    console.log('[fadeOutSound] Starting fadeout...');
+    if (currentSound) {
+      const steps = 20;
+      const fadeDuration = 2000; // 2 seconds
+      const stepDuration = fadeDuration / steps;
+      
+      for (let i = 1; i <= steps; i++) {
+        const volume = Math.max(0, 1 - (i / steps));
+        console.log(`[fadeOutSound] Step ${i}/${steps}, volume: ${volume.toFixed(2)}`);
+        try {
+          await currentSound.setVolumeAsync(volume);
+          if (i < steps) {
+            await new Promise(resolve => setTimeout(resolve, stepDuration));
+          }
+        } catch (error) {
+          console.log('[fadeOutSound] Sound may have been stopped during fadeout');
+          break;
+        }
+      }
+      console.log('[fadeOutSound] Fadeout complete');
+    }
+  };
+
+  const playSegmentMusic = async (segment: string, callback?: () => void) => {
+    console.log(`[playSegmentMusic] Starting playback for segment: "${segment}"`);
+    console.log(`[playSegmentMusic] Current state - selectedWorkoutFile:`, selectedWorkoutFile, `selectedBreakFile:`, selectedBreakFile);
+    
+    let soundFile = null;
+    let soundLabel = '';
+    
+    if (segment === 'workout') {
+      soundFile = selectedWorkoutFile;
+      soundLabel = selectedWorkoutMusic;
+      console.log(`[playSegmentMusic] Using workout file:`, soundFile, `Label: ${soundLabel}`);
+    } else if (segment === 'break') {
+      soundFile = selectedBreakFile;
+      soundLabel = selectedBreakMusic;
+      console.log(`[playSegmentMusic] Using break file:`, soundFile, `Label: ${soundLabel}`);
+    } else if (segment === 'successSound') {
+      soundFile = selectedSuccessFile;
+      soundLabel = selectedSuccessSound;
+      console.log(`[playSegmentMusic] Using success file:`, soundFile, `Label: ${soundLabel}`);
+    } else if (segment === 'nextExerciseSound') {
+      soundFile = selectedNextExerciseFile;
+      soundLabel = 'nextExerciseSound';
+      console.log(`[playSegmentMusic] Using next exercise file:`, soundFile, `Label: ${soundLabel}`);
+    }
+    
+    if (!soundFile) {
+      console.log(`[playSegmentMusic] No sound file found for segment: "${segment}"`);
+      if (callback) callback();
+      return;
+    }
+    
+    const shouldLoop = segment === 'workout' || segment === 'break';
+    console.log(`[playSegmentMusic] Playing file for segment "${segment}", loop: ${shouldLoop}`);
+    
+    await playSound(soundFile, shouldLoop, 1.0, callback);
+  };
+
+  const addCustomAudioFile = async (label: string, uri: string) => {
+    console.log(`[addCustomAudioFile] Adding custom audio: ${label} -> ${uri}`);
+    setCustomAudioFiles(prev => new Map(prev.set(label, { label, uri })));
+  };
 
   useEffect(() => {
     const initAudio = async () => {
