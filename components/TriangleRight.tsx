@@ -1,6 +1,6 @@
 import React from 'react';
-import Svg, { Defs, LinearGradient, Stop, Polygon } from 'react-native-svg';
 import { Pressable } from 'react-native';
+import Svg, { Defs, LinearGradient, Polygon, Stop } from 'react-native-svg';
 
 interface TriangleRightProps {
   size?: number;
