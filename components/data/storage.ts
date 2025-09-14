@@ -2,6 +2,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { prefixKey, RESERVED_KEYS } from './constants';
 import { GroupItem, StoredItem, WorkoutItem } from './types';
 
+
+
+import { setBlob } from './indexeddb';
+
 /**
  * Storage utilities for AsyncStorage operations
  */
@@ -30,7 +34,9 @@ export class StorageService {
    */
   static async storeItem(key: string, value: string): Promise<void> {
     try {
-      await AsyncStorage.setItem(`${prefixKey}${key}`, value);
+      const fullKey = `${prefixKey}${key}`;
+      console.log(`[StorageService] Storing item with key: ${fullKey}`, { value });
+      await AsyncStorage.setItem(fullKey, value);
     } catch (error) {
       console.error('Error storing data:', error);
       throw error;
@@ -42,7 +48,10 @@ export class StorageService {
    */
   static async getItem(key: string): Promise<string | null> {
     try {
-      return await AsyncStorage.getItem(`${prefixKey}${key}`);
+      const fullKey = `${prefixKey}${key}`;
+      const value = await AsyncStorage.getItem(fullKey);
+      console.log(`[StorageService] Getting item with key: ${fullKey}`, { value });
+      return value;
     } catch (error) {
       console.error('Error retrieving data:', error);
       return null;
@@ -74,43 +83,39 @@ export class StorageService {
   /**
    * Append a custom audio entry to a list under a reserved key
    */
-  // Add custom audio item to a list (with deduplication and quota management)
   static async addCustomAudio(
     key: 'custom_workoutMusic' | 'custom_breakMusic' | 'custom_successSound',
     item: { label: string; uri: string }
   ): Promise<void> {
     try {
-      // Validate that we're not storing large data URIs in AsyncStorage
-      // Allow blob URLs for web environments, but reject data URIs
       const isWeb = typeof window !== 'undefined';
-      if (item.uri.startsWith('data:') && !isWeb) {
-        throw new Error('Cannot store data URIs directly in storage. Convert to file URI first.');
+      let storedItem = { ...item };
+
+      if (isWeb && item.uri.startsWith('data:')) {
+        const response = await fetch(item.uri);
+        const blob = await response.blob();
+        const dbKey = `custom-audio-${Date.now()}`;
+        await setBlob(dbKey, blob);
+        storedItem.uri = `indexeddb://${dbKey}`;
       }
-      if (item.uri.startsWith('data:') && isWeb) {
-        // For web, warn but allow small data URIs (the conversion should have created blob URLs anyway)
-        const dataSize = item.uri.length;
-        if (dataSize > 100000) { // 100KB limit for data URIs on web
-          throw new Error('Data URI too large for storage. Please use a smaller file.');
-        }
-        console.warn(`Storing data URI of size ${dataSize} chars in web environment`);
-      }
+
+      // Load all custom audio lists to create a unified list
+      const [w, b, s] = await Promise.all([
+        this.getCustomAudio('custom_workoutMusic'),
+        this.getCustomAudio('custom_breakMusic'),
+        this.getCustomAudio('custom_successSound'),
+      ]);
+
+      const all = [...w, ...b, ...s];
       
-      const existing = await this.getCustomAudio(key);
-      
-      // Remove any existing item with the same URI to avoid duplicates
-      const filtered = existing.filter((x) => x.uri !== item.uri);
+      // Remove any existing item with the same URI or label to avoid duplicates
+      const filtered = all.filter((x) => x.uri !== storedItem.uri && x.label !== storedItem.label);
       
       // Add the new item
-      const updated = [...filtered, item];
+      const updated = [...filtered, storedItem];
       
-      // Check storage size before saving
+      // Save the updated list back to the original key
       const jsonString = JSON.stringify(updated);
-      const estimatedSize = new Blob([jsonString]).size;
-      
-      // Warn if approaching AsyncStorage limits (typically 6MB on mobile)
-      if (estimatedSize > 5 * 1024 * 1024) { // 5MB warning threshold
-        console.warn(`Storage for ${key} is getting large (${Math.round(estimatedSize / 1024)}KB). Consider cleaning up old files.`);
-      }
       
       await AsyncStorage.setItem(`@countOnMe_${key}`, jsonString);
     } catch (error) {

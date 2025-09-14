@@ -2,14 +2,14 @@ import Colors from '@/constants/Colors';
 import { FontAwesome } from '@expo/vector-icons';
 import React, { useRef, useState } from 'react';
 import {
-  FlatList,
-  Modal,
-  Platform,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View
+    FlatList,
+    Modal,
+    Platform,
+    Pressable,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 
 export interface PickerItem {
@@ -106,32 +106,30 @@ const CustomPicker: React.FC<CustomPickerProps> = ({
           animationType="none"
           onRequestClose={() => setIsOpen(false)}
         >
-          <TouchableWithoutFeedback onPress={() => setIsOpen(false)}>
-            <View style={styles.modalOverlay}>
-              <View 
-                style={[
-                  styles.dropdown,
-                  {
-                    position: 'absolute',
-                    top: buttonLayout.y + buttonLayout.height + 5,
-                    left: buttonLayout.x,
-                    width: buttonLayout.width,
-                    minWidth: buttonLayout.width,
-                    maxWidth: Math.max(buttonLayout.width, 300),
-                  }
-                ]}
-              >
-                <FlatList
-                  data={items}
-                  renderItem={renderItem}
-                  keyExtractor={(item) => item.value}
-                  style={styles.dropdownList}
-                  showsVerticalScrollIndicator={false}
-                  nestedScrollEnabled={true}
-                />
-              </View>
+          <Pressable onPress={() => setIsOpen(false)} style={styles.modalOverlay}>
+            <View 
+              style={[
+                styles.dropdown,
+                {
+                  position: 'absolute',
+                  top: buttonLayout.y + buttonLayout.height + 5,
+                  left: buttonLayout.x,
+                  width: buttonLayout.width,
+                  minWidth: buttonLayout.width,
+                  maxWidth: Math.max(buttonLayout.width, 300),
+                }
+              ]}
+            >
+              <FlatList
+                data={items}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.value}
+                style={styles.dropdownList}
+                showsVerticalScrollIndicator={false}
+                nestedScrollEnabled={true}
+              />
             </View>
-          </TouchableWithoutFeedback>
+          </Pressable>
         </Modal>
       )}
     </View>

@@ -7,7 +7,7 @@ import i18n from '@/i18n';
 import { FitnessLevel } from '@/utils/intensity.enum';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import commonStyles from '../styles';
 
 const SettingsScreen: React.FC = () => {
@@ -15,7 +15,7 @@ const SettingsScreen: React.FC = () => {
   const { t } = useTranslation();
   
   const [currentLanguage, setCurrentLanguage] = React.useState(i18n.language);
-
+  
   React.useEffect(() => {
     const loadLanguage = async () => {
       try {
@@ -39,6 +39,7 @@ const SettingsScreen: React.FC = () => {
       console.error('Error saving language:', error);
     }
   };
+
   return (
     <View style={commonStyles.container}>
       <View style={[commonStyles.outerContainer]}>
@@ -51,10 +52,17 @@ const SettingsScreen: React.FC = () => {
               borderRadius: 10,
               borderColor: '#2A2E33',
               borderWidth: 1,
-              shadowColor: Colors.glow,
-              shadowOpacity: 0.2,
-              shadowRadius: 12,
-              shadowOffset: { width: 0, height: 0 },
+              ...Platform.select({
+                web: {
+                  boxShadow: `0px 0px 12px ${Colors.glow}33`,
+                },
+                default: {
+                  shadowColor: Colors.glow,
+                  shadowOpacity: 0.2,
+                  shadowRadius: 12,
+                  shadowOffset: { width: 0, height: 0 },
+                },
+              }),
             },
           ]}
         >
@@ -66,7 +74,7 @@ const SettingsScreen: React.FC = () => {
               placeholder={t('enter_weight')}
               placeholderTextColor="lightgray"
               onChangeText={(text: string) => setWeight(text)}
-              value={userWeight?.toString()}
+              value={userWeight?.toString() ?? ''}
             />
             <Text style={styles.label}>{t('fitness_level')}</Text>
             <CustomPicker

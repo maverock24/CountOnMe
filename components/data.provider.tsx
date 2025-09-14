@@ -68,6 +68,8 @@ interface DataContextType {
   currentMusicBeingPlayed: string | null;
   setCurrentMusicBeingPlayed: (music: string | null) => void;
   audioReady: boolean;
+  selectedWorkoutFile: any;
+  selectedBreakFile: any;
   
   // === CENTRALIZED SOUND MANAGEMENT ===
   
@@ -137,7 +139,7 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 // Inner component that has access to sound context
 const DataProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(stateReducer, defaultInitialState);
-  const { audioReady, playSegmentMusic, stopSound, fadeOutSound } = useSound();
+  const { audioReady, playSegmentMusic, stopSound, fadeOutSound, selectedWorkoutFile, selectedBreakFile } = useSound();
   const lastSoundPlayTimeRef = useRef<number>(0);
   const currentSegmentRef = useRef<string | null>(null);
   const soundCallInProgressRef = useRef(false);
@@ -911,6 +913,8 @@ const DataProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
               payload: { currentMusicBeingPlayed: music } 
             }),
           audioReady,
+          selectedWorkoutFile,
+          selectedBreakFile,
           
           // === CENTRALIZED SOUND MANAGEMENT ===
           

@@ -7,15 +7,17 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  Alert,
-  FlatList,
-  Modal,
-  StyleSheet,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
+    Alert,
+    FlatList,
+    Modal,
+    Platform,
+    Pressable,
+    StyleSheet,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { useData } from './data.provider';
+import { getBlob, setBlob } from './data/indexeddb';
 import { StorageService } from './data/storage';
 import { useSound } from './sound.provider';
 
@@ -50,7 +52,25 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
   const [selectedValue, setSelectedValue] = useState<string>('');
   const [selectedLabel, setSelectedLabel] = useState<string>('');
   const [previewKey, setPreviewKey] = useState<number>(0);
-  const { workoutMusic, breakMusic, successSound, storeItem, getStoredItem } = useData();
+  const { workoutMusic, breakMusic, successSound, storeItem, getStoredItem, selectedWorkoutFile, selectedBreakFile } = useData();
+
+  useEffect(() => {
+    if (dataKey === 'workoutMusic' && selectedWorkoutFile?.uri) {
+      setSelectedValue(selectedWorkoutFile.uri);
+    }
+    if (dataKey === 'breakMusic' && selectedBreakFile?.uri) {
+      setSelectedValue(selectedBreakFile.uri);
+    }
+  }, [selectedWorkoutFile, selectedBreakFile, dataKey]);
+
+  useEffect(() => {
+    if (dataKey === 'workoutMusic' && selectedWorkoutFile?.uri) {
+      setSelectedValue(selectedWorkoutFile.uri);
+    }
+    if (dataKey === 'breakMusic' && selectedBreakFile?.uri) {
+      setSelectedValue(selectedBreakFile.uri);
+    }
+  }, [selectedWorkoutFile, selectedBreakFile, dataKey]);
   const [modalVisible, setModalVisible] = useState(false);
   const { loadMusicSettings } = useSound();
   const [isPlaying, setIsPlaying] = useState(false);
@@ -77,181 +97,9 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
     }
   }, [dataKey]);
 
-  // Helper: (optional) copy picked file to app documents so it persists
-  async function ensurePermanentCopy(uri: string, suggestedName?: string, mimeType?: string) {
-    try {
-      const dir = `${FileSystem.documentDirectory}customAudio/`;
-      try { await FileSystem.makeDirectoryAsync(dir, { intermediates: true }); } catch {}
+  
 
-      // Determine filename + ensure proper extension
-      let baseName = suggestedName || (uri.split('/').pop() || `picked_${Date.now()}`);
-      let ext = '';
-      const lastDot = baseName.lastIndexOf('.');
-      if (lastDot > -1 && lastDot < baseName.length - 1) {
-        ext = baseName.slice(lastDot + 1).toLowerCase();
-      }
-      const extMap: Record<string, string> = {
-        'audio/mpeg': 'mp3', 'audio/mp3': 'mp3', 'audio/wav': 'wav', 'audio/x-wav': 'wav',
-        'audio/aac': 'aac', 'audio/ogg': 'ogg', 'audio/m4a': 'm4a', 'audio/x-m4a': 'm4a',
-      };
-      const inferredExt = (mimeType && extMap[mimeType]) || (extMap[(uri.split(';')[0] || '') as keyof typeof extMap]) || (ext || 'mp3');
-      const hasKnownExt = knownAudioExts.has(ext);
-      if (!hasKnownExt) {
-        // Append inferred extension if missing or unknown
-        baseName = baseName.replace(/\.+$/, '');
-        baseName = `${baseName}.${inferredExt}`;
-      }
-
-      const safeName = sanitizeFilename(baseName);
-      const dest = `${dir}${Date.now()}_${safeName}`;
-
-      if (uri.startsWith('data:')) {
-        console.log('ensurePermanentCopy - processing data URI...');
-        const matches = uri.match(/^data:([^;]+);base64,(.+)$/);
-        if (matches) {
-          console.log('ensurePermanentCopy - writing base64 to:', dest);
-          await FileSystem.writeAsStringAsync(dest, matches[2], { encoding: FileSystem.EncodingType.Base64 });
-          const exists = await fileExistsAndNonZero(dest);
-          if (exists) {
-            console.log('ensurePermanentCopy - successfully created file:', dest);
-            return dest;
-          } else {
-            console.error('ensurePermanentCopy - file creation failed for data URI');
-          }
-        } else {
-          console.error('ensurePermanentCopy - invalid data URI format');
-        }
-        throw new Error('Failed to convert data URI to file');
-      }
-
-      if (uri.startsWith('file:')) {
-        await FileSystem.copyAsync({ from: uri, to: dest });
-        if (await fileExistsAndNonZero(dest)) return dest;
-        return uri;
-      }
-
-      if (uri.startsWith('content:')) {
-        try {
-          await FileSystem.copyAsync({ from: uri, to: dest });
-          if (await fileExistsAndNonZero(dest)) return dest;
-        } catch {}
-        // Fallback: StorageAccessFramework read as base64
-        try {
-          // @ts-ignore: SAF available on native platforms
-          const base64 = await (FileSystem as any).StorageAccessFramework?.readAsStringAsync?.(uri, { encoding: FileSystem.EncodingType.Base64 });
-          if (base64) {
-            await FileSystem.writeAsStringAsync(dest, base64, { encoding: FileSystem.EncodingType.Base64 });
-            if (await fileExistsAndNonZero(dest)) return dest;
-          }
-        } catch {}
-        // Last resort: generic read as base64
-        try {
-          const base64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
-          await FileSystem.writeAsStringAsync(dest, base64, { encoding: FileSystem.EncodingType.Base64 });
-          if (await fileExistsAndNonZero(dest)) return dest;
-        } catch {}
-        return uri;
-      }
-
-      return uri;
-    } catch (e) {
-      console.warn('Failed to persist copy, using original URI', e);
-      return uri;
-    }
-  }
-
-  // Helper: persist a data: URI to a permanent file and return a file:// path
-  async function persistDataUri(dataUri: string, suggestedName?: string, mimeType?: string) {
-    try {
-      console.log('persistDataUri - starting conversion...');
-      const matches = dataUri.match(/^data:([^;]+);base64,(.+)$/);
-      if (!matches) {
-        console.error('persistDataUri - invalid data URI format');
-        throw new Error('Invalid data URI format');
-      }
-      
-      // Check if we're in a web environment
-      const isWeb = typeof window !== 'undefined' && !FileSystem.documentDirectory;
-      
-      if (isWeb) {
-        // For web: use localStorage or just return a blob URL
-        console.log('persistDataUri - web environment detected, using blob URL');
-        try {
-          // Convert base64 to blob
-          const base64 = matches[2];
-          const binaryString = atob(base64);
-          const bytes = new Uint8Array(binaryString.length);
-          for (let i = 0; i < binaryString.length; i++) {
-            bytes[i] = binaryString.charCodeAt(i);
-          }
-          
-          const resolvedMime = mimeType || matches[1] || 'audio/mpeg';
-          const blob = new Blob([bytes], { type: resolvedMime });
-          const blobUrl = URL.createObjectURL(blob);
-          
-          console.log('persistDataUri - created blob URL:', blobUrl);
-          return blobUrl;
-        } catch (error) {
-          console.warn('persistDataUri - blob creation failed, using original data URI:', error);
-          return dataUri; // Fallback to original data URI for web
-        }
-      }
-      
-      // Native environment: use file system
-      const dir = `${FileSystem.documentDirectory}customAudio/`;
-      try {
-        await FileSystem.makeDirectoryAsync(dir, { intermediates: true });
-        console.log('persistDataUri - created directory:', dir);
-      } catch (dirError) {
-        console.log('persistDataUri - directory already exists or error:', dirError);
-      }
-      
-      const resolvedMime = mimeType || matches[1] || 'application/octet-stream';
-      console.log('persistDataUri - resolved MIME:', resolvedMime);
-      
-      const extMap: Record<string, string> = {
-        'audio/mpeg': 'mp3',
-        'audio/mp3': 'mp3',
-        'audio/wav': 'wav',
-        'audio/x-wav': 'wav',
-        'audio/aac': 'aac',
-        'audio/ogg': 'ogg',
-        'audio/m4a': 'm4a',
-        'audio/x-m4a': 'm4a',
-      };
-      const inferredExt = extMap[resolvedMime] || 'mp3'; // Default to mp3
-      
-      // Create safe filename
-      let baseName = suggestedName || `audio_${Date.now()}`;
-      if (!baseName.includes('.')) {
-        baseName = `${baseName}.${inferredExt}`;
-      }
-      const safeFileName = sanitizeFilename(baseName);
-      const finalPath = `${dir}${Date.now()}_${safeFileName}`;
-      
-      console.log('persistDataUri - writing to:', finalPath);
-      const base64 = matches[2];
-      await FileSystem.writeAsStringAsync(finalPath, base64, { encoding: FileSystem.EncodingType.Base64 });
-      
-      // Verify file was created successfully
-      const exists = await fileExistsAndNonZero(finalPath);
-      if (!exists) {
-        console.error('persistDataUri - file was not created or is empty');
-        throw new Error('Failed to create file from data URI');
-      }
-      
-      console.log('persistDataUri - successfully created file:', finalPath);
-      return finalPath;
-    } catch (e) {
-      console.error('persistDataUri - failed to convert data URI:', e);
-      // For web environments, fallback to using the original data URI
-      if (typeof window !== 'undefined') {
-        console.warn('persistDataUri - using fallback for web environment');
-        return dataUri;
-      }
-      throw new Error(`Failed to convert data URI to file: ${e instanceof Error ? e.message : 'Unknown error'}`);
-    }
-  }
+  
 
   // Helper: display a friendly label for selection
   const displaySelected = useMemo(() => {
@@ -269,7 +117,7 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
         return selectedValue;
       }
     }
-    if (selectedValue.startsWith('data:') || selectedValue.startsWith('blob:')) {
+    if (selectedValue.startsWith('data:') || selectedValue.startsWith('blob:') || selectedValue.startsWith('indexeddb:')) {
       return 'Custom audio';
     }
     return selectedValue;
@@ -370,95 +218,39 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
       });
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const file = result.assets[0];
-        console.log('Picked file:', file.name, 'URI:', file.uri, 'MIME:', (file as any).mimeType);
-        
-        // CRITICAL: Never store data URIs directly - always convert to file URIs first
-        let finalUri = file.uri;
-        
-        if (finalUri.startsWith('data:')) {
-          console.log('Converting data URI to file URI...');
-          try {
-            finalUri = await persistDataUri(finalUri, file.name, (file as any).mimeType);
-            console.log('Converted data URI to:', finalUri);
-            
-            // Double-check the conversion worked
-            if (finalUri.startsWith('data:')) {
-              console.error('persistDataUri failed - still returned data URI');
-              Alert.alert('File Error', 'Failed to convert the selected file. Please try a different file or try again.');
-              return;
-            }
-          } catch (error) {
-            console.error('persistDataUri error:', error);
-            Alert.alert('File Error', `Could not convert the selected file: ${error instanceof Error ? error.message : 'Unknown error'}`);
-            return;
-          }
-        } else if (finalUri.startsWith('content:') || !finalUri.startsWith('file:')) {
-          console.log('Converting content/other URI to permanent file...');
-          try {
-            finalUri = await ensurePermanentCopy(finalUri, file.name, (file as any).mimeType);
-            console.log('Converted to permanent file:', finalUri);
-          } catch (error) {
-            console.error('ensurePermanentCopy error:', error);
-            Alert.alert('File Error', `Could not copy the selected file: ${error instanceof Error ? error.message : 'Unknown error'}`);
-            return;
-          }
-        }
-        
-        // Double-check: ensure we have a playable URI before storing
-        const isWeb = typeof window !== 'undefined';
-        const isValidUri = finalUri.startsWith('file:') || 
-                          finalUri.startsWith('blob:') || 
-                          (isWeb && finalUri.startsWith('data:'));
-                          
-        if (!isValidUri) {
-          console.error('Final URI is not a valid playable URI:', finalUri);
-          Alert.alert('File Error', 'Could not convert the selected file to a playable format. Please try a different file.');
-          return;
-        }
-        
         const safeName = (file.name && file.name.trim().length > 0)
           ? file.name
-          : decodeURIComponent((finalUri.split('/').pop() || 'Custom audio'));
-        console.log('Safe name:', safeName);
+          : decodeURIComponent((file.uri.split('/').pop() || 'Custom audio'));
         
-        // Verify file exists before adding to storage (skip for web blob URLs)
-        if (finalUri.startsWith('file:')) {
-          const exists = await fileExistsAndNonZero(finalUri);
-          if (!exists) {
-            console.error('Final file does not exist or is empty:', finalUri);
-            Alert.alert('File Error', 'The selected file could not be copied properly. Please try again.');
+        let uriToStore: string;
+        
+        if (Platform.OS === 'web') {
+          // On web, convert the file to a blob and store it in IndexedDB
+          try {
+            const response = await fetch(file.uri);
+            const blob = await response.blob();
+            
+            // Create a unique key for this file
+            const fileKey = `custom_audio_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            
+            // Store the blob in IndexedDB
+            await setBlob(fileKey, blob);
+            
+            // Store the IndexedDB key with a prefix
+            uriToStore = `indexeddb:${fileKey}`;
+            
+            console.log(`[handlePickLocal] Stored web file "${safeName}" in IndexedDB with key: ${fileKey}`);
+          } catch (error) {
+            console.error('Error storing file in IndexedDB:', error);
+            Alert.alert('Storage failed', 'Could not store the selected file for playback.');
             return;
           }
-        } else if (finalUri.startsWith('blob:') || finalUri.startsWith('data:')) {
-          console.log('Skipping file existence check for blob/data URI (web environment)');
+        } else {
+          uriToStore = file.uri;
         }
         
-        console.log('File verified, size check passed. Adding to storage...');
-        
-        // Add to both workout and break custom lists so it shows in both modals
-        const keysToUpdate: Array<'custom_workoutMusic' | 'custom_breakMusic'> = ['custom_workoutMusic', 'custom_breakMusic'];
-        for (const k of keysToUpdate) {
-          console.log(`Adding to ${k}: ${safeName} -> ${finalUri}`);
-          await StorageService.addCustomAudio(k as any, { label: safeName, uri: finalUri });
-        }
-        
-        // Debug: verify contents after write
-        try {
-          const [cw, cb] = await Promise.all([
-            StorageService.getCustomAudio('custom_workoutMusic' as any),
-            StorageService.getCustomAudio('custom_breakMusic' as any),
-          ]);
-          console.log('=== STORAGE VERIFICATION ===');
-          console.log('custom_workoutMusic count:', cw.length);
-          console.log('custom_workoutMusic items:', cw.map((x) => `${x.label} -> ${x.uri}`));
-          console.log('custom_breakMusic count:', cb.length);
-          console.log('custom_breakMusic items:', cb.map((x) => `${x.label} -> ${x.uri}`));
-          console.log('=== END VERIFICATION ===');
-        } catch (e) {
-          console.error('Failed to verify storage:', e);
-        }
-        
-        await saveSelection(finalUri, safeName);
+        await StorageService.addCustomAudio(listKey, { label: safeName, uri: uriToStore });
+        await saveSelection(uriToStore, safeName);
         await loadCustomOptions();
         
         Alert.alert('Success', `Added "${safeName}" to your custom audio list.`);
@@ -471,56 +263,10 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
     }
   };
 
-  const handleValueChange = async (labelToStore: string) => {
-    await saveSelection(labelToStore, labelToStore);
-    setModalVisible(false);
-  };
+  
 
-  // Find the selected sound object or build from URI
-  const findSelectedSound = async () => {
-    if (!selectedValue) return null as any;
-    
-    // Handle blob, data, file, content, and http URIs
-    if (
-      selectedValue.startsWith('file:') ||
-      selectedValue.startsWith('content:') ||
-      selectedValue.startsWith('http') ||
-      selectedValue.startsWith('blob:') ||
-      selectedValue.startsWith('data:')
-    ) {
-      // For web environments, handle blob and data URIs directly
-      if (selectedValue.startsWith('blob:')) {
-        console.log('findSelectedSound - using blob URI directly:', selectedValue);
-        return { uri: selectedValue } as any;
-      }
-      
-      if (selectedValue.startsWith('data:')) {
-        // For web, use data URI directly if it's small enough
-        const isWeb = typeof window !== 'undefined';
-        if (isWeb) {
-          console.log('findSelectedSound - using data URI directly for web');
-          return { uri: selectedValue } as any;
-        } else {
-          // For native, convert data URI to file
-          const persisted = await persistDataUri(selectedValue, selectedLabel);
-          return { uri: persisted } as any;
-        }
-      }
-      
-      if (selectedValue.startsWith('content:')) {
-        const playable = await ensurePermanentCopy(selectedValue, selectedLabel);
-        return { uri: playable } as any;
-      }
-      
-      return { uri: selectedValue } as any;
-    }
-    
-    // Handle preset audio options
-    const music = options.find((item) => item.label === selectedValue);
-    return music ? (music.value as any) : null;
-  };
+  
 
-  // Play sound and show slider
   const handlePlay = async () => {
     try {
       let sound: any;
@@ -533,33 +279,36 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
       } else if (dataKey === 'breakMusic' && selectedValue === 'random:Action') {
         sound = getRandomTrack(breakMusic, 'action');
       } else {
-        sound = await findSelectedSound();
+        // Handle custom selected value
+        if (selectedValue.startsWith('indexeddb:')) {
+          // Retrieve from IndexedDB
+          const fileKey = selectedValue.replace('indexeddb:', '');
+          try {
+            const blob = await getBlob(fileKey);
+            if (blob) {
+              const blobUrl = URL.createObjectURL(blob);
+              sound = { uri: blobUrl };
+            } else {
+              Alert.alert('Playback', 'The audio file could not be found. Please try selecting it again.');
+              return;
+            }
+          } catch (error) {
+            console.error('Error retrieving audio from IndexedDB:', error);
+            Alert.alert('Playback failed', 'Could not retrieve the audio file for playback.');
+            return;
+          }
+        } else {
+          sound = { uri: selectedValue };
+        }
       }
 
-      if (!sound) {
-        Alert.alert('Playback', 'No source to play. Please select an item.');
+      if (!sound || sound.uri === 'web-reselect') {
+        Alert.alert('Playback', 'This audio needs to be re-selected. Please pick the file again.');
         return;
       }
 
       if (typeof sound === 'string') {
         sound = { uri: sound };
-      }
-
-      if (typeof sound === 'object' && sound?.uri) {
-        // Handle different URI types for web vs native
-        const isWeb = typeof window !== 'undefined';
-        
-        if (sound.uri.startsWith('blob:')) {
-          console.log('handlePlay - using blob URI for playback:', sound.uri);
-          // Use blob URI directly - don't convert it
-        } else if (sound.uri.startsWith('data:') && isWeb) {
-          console.log('handlePlay - using data URI for web playback');
-          // Use data URI directly for web
-        } else if (sound.uri.startsWith('data:') || sound.uri.startsWith('content:')) {
-          console.log('handlePlay - converting URI for native playback');
-          const playable = await ensurePermanentCopy(sound.uri, selectedLabel);
-          sound = { uri: playable };
-        }
       }
 
       // Verify file exists before attempting to load (skip for web blob/data URLs)
@@ -579,16 +328,7 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
 
       setIsPlaying(true);
       const playback = new Audio.Sound();
-      try {
-        await playback.loadAsync(sound);
-      } catch (e: any) {
-        if (typeof sound === 'object' && (sound?.uri?.startsWith('data:') || sound?.uri?.startsWith('content:'))) {
-          const playable = await ensurePermanentCopy(sound.uri, selectedLabel);
-          await playback.loadAsync({ uri: playable });
-        } else {
-          throw e;
-        }
-      }
+      await playback.loadAsync(sound);
       soundInstance.current = playback;
       playback.setOnPlaybackStatusUpdate((status: any) => {
         if (!sliderDragging && status.isLoaded) {
@@ -660,45 +400,12 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
     }
   }, [dataKey, workoutMusic, breakMusic, successSound, customOptions]);
 
-  // Selecting an item: if custom (URI) save URI+label, else save label
   const onSelectItem = async (item: DataKey) => {
     if (item.value === '__PICK_LOCAL__') {
       await handlePickLocal();
       return;
     }
-    const isUri = typeof item.value === 'string' && (item.value.startsWith('file:') || item.value.startsWith('content:') || item.value.startsWith('http') || item.value.startsWith('data:') || item.value.startsWith('blob:'));
-    if (isUri) {
-      let uri = item.value as string;
-      if (uri.startsWith('content:') || uri.startsWith('data:')) {
-        try {
-          const playable = uri.startsWith('data:')
-            ? await persistDataUri(uri, item.label)
-            : await ensurePermanentCopy(uri, item.label);
-          if (playable && playable !== uri) {
-            // Update both workout and break lists
-            const keysToUpdate: Array<'custom_workoutMusic' | 'custom_breakMusic'> = ['custom_workoutMusic', 'custom_breakMusic'];
-            for (const k of keysToUpdate) {
-              try { await StorageService.removeCustomAudio(k as any, uri); } catch {}
-              await StorageService.addCustomAudio(k as any, { label: item.label, uri: playable });
-            }
-            await loadCustomOptions();
-            uri = playable;
-          }
-        } catch (e: any) {
-          console.warn('Failed to convert custom URI, using original', e);
-          Alert.alert('Conversion failed', e?.message || 'Using original file reference');
-        }
-      } else {
-        // For blob, file, and http URIs, just ensure item exists in both lists
-        const keysToUpdate: Array<'custom_workoutMusic' | 'custom_breakMusic'> = ['custom_workoutMusic', 'custom_breakMusic'];
-        for (const k of keysToUpdate) {
-          await StorageService.addCustomAudio(k as any, { label: item.label, uri });
-        }
-      }
-      await saveSelection(uri, item.label);
-    } else {
-      await handleValueChange(item.label);
-    }
+    await saveSelection(item.value as string, item.label);
     setModalVisible(false);
   };
 
@@ -761,46 +468,44 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
         animationType="fade"
         onRequestClose={() => setModalVisible(false)}
       >
-        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-          <View style={styles.modalOverlay}>
-            <TouchableWithoutFeedback>
-              <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>{label}</Text>
-                <FlatList
-                  data={options}
-                  keyExtractor={(item, index) => `${item.label}-${item.value}-${index}`}
-                  renderItem={({ item }) => {
-                    const isSelected = selectedValue === item.label || selectedValue === (item.value as any);
-                    return (
-                      <TouchableOpacity
+        <Pressable onPress={() => setModalVisible(false)} style={styles.modalOverlay}>
+          <Pressable>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>{label}</Text>
+              <FlatList
+                data={options}
+                keyExtractor={(item, index) => `${item.label}-${item.value}-${index}`}
+                renderItem={({ item }) => {
+                  const isSelected = selectedValue === item.label || selectedValue === (item.value as any);
+                  return (
+                    <TouchableOpacity
+                      style={[
+                        styles.optionItem,
+                        isSelected && styles.selectedOptionItem,
+                      ]}
+                      onPress={() => onSelectItem(item)}
+                    >
+                      <Text
                         style={[
-                          styles.optionItem,
-                          isSelected && styles.selectedOptionItem,
+                          styles.optionText,
+                          isSelected && styles.selectedOptionText,
                         ]}
-                        onPress={() => onSelectItem(item)}
+                        numberOfLines={1}
                       >
-                        <Text
-                          style={[
-                            styles.optionText,
-                            isSelected && styles.selectedOptionText,
-                          ]}
-                          numberOfLines={1}
-                        >
-                          {item.label}
-                        </Text>
-                        {isSelected && (
-                          <FontAwesome name="check" size={16} color="#fff" />
-                        )}
-                      </TouchableOpacity>
-                    );
-                  }}
-                  style={styles.optionsList}
-                  showsVerticalScrollIndicator={false}
-                />
-              </View>
-            </TouchableWithoutFeedback>
-          </View>
-        </TouchableWithoutFeedback>
+                        {item.label}
+                      </Text>
+                      {isSelected && (
+                        <FontAwesome name="check" size={16} color="#fff" />
+                      )}
+                    </TouchableOpacity>
+                  );
+                }}
+                style={styles.optionsList}
+                showsVerticalScrollIndicator={false}
+              />
+            </View>
+          </Pressable>
+        </Pressable>
       </Modal>
     </>
   );

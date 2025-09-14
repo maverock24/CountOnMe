@@ -6,7 +6,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, FlatList, Keyboard, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, FlatList, Keyboard, Platform, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import exercisesDe from '../../assets/exercises_de.json';
 import exercisesEn from '../../assets/exercises_en.json';
 import { PROFILE_FITNESS_LEVEL_KEY, PROFILE_WEIGHT_KEY } from '../_layout';
@@ -207,10 +207,17 @@ const AnalyzerScreen: React.FC = () => {
                   maxHeight: 180,
                   zIndex: 99999,
                   elevation: 100,
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 4,
+                  ...Platform.select({
+                    web: {
+                      boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.3)',
+                    },
+                    default: {
+                      shadowColor: '#000',
+                      shadowOffset: { width: 0, height: 2 },
+                      shadowOpacity: 0.3,
+                      shadowRadius: 4,
+                    },
+                  }),
                 }}>
                   <FlatList
                     data={filteredExerciseObjects}

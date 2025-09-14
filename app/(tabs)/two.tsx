@@ -4,13 +4,13 @@ import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Animated,
-  Dimensions,
-  Easing,
-  StyleSheet,
-  Switch,
-  Text,
-  View
+    Animated,
+    Dimensions,
+    Easing,
+    StyleSheet,
+    Switch,
+    Text,
+    View
 } from 'react-native';
 import Svg, { Circle, Defs, FeGaussianBlur, FeMerge, FeMergeNode, Filter } from 'react-native-svg';
 
@@ -46,10 +46,10 @@ const formatTime = (seconds: number) => {
 };
 
 // Create a wrapper to filter out React Native specific props
-const CircleWrapper = (props: any) => {
+const CircleWrapper = React.forwardRef((props: any, ref: any) => {
   const { collapsable, ...svgProps } = props;
-  return <Circle {...svgProps} />;
-};
+  return <Circle {...svgProps} ref={ref} />;
+});
 
 const AnimatedCircle = Animated.createAnimatedComponent(CircleWrapper);
 
