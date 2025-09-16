@@ -34,6 +34,7 @@ const AnalyzerScreen: React.FC = () => {
   const [intensity, setIntensity] = useState<IntensityLevel>(IntensityLevel.Light);
   const [fitnessLevel, setFitnessLevel] = useState<FitnessLevel>(FitnessLevel.Beginner);
   const [showExerciseSuggestions, setShowExerciseSuggestions] = useState(false);
+  const [blurTimeout, setBlurTimeout] = useState<NodeJS.Timeout | null>(null);
 
   const { storeItem } = useData();
 
@@ -66,29 +67,14 @@ const AnalyzerScreen: React.FC = () => {
       }
     };
     loadProfile();
+
+    // Cleanup timeout on unmount
+    return () => {
+      if (blurTimeout) {
+        clearTimeout(blurTimeout);
+      }
+    };
   }, []);
-
-  // Auto-analyze when required fields are filled
-  React.useEffect(() => {
-    const shouldAutoAnalyze = weight && exercise && fitnessLevel && intensity && !loading;
-    
-    if (shouldAutoAnalyze) {
-      // Add a small delay to prevent excessive API calls during rapid typing
-      const timeoutId = setTimeout(() => {
-        handleAnalyze();
-      }, 500);
-      
-      return () => clearTimeout(timeoutId);
-    }
-  }, [weight, exercise, fitnessLevel, intensity, calories]);
-
-  // Clear results when any input changes to prevent showing stale data
-  React.useEffect(() => {
-    if (aiResult) {
-      setAiResult(null);
-      setError('');
-    }
-  }, [weight, exercise, fitnessLevel, intensity, calories]);
 
   const handleAnalyze = async () => {
     // Prevent multiple concurrent analyses
@@ -160,7 +146,7 @@ const AnalyzerScreen: React.FC = () => {
     storeItem(name, unitInMinutes);
   };
 
-  // Validation for showing analyze button (now mainly for manual re-analysis)
+  // Validation for showing analyze button
   const isAnalyzeDisabled = loading || !weight || !exercise || !fitnessLevel || !intensity;
 
   return (
@@ -187,35 +173,53 @@ const AnalyzerScreen: React.FC = () => {
                 style={styles.input}
                 value={exercise}
                 onChangeText={(text) => {
+                  if (blurTimeout) {
+                    clearTimeout(blurTimeout);
+                    setBlurTimeout(null);
+                  }
                   setExercise(text);
                   setShowExerciseSuggestions(true);
                   setError('');
                 }}
                 placeholder={t('eg_running_push_ups')}
                 placeholderTextColor="#999"
-                onFocus={() => setShowExerciseSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowExerciseSuggestions(false), 150)}
+                onFocus={() => {
+                  if (blurTimeout) {
+                    clearTimeout(blurTimeout);
+                    setBlurTimeout(null);
+                  }
+                  setShowExerciseSuggestions(true);
+                }}
+                onBlur={() => {
+                  const timeout = setTimeout(() => {
+                    setShowExerciseSuggestions(false);
+                  }, 500);
+                  setBlurTimeout(timeout);
+                }}
               />
               {showExerciseSuggestions && filteredExerciseObjects.length > 0 && (
                 <View style={{
                   position: 'absolute',
                   top: 50,
-                  left: '5%',
-                  width: '90%',
-                  backgroundColor: 'rgb(17, 24, 30)',
-                  borderRadius: 8,
-                  maxHeight: 180,
+                  left: 0,
+                  right: 0,
+                  backgroundColor: 'rgba(17, 24, 30, 0.95)',
+                  borderRadius: 10,
+                  maxHeight: 400,
+                  minHeight: 200,
                   zIndex: 99999,
                   elevation: 100,
+                  borderWidth: 1,
+                  borderColor: '#2A2E33',
                   ...Platform.select({
                     web: {
-                      boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.3)',
+                      boxShadow: '0px 4px 12px rgba(42, 199, 207, 0.2)',
                     },
                     default: {
-                      shadowColor: '#000',
-                      shadowOffset: { width: 0, height: 2 },
+                      shadowColor: 'rgb(42, 199, 207)',
+                      shadowOffset: { width: 0, height: 4 },
                       shadowOpacity: 0.3,
-                      shadowRadius: 4,
+                      shadowRadius: 8,
                     },
                   }),
                 }}>
@@ -225,18 +229,36 @@ const AnalyzerScreen: React.FC = () => {
                     renderItem={({ item }) => (
                       <TouchableOpacity
                         onPress={() => {
+                          if (blurTimeout) {
+                            clearTimeout(blurTimeout);
+                            setBlurTimeout(null);
+                          }
                           setExercise(item.name);
                           setShowExerciseSuggestions(false);
                           setError(''); // Clear any previous errors
                         }}
-                        style={{ padding: 10, borderBottomColor: '#444', borderBottomWidth: 1 }}
+                        onPressIn={() => {
+                          // Cancel any pending blur timeout when pressing
+                          if (blurTimeout) {
+                            clearTimeout(blurTimeout);
+                            setBlurTimeout(null);
+                          }
+                        }}
+                        style={{ 
+                          padding: 15, 
+                          borderBottomColor: '#2A2E33', 
+                          borderBottomWidth: 1,
+                          backgroundColor: 'transparent'
+                        }}
+                        activeOpacity={0.7}
                       >
-                        <Text style={{ color: '#fff', fontSize: 16 }}>{item.name}</Text>
-                        <Text style={{ color: '#bbb', fontSize: 12, marginTop: 2 }}>{item.description}</Text>
+                        <Text style={{ color: '#EFF0F0', fontSize: 16, fontWeight: '500' }}>{item.name}</Text>
+                        <Text style={{ color: 'rgb(176, 224, 230)', fontSize: 13, marginTop: 3, lineHeight: 18 }}>{item.description}</Text>
                       </TouchableOpacity>
                     )}
                     keyboardShouldPersistTaps="handled"
-                    showsVerticalScrollIndicator={false}
+                    showsVerticalScrollIndicator={true}
+                    indicatorStyle="white"
                   />
                 </View>
               )}
@@ -332,7 +354,7 @@ const AnalyzerScreen: React.FC = () => {
               onFocus={() => setError('')}
             />
           </View>
-          <View style={{ alignItems: 'flex-end', width: '100%', marginBottom: 8, marginRight: 20, zIndex: showExerciseSuggestions && filteredExerciseObjects.length > 0 ? 0 : 10 }}>
+          <View style={{ alignItems: 'flex-end', width: '100%', marginBottom: 8, marginRight: 20, zIndex: showExerciseSuggestions && filteredExerciseObjects.length > 0 ? -1 : 10 }}>
             <TimerButton
               text={loading ? t('analyzing') : t('analyze')}
               onPress={handleAnalyze}
