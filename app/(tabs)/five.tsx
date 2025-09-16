@@ -1,4 +1,5 @@
 import { prefixKey, useData } from '@/components/data.provider';
+import { WorkoutItem } from '@/components/data/types';
 import TimerButton from '@/components/TimerButton';
 import { generateExercisePlan } from '@/utils/generateExercisePlan';
 import { FitnessLevel, IntensityLevel } from '@/utils/intensity.enum';
@@ -36,7 +37,7 @@ const AnalyzerScreen: React.FC = () => {
   const [showExerciseSuggestions, setShowExerciseSuggestions] = useState(false);
   const [blurTimeout, setBlurTimeout] = useState<NodeJS.Timeout | null>(null);
 
-  const { storeItem } = useData();
+  const { storeWorkout, syncAllGroup } = useData();
 
   // Choose exercise list based on language
   const exerciseList = i18n.language === 'de' ? exercisesDe : exercisesEn;
@@ -130,20 +131,26 @@ const AnalyzerScreen: React.FC = () => {
   };
 
   // Add AI workout to list
-  const handleAddAiWorkout = () => {
+  const handleAddAiWorkout = async () => {
     if (!aiResult) return;
     // Use exercise as name, reps as unit (convert to seconds if needed)
     const name = aiResult.exercise || t('ai_workout');
     // Convert reps to seconds string (e.g. "2;3;2" => "120;180;120")
-    let unitInMinutes = aiResult.reps
+    const unitInSeconds = aiResult.reps
       .split(';')
       .map((time) => (isNaN(Number(time)) ? 0 : parseFloat(time) * 60))
       .join(';');
-    // Use aiResult.intensity if present, otherwise fallback to current intensity state
-    const intensityString = aiResult.intensity ||
-      (intensity === IntensityLevel.Light ? 'low' : intensity === IntensityLevel.Moderate ? 'medium' : 'high');
-    unitInMinutes = unitInMinutes + '|' + intensityString + '|' + aiResult.calories; // Append calories for reference
-    storeItem(name, unitInMinutes);
+    
+    // Create a proper WorkoutItem object
+    const newWorkout: WorkoutItem = {
+      name: name,
+      workout: unitInSeconds,
+      group: undefined
+    };
+    
+    await storeWorkout(newWorkout);
+    // Sync the "All" group to include the new workout
+    await syncAllGroup();
   };
 
   // Validation for showing analyze button
