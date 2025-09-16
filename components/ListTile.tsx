@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import commonStyles from '@/app/styles';
+import { WorkoutItem } from '@/components/data/types';
 import Colors from '@/constants/Colors';
 
 import { useTranslation } from 'react-i18next';
@@ -12,6 +13,7 @@ const ListTile = ({
   isSelected,
   title,
   value,
+  workoutItem,
   onPressTile,
   onPressBtn,
   currentIndex,
@@ -21,6 +23,7 @@ const ListTile = ({
   isSelected?: boolean;
   title: string;
   value: string | null;
+  workoutItem?: WorkoutItem;
   onPressTile?: () => void;
   onPressBtn?: () => void;
   currentIndex?: number;
@@ -30,10 +33,55 @@ const ListTile = ({
   const [workoutStage, setWorkoutStage] = useState(currentIndex || 0);
   const { t } = useTranslation();
   
-  const exerciseData = value?.split('|') || [];
-  const workoutData = exerciseData[0] || '';
-  const intensityData = exerciseData[1] || '';
-  const calorysData = exerciseData[2] || '';
+  // Handle both new WorkoutItem structure and legacy format
+  let workoutData: string;
+  let intensityData: string;
+  let caloriesData: string;
+  let levelDisplay: string;
+  
+  if (workoutItem) {
+    // New WorkoutItem structure
+    workoutData = workoutItem.workout;
+    
+    // Parse level data (format: "FitnessLevel-IntensityLevel")
+    if (workoutItem.level) {
+      const levelParts = workoutItem.level.split('-');
+      const fitnessLevel = levelParts[0];
+      const intensity = levelParts[1]?.toLowerCase();
+      intensityData = intensity || '';
+      
+      // Create a user-friendly display format
+      const fitnessLevelMap: { [key: string]: string } = {
+        'Beginner': t('low'),
+        'Intermediate': t('medium'), 
+        'Expert': t('high')
+      };
+      
+      const intensityMap: { [key: string]: string } = {
+        'light': t('low'),
+        'moderate': t('medium'),
+        'hard': t('high')
+      };
+      
+      const displayFitness = fitnessLevelMap[fitnessLevel] || fitnessLevel;
+      const displayIntensity = intensityMap[intensity] || intensity;
+      
+      levelDisplay = displayIntensity || displayFitness;
+    } else {
+      intensityData = '';
+      levelDisplay = '';
+    }
+    
+    // Use calories from WorkoutItem
+    caloriesData = workoutItem.calories?.toString() || '';
+  } else {
+    // Legacy format: pipe-separated data
+    const exerciseData = value?.split('|') || [];
+    workoutData = exerciseData[0] || '';
+    intensityData = exerciseData[1] || '';
+    caloriesData = exerciseData[2] || '';
+    levelDisplay = intensityData; // Show only intensity for legacy items
+  }
 
   useEffect(() => {
     if (currentIndex !== undefined) {
@@ -44,12 +92,15 @@ const ListTile = ({
 
   let filledStars = 0;
   switch (intensityData) {
+    case 'light':
     case 'low':
       filledStars = 1;
       break;
+    case 'moderate':
     case 'medium':
       filledStars = 2;
       break;
+    case 'hard':
     case 'high':
       filledStars = 3;
       break; 
@@ -88,7 +139,7 @@ const ListTile = ({
             <View
               style={{
                 flexDirection: 'row',
-                alignItems: 'flex-start',
+                alignItems: 'center',
                 justifyContent: 'space-between',
                 borderBottomColor: '#b0e0e6',
                 borderBottomWidth: 1,
@@ -97,18 +148,28 @@ const ListTile = ({
               }}
             >
               <Text style={commonStyles.listItemTitle}>{title}</Text>
-              <Text style={{ fontSize: 14, color: '#b0e0e6', marginBottom: 5 }}>{t('calories_colon')} {calorysData}</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
-                <Text style={{ fontSize: 14, color: '#b0e0e6', marginRight: 5 }}>{t('level_colon')}</Text>
-                {[...Array(totalStars)].map((_, i) => (
-                  <FontAwesome
-                    key={i}
-                    name={i < filledStars ? 'star' : 'star-o'}
-                    size={14}
-                    color={i < filledStars ? 'white' : '#b0e0e6'}
-                    style={{ marginLeft: 1, marginRight: 1 }}
-                  />
-                ))}
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                {(workoutItem?.calories !== undefined && workoutItem?.calories !== null) || caloriesData ? (
+                  <Text style={{ fontSize: 14, color: '#b0e0e6', marginRight: 10 }}>
+                    {t('calories_colon')} {caloriesData}
+                  </Text>
+                ) : null}
+                {workoutItem?.level && levelDisplay && (
+                  <Text style={{ fontSize: 14, color: '#b0e0e6', marginRight: 5 }}>
+                    {levelDisplay}
+                  </Text>
+                )}
+                {intensityData && (
+                  [...Array(totalStars)].map((_, i) => (
+                    <FontAwesome
+                      key={i}
+                      name={i < filledStars ? 'star' : 'star-o'}
+                      size={14}
+                      color={i < filledStars ? 'white' : '#b0e0e6'}
+                      style={{ marginLeft: 1, marginRight: 1 }}
+                    />
+                  ))
+                )}
               </View>
             </View>
 

@@ -129,5 +129,8 @@
   "select_workout_group": "Select workout group",
   "delete_workout_group": "Remove",
   "remove_from_group": "Remove",
-  "reorder": "Sort"
+  "reorder": "Sort",
+  "adding": "Adding...",
+  "added": "Added!",
+  "workout_added_successfully": "Workout added successfully!"
 }

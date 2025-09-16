@@ -5,16 +5,10 @@ import { useTranslation } from 'react-i18next';
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import { useData } from '@/components/data.provider';
+import { WorkoutItem } from '@/components/data/types';
 import ListTile from '@/components/ListTile';
 import TimerButton from '@/components/TimerButton';
 import CustomPicker from './CustomPicker';
-
-export interface WorkoutItem {
-  name: string;
-  workout: string;
-  group?: string;
-  orderId?: number;
-}
 
 interface ReorderableWorkoutListProps {
   groupData: { label: string; value: string }[];
@@ -162,6 +156,7 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
               isSelected={false}
               title={item.name}
               value={item.workout}
+              workoutItem={item}
               currentIndex={currentIndex}
               onPressTile={() => {}} // Disabled in reorder mode
             />
@@ -179,6 +174,7 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
           isSelected={isSelected}
           title={item.name}
           value={item.workout}
+          workoutItem={item}
           currentIndex={currentIndex}
           onPressTile={() => onWorkoutSelect?.(item.name, item.workout)}
         />

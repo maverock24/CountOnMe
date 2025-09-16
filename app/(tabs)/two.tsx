@@ -15,6 +15,7 @@ import {
 import Svg, { Circle, Defs, FeGaussianBlur, FeMerge, FeMergeNode, Filter } from 'react-native-svg';
 
 import { useData } from '@/components/data.provider';
+import { WorkoutItem } from '@/components/data/types';
 import ReorderableWorkoutList from '@/components/ReorderableWorkoutList';
 import TimerButton from '@/components/TimerButton';
 import TimerItem from '@/components/TimerItem';
@@ -31,12 +32,6 @@ interface Timer {
   id: string;
   time: number;
   segment: string;
-}
-
-interface WorkoutItem {
-  name: string;
-  workout: string;
-  group?: string;
 }
 
 const formatTime = (seconds: number) => {
