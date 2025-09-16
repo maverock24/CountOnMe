@@ -8,6 +8,9 @@ export interface WorkoutItem {
   name: string;
   workout: string;
   group?: string;
+  calories?: number;
+  level?: string;
+  orderId?: number;
 }
 
 export interface GroupWorkoutItem {

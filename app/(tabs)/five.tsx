@@ -7,7 +7,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, FlatList, Keyboard, Platform, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Animated, FlatList, Keyboard, Platform, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import exercisesDe from '../../assets/exercises_de.json';
 import exercisesEn from '../../assets/exercises_en.json';
 import { PROFILE_FITNESS_LEVEL_KEY, PROFILE_WEIGHT_KEY } from '../_layout';
@@ -36,6 +36,9 @@ const AnalyzerScreen: React.FC = () => {
   const [fitnessLevel, setFitnessLevel] = useState<FitnessLevel>(FitnessLevel.Beginner);
   const [showExerciseSuggestions, setShowExerciseSuggestions] = useState(false);
   const [blurTimeout, setBlurTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [isAddingWorkout, setIsAddingWorkout] = useState(false);
+  const [workoutAdded, setWorkoutAdded] = useState(false);
+  const [fadeAnim] = useState(new Animated.Value(0));
 
   const { storeWorkout, syncAllGroup } = useData();
 
@@ -132,25 +135,67 @@ const AnalyzerScreen: React.FC = () => {
 
   // Add AI workout to list
   const handleAddAiWorkout = async () => {
-    if (!aiResult) return;
-    // Use exercise as name, reps as unit (convert to seconds if needed)
-    const name = aiResult.exercise || t('ai_workout');
-    // Convert reps to seconds string (e.g. "2;3;2" => "120;180;120")
-    const unitInSeconds = aiResult.reps
-      .split(';')
-      .map((time) => (isNaN(Number(time)) ? 0 : parseFloat(time) * 60))
-      .join(';');
+    if (!aiResult || isAddingWorkout) return;
     
-    // Create a proper WorkoutItem object
-    const newWorkout: WorkoutItem = {
-      name: name,
-      workout: unitInSeconds,
-      group: undefined
-    };
+    setIsAddingWorkout(true);
+    setWorkoutAdded(false);
     
-    await storeWorkout(newWorkout);
-    // Sync the "All" group to include the new workout
-    await syncAllGroup();
+    try {
+      // Use exercise as name, reps as unit (convert to seconds if needed)
+      const name = aiResult.exercise || t('ai_workout');
+      // Convert reps to seconds string (e.g. "2;3;2" => "120;180;120")
+      const unitInSeconds = aiResult.reps
+        .split(';')
+        .map((time) => (isNaN(Number(time)) ? 0 : parseFloat(time) * 60))
+        .join(';');
+      
+      // Create a proper WorkoutItem object with calories and level info
+      const newWorkout: WorkoutItem = {
+        name: name,
+        workout: unitInSeconds,
+        group: undefined,
+        calories: aiResult.calories,
+        level: `${fitnessLevel}-${intensity}`
+      };
+      
+      await storeWorkout(newWorkout);
+      // Sync the "All" group to include the new workout
+      await syncAllGroup();
+      
+      // Show success feedback
+      setWorkoutAdded(true);
+      
+      // Reset form after successful addition (except weight and fitness level)
+      setExercise('');
+      setCalories('');
+      setAiResult(null);
+      setError('');
+      setIntensity(IntensityLevel.Light);
+      
+      // Animate fade-in
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+      
+      // Auto-hide success message after 2 seconds
+      setTimeout(() => {
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }).start(() => {
+          setWorkoutAdded(false);
+        });
+      }, 2000);
+      
+    } catch (error) {
+      console.error('Error adding workout:', error);
+      // You could add error state here if needed
+    } finally {
+      setIsAddingWorkout(false);
+    }
   };
 
   // Validation for showing analyze button
@@ -386,10 +431,23 @@ const AnalyzerScreen: React.FC = () => {
               </View>
               <View style={{ alignItems: 'flex-end', flex: 0 }}>
                 <TimerButton
-                  text={t('add_to_workouts')}
+                  text={isAddingWorkout ? t('adding') : workoutAdded ? t('added') : t('add_to_workouts')}
                   onPress={handleAddAiWorkout}
-                  style={{ marginTop: 0, minWidth: 150, marginRight: -5 }}
+                  style={{ 
+                    marginTop: 0, 
+                    minWidth: 150, 
+                    marginRight: -5,
+                    backgroundColor: workoutAdded ? '#4CAF50' : (isAddingWorkout ? '#666' : undefined)
+                  }}
+                  disabled={isAddingWorkout}
                 />
+                {isAddingWorkout && (
+                  <ActivityIndicator 
+                    size="small" 
+                    color="#00bcd4" 
+                    style={{ position: 'absolute', right: 15, top: 15 }}
+                  />
+                )}
               </View>
             </View>
             <View>
@@ -397,6 +455,12 @@ const AnalyzerScreen: React.FC = () => {
             <Text style={styles.resultValue}>{aiResult.explanation}</Text>
             </View>
           </View>
+        )}
+        {workoutAdded && (
+          <Animated.View style={[styles.successMessage, { opacity: fadeAnim }]}>
+            <FontAwesome name="check-circle" size={20} color="#4CAF50" />
+            <Text style={styles.successText}>{t('workout_added_successfully')}</Text>
+          </Animated.View>
         )}
       </View>
     </View>
@@ -549,6 +613,24 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 14,
     letterSpacing: 0.5,
+  },
+  successMessage: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+    borderColor: '#4CAF50',
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 12,
+    marginTop: 15,
+    width: '94%',
+  },
+  successText: {
+    color: '#4CAF50',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 8,
   },
 });
 

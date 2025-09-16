@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { Keyboard, StyleSheet, Text, TextInput } from 'react-native';
 
 import CustomPicker from '@/components/CustomPicker';
-import type { WorkoutItem } from '@/components/ReorderableWorkoutList';
+import type { WorkoutItem } from '@/components/data/types';
 import ReorderableWorkoutList from '@/components/ReorderableWorkoutList';
 import TimerButton from '@/components/TimerButton';
 import commonStyles from '../styles';
