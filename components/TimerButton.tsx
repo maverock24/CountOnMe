@@ -90,7 +90,7 @@ const TimerButton = ({
       <Text
         style={[
           commonStyles.buttonText,
-          { paddingLeft: 5, paddingRight: 5, fontSize: small ? 14 : 14, justifyContent: 'center'},
+          { paddingLeft: 5, paddingRight: 5, fontSize: small ? 14 : 16, justifyContent: 'center'},
         ]}
       >
         {text}

@@ -329,7 +329,7 @@ export default function TabOneScreen() {
     const analyser = analyserNodeRef.current;
     const dataArray = dataArrayRef.current;
     try {
-      analyser.getByteTimeDomainData(dataArray);
+      analyser.getByteTimeDomainData(dataArray as Uint8Array<ArrayBuffer>);
     } catch (error) {
       isLoopActiveRef.current = false;
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
@@ -460,10 +460,10 @@ export default function TabOneScreen() {
 
         <Text style={commonStyles.tileTitle}>{t('counter')}</Text>
         <View
-          style={[commonStyles.tile, { flex: 1, alignItems: 'center', justifyContent: 'center' }]}
+          style={[commonStyles.tile, { flex: 1, alignItems: 'center', justifyContent: 'center', maxHeight: 500 }]}
         >
-          <View style={styles.innerWrapperBottomTile}>
-            <View style={{ backgroundColor: 'transparent', alignItems: 'center' }}>
+          <View style={[styles.innerWrapperBottomTile, { paddingVertical: 10 }]}>
+            <View style={{ backgroundColor: 'transparent', alignItems: 'center'}}>
               <View style={styles.buttonContainerReps}>
                 {repititions.map((rep, index) => (
                   <TimerButton
@@ -485,10 +485,9 @@ export default function TabOneScreen() {
               <TriangleRight size={80} onPress={handleCountUp} />
             </View>
             <TimerButton
-              maxWidth={true}
               text={t('reset')}
               onPress={handleReset}
-              style={{ marginTop: -20 }}
+              style={{paddingTop:15, height: 50, width: '50%' }}
             />
           </View>
         </View>
