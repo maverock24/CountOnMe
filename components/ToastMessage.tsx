@@ -110,7 +110,7 @@ export default function ToastMessage({
   
   const animValues = useRef({
     slide: new Animated.Value(0), scale: new Animated.Value(0.8), opacity: new Animated.Value(0),
-    pulse: new Animated.Value(1), flashOpacity: new Animated.Value(0), explosionScale: new Animated.Value(0),
+    flashOpacity: new Animated.Value(0), explosionScale: new Animated.Value(0),
     screenShakeX: new Animated.Value(0), screenShakeY: new Animated.Value(0), crackFlash: new Animated.Value(0),
     hexagonRotateX: new Animated.Value(-75), hexagonRotateY: new Animated.Value(0),
     hexagonScaleZ: new Animated.Value(0.3), hexagonTranslateZ: new Animated.Value(-200),
@@ -121,6 +121,10 @@ export default function ToastMessage({
   const [isVisible, setIsVisible] = useState(false);
   const [electricPath, setElectricPath] = useState('');
   const [electricPath2, setElectricPath2] = useState('');
+  const [electricPath3, setElectricPath3] = useState('');
+  const [electricPath4, setElectricPath4] = useState('');
+  const [electricPath5, setElectricPath5] = useState('');
+  const [electricPath6, setElectricPath6] = useState('');
   const [electricOpacity, setElectricOpacity] = useState(0.7);
   
   // Refs for animation loop control
@@ -169,10 +173,34 @@ export default function ToastMessage({
       ribbonEndX, 
       chaoticCenterY2
     );
+    const electricPath3 = generateElectricPath(
+      ribbonStartX, 
+      ribbonEndX, 
+      chaoticCenterY1 + (Math.random() - 0.5) * 6
+    );
+    const electricPath4 = generateElectricPath(
+      ribbonStartX, 
+      ribbonEndX, 
+      chaoticCenterY2 + (Math.random() - 0.5) * 8
+    );
+    const electricPath5 = generateElectricPath(
+      ribbonStartX, 
+      ribbonEndX, 
+      chaoticCenterY1 + (Math.random() - 0.5) * 4
+    );
+    const electricPath6 = generateElectricPath(
+      ribbonStartX, 
+      ribbonEndX, 
+      chaoticCenterY2 + (Math.random() - 0.5) * 10
+    );
     
     console.log('Electric ribbon paths generated:', { 
       path1Length: electricPath1.length, 
       path2Length: electricPath2.length,
+      path3Length: electricPath3.length,
+      path4Length: electricPath4.length,
+      path5Length: electricPath5.length,
+      path6Length: electricPath6.length,
       ribbonStartX,
       ribbonEndX,
       ribbonWidth,
@@ -185,6 +213,10 @@ export default function ToastMessage({
     
     setElectricPath(electricPath1);
     setElectricPath2(electricPath2);
+    setElectricPath3(electricPath3);
+    setElectricPath4(electricPath4);
+    setElectricPath5(electricPath5);
+    setElectricPath6(electricPath6);
     
     // Enhanced opacity calculation with chaotic variation - ENSURE MINIMUM VISIBILITY
     const baseOpacity = 0.7 + Math.random() * 0.2; // Higher base opacity
@@ -249,10 +281,6 @@ export default function ToastMessage({
       ]),
     ]).start(() => {
       animateElectricity();
-      Animated.loop(Animated.sequence([
-        Animated.timing(animValues.pulse, { toValue: 1.02, duration: 1500, useNativeDriver: true }),
-        Animated.timing(animValues.pulse, { toValue: 1, duration: 1500, useNativeDriver: true }),
-      ])).start();
       Animated.loop(Animated.sequence([
         Animated.timing(animValues.flashOpacity, { toValue: 1.2, duration: 100, useNativeDriver: true }),
         Animated.timing(animValues.flashOpacity, { toValue: 0.4 + Math.random() * 0.5, duration: 80, useNativeDriver: true }),
@@ -372,6 +400,70 @@ export default function ToastMessage({
         </Svg>
       </Animated.View>
 
+      {/* Fourth electric surge layer */}
+      <Animated.View style={[styles.electricFlash, { opacity: Animated.multiply(animValues.flashOpacity, electricOpacity * 0.8), top: 1.5 }]}>
+        <Svg width="100%" height="120" style={styles.flashSvg}>
+          <Defs>
+            <SvgLinearGradient id="fourthFlashGrad" x1="0%" y1="50%" x2="100%" y2="50%">
+              {[0,0.25,0.4,0.5,0.6,0.75,1].map((o,i) => <Stop key={i} offset={`${o*100}%`} stopColor={i===3?"#e0ffff":"#40e0d0"} stopOpacity={[0,0.4,0.8,1,0.8,0.4,0][i]}/>)}
+            </SvgLinearGradient>
+            <filter id="fourthGlow" x="-50%" y="-50%" width="200%" height="200%">
+              <feDropShadow dx="0" dy="0" stdDeviation="5" floodColor="#40e0d0" />
+              <feDropShadow dx="0" dy="0" stdDeviation="10" floodColor="#00ffff" floodOpacity="0.6" />
+            </filter>
+          </Defs>
+          <Path d={electricPath3} stroke="url(#fourthFlashGrad)" strokeWidth="3" fill="none" filter="url(#fourthGlow)" />
+        </Svg>
+      </Animated.View>
+
+      {/* Fifth electric surge layer */}
+      <Animated.View style={[styles.electricFlash, { opacity: Animated.multiply(animValues.flashOpacity, electricOpacity * 0.7), top: 2 }]}>
+        <Svg width="100%" height="120" style={styles.flashSvg}>
+          <Defs>
+            <SvgLinearGradient id="fifthFlashGrad" x1="0%" y1="50%" x2="100%" y2="50%">
+              {[0,0.2,0.38,0.5,0.62,0.8,1].map((o,i) => <Stop key={i} offset={`${o*100}%`} stopColor={i===3?"#f0ffff":"#20b2aa"} stopOpacity={[0,0.35,0.75,1,0.75,0.35,0][i]}/>)}
+            </SvgLinearGradient>
+            <filter id="fifthGlow" x="-50%" y="-50%" width="200%" height="200%">
+              <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="#20b2aa" />
+              <feDropShadow dx="0" dy="0" stdDeviation="9" floodColor="#48d1cc" floodOpacity="0.5" />
+            </filter>
+          </Defs>
+          <Path d={electricPath4} stroke="url(#fifthFlashGrad)" strokeWidth="2.5" fill="none" filter="url(#fifthGlow)" />
+        </Svg>
+      </Animated.View>
+
+      {/* Sixth electric surge layer */}
+      <Animated.View style={[styles.electricFlash, { opacity: Animated.multiply(animValues.flashOpacity, electricOpacity * 0.6), top: 2.5 }]}>
+        <Svg width="100%" height="120" style={styles.flashSvg}>
+          <Defs>
+            <SvgLinearGradient id="sixthFlashGrad" x1="0%" y1="50%" x2="100%" y2="50%">
+              {[0,0.22,0.42,0.5,0.58,0.78,1].map((o,i) => <Stop key={i} offset={`${o*100}%`} stopColor={i===3?"#e6fffa":"#008b8b"} stopOpacity={[0,0.3,0.7,1,0.7,0.3,0][i]}/>)}
+            </SvgLinearGradient>
+            <filter id="sixthGlow" x="-50%" y="-50%" width="200%" height="200%">
+              <feDropShadow dx="0" dy="0" stdDeviation="3.5" floodColor="#008b8b" />
+              <feDropShadow dx="0" dy="0" stdDeviation="8" floodColor="#5f9ea0" floodOpacity="0.4" />
+            </filter>
+          </Defs>
+          <Path d={electricPath5} stroke="url(#sixthFlashGrad)" strokeWidth="2" fill="none" filter="url(#sixthGlow)" />
+        </Svg>
+      </Animated.View>
+
+      {/* Seventh electric surge layer */}
+      <Animated.View style={[styles.electricFlash, { opacity: Animated.multiply(animValues.flashOpacity, electricOpacity * 0.5), top: 3 }]}>
+        <Svg width="100%" height="120" style={styles.flashSvg}>
+          <Defs>
+            <SvgLinearGradient id="seventhFlashGrad" x1="0%" y1="50%" x2="100%" y2="50%">
+              {[0,0.24,0.44,0.5,0.56,0.76,1].map((o,i) => <Stop key={i} offset={`${o*100}%`} stopColor={i===3?"#f5fffa":"#2f4f4f"} stopOpacity={[0,0.25,0.65,1,0.65,0.25,0][i]}/>)}
+            </SvgLinearGradient>
+            <filter id="seventhGlow" x="-50%" y="-50%" width="200%" height="200%">
+              <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor="#2f4f4f" />
+              <feDropShadow dx="0" dy="0" stdDeviation="7" floodColor="#708090" floodOpacity="0.3" />
+            </filter>
+          </Defs>
+          <Path d={electricPath6} stroke="url(#seventhFlashGrad)" strokeWidth="1.8" fill="none" filter="url(#seventhGlow)" />
+        </Svg>
+      </Animated.View>
+
       <TouchableOpacity activeOpacity={0.9} onPress={handlePress} style={styles.container}>
         <Animated.View style={[styles.hexagonContainer, {
           transform: [
@@ -384,23 +476,105 @@ export default function ToastMessage({
         }]}>
           <Svg width="400" height="120" style={styles.hexagonSvg}>
             <Defs>
-              <filter id="hexagonGlow" x="-50%" y="-50%" width="200%" height="200%">
-                <feDropShadow dx="0" dy="0" stdDeviation="8" floodColor={toastConfig.borderColor} />
-              </filter>
+              {/* Absolutely massive scale rock texture for completely seamless appearance */}
+              <pattern id="rockPattern" x="0" y="0" width="250" height="250" patternUnits="userSpaceOnUse">
+                <rect width="250" height="250" fill="#0f1719"/>
+                {/* Gigantic irregular rock formations */}
+                <polygon points="30,38 88,15 138,38 123,94 69,119 15,81" fill="#0a1214" opacity="0.9"/>
+                <polygon points="150,56 200,38 231,69 219,138 163,163 125,131" fill="#0d1518" opacity="0.8"/>
+                <polygon points="38,156 106,138 156,175 144,225 81,250 31,213" fill="#081012" opacity="0.9"/>
+                <polygon points="200,25 244,15 250,56 238,88 188,69" fill="#0c1417" opacity="0.8"/>
+                <polygon points="0,106 50,88 81,119 63,163 15,181 0,150" fill="#070f11" opacity="0.9"/>
+                <polygon points="175,188 225,169 250,200 250,250 200,250 150,225" fill="#111a1c" opacity="0.7"/>
+                {/* Gigantic geological cracks and fissures */}
+                <polygon points="94,0 110,0 123,50 110,81 88,63 78,31" fill="#030c0d" opacity="1.0"/>
+                <polygon points="219,81 235,63 250,100 244,131 219,113" fill="#050e10" opacity="0.9"/>
+                <polygon points="25,231 48,219 63,250 38,250" fill="#040d0e" opacity="1.0"/>
+                <polygon points="125,131 156,113 175,144 144,163" fill="#091113" opacity="0.8"/>
+                {/* Gigantic mineral veins and deposits */}
+                <polygon points="65,31 106,15 123,50 94,65" fill="#141e21" opacity="0.6"/>
+                <polygon points="175,144 219,119 238,163 206,181" fill="#0c1518" opacity="0.7"/>
+                <polygon points="38,81 69,56 88,88 60,113" fill="#081011" opacity="0.8"/>
+                {/* Gigantic rock fragments and boulders */}
+                <polygon points="15,25 31,15 48,31 31,50" fill="#060e0f" opacity="0.9"/>
+                <polygon points="219,206 238,188 250,219 238,238" fill="#0a1214" opacity="0.8"/>
+                <polygon points="113,206 138,188 156,213 131,238" fill="#050d0e" opacity="1.0"/>
+                <polygon points="81,113 106,94 123,123 98,138" fill="#0f181a" opacity="0.6"/>
+                {/* Massive stress fractures and canyon cracks */}
+                <line x1="60" y1="0" x2="73" y2="40" stroke="#020a0b" strokeWidth="3" opacity="0.8"/>
+                <line x1="156" y1="56" x2="181" y2="106" stroke="#050e10" strokeWidth="3" opacity="0.7"/>
+                <line x1="250" y1="144" x2="213" y2="169" stroke="#030c0d" strokeWidth="3" opacity="0.9"/>
+                <line x1="23" y1="144" x2="56" y2="181" stroke="#071011" strokeWidth="3" opacity="0.6"/>
+                {/* Additional gigantic formations */}
+                <polygon points="150,25 181,40 200,65 175,81 144,65" fill="#111a1c" opacity="0.5"/>
+                <polygon points="13,213 40,200 60,231 31,244 19,238" fill="#0a1214" opacity="0.7"/>
+                <polygon points="194,231 231,213 244,238 219,250 188,244" fill="#0d1518" opacity="0.6"/>
+                <polygon points="106,69 138,56 156,88 123,106 94,88" fill="#0c1417" opacity="0.7"/>
+                <polygon points="56,181 88,163 106,194 73,213 48,206" fill="#070f11" opacity="0.8"/>
+                {/* Massive cliff faces and plateaus */}
+                <polygon points="10,40 40,23 65,56 48,88 13,73" fill="#0b1314" opacity="0.7"/>
+                <polygon points="231,113 250,106 250,138 238,156 213,138" fill="#0f181a" opacity="0.6"/>
+                <polygon points="119,175 156,156 175,194 144,219 113,200" fill="#091213" opacity="0.8"/>
+                <polygon points="31,119 65,103 81,138 56,163 28,144" fill="#0d1619" opacity="0.7"/>
+                {/* Deep cavern entrances and chasms */}
+                <polygon points="181,40 206,31 219,56 200,65 175,56" fill="#020a0b" opacity="1.0"/>
+                <polygon points="40,194 65,181 73,206 56,225 35,213" fill="#030c0d" opacity="1.0"/>
+                <polygon points="138,88 163,78 173,106 156,123 131,113" fill="#040e0f" opacity="0.9"/>
+                {/* Enormous mountain ridges */}
+                <polygon points="6,6 44,0 69,31 44,56 10,44" fill="#0a1214" opacity="0.7"/>
+                <polygon points="206,69 244,56 250,94 231,106 194,94" fill="#0e1719" opacity="0.6"/>
+                <polygon points="75,219 119,206 138,238 106,250 69,244" fill="#071011" opacity="0.8"/>
+                <polygon points="156,119 194,106 213,144 181,169 150,156" fill="#0c1517" opacity="0.7"/>
+                {/* Additional massive geological features */}
+                <polygon points="98,31 123,23 135,48 119,60 94,53" fill="#0f181a" opacity="0.6"/>
+                <polygon points="28,156 53,144 65,169 48,188 25,181" fill="#081011" opacity="0.8"/>
+                <polygon points="213,156 238,144 250,175 231,194 206,181" fill="#111a1c" opacity="0.5"/>
+                <polygon points="81,40 106,28 123,53 100,73 78,60" fill="#0b1415" opacity="0.7"/>
+                {/* Colossal mountain ranges */}
+                <polygon points="15,75 45,60 65,90 50,120 18,105" fill="#0a1315" opacity="0.8"/>
+                <polygon points="185,100 220,85 240,115 225,145 190,130" fill="#0e1819" opacity="0.7"/>
+                <polygon points="90,190 125,175 145,205 120,235 85,220" fill="#081113" opacity="0.9"/>
+                <polygon points="50,225 85,210 105,240 80,250 45,245" fill="#0c1517" opacity="0.8"/>
+                {/* Enormous valleys and depressions */}
+                <polygon points="110,40 140,30 155,60 135,80 105,70" fill="#060f11" opacity="0.9"/>
+                <polygon points="35,130 65,115 80,145 60,170 30,155" fill="#091214" opacity="0.8"/>
+                <polygon points="170,200 200,185 215,215 195,240 165,225" fill="#0b1416" opacity="0.8"/>
+              </pattern>
             </Defs>
-            <Polygon points="40,20 360,20 380,60 360,100 40,100 20,60" fill={toastConfig.backgroundColor} />
+            <Polygon points="40,20 360,20 380,60 360,100 40,100 20,60" fill="url(#rockPattern)" />
+            {/* Multiple hexagon strokes for glow effect without container visibility */}
             <AnimatedPolygon 
               points="40,20 360,20 380,60 360,100 40,100 20,60" 
               fill="none" 
               stroke={toastConfig.borderColor} 
-              strokeWidth="1.5" 
-              filter="url(#hexagonGlow)"
+              strokeWidth="3"
               opacity={animValues.borderFlicker}
             />
+            <AnimatedPolygon 
+              points="40,20 360,20 380,60 360,100 40,100 20,60" 
+              fill="none" 
+              stroke={toastConfig.borderColor} 
+              strokeWidth="1"
+              opacity={Animated.multiply(animValues.borderFlicker, 0.7)}
+            />
+            <AnimatedPolygon 
+              points="40,20 360,20 380,60 360,100 40,100 20,60" 
+              fill="none" 
+              stroke={toastConfig.borderColor} 
+              strokeWidth="1"
+              opacity={Animated.multiply(animValues.borderFlicker, 0.9)}
+            />
+            <AnimatedPolygon 
+              points="40,20 360,20 380,60 360,100 40,100 20,60" 
+              fill="none" 
+              stroke="#ffffff" 
+              strokeWidth="0.8"
+              opacity={Animated.multiply(animValues.borderFlicker, 0.5)}
+            />
           </Svg>
-          <Animated.View style={[styles.toastContent, { transform: [{ scale: animValues.pulse }] }]}>
+          <View style={styles.toastContent}>
             <View style={styles.content}><Text style={styles.message} numberOfLines={3}>{message}</Text></View>
-          </Animated.View>
+          </View>
         </Animated.View>
       </TouchableOpacity>
     </Animated.View>
