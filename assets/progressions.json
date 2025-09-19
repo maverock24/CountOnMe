@@ -1,0 +1,374 @@
+[
+  {
+    "name": "Pistol Squat",
+    "description": "Balance on one leg and extend the other straight out in front. Squat down as low as possible while keeping your heel on the ground. Use a support for balance if needed. Avoid letting your knee collapse inward. Focus on control and balance.",
+    "workout": "45;60;45;60;45",
+    "components": [
+      {
+        "component": "Squats",
+        "description": "Stand with feet shoulder-width apart, chest up, and core braced. Lower your hips back and down as if sitting in a chair. Avoid letting your knees cave inward or your chest fall forward. Focus on driving up through your heels.",
+        "workout": "45;60;45;60;45"
+      },
+      {
+        "component": "Cossack Squats",
+        "description": "From a wide stance, shift your weight to one side, squatting down as low as possible while keeping the other leg straight. Avoid letting the heel of the squatting leg lift. Focus on hip mobility and control.",
+        "workout": "40;75;40;75;40"
+      },
+      {
+        "component": "Single Leg Deadlift (Bodyweight)",
+        "description": "Balance on one leg. Hinge at your hips, extending the other leg straight behind you as you lower your torso. Keep your back straight. Avoid rounding your back or losing balance. Focus on hamstring and glute engagement.",
+        "workout": "45;60;45;60;45"
+      },
+      {
+        "component": "Shrimp Squats",
+        "description": "A single-leg squat variation. Stand on one leg and grab the foot of the other leg behind you. Squat down until your back knee touches the ground. Avoid losing balance. Focus on a controlled descent and ascent.",
+        "workout": "30;90;30;90;30"
+      }
+    ]
+  },
+  {
+    "name": "One-Arm Push-up",
+    "description": "Perform a one-arm push-up using a wider stance for your feet and assisting with your other hand on your thigh or a slightly elevated surface. Avoid letting your torso twist. Focus on a slow, controlled negative.",
+    "workout": "30;60;30;60;30",
+    "components": [
+      {
+        "component": "Push-ups",
+        "description": "Place hands slightly wider than your shoulders. Keep your body in a straight line from head to heels. Lower until your chest is close to the floor. Avoid sagging your hips or flaring your elbows out to the sides. Focus on a tight core.",
+        "workout": "45;60;45;60;45"
+      },
+      {
+        "component": "Staggered Hand Push-ups",
+        "description": "Perform a push-up with one hand placed further forward than the other. This challenges core stability and unilateral strength. Switch hand positions between sets. Avoid letting your torso twist. Focus on maintaining a stable core.",
+        "workout": "40;75;40;75;40"
+      },
+      {
+        "component": "Archer Push-ups",
+        "description": "Perform a push-up, but shift your weight to one side, keeping the working arm's elbow tucked while the other arm extends straight out to the side for support. Avoid letting your hips rotate. Focus on the chest of the working side.",
+        "workout": "30;90;30;90;30"
+      }
+    ]
+  },
+  {
+    "name": "Handstand Push-up",
+    "description": "Kick up to a handstand against a wall. Lower yourself until the top of your head touches the ground, keeping your elbows tucked in. Avoid flaring your elbows. Focus on maintaining a tight core to prevent arching your back.",
+    "workout": "45;90;45;90;45",
+    "components": [
+      {
+        "component": "Pike Push-ups",
+        "description": "Get into a downward dog or pike position with your hips high. Perform a push-up by lowering the top of your head towards the floor. This targets the shoulders. Avoid letting your back sag. Focus on keeping your hips high.",
+        "workout": "40;75;40;75;40"
+      },
+      {
+        "component": "Decline Push-ups",
+        "description": "Perform a push-up with your feet elevated on a bench or box. This increases the difficulty and targets the upper chest and shoulders. Avoid letting your hips sag below the straight body line. Focus on controlled movement.",
+        "workout": "30;90;30;90;30"
+      },
+      {
+        "component": "Handstand Wall Walks",
+        "description": "Start in a push-up position with your feet at a wall. Walk your feet up the wall while walking your hands closer to the wall, until you are in a handstand position. Reverse the motion to come down. Avoid arching your back. Focus on shoulder stability and core control.",
+        "workout": "45;90;45;90;45"
+      }
+    ]
+  },
+  {
+    "name": "L-Sit",
+    "description": "Sit on the floor with legs straight out. Place your hands on the floor beside your hips and press down, lifting your entire body off the floor. Avoid shrugging your shoulders. Focus on core compression and depressing your scapula.",
+    "workout": "20;60;20;60;20",
+    "components": [
+      {
+        "component": "Hollow Body Hold",
+        "description": "Lie on your back and lift your legs and shoulders slightly off the floor, keeping your lower back pressed firmly into the ground. Your body should form a shallow 'U' or banana shape. Avoid letting your lower back arch. Focus on total core tension.",
+        "workout": "45;60;45;60;45"
+      },
+      {
+        "component": "Lying Leg Raises",
+        "description": "Lie on your back and raise your legs towards the ceiling until they are perpendicular to the floor. Keep them straight. Avoid using momentum or letting your lower back arch off the floor. Focus on a slow, controlled movement.",
+        "workout": "50;60;50;60;50"
+      },
+      {
+        "component": "Floor Dips (Crab Dips)",
+        "description": "Sit on the floor with knees bent and feet flat. Place your hands on the floor behind you with fingers pointing towards your body. Lift your hips and bend your elbows to lower your body. Avoid letting your shoulders roll forward. Focus on using your triceps to push up.",
+        "workout": "45;60;45;60;45"
+      }
+    ]
+  },
+  {
+    "name": "Burpee",
+    "description": "From standing, drop into a squat, kick your feet back to a plank, perform a push-up, then jump your feet back to the squat and jump up explosively. Avoid snaking your body up during the push-up. Focus on maintaining a strong core.",
+    "workout": "60;60;60;60;60",
+    "components": [
+      {
+        "component": "Squats",
+        "description": "Stand with feet shoulder-width apart, chest up, and core braced. Lower your hips back and down as if sitting in a chair. Avoid letting your knees cave inward or your chest fall forward. Focus on driving up through your heels.",
+        "workout": "45;60;45;60;45"
+      },
+      {
+        "component": "Plank",
+        "description": "Hold a push-up position on your forearms or hands. Your body should form a straight line from head to heels. Avoid letting your hips sag or rise too high. Focus on bracing your entire core and squeezing your glutes.",
+        "workout": "60;60;60;60;60"
+      },
+      {
+        "component": "Push-ups",
+        "description": "Place hands slightly wider than your shoulders. Keep your body in a straight line from head to heels. Lower until your chest is close to the floor. Avoid sagging your hips or flaring your elbows out to the sides. Focus on a tight core.",
+        "workout": "45;60;45;60;45"
+      },
+      {
+        "component": "Plank-to-Squat Jumps (Froggers)",
+        "description": "From a high plank, jump your feet forward to the outside of your hands, landing in a deep squat. Jump back to the plank position. Avoid letting your hips sag in the plank. Focus on a quick, fluid transition.",
+        "workout": "30;75;30;75;30"
+      }
+    ]
+  },
+  {
+    "name": "Planche Tuck",
+    "description": "From a push-up position, lean forward until your feet lift off the ground, tucking your knees to your chest. Arms should be straight. Avoid bending your arms. Focus on shoulder protraction and extreme forward lean.",
+    "workout": "15;75;15;75;15",
+    "components": [
+      {
+        "component": "Plank",
+        "description": "Hold a push-up position on your forearms or hands. Your body should form a straight line from head to heels. Avoid letting your hips sag or rise too high. Focus on bracing your entire core and squeezing your glutes.",
+        "workout": "60;60;60;60;60"
+      },
+      {
+        "component": "Push-ups",
+        "description": "Place hands slightly wider than your shoulders. Keep your body in a straight line from head to heels. Lower until your chest is close to the floor. Avoid sagging your hips or flaring your elbows out to the sides. Focus on a tight core.",
+        "workout": "45;60;45;60;45"
+      },
+      {
+        "component": "Scapular Shrugs (in Plank)",
+        "description": "Hold a high plank position. Without bending your elbows, pinch your shoulder blades together, then push them apart. Avoid letting your hips move. Focus on isolating the movement to your shoulder blades.",
+        "workout": "50;60;50;60;50"
+      },
+      {
+        "component": "Pseudo Planche Push-ups",
+        "description": "From a push-up position, lean your body as far forward as possible, bringing your shoulders past your wrists. Perform a push-up in this position. Avoid letting your hips sag. Focus on the extreme forward lean to target the shoulders.",
+        "workout": "30;90;30;90;30"
+      }
+    ]
+  },
+  {
+    "name": "Lunge Jumps (Split Jumps)",
+    "description": "Start in a lunge position. Jump explosively, switching the position of your legs in mid-air and landing back in a lunge with the opposite leg forward. Avoid slamming your back knee on the ground. Focus on height and control.",
+    "workout": "30;60;30;60;30",
+    "components": [
+      {
+        "component": "Lunges",
+        "description": "Step forward and lower your hips until both knees are bent at a 90-degree angle. Your front knee should be above your ankle. Avoid letting your front knee travel past your toes. Focus on pushing off the front foot to return to the start.",
+        "workout": "45;60;45;60;45"
+      },
+      {
+        "component": "Static Lunge / Split Squat",
+        "description": "Start in a split stance with one foot forward and one foot back. Lower your hips until your back knee is just above the floor. Push back up to the starting position without moving your feet. Avoid leaning too far forward. Focus on keeping your torso upright.",
+        "workout": "40;60;40;60;40"
+      },
+      {
+        "component": "Squat Jumps",
+        "description": "Perform a bodyweight squat, but explode upwards into a jump from the bottom position. Land softly and immediately go into the next rep. Avoid landing with stiff knees. Focus on height and explosive power.",
+        "workout": "30;75;30;75;30"
+      }
+    ]
+  },
+  {
+    "name": "V-Ups",
+    "description": "Lie on your back. Simultaneously lift your legs and torso, reaching your hands towards your feet to form a 'V' shape. Avoid bending your knees too much. Focus on a powerful, controlled contraction.",
+    "workout": "40;60;40;60;40",
+    "components": [
+      {
+        "component": "Crunches",
+        "description": "Lie on your back with knees bent. Lift your head and shoulders off the floor using your core. Avoid pulling on your neck. Focus on squeezing your abs at the top.",
+        "workout": "50;60;50;60;50"
+      },
+      {
+        "component": "Lying Leg Raises",
+        "description": "Lie on your back and raise your legs towards the ceiling until they are perpendicular to the floor. Keep them straight. Avoid using momentum or letting your lower back arch off the floor. Focus on a slow, controlled movement.",
+        "workout": "50;60;50;60;50"
+      },
+      {
+        "component": "Hollow Body Hold",
+        "description": "Lie on your back and lift your legs and shoulders slightly off the floor, keeping your lower back pressed firmly into the ground. Your body should form a shallow 'U' or banana shape. Avoid letting your lower back arch. Focus on total core tension.",
+        "workout": "45;60;45;60;45"
+      },
+      {
+        "component": "Tuck-Ups (Knee Tucks)",
+        "description": "Lie on your back. Simultaneously lift your torso and pull your knees towards your chest, hugging them at the top. Avoid using momentum. Focus on compressing your core.",
+        "workout": "45;60;45;60;45"
+      }
+    ]
+  },
+  {
+    "name": "Clapping Push-ups",
+    "description": "Perform a push-up with enough explosive power to push your hands off the floor and clap in mid-air. Land softly with bent elbows. Avoid landing with locked arms. Focus on explosive chest power.",
+    "workout": "20;75;20;75;20",
+    "components": [
+      {
+        "component": "Push-ups",
+        "description": "Place hands slightly wider than your shoulders. Keep your body in a straight line from head to heels. Lower until your chest is close to the floor. Avoid sagging your hips or flaring your elbows out to the sides. Focus on a tight core.",
+        "workout": "60;60;60;60;60"
+      },
+      {
+        "component": "Incline Push-ups",
+        "description": "Perform a push-up with your hands on an elevated surface like a bench or box. This reduces the difficulty. Keep your body in a straight line. Avoid letting your hips sag. Focus on a full range of motion.",
+        "workout": "45;60;45;60;45"
+      },
+      {
+        "component": "Plank Jacks",
+        "description": "From a high plank (on your hands), jump your feet wide and then back together, like a horizontal jumping jack. Avoid letting your hips bounce up and down. Focus on core stability.",
+        "workout": "45;60;45;60;45"
+      }
+    ]
+  },
+  {
+    "name": "Back Widows",
+    "description": "Lie on your back with your knees bent and feet flat on the floor. Place your arms on the floor with elbows bent at 90 degrees. Drive your elbows into the floor to lift your upper back and chest. Avoid pushing with your feet. Focus on contracting your back muscles.",
+    "workout": "45;60;45;60;45",
+    "components": [
+      {
+        "component": "Superman",
+        "description": "Lie on your stomach with arms and legs extended. Simultaneously lift your arms, chest, and legs off the floor. Avoid straining your neck by looking up. Focus on squeezing your lower back and glutes.",
+        "workout": "50;60;50;60;50"
+      },
+      {
+        "component": "Prone Cobra",
+        "description": "Lie face down with arms by your sides, palms down. Lift your head, chest, and hands off the floor, squeezing your shoulder blades together and rotating your thumbs towards the ceiling. Avoid looking up. Focus on upper back engagement.",
+        "workout": "50;60;50;60;50"
+      },
+      {
+        "component": "Glute Bridge",
+        "description": "Lie on your back with knees bent and feet flat on the floor. Lift your hips toward the ceiling, squeezing your glutes. Avoid over-arching your lower back. Focus on a strong glute contraction at the top.",
+        "workout": "50;60;50;60;50"
+      }
+    ]
+  },
+  {
+    "name": "180 Degree Squat Jump",
+    "description": "Perform a squat and, as you jump up, rotate your body 180 degrees in the air. Land softly in a squat, facing the opposite direction. Avoid losing balance. Focus on a powerful, controlled rotation.",
+    "workout": "30;90;30;90;30",
+    "components": [
+      {
+        "component": "Squats",
+        "description": "Stand with feet shoulder-width apart, chest up, and core braced. Lower your hips back and down as if sitting in a chair. Avoid letting your knees cave inward or your chest fall forward. Focus on driving up through your heels.",
+        "workout": "60;60;60;60;60"
+      },
+      {
+        "component": "Squat Jumps",
+        "description": "Perform a bodyweight squat, but explode upwards into a jump from the bottom position. Land softly and immediately go into the next rep. Avoid landing with stiff knees. Focus on height and explosive power.",
+        "workout": "40;75;40;75;40"
+      },
+      {
+        "component": "Russian Twists (Bodyweight)",
+        "description": "Sit on the floor, lean back with your torso at a 45-degree angle, and lift your feet off the ground. Twist your torso from side to side. Avoid moving just your arms. Focus on rotating your entire upper body.",
+        "workout": "45;60;45;60;45"
+      }
+    ]
+  },
+  {
+    "name": "Diamond Push-ups",
+    "description": "Perform a push-up with your hands close together, forming a diamond shape with your thumbs and index fingers. This targets the triceps more. Avoid flaring your elbows. Focus on a controlled movement.",
+    "workout": "40;75;40;75;40",
+    "components": [
+      {
+        "component": "Push-ups",
+        "description": "Place hands slightly wider than your shoulders. Keep your body in a straight line from head to heels. Lower until your chest is close to the floor. Avoid sagging your hips or flaring your elbows out to the sides. Focus on a tight core.",
+        "workout": "50;60;50;60;50"
+      },
+      {
+        "component": "Incline Push-ups",
+        "description": "Perform a push-up with your hands on an elevated surface like a bench or box. This reduces the difficulty. Keep your body in a straight line. Avoid letting your hips sag. Focus on a full range of motion.",
+        "workout": "45;60;45;60;45"
+      },
+      {
+        "component": "Bodyweight Tricep Extension",
+        "description": "From a kneeling or standing position, place your hands on the floor in front of you and walk them forward. Hinging at the elbows, lower your head towards your hands, then press back up. Avoid flaring your elbows. Focus on isolating the triceps.",
+        "workout": "40;75;40;75;40"
+      }
+    ]
+  },
+  {
+    "name": "Side Plank",
+    "description": "Support your body on one forearm, keeping your body in a straight line from head to feet. Avoid letting your hip sag. Focus on engaging the oblique on the lower side.",
+    "workout": "60;30;60;30;60",
+    "components": [
+      {
+        "component": "Plank",
+        "description": "Hold a push-up position on your forearms or hands. Your body should form a straight line from head to heels. Avoid letting your hips sag or rise too high. Focus on bracing your entire core and squeezing your glutes.",
+        "workout": "60;60;60;60;60"
+      },
+      {
+        "component": "Bird-Dog",
+        "description": "Start on all fours. Extend one arm straight forward and the opposite leg straight back, keeping your back flat. Avoid rotating your hips. Focus on balance and core stability.",
+        "workout": "50;60;50;60;50"
+      },
+      {
+        "component": "Side Crunches",
+        "description": "Lie on your side with your knees slightly bent. Place your top hand behind your head and crunch your elbow towards your hip. Avoid pulling on your neck. Focus on isolating the oblique muscle on the top side.",
+        "workout": "45;60;45;60;45"
+      }
+    ]
+  },
+  {
+    "name": "Single Leg Glute Bridge",
+    "description": "Perform a glute bridge but with one leg extended straight out. Avoid letting your hips tilt. Focus on isolating the glute of the supporting leg.",
+    "workout": "50;60;50;60;50",
+    "components": [
+      {
+        "component": "Glute Bridge",
+        "description": "Lie on your back with knees bent and feet flat on the floor. Lift your hips toward the ceiling, squeezing your glutes. Avoid over-arching your lower back. Focus on a strong glute contraction at the top.",
+        "workout": "60;60;60;60;60"
+      },
+      {
+        "component": "Glute Kickbacks",
+        "description": "Start on all fours. Extend one leg straight back, lifting it until it is in line with your body. Squeeze your glute at the top. Avoid arching your back. Focus on a controlled lift.",
+        "workout": "45;60;45;60;45"
+      },
+      {
+        "component": "Single Leg Deadlift (Bodyweight)",
+        "description": "Balance on one leg. Hinge at your hips, extending the other leg straight behind you as you lower your torso. Keep your back straight. Avoid rounding your back or losing balance. Focus on hamstring and glute engagement.",
+        "workout": "45;60;45;60;45"
+      }
+    ]
+  },
+  {
+    "name": "Broad Jumps",
+    "description": "From a standing position, swing your arms and jump forward as far as possible. Land softly with your knees bent. Avoid losing balance on the landing. Focus on horizontal distance and a powerful hip drive.",
+    "workout": "30;90;30;90;30",
+    "components": [
+      {
+        "component": "Squats",
+        "description": "Stand with feet shoulder-width apart, chest up, and core braced. Lower your hips back and down as if sitting in a chair. Avoid letting your knees cave inward or your chest fall forward. Focus on driving up through your heels.",
+        "workout": "60;60;60;60;60"
+      },
+      {
+        "component": "Glute Bridge",
+        "description": "Lie on your back with knees bent and feet flat on the floor. Lift your hips toward the ceiling, squeezing your glutes. Avoid over-arching your lower back. Focus on a strong glute contraction at the top.",
+        "workout": "50;60;50;60;50"
+      },
+      {
+        "component": "Squat Jumps",
+        "description": "Perform a bodyweight squat, but explode upwards into a jump from the bottom position. Land softly and immediately go into the next rep. Avoid landing with stiff knees. Focus on height and explosive power.",
+        "workout": "40;75;40;75;40"
+      }
+    ]
+  },
+  {
+    "name": "Freestanding Handstand",
+    "description": "Balancing on your hands with your body extended vertically, feet pointing towards the ceiling. Maintain a straight line from hands to feet, engaging the core and shoulders for stability. Avoid arching your back. Focus on small wrist adjustments for balance.",
+    "workout": "30;90;30;90;30",
+    "components": [
+      {
+        "component": "Hollow Body Hold",
+        "description": "Lie on your back and lift your legs and shoulders slightly off the floor, keeping your lower back pressed firmly into the ground. Your body should form a shallow 'U' or banana shape. Avoid letting your lower back arch. Focus on total core tension.",
+        "workout": "45;60;45;60;45"
+      },
+      {
+        "component": "Pike Push-ups",
+        "description": "Get into a downward dog or pike position with your hips high. Perform a push-up by lowering the top of your head towards the floor. This targets the shoulders. Avoid letting your back sag. Focus on keeping your hips high.",
+        "workout": "40;75;40;75;40"
+      },
+      {
+        "component": "Handstand Wall Walks",
+        "description": "Start in a push-up position with your feet at a wall. Walk your feet up the wall while walking your hands closer to the wall, until you are in a handstand position. Reverse the motion to come down. Avoid arching your back. Focus on shoulder stability and core control.",
+        "workout": "45;90;45;90;45"
+      }
+    ]
+  }
+]
