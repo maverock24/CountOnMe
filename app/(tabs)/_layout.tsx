@@ -5,6 +5,7 @@ import {
   faGauge,
   faGears,
   faList,
+  faSitemap,
   IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
@@ -88,6 +89,13 @@ export default function TabLayout() {
           options={{
             title: t('trainer'),
             tabBarIcon: ({ color }) => <TabBarIcon iconName={faAtom} color={color} />,
+          }}
+        />
+        <Tabs.Screen
+          name="six"
+          options={{
+            title: t('progression'),
+            tabBarIcon: ({ color }) => <TabBarIcon iconName={faSitemap} color={color} />,
           }}
         />
         <Tabs.Screen
