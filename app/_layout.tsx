@@ -11,6 +11,7 @@ import 'react-native-reanimated';
 
 import { DataProvider, prefixKey } from '@/components/data.provider';
 import GlobalStyle from '@/components/GlobalStyle';
+import { ToastProvider } from '@/components/ToastProvider';
 import TutorialModal from '@/components/TutorialModal';
 import { useColorScheme } from '@/components/useColorScheme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -146,57 +147,59 @@ export default function RootLayout() {
     <ThemeProvider value={CustomDarkTheme}>
       <GlobalStyle css="input {outline: none;} select {outline: none;}" />
       <DataProvider>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            // Fix potential animation issues on Android
-            animation: Platform.OS === 'android' ? 'fade' : 'default',
-          }}
-        >
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-        </Stack>
-        <TutorialModal isVisible={showTutorial} onClose={handleCloseTutorial} />
-        {showProfileForm && (
-          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(20,20,20,0.95)', zIndex: 999999, justifyContent: 'center', alignItems: 'center' }}>
-            <View style={{ backgroundColor: '#222', borderRadius: 16, padding: 28, width: 320, alignItems: 'center' }}>
-              <Text style={{ color: '#fff', fontSize: 20, fontWeight: 'bold', marginBottom: 18 }}>{'Set up your profile'}</Text>
-              <Text style={{ color: '#fff', fontSize: 16, marginBottom: 8 }}>{'Weight (kg)'}</Text>
-              <TextInput
-                style={{ backgroundColor: '#333', color: '#fff', borderRadius: 8, padding: 10, width: 120, marginBottom: 18, fontSize: 16, textAlign: 'center' }}
-                keyboardType="numeric"
-                value={profileWeight}
-                onChangeText={setProfileWeight}
-                placeholder="Enter your weight"
-                placeholderTextColor="#aaa"
-              />
-              <Text style={{ color: '#fff', fontSize: 16, marginBottom: 8 }}>{'Fitness Level'}</Text>
-              <View style={{ flexDirection: 'row', marginBottom: 18 }}>
-                {[FitnessLevel.Beginner, FitnessLevel.Intermediate, FitnessLevel.Expert].map((level, idx) => (
-                  <Pressable
-                    key={level}
-                    onPress={() => setProfileFitnessLevel(level)}
-                    style={{ marginHorizontal: 8 }}
-                  >
-                    <FontAwesome
-                      name={profileFitnessLevel === level ? 'star' : 'star-o'}
-                      size={32}
-                      color={profileFitnessLevel === level ? '#00bcd4' : '#fff'}
-                    />
-                    <Text style={{ color: '#fff', fontSize: 12, textAlign: 'center', marginTop: 2 }}>{level.charAt(0).toUpperCase() + level.slice(1)}</Text>
-                  </Pressable>
-                ))}
+        <ToastProvider maxToasts={3}>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              // Fix potential animation issues on Android
+              animation: Platform.OS === 'android' ? 'fade' : 'default',
+            }}
+          >
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+          </Stack>
+          <TutorialModal isVisible={showTutorial} onClose={handleCloseTutorial} />
+          {showProfileForm && (
+            <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(20,20,20,0.95)', zIndex: 999999, justifyContent: 'center', alignItems: 'center' }}>
+              <View style={{ backgroundColor: '#222', borderRadius: 16, padding: 28, width: 320, alignItems: 'center' }}>
+                <Text style={{ color: '#fff', fontSize: 20, fontWeight: 'bold', marginBottom: 18 }}>{'Set up your profile'}</Text>
+                <Text style={{ color: '#fff', fontSize: 16, marginBottom: 8 }}>{'Weight (kg)'}</Text>
+                <TextInput
+                  style={{ backgroundColor: '#333', color: '#fff', borderRadius: 8, padding: 10, width: 120, marginBottom: 18, fontSize: 16, textAlign: 'center' }}
+                  keyboardType="numeric"
+                  value={profileWeight}
+                  onChangeText={setProfileWeight}
+                  placeholder="Enter your weight"
+                  placeholderTextColor="#aaa"
+                />
+                <Text style={{ color: '#fff', fontSize: 16, marginBottom: 8 }}>{'Fitness Level'}</Text>
+                <View style={{ flexDirection: 'row', marginBottom: 18 }}>
+                  {[FitnessLevel.Beginner, FitnessLevel.Intermediate, FitnessLevel.Expert].map((level, idx) => (
+                    <Pressable
+                      key={level}
+                      onPress={() => setProfileFitnessLevel(level)}
+                      style={{ marginHorizontal: 8 }}
+                    >
+                      <FontAwesome
+                        name={profileFitnessLevel === level ? 'star' : 'star-o'}
+                        size={32}
+                        color={profileFitnessLevel === level ? '#00bcd4' : '#fff'}
+                      />
+                      <Text style={{ color: '#fff', fontSize: 12, textAlign: 'center', marginTop: 2 }}>{level.charAt(0).toUpperCase() + level.slice(1)}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+                <Pressable
+                  onPress={handleSaveProfile}
+                  style={{ backgroundColor: '#00bcd4', borderRadius: 8, paddingVertical: 10, paddingHorizontal: 32, marginTop: 8 }}
+                  disabled={!profileWeight || !profileFitnessLevel}
+                >
+                  <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>{'Save'}</Text>
+                </Pressable>
               </View>
-              <Pressable
-                onPress={handleSaveProfile}
-                style={{ backgroundColor: '#00bcd4', borderRadius: 8, paddingVertical: 10, paddingHorizontal: 32, marginTop: 8 }}
-                disabled={!profileWeight || !profileFitnessLevel}
-              >
-                <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>{'Save'}</Text>
-              </Pressable>
             </View>
-          </View>
-        )}
+          )}
+        </ToastProvider>
       </DataProvider>
     </ThemeProvider>
   );
