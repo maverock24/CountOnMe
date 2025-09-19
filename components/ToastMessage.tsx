@@ -9,6 +9,9 @@ import {
 } from 'react-native';
 import Svg, { Defs, Path, Polygon, Stop, LinearGradient as SvgLinearGradient } from 'react-native-svg';
 
+// Create animated SVG components
+const AnimatedPolygon = Animated.createAnimatedComponent(Polygon);
+
 // A simple fallback for Colors constant if it's not available in your project.
 const Colors = {
     glow: 'rgba(78, 230, 225, 0.8)',
@@ -111,6 +114,7 @@ export default function ToastMessage({
     screenShakeX: new Animated.Value(0), screenShakeY: new Animated.Value(0), crackFlash: new Animated.Value(0),
     hexagonRotateX: new Animated.Value(-75), hexagonRotateY: new Animated.Value(0),
     hexagonScaleZ: new Animated.Value(0.3), hexagonTranslateZ: new Animated.Value(-200),
+    borderFlicker: new Animated.Value(1), // New animated value for border flickering
   }).current;
 
   // Use state for visibility control and electric paths
@@ -254,6 +258,14 @@ export default function ToastMessage({
         Animated.timing(animValues.flashOpacity, { toValue: 0.4 + Math.random() * 0.5, duration: 80, useNativeDriver: true }),
         Animated.timing(animValues.flashOpacity, { toValue: 1, duration: 120, useNativeDriver: true }),
       ])).start();
+      // Border flickering animation
+      Animated.loop(Animated.sequence([
+        Animated.timing(animValues.borderFlicker, { toValue: 0.3, duration: 80 + Math.random() * 40, useNativeDriver: true }),
+        Animated.timing(animValues.borderFlicker, { toValue: 1.0, duration: 60 + Math.random() * 30, useNativeDriver: true }),
+        Animated.timing(animValues.borderFlicker, { toValue: 0.7, duration: 90 + Math.random() * 50, useNativeDriver: true }),
+        Animated.timing(animValues.borderFlicker, { toValue: 1.0, duration: 70 + Math.random() * 35, useNativeDriver: true }),
+        Animated.delay(200 + Math.random() * 300), // Random pause between flicker sequences
+      ])).start();
     });
   }, [animValues]);
 
@@ -377,7 +389,14 @@ export default function ToastMessage({
               </filter>
             </Defs>
             <Polygon points="40,20 360,20 380,60 360,100 40,100 20,60" fill={toastConfig.backgroundColor} />
-            <Polygon points="40,20 360,20 380,60 360,100 40,100 20,60" fill="none" stroke={toastConfig.borderColor} strokeWidth="1.5" filter="url(#hexagonGlow)" />
+            <AnimatedPolygon 
+              points="40,20 360,20 380,60 360,100 40,100 20,60" 
+              fill="none" 
+              stroke={toastConfig.borderColor} 
+              strokeWidth="1.5" 
+              filter="url(#hexagonGlow)"
+              opacity={animValues.borderFlicker}
+            />
           </Svg>
           <Animated.View style={[styles.toastContent, { transform: [{ scale: animValues.pulse }] }]}>
             <View style={styles.content}><Text style={styles.message} numberOfLines={3}>{message}</Text></View>
