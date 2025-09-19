@@ -132,5 +132,6 @@
   "reorder": "Sort",
   "adding": "Adding...",
   "added": "Added!",
-  "workout_added_successfully": "Workout added successfully!"
+  "workout_added_successfully": "Workout added successfully!",
+  "progression": "Progression"
 }

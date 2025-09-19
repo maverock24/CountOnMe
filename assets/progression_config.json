@@ -1,0 +1,120 @@
+{
+  "progressionTree": {
+    "START": {
+      "id": "START",
+      "name": "Start",
+      "icon": "play",
+      "description": "Begin your fitness journey",
+      "unlockConditions": [],
+      "rewardsExercises": ["Basic Warm-up", "Breathing Exercises"],
+      "position": { "row": 0, "col": 0 }
+    },
+    "ASSESSMENT": {
+      "id": "ASSESSMENT",
+      "name": "Assessment",
+      "icon": "clipboard",
+      "description": "Complete your fitness assessment",
+      "unlockConditions": [
+        { "nodeId": "START", "required": true }
+      ],
+      "rewardsExercises": ["Fitness Test", "Body Measurements"],
+      "position": { "row": 1, "col": 0 }
+    },
+    "BASIC_STRENGTH": {
+      "id": "BASIC_STRENGTH",
+      "name": "Basic Strength",
+      "icon": "cog",
+      "description": "Build foundational strength",
+      "unlockConditions": [
+        { "nodeId": "ASSESSMENT", "required": true }
+      ],
+      "rewardsExercises": ["Wall Push-ups", "Assisted Squats", "Modified Plank"],
+      "position": { "row": 2, "col": -1 }
+    },
+    "BASIC_CARDIO": {
+      "id": "BASIC_CARDIO",
+      "name": "Basic Cardio",
+      "icon": "heart",
+      "description": "Improve cardiovascular health",
+      "unlockConditions": [
+        { "nodeId": "ASSESSMENT", "required": true }
+      ],
+      "rewardsExercises": ["Walking", "Marching in Place", "Step-ups"],
+      "position": { "row": 2, "col": 1 }
+    },
+    "PUSH_UPS_10": {
+      "id": "PUSH_UPS_10",
+      "name": "10 Push-ups",
+      "icon": "hand-rock-o",
+      "description": "Complete 10 consecutive push-ups",
+      "unlockConditions": [
+        { "nodeId": "BASIC_STRENGTH", "required": true },
+        { "exerciseCount": "Wall Push-ups", "count": 20 }
+      ],
+      "rewardsExercises": ["Standard Push-ups", "Incline Push-ups"],
+      "position": { "row": 3, "col": -2 }
+    },
+    "PLANK_1MIN": {
+      "id": "PLANK_1MIN",
+      "name": "1min Plank",
+      "icon": "minus",
+      "description": "Hold a plank for 1 minute",
+      "unlockConditions": [
+        { "nodeId": "BASIC_STRENGTH", "required": true },
+        { "exerciseCount": "Modified Plank", "count": 10 }
+      ],
+      "rewardsExercises": ["Standard Plank", "Side Plank"],
+      "position": { "row": 3, "col": 0 }
+    },
+    "SQUATS_10": {
+      "id": "SQUATS_10",
+      "name": "10 Squats",
+      "icon": "male",
+      "description": "Complete 10 bodyweight squats",
+      "unlockConditions": [
+        { "nodeId": "BASIC_STRENGTH", "required": true },
+        { "exerciseCount": "Assisted Squats", "count": 15 }
+      ],
+      "rewardsExercises": ["Bodyweight Squats", "Jump Squats"],
+      "position": { "row": 3, "col": 2 }
+    },
+    "YOGA_BASICS": {
+      "id": "YOGA_BASICS",
+      "name": "Yoga Basics",
+      "icon": "circle-o",
+      "description": "Unlock basic yoga routines",
+      "unlockConditions": [
+        { "nodeId": "PUSH_UPS_10", "required": true },
+        { "nodeId": "PLANK_1MIN", "required": true },
+        { "nodeId": "SQUATS_10", "required": true }
+      ],
+      "rewardsExercises": ["Sun Salutation", "Mountain Pose", "Warrior Pose", "Child's Pose"],
+      "position": { "row": 4, "col": 0 }
+    },
+    "ADVANCED_STRENGTH": {
+      "id": "ADVANCED_STRENGTH",
+      "name": "Advanced",
+      "icon": "star",
+      "description": "Advanced strength training",
+      "unlockConditions": [
+        { "nodeId": "YOGA_BASICS", "required": true },
+        { "exerciseCount": "Standard Push-ups", "count": 50 },
+        { "exerciseCount": "Standard Plank", "count": 30 },
+        { "exerciseCount": "Bodyweight Squats", "count": 100 }
+      ],
+      "rewardsExercises": ["Pull-ups", "Handstand Push-ups", "Pistol Squats", "L-sits"],
+      "position": { "row": 5, "col": 0 }
+    }
+  },
+  "userProgress": {
+    "completedNodes": ["START"],
+    "exerciseHistory": {
+      "Wall Push-ups": 5,
+      "Assisted Squats": 8,
+      "Modified Plank": 3,
+      "Walking": 10,
+      "Marching in Place": 5
+    },
+    "unlockedExercises": ["Basic Warm-up", "Breathing Exercises"]
+  }
+}

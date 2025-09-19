@@ -1,9 +1,10 @@
+import { ClientOnlySlider } from '@/components/ClientOnlySlider';
 import { useData } from '@/components/data.provider';
 import { Text, View } from '@/components/Themed';
 import TimerButton from '@/components/TimerButton';
+import ToastMessage from '@/components/ToastMessage';
 import { TriangleLeft } from '@/components/TriangleLeft';
 import { TriangleRight } from '@/components/TriangleRight';
-import Slider from '@react-native-community/slider';
 import {
   AudioModule,
   RecordingStatus as ExpoAudioRecordingStatus,
@@ -40,6 +41,10 @@ export default function TabOneScreen() {
   const [audioLevel, setAudioLevel] = useState(0);
 
   const [statusMessage, setStatusMessage] = useState(t('press_start_listening'));
+
+  // Toast state for testing
+  const [showToast, setShowToast] = useState(false);
+  const [toastType, setToastType] = useState<'success' | 'error' | 'warning' | 'info'>('success');
 
   const isMountedRef = useRef(true);
   const isLoopActiveRef = useRef(false);
@@ -422,6 +427,16 @@ export default function TabOneScreen() {
     }
   };
 
+  // Toast test functions
+  const showTestToast = (type: 'success' | 'error' | 'warning' | 'info') => {
+    setToastType(type);
+    setShowToast(true);
+  };
+
+  const hideToast = () => {
+    setShowToast(false);
+  };
+
   const currentPlatform = Platform.OS;
   let levelDisplayText = `${t('mic_level')}: ${audioLevel.toFixed(0)}`;
   if (currentPlatform === 'web') levelDisplayText += ' / 128';
@@ -431,13 +446,28 @@ export default function TabOneScreen() {
 
   return (
     <View style={commonStyles.container}>
+      {/* Toast Message Component */}
+      <ToastMessage
+        visible={showToast}
+        message="Explosive Toast with Tesla Coil Electric Effects!"
+        type={toastType}
+        duration={5000}
+        position="center"
+        showIcon={true}
+        onHide={hideToast}
+        onPress={() => {
+          console.log('Toast pressed!');
+          hideToast();
+        }}
+      />
+
       <View style={commonStyles.outerContainer}>
         <Text style={commonStyles.tileTitle}>{t('sound_trigger')}</Text>
         {/* Updated Title */}
         <View style={commonStyles.tile}>
           <View style={styles.innerWrapperTopTile}>
             {/* UI elements removed as per user's latest code structure */}
-            <Slider
+            <ClientOnlySlider
               value={sensitivitySetting ?? 50}
               disabled={isListening}
               style={styles.slider}
@@ -488,6 +518,33 @@ export default function TabOneScreen() {
               text={t('reset')}
               onPress={handleReset}
               style={{paddingTop:15, height: 50, width: '50%' }}
+            />
+          </View>
+        </View>
+
+        {/* Toast Test Buttons */}
+        <Text style={commonStyles.tileTitle}>🧪 Test Toast Effects</Text>
+        <View style={commonStyles.tile}>
+          <View style={styles.toastTestContainer}>
+            <TimerButton
+              text="🔥 Tesla Coil Success"
+              onPress={() => showTestToast('success')}
+              style={{ marginHorizontal: 5, width: 160 }}
+            />
+            <TimerButton
+              text="⚡ Electric Error"
+              onPress={() => showTestToast('error')}
+              style={{ marginHorizontal: 5, width: 160 }}
+            />
+            <TimerButton
+              text="⚠️ Warning Flash"
+              onPress={() => showTestToast('warning')}
+              style={{ marginHorizontal: 5, width: 160 }}
+            />
+            <TimerButton
+              text="💫 Info Surge"
+              onPress={() => showTestToast('info')}
+              style={{ marginHorizontal: 5, width: 160 }}
             />
           </View>
         </View>
@@ -580,5 +637,14 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     height: 20,
     textAlign: 'center',
+  },
+  toastTestContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 10,
+    padding: 10,
+    backgroundColor: 'transparent',
   },
 });
