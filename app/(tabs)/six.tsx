@@ -12,8 +12,9 @@ import Svg, { Defs, Polygon, Stop, LinearGradient as SvgLinearGradient } from 'r
 import { useToast } from '../../components/ToastProvider';
 import commonStyles from '../styles';
 
-// Import progression configuration
+// Import progression configuration and progressions list
 const progressionConfig = require('../../assets/progression_config.json');
+const progressionsList: any[] = require('../../assets/progressions.json');
 
 interface NodeStatus {
   id: string;
@@ -36,6 +37,8 @@ export default function ProgressionTreeScreen() {
   const { t } = useTranslation();
   const { showToast } = useToast();
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
+  const [selectedProgression, setSelectedProgression] = useState<string | null>(progressionsList?.[0]?.name ?? null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [toastIndex, setToastIndex] = useState(0);
   const [userProgress, setUserProgress] = useState<UserProgress>({
     completedNodes: ['START'], // Start is always completed
@@ -238,6 +241,33 @@ export default function ProgressionTreeScreen() {
   };
 
   const renderProgressionTree = () => {
+    // If a progression is selected from the dropdown, render its components as nodes
+    const chosen = selectedProgression ? progressionsList.find((p) => p.name === selectedProgression) : null;
+
+    if (chosen && Array.isArray(chosen.components) && chosen.components.length > 0) {
+      // Render components in rows of up to 3 nodes per row
+      const cols = 3;
+      const rows: any[] = [];
+      for (let i = 0; i < chosen.components.length; i += cols) {
+        rows.push(chosen.components.slice(i, i + cols));
+      }
+
+      return (
+        <View style={styles.hexTreeContainer}>
+          {rows.map((row, rIdx) => (
+            <View key={`row_${rIdx}`} style={styles.nodeRow}>
+              {row.map((comp: any, cIdx: number) => (
+                <View key={`${rIdx}_${cIdx}`} style={{ marginHorizontal: 8 }}>
+                  {renderHexNode(comp.component)}
+                </View>
+              ))}
+            </View>
+          ))}
+        </View>
+      );
+    }
+
+    // Fallback: original static progression tree
     return (
       <View style={styles.hexTreeContainer}>
         {/* Row 1: START */}
@@ -290,6 +320,33 @@ export default function ProgressionTreeScreen() {
             <Text style={styles.subtitle}>
               Tap hexagons to see details!
             </Text>
+            {/* Progression selector dropdown */}
+            <View style={{ width: '100%', alignItems: 'center', marginBottom: 12 }}>
+              <TouchableOpacity
+                style={styles.dropdownToggle}
+                onPress={() => setDropdownOpen((s) => !s)}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.dropdownText}>{selectedProgression ?? t('select_progression')}</Text>
+              </TouchableOpacity>
+
+              {dropdownOpen && (
+                <View style={styles.dropdownList}>
+                  {progressionsList.map((p) => (
+                    <TouchableOpacity
+                      key={p.name}
+                      style={styles.dropdownItem}
+                      onPress={() => {
+                        setSelectedProgression(p.name);
+                        setDropdownOpen(false);
+                      }}
+                    >
+                      <Text style={styles.dropdownItemText}>{p.name}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </View>
             
             {/* Demo Toast Button */}
             <TouchableOpacity
@@ -326,7 +383,6 @@ export default function ProgressionTreeScreen() {
                   message: currentToast.message,
                   duration: 4000,
                   position: 'center', // Changed to center to test vertical centering
-                  showIcon: true,
                 });
               }}
             >
@@ -517,5 +573,38 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 2,
     textTransform: 'uppercase',
+  },
+  dropdownToggle: {
+    width: '90%',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#2A2E33',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    alignItems: 'center',
+  },
+  dropdownText: {
+    color: '#EFF0F0',
+    fontSize: 14,
+  },
+  dropdownList: {
+    marginTop: 8,
+    width: '90%',
+    maxHeight: 220,
+    backgroundColor: 'rgba(17,24,30,0.95)',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#2A2E33',
+  },
+  dropdownItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2A2E33',
+  },
+  dropdownItemText: {
+    color: '#EFF0F0',
+    fontSize: 14,
   },
 });

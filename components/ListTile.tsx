@@ -1,10 +1,11 @@
 import { FontAwesome } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import commonStyles from '@/app/styles';
 import { WorkoutItem } from '@/components/data/types';
 import Colors from '@/constants/Colors';
+import { roundToDecimals } from '@/utils/numberUtils';
 
 import { useTranslation } from 'react-i18next';
 import TimerButton from './TimerButton';
@@ -13,6 +14,7 @@ const ListTile = ({
   isSelected,
   title,
   value,
+  description,
   workoutItem,
   onPressTile,
   onPressBtn,
@@ -23,6 +25,7 @@ const ListTile = ({
   isSelected?: boolean;
   title: string;
   value: string | null;
+  description?: string;
   workoutItem?: WorkoutItem;
   onPressTile?: () => void;
   onPressBtn?: () => void;
@@ -31,6 +34,7 @@ const ListTile = ({
   style?: any;
 }) => {
   const [workoutStage, setWorkoutStage] = useState(currentIndex || 0);
+  const [descVisible, setDescVisible] = useState(false);
   const { t } = useTranslation();
   
   // Handle both new WorkoutItem structure and legacy format
@@ -72,14 +76,25 @@ const ListTile = ({
       levelDisplay = '';
     }
     
-    // Use calories from WorkoutItem
-    caloriesData = workoutItem.calories?.toString() || '';
+    // Use calories from WorkoutItem (round to 1 decimal for display)
+    if (typeof workoutItem.calories === 'number') {
+      caloriesData = roundToDecimals(workoutItem.calories, 1).toString();
+    } else {
+      caloriesData = '';
+    }
   } else {
     // Legacy format: pipe-separated data
     const exerciseData = value?.split('|') || [];
     workoutData = exerciseData[0] || '';
     intensityData = exerciseData[1] || '';
-    caloriesData = exerciseData[2] || '';
+    // Try to parse legacy calories and round for display
+    const legacyCalories = exerciseData[2];
+    if (legacyCalories !== undefined && legacyCalories !== null && legacyCalories !== '') {
+      const parsed = parseFloat(legacyCalories as any);
+      caloriesData = Number.isFinite(parsed) ? roundToDecimals(parsed, 1).toString() : legacyCalories;
+    } else {
+      caloriesData = '';
+    }
     levelDisplay = intensityData; // Show only intensity for legacy items
   }
 
@@ -111,6 +126,7 @@ const ListTile = ({
   const totalStars = 3;
 
   return (
+    <>
     <Pressable
       style={[
         commonStyles.listTile,
@@ -147,7 +163,18 @@ const ListTile = ({
                 paddingBottom: 5,
               }}
             >
-              <Text style={commonStyles.listItemTitle}>{title}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={commonStyles.listItemTitle}>{title}</Text>
+                {description ? (
+                  <TouchableOpacity
+                    onPress={() => setDescVisible(true)}
+                    style={localStyles.helpButton}
+                    accessibilityLabel={`Show description for ${title}`}
+                  >
+                    <Text style={localStyles.helpButtonText}>?</Text>
+                  </TouchableOpacity>
+                ) : null}
+              </View>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 {(workoutItem?.calories !== undefined && workoutItem?.calories !== null) || caloriesData ? (
                   <Text style={{ fontSize: 14, color: '#b0e0e6', marginRight: 10 }}>
@@ -177,23 +204,110 @@ const ListTile = ({
               style={{ flexDirection: 'row', width: '100%', paddingHorizontal: 15, marginTop: 10 }}
             >
               {workoutData &&
-                workoutData.split(';').map((time, index) => (
-                  <Text
-                    key={index}
-                    style={
-                      isSelected && index === workoutStage
-                        ? commonStyles.listItemValueText
-                        : commonStyles.listItemValue
-                    }
-                  >
-                    {(parseFloat(time) / 60).toString()}
-                  </Text>
-                ))}
+                workoutData.split(';').map((time, index) => {
+                  const seconds = parseFloat(time);
+                  const minutes = Number.isFinite(seconds) ? seconds / 60 : NaN;
+                  const display = Number.isFinite(minutes) ? roundToDecimals(minutes, 1).toString() : time;
+                  return (
+                    <Text
+                      key={index}
+                      style={
+                        isSelected && index === workoutStage
+                          ? commonStyles.listItemValueText
+                          : commonStyles.listItemValue
+                      }
+                    >
+                      {display}
+                    </Text>
+                  );
+                })}
             </View>
           </View>
         </>
         {onPressBtn && <TimerButton text="Delete" onPress={onPressBtn} small />}
     </Pressable>
+    {description ? (
+      <Modal
+        visible={descVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setDescVisible(false)}
+      >
+        <View style={localStyles.modalOverlay}>
+          <View style={localStyles.modalBox}>
+            <ScrollView style={{ maxHeight: 400 }}>
+              <Text style={localStyles.modalTitle}>{title}</Text>
+              <Text style={localStyles.modalText}>{description}</Text>
+            </ScrollView>
+            <TouchableOpacity
+              style={localStyles.modalClose}
+              onPress={() => setDescVisible(false)}
+            >
+              <Text style={localStyles.modalCloseText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    ) : null}
+    </>
   );
 };
 export default ListTile;
+
+const localStyles = StyleSheet.create({
+  helpButton: {
+    marginLeft: 8,
+    backgroundColor: '#2a2e33',
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#b0e0e6',
+  },
+  helpButtonText: {
+    color: '#b0e0e6',
+    fontSize: 14,
+    lineHeight: 18,
+    fontWeight: '600',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  modalBox: {
+    backgroundColor: '#0f1112',
+    padding: 18,
+    borderRadius: 10,
+    width: '100%',
+    maxWidth: 720,
+    borderWidth: 1,
+    borderColor: '#2a2e33',
+  },
+  modalTitle: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 8,
+  },
+  modalText: {
+    color: '#b0e0e6',
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  modalClose: {
+    marginTop: 12,
+    alignSelf: 'flex-end',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    backgroundColor: '#202425',
+  },
+  modalCloseText: {
+    color: '#b0e0e6',
+  },
+});

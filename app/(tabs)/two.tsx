@@ -7,10 +7,13 @@ import {
   Animated,
   Dimensions,
   Easing,
+  Modal,
+  ScrollView,
   StyleSheet,
   Switch,
   Text,
-  View
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import Svg, { Circle, Defs, FeGaussianBlur, FeMerge, FeMergeNode, Filter } from 'react-native-svg';
 
@@ -20,6 +23,7 @@ import ReorderableWorkoutList from '@/components/ReorderableWorkoutList';
 import TimerButton from '@/components/TimerButton';
 import TimerItem from '@/components/TimerItem';
 import Colors from '@/constants/Colors';
+import { clearSeededProgressions, seedProgressionGroupsToStorage } from '@/utils/progressionStorage';
 
 import commonStyles from '../styles';
 
@@ -91,6 +95,9 @@ const TabTwoScreen: React.FC = () => {
   const [selectedGroup, setSelectedGroup] = useState<string>('All');
   // Track whether single-select mode is enabled in the list
   const [singleSelectMode, setSingleSelectMode] = useState<boolean>(false);
+  // Controls visibility of the selected group's description modal
+  const [groupDescVisible, setGroupDescVisible] = useState<boolean>(false);
+  const [currentGroupDescription, setCurrentGroupDescription] = useState<string | null>(null);
 
   // Remove duplicate 'All' entry in groupData
   const groupData = [
@@ -120,6 +127,47 @@ const TabTwoScreen: React.FC = () => {
   };
 
   const { t } = useTranslation();
+
+  // Seed progressions into AsyncStorage when the app has no groups yet.
+  // This runs only once on mount and only if groupItems is empty.
+  useEffect(() => {
+    let mounted = true;
+    async function seedIfNeeded() {
+      try {
+        if (mounted && (!groupItems || groupItems.length === 0)) {
+          const result = await seedProgressionGroupsToStorage();
+          // After seeding, tell provider to reload data so groupItems/workoutItems reflect new keys
+          if (result.success) {
+            await reload();
+          } else {
+            console.warn('Seeding progressions failed', result.error);
+          }
+        }
+      } catch (err) {
+        console.warn('seedIfNeeded error', err);
+      }
+    }
+    seedIfNeeded();
+    return () => { mounted = false; };
+  }, []);
+
+  // Development helper: if running in DEV, clear previously seeded progression keys and force a reseed.
+  // This ensures component-level entries (e.g. @countOnMe_Push-ups) are created during development tests.
+  useEffect(() => {
+    if (!__DEV__) return;
+    let mounted = true;
+    (async () => {
+      try {
+        // DEV: clear seeded progression keys (no reseed) to remove previously created items
+        const res = await clearSeededProgressions();
+        if (mounted) await reload();
+        console.log('[dev clearSeededProgressions]', res);
+      } catch (err) {
+        console.warn('[dev clearSeededProgressions] error', err);
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
 
   useEffect(() => {
     let pulseDuration = 350;
@@ -364,6 +412,18 @@ const TabTwoScreen: React.FC = () => {
     router.push('/three');
   };
 
+  // Dev helper: manual reseed action (clears seeded keys then force-seeds)
+  const handleDevReseed = async () => {
+    try {
+      await clearSeededProgressions();
+      const res = await seedProgressionGroupsToStorage({ force: true });
+      await reload();
+      console.log('[manual dev reseed]', res);
+    } catch (err) {
+      console.warn('[manual dev reseed] error', err);
+    }
+  };
+
   const strokeWidth = 10;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = progress.interpolate({
@@ -508,23 +568,92 @@ const TabTwoScreen: React.FC = () => {
           <Text style={commonStyles.tileTitle}>{t('workouts')}</Text>
           <View style={[commonStyles.tile, { flex: 1, padding: 5 }]}>            
             {noWorkout && <TimerButton text={t('add_button')} onPress={handleAddNew} maxWidth />}
+            {__DEV__ && (
+              <View style={{ marginTop: 8, alignItems: 'center' }}>
+                <TimerButton text={'DEV: Reseed'} onPress={handleDevReseed} small />
+              </View>
+            )}
             
-            <ReorderableWorkoutList
-              key={`${selectedGroup}-${groupItems.length}`}
-              groupData={groupData}
-              selectedGroup={selectedGroup}
-              onGroupChange={handleGroupChange}
-              selectedItem={selectedItem}
-              selectedItems={selectedItem ? new Set([selectedItem]) : new Set()}
-              onWorkoutSelect={toggleSelectSet}
-              currentIndex={currentIndex}
-              showReorderButton={true}
-              showSingleSelect={true}
-              onReorderComplete={handleReorderComplete}
-              onWorkoutsChanged={setOrderedWorkouts}
-              // NEW: capture Single/All toggle changes
-              onSingleSelectChange={setSingleSelectMode}
-            />
+            <View style={{ width: '100%' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginBottom: 6 }}>
+                <Text style={{ color: '#b0e0e6', marginRight: 8 }}>{selectedGroup}</Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    // Prefer bundled progressions.json descriptions (metadata), fall back to a generic message
+                    try {
+                      // require here to keep this file synchronous and avoid adding top-level imports
+                      // path relative to this file
+                      // eslint-disable-next-line @typescript-eslint/no-var-requires
+                      const progressionsList: any[] = require('../../assets/progressions.json');
+                      const prog = progressionsList.find((p: any) => p.name === selectedGroup);
+                      let desc: any = null;
+                      if (selectedGroup === 'All') {
+                        desc = t('all_exercises_description') || '';
+                      } else if (prog && prog.description) {
+                        desc = prog.description;
+                      } else {
+                        // fallback to provider-stored metadata key if available
+                        desc = t('no_description') || '';
+                      }
+                      console.log('[GroupDescription] resolved description for', selectedGroup, ':', desc);
+                      setCurrentGroupDescription(typeof desc === 'string' ? desc : JSON.stringify(desc));
+                    } catch (err) {
+                      console.warn('[GroupDescription] error loading progressions.json', err);
+                      setCurrentGroupDescription(t('no_description') || '');
+                    }
+                    setGroupDescVisible(true);
+                  }}
+                  style={styles.helpButton}
+                  accessibilityLabel={`Show description for ${selectedGroup}`}
+                >
+                  <Text style={styles.helpButtonText}>?</Text>
+                </TouchableOpacity>
+              </View>
+              {/* Group description modal (safe rendering of description string) */}
+              {groupDescVisible ? (
+                <Modal
+                  visible={groupDescVisible}
+                  transparent
+                  animationType="fade"
+                  onRequestClose={() => setGroupDescVisible(false)}
+                >
+                  <View style={styles.modalOverlay}>
+                    <View style={styles.modalBox}>
+                      <ScrollView style={{ maxHeight: 400 }}>
+                        <Text style={styles.modalTitle}>{selectedGroup}</Text>
+                        <Text style={styles.modalText}>{currentGroupDescription ?? ''}</Text>
+                      </ScrollView>
+                      <TouchableOpacity style={styles.modalClose} onPress={() => setGroupDescVisible(false)}>
+                        <Text style={styles.modalCloseText}>{t('close') || 'Close'}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </Modal>
+              ) : null}
+
+              <ScrollView
+                style={{ width: '100%', maxHeight: Math.max(200, height * 0.45) }}
+                contentContainerStyle={{ flexGrow: 1 }}
+                keyboardShouldPersistTaps="handled"
+              >
+                <ReorderableWorkoutList
+                  key={`${selectedGroup}-${groupItems.length}`}
+                  groupData={groupData}
+                  selectedGroup={selectedGroup}
+                  onGroupChange={handleGroupChange}
+                  selectedItem={selectedItem}
+                  selectedItems={selectedItem ? new Set([selectedItem]) : new Set()}
+                  onWorkoutSelect={toggleSelectSet}
+                  currentIndex={currentIndex}
+                  showReorderButton={true}
+                  showSingleSelect={true}
+                  onReorderComplete={handleReorderComplete}
+                  onWorkoutsChanged={setOrderedWorkouts}
+                  // NEW: capture Single/All toggle changes
+                  onSingleSelectChange={setSingleSelectMode}
+                />
+              </ScrollView>
+            </View>
           </View>
         </View>
       </View>
@@ -643,6 +772,59 @@ const styles = StyleSheet.create({
     fontSize: 70,
     fontWeight: 'bold',
     color: 'white',
+  },
+  helpButton: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: '#2a2e33',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#b0e0e6',
+  },
+  helpButtonText: {
+    color: '#b0e0e6',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  modalBox: {
+    backgroundColor: '#0f1112',
+    padding: 18,
+    borderRadius: 10,
+    width: '100%',
+    maxWidth: 720,
+    borderWidth: 1,
+    borderColor: '#2a2e33',
+  },
+  modalTitle: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 8,
+  },
+  modalText: {
+    color: '#b0e0e6',
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  modalClose: {
+    marginTop: 12,
+    alignSelf: 'flex-end',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    backgroundColor: '#202425',
+  },
+  modalCloseText: {
+    color: '#b0e0e6',
   },
 });
 

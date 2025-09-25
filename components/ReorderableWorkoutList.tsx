@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 
+import exercisesEn from '@/assets/exercises_en.json';
 import { useData } from '@/components/data.provider';
 import { WorkoutItem } from '@/components/data/types';
 import ListTile from '@/components/ListTile';
@@ -156,6 +157,7 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
               isSelected={false}
               title={item.name}
               value={item.workout}
+              description={(exercisesEn.find((e: any) => e.name === item.name)?.description) || undefined}
               workoutItem={item}
               currentIndex={currentIndex}
               onPressTile={() => {}} // Disabled in reorder mode
@@ -174,6 +176,7 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
           isSelected={isSelected}
           title={item.name}
           value={item.workout}
+          description={(exercisesEn.find((e: any) => e.name === item.name)?.description) || undefined}
           workoutItem={item}
           currentIndex={currentIndex}
           onPressTile={() => onWorkoutSelect?.(item.name, item.workout)}

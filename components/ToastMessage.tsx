@@ -3,11 +3,12 @@ import {
     Animated,
     Dimensions,
     Easing,
+    Platform,
     StyleSheet,
     TextStyle,
     TouchableOpacity,
     View,
-    ViewStyle
+    ViewStyle,
 } from 'react-native';
 import Svg, { Defs, Path, Polygon, Stop, LinearGradient as SvgLinearGradient } from 'react-native-svg';
 
@@ -20,6 +21,11 @@ const Colors = {
 };
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+// Scale factor to make the toast 1/3 smaller (i.e. multiply sizes by 2/3)
+const TOAST_SCALE = 2 / 3;
+const HEX_WIDTH = 400 * TOAST_SCALE;
+const HEX_HEIGHT = 120 * TOAST_SCALE;
 
 // --- Type Definitions ---
 export interface ToastConfig {
@@ -35,6 +41,7 @@ export interface ToastConfig {
 interface ToastMessageProps extends ToastConfig {
   visible: boolean;
   onHide: () => void;
+  showIcon?: boolean;
 }
 
 // --- Helper Functions ---
@@ -66,7 +73,7 @@ const getToastConfig = (type: ToastConfig['type']) => {
 
 const generateElectricPath = (startX: number, endX: number, centerY: number) => {
   const numberOfPoints = 15;
-  const baseAmplitude = 40;
+  const baseAmplitude = 40 * TOAST_SCALE;
   
   const points = Array.from({ length: numberOfPoints }, (_, i) => {
     const progress = i / (numberOfPoints - 1);
@@ -94,11 +101,17 @@ const generateElectricPath = (startX: number, endX: number, centerY: number) => 
 
 const getPositionStyle = (position: ToastConfig['position']) => {
   const baseStyle: any = {
-    position: 'absolute', left: 0, right: 0, zIndex: 9999, alignItems: 'center', justifyContent: 'center',
+    position: Platform.OS === 'web' ? 'fixed' : 'absolute',
+    left: 0,
+    right: 0,
+    zIndex: 9999,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'visible',
   };
   switch (position) {
     case 'top': return { ...baseStyle, top: 60 };
-  case 'center': return { ...baseStyle, top: Math.max((screenHeight - 120) / 2, 60), alignSelf: 'center', left: 0, right: 0 };
+    case 'center': return { ...baseStyle, top: Math.max((screenHeight - HEX_HEIGHT) / 2, 60), alignSelf: 'center', left: 0, right: 0 };
     case 'bottom': return { ...baseStyle, bottom: 100 };
     default: return { ...baseStyle, top: 60 };
   }
@@ -180,11 +193,11 @@ export default function ToastMessage({
       return;
     }
     
-    const centerY = 60;
+  const centerY = 60 * TOAST_SCALE;
     const time = Date.now();
     
-    // Create ribbon that spans the full extended width
-    const ribbonWidth = screenWidth * 1.5; // Match the ribbon container width
+  // Create ribbon that spans the full extended width
+  const ribbonWidth = screenWidth * 1.5; // Match the ribbon container width
     const ribbonStartX = 0; // Start from left edge of ribbon
     const ribbonEndX = ribbonWidth; // End at right edge of ribbon
     
@@ -202,11 +215,7 @@ export default function ToastMessage({
       (Math.random() - 0.5) * 5; // Different random jitter
     
     // Generate ribbon-width electric path with enhanced chaos
-    const electricPath1 = generateElectricPath(
-      ribbonStartX, 
-      ribbonEndX, 
-      chaoticCenterY1
-    );
+    const electricPath1 = generateElectricPath(ribbonStartX, ribbonEndX, chaoticCenterY1);
     const electricPath2 = generateElectricPath(
       ribbonStartX, 
       ribbonEndX, 
@@ -235,7 +244,7 @@ export default function ToastMessage({
     
     // electric ribbon paths generated (debug logs removed for production)
     
-    setElectricPath(electricPath1);
+  setElectricPath(electricPath1);
     setElectricPath2(electricPath2);
     setElectricPath3(electricPath3);
     setElectricPath4(electricPath4);
@@ -273,8 +282,14 @@ export default function ToastMessage({
   const emitParticles = () => {
     const animations: Animated.CompositeAnimation[] = [];
     // Hexagon vertices for border-aligned emission
+    // Hexagon vertices derived from scaled hex width/height (fractions of original 400x120)
     const hexVerts = [
-      { x: 40, y: 20 }, { x: 360, y: 20 }, { x: 380, y: 60 }, { x: 360, y: 100 }, { x: 40, y: 100 }, { x: 20, y: 60 }
+      { x: HEX_WIDTH * 0.1, y: HEX_HEIGHT * 0.1666667 },
+      { x: HEX_WIDTH * 0.9, y: HEX_HEIGHT * 0.1666667 },
+      { x: HEX_WIDTH * 0.95, y: HEX_HEIGHT * 0.5 },
+      { x: HEX_WIDTH * 0.9, y: HEX_HEIGHT * 0.8333333 },
+      { x: HEX_WIDTH * 0.1, y: HEX_HEIGHT * 0.8333333 },
+      { x: HEX_WIDTH * 0.05, y: HEX_HEIGHT * 0.5 }
     ];
 
   particlesRef.current.forEach((p, i) => {
@@ -287,15 +302,15 @@ export default function ToastMessage({
       const startYRaw = v1.y + (v2.y - v1.y) * t;
 
   // center particle on that border point (smaller for snappy twinkle)
-  const particleW = 5;
-  const particleH = 4;
+  const particleW = 5 * TOAST_SCALE;
+  const particleH = 4 * TOAST_SCALE;
       p.animX.setValue(startXRaw - particleW / 2);
       p.animY.setValue(startYRaw - particleH / 2);
   p.animScale.setValue(0.5 + Math.random() * 0.35);
       p.animOpacity.setValue(1);
 
-      // Compute precise outward normal from hex center (200, 60)
-      const cx = 200, cy = 60;
+      // Compute precise outward normal from hex center (derived)
+      const cx = HEX_WIDTH / 2, cy = HEX_HEIGHT / 2;
       const nx = (startXRaw - cx);
       const ny = (startYRaw - cy);
       const nlen = Math.sqrt(nx * nx + ny * ny) || 1;
@@ -307,19 +322,19 @@ export default function ToastMessage({
       const jitterX = -uy * perpJitter * 30;
       const jitterY = ux * perpJitter * 30;
 
-  // Distances (slightly reduced for snappier look)
-  const distance = 110 + Math.random() * 180; // final distance ~110..290
-  const burstDistance = distance * (0.32 + Math.random() * 0.18); // initial quick burst ~32-50% of total
+  // Distances (scaled down with toast)
+  const distance = (110 + Math.random() * 180) * TOAST_SCALE; // final distance scaled
+  const burstDistance = distance * (0.32 + Math.random() * 0.18);
 
   // Targets for two-phase motion
   const burstTargetX = startXRaw + ux * burstDistance + jitterX - particleW / 2;
-  const burstTargetY = startYRaw + uy * burstDistance + jitterY - (6 + Math.random() * 24) - particleH / 2; // slight upward bias
+  const burstTargetY = startYRaw + uy * burstDistance + jitterY - ((6 * TOAST_SCALE) + Math.random() * (24 * TOAST_SCALE)) - particleH / 2; // slight upward bias
   const finalTargetX = startXRaw + ux * distance + jitterX - particleW / 2;
-  const finalTargetY = startYRaw + uy * distance + jitterY - (18 + Math.random() * 40) - particleH / 2;
+  const finalTargetY = startYRaw + uy * distance + jitterY - ((18 * TOAST_SCALE) + Math.random() * (40 * TOAST_SCALE)) - particleH / 2;
 
   // Durations: shorter burst and drift for faster particles
-  const burstDur = 80 + Math.random() * 120; // 80..200ms
-  const driftDur = 320 + Math.random() * 520; // 320..840ms
+  const burstDur = 80 + Math.random() * 120; // keep durations similar for feel
+  const driftDur = 320 + Math.random() * 520;
 
       // Start a small snappier twinkle pulse concurrently (randomized)
       if (p.twinkle) {
@@ -581,14 +596,10 @@ export default function ToastMessage({
     outputRange: position === 'bottom' ? [100, 0] : [-100, 0],
   });
   return (
-    <Animated.View style={[positionStyle, {
-      transform: [ { scale: animValues.scale } ],
-      opacity: animValues.opacity,
-    }]}>
-      <Animated.View style={[styles.crackFlash, { opacity: animValues.crackFlash }]}><View style={styles.crackPattern} /></Animated.View>
-      
+    <View style={positionStyle}>
+      {/* Electric surge layers live outside the transformed wrapper so they aren't clipped by transforms */}
       <Animated.View style={[styles.electricFlash, { opacity: Animated.multiply(animValues.flashOpacity, electricOpacity) }]}>
-        <Svg width="100%" height="120" style={styles.flashSvg}>
+        <Svg width="100%" height={HEX_HEIGHT} style={styles.flashSvg}>
           <Defs>
             <SvgLinearGradient id="fullFlashGrad" x1="0%" y1="50%" x2="100%" y2="50%">
               {[0,0.2,0.35,0.5,0.65,0.8,1].map((o,i) => <Stop key={i} offset={`${o*100}%`} stopColor={i===3?"#fff":toastConfig.borderColor} stopOpacity={[0,0.3,0.8,1,0.8,0.3,0][i]}/>)}
@@ -604,7 +615,7 @@ export default function ToastMessage({
       </Animated.View>
 
       <Animated.View style={[styles.electricFlash, { opacity: Animated.multiply(animValues.flashOpacity, electricOpacity * 0.9), top: 1 }]}>
-        <Svg width="100%" height="120" style={styles.flashSvg}>
+        <Svg width="100%" height={HEX_HEIGHT} style={styles.flashSvg}>
           <Defs>
             <SvgLinearGradient id="fullCyanFlashGrad" x1="0%" y1="50%" x2="100%" y2="50%">
               {[0,0.2,0.35,0.5,0.65,0.8,1].map((o,i) => <Stop key={i} offset={`${o*100}%`} stopColor={i===3?"#fff":"rgb(2, 248, 240)"} stopOpacity={[0,0.3,0.8,1,0.8,0.3,0][i]}/>)}
@@ -621,7 +632,7 @@ export default function ToastMessage({
 
       {/* Additional intense core surge layer */}
       <Animated.View style={[styles.electricFlash, { opacity: Animated.multiply(animValues.flashOpacity, electricOpacity * 1.2), top: 0.5 }]}>
-        <Svg width="100%" height="120" style={styles.flashSvg}>
+        <Svg width="100%" height={HEX_HEIGHT} style={styles.flashSvg}>
           <Defs>
             <SvgLinearGradient id="coreFlashGrad" x1="0%" y1="50%" x2="100%" y2="50%">
               {[0,0.3,0.4,0.5,0.6,0.7,1].map((o,i) => <Stop key={i} offset={`${o*100}%`} stopColor={i===3?"#ffffff":"#00ffff"} stopOpacity={[0,0.5,0.9,1,0.9,0.5,0][i]}/>)}
@@ -637,7 +648,7 @@ export default function ToastMessage({
 
       {/* Fourth electric surge layer */}
       <Animated.View style={[styles.electricFlash, { opacity: Animated.multiply(animValues.flashOpacity, electricOpacity * 0.8), top: 1.5 }]}>
-        <Svg width="100%" height="120" style={styles.flashSvg}>
+        <Svg width="100%" height={HEX_HEIGHT} style={styles.flashSvg}>
           <Defs>
             <SvgLinearGradient id="fourthFlashGrad" x1="0%" y1="50%" x2="100%" y2="50%">
               {[0,0.25,0.4,0.5,0.6,0.75,1].map((o,i) => <Stop key={i} offset={`${o*100}%`} stopColor={i===3?"#e0ffff":"#40e0d0"} stopOpacity={[0,0.4,0.8,1,0.8,0.4,0][i]}/>)}
@@ -653,7 +664,7 @@ export default function ToastMessage({
 
       {/* Fifth electric surge layer */}
       <Animated.View style={[styles.electricFlash, { opacity: Animated.multiply(animValues.flashOpacity, electricOpacity * 0.7), top: 2 }]}>
-        <Svg width="100%" height="120" style={styles.flashSvg}>
+        <Svg width="100%" height={HEX_HEIGHT} style={styles.flashSvg}>
           <Defs>
             <SvgLinearGradient id="fifthFlashGrad" x1="0%" y1="50%" x2="100%" y2="50%">
               {[0,0.2,0.38,0.5,0.62,0.8,1].map((o,i) => <Stop key={i} offset={`${o*100}%`} stopColor={i===3?"#f0ffff":"#20b2aa"} stopOpacity={[0,0.35,0.75,1,0.75,0.35,0][i]}/>)}
@@ -669,7 +680,7 @@ export default function ToastMessage({
 
       {/* Sixth electric surge layer */}
       <Animated.View style={[styles.electricFlash, { opacity: Animated.multiply(animValues.flashOpacity, electricOpacity * 0.6), top: 2.5 }]}>
-        <Svg width="100%" height="120" style={styles.flashSvg}>
+        <Svg width="100%" height={HEX_HEIGHT} style={styles.flashSvg}>
           <Defs>
             <SvgLinearGradient id="sixthFlashGrad" x1="0%" y1="50%" x2="100%" y2="50%">
               {[0,0.22,0.42,0.5,0.58,0.78,1].map((o,i) => <Stop key={i} offset={`${o*100}%`} stopColor={i===3?"#e6fffa":"#008b8b"} stopOpacity={[0,0.3,0.7,1,0.7,0.3,0][i]}/>)}
@@ -685,7 +696,7 @@ export default function ToastMessage({
 
       {/* Seventh electric surge layer */}
       <Animated.View style={[styles.electricFlash, { opacity: Animated.multiply(animValues.flashOpacity, electricOpacity * 0.5), top: 3 }]}>
-        <Svg width="100%" height="120" style={styles.flashSvg}>
+        <Svg width="100%" height={HEX_HEIGHT} style={styles.flashSvg}>
           <Defs>
             <SvgLinearGradient id="seventhFlashGrad" x1="0%" y1="50%" x2="100%" y2="50%">
               {[0,0.24,0.44,0.5,0.56,0.76,1].map((o,i) => <Stop key={i} offset={`${o*100}%`} stopColor={i===3?"#f5fffa":"#2f4f4f"} stopOpacity={[0,0.25,0.65,1,0.65,0.25,0][i]}/>)}
@@ -699,21 +710,24 @@ export default function ToastMessage({
         </Svg>
       </Animated.View>
 
-      <TouchableOpacity activeOpacity={0.9} onPress={handlePress} style={styles.container}>
-        {/* Wrapper keeps hexagon (which is transformed) and particles (which should NOT be transformed) aligned */}
-        <View style={styles.particleWrapper}>
-          <Animated.View style={[styles.hexagonContainer, {
-            transform: [
-              { perspective: 2000 },
-              // Combine hexagon Z-scale and the new hexagon shake scale (no explosion scale so the hexagon won't scale up/shrink)
-              { scale: Animated.multiply(animValues.hexagonScaleZ.interpolate({ inputRange: [0.3, 1], outputRange: [0.3, 1] }), animValues.hexagonShakeScale) },
-              { rotateX: animValues.hexagonRotateX.interpolate({ inputRange: [-90, 0, 90], outputRange: ['-90deg', '0deg', '90deg'] }) },
-              { rotateY: animValues.hexagonRotateY.interpolate({ inputRange: [-90, 0, 90], outputRange: ['-90deg', '0deg', '90deg'] }) },
-              { translateX: animValues.hexagonNudgeX },
-              { translateY: animValues.hexagonNudgeY },
-            ],
-          }]}> 
-            <Svg width="400" height="120" style={styles.hexagonSvg}>
+      {/* Now render the interactive/animated hexagon and particles inside a transformed Animated.View */}
+      <Animated.View style={[positionStyle, { transform: [{ translateY: slideTransform }, { scale: animValues.scale }], opacity: animValues.opacity }]}>
+        <Animated.View style={[styles.crackFlash, { opacity: animValues.crackFlash }]}><View style={styles.crackPattern} /></Animated.View>
+        <TouchableOpacity activeOpacity={0.9} onPress={handlePress} style={styles.container}>
+          {/* Wrapper keeps hexagon (which is transformed) and particles (which should NOT be transformed) aligned */}
+          <View style={styles.particleWrapper}>
+            <Animated.View style={[styles.hexagonContainer, {
+              transform: [
+                { perspective: 2000 },
+                // Combine hexagon Z-scale and the new hexagon shake scale (no explosion scale so the hexagon won't scale up/shrink)
+                { scale: Animated.multiply(animValues.hexagonScaleZ.interpolate({ inputRange: [0.3, 1], outputRange: [0.3, 1] }), animValues.hexagonShakeScale) },
+                { rotateX: animValues.hexagonRotateX.interpolate({ inputRange: [-90, 0, 90], outputRange: ['-90deg', '0deg', '90deg'] }) },
+                { rotateY: animValues.hexagonRotateY.interpolate({ inputRange: [-90, 0, 90], outputRange: ['-90deg', '0deg', '90deg'] }) },
+                { translateX: animValues.hexagonNudgeX },
+                { translateY: animValues.hexagonNudgeY },
+              ],
+            }]}> 
+              <Svg width={HEX_WIDTH} height={HEX_HEIGHT} style={styles.hexagonSvg}>
             <Defs>
               {/* Absolutely massive scale rock texture for completely seamless appearance */}
               <pattern id="rockPattern" x="0" y="0" width="250" height="250" patternUnits="userSpaceOnUse">
@@ -781,31 +795,31 @@ export default function ToastMessage({
               </pattern>
                 </Defs>
 
-            <Polygon points="40,20 360,20 380,60 360,100 40,100 20,60" fill="url(#rockPattern)" opacity={0.8} />
+            <Polygon points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`} fill="url(#rockPattern)" opacity={0.8} />
             {/* Multiple hexagon strokes for glow effect without container visibility */}
             <AnimatedPolygon 
-              points="40,20 360,20 380,60 360,100 40,100 20,60" 
+              points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`} 
               fill="none" 
               stroke={toastConfig.borderColor} 
               strokeWidth="3"
               opacity={animValues.borderFlicker}
             />
             <AnimatedPolygon 
-              points="40,20 360,20 380,60 360,100 40,100 20,60" 
+              points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`} 
               fill="none" 
               stroke={toastConfig.borderColor} 
               strokeWidth="1"
               opacity={Animated.multiply(animValues.borderFlicker, 0.7)}
             />
             <AnimatedPolygon 
-              points="40,20 360,20 380,60 360,100 40,100 20,60" 
+              points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`} 
               fill="none" 
               stroke={toastConfig.borderColor} 
               strokeWidth="1"
               opacity={Animated.multiply(animValues.borderFlicker, 0.9)}
             />
             <AnimatedPolygon 
-              points="40,20 360,20 380,60 360,100 40,100 20,60" 
+              points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`} 
               fill="none" 
               stroke="#ffffff" 
               strokeWidth="0.8"
@@ -849,6 +863,7 @@ export default function ToastMessage({
         </View>
       </TouchableOpacity>
     </Animated.View>
+  </View>
   );
 }
 
@@ -872,11 +887,12 @@ type Styles = {
 const styles = StyleSheet.create<Styles>({
   container: { alignItems: 'center' },
   crackFlash: { ...StyleSheet.absoluteFillObject, backgroundColor: 'transparent', zIndex: 20, borderRadius: 10 },
-  crackPattern: { flex: 1, borderWidth: 1, borderColor: Colors.glow, borderStyle: 'dashed', borderRadius: 15, opacity: 0.8 },
+  // Hide the visible dashed borderline while preserving the crackPattern element for layout/animation
+  crackPattern: { flex: 1, borderWidth: 0, borderColor: 'transparent', borderStyle: 'solid', borderRadius: 15, opacity: 0 },
   electricFlash: { 
     position: 'absolute', 
     top: 0, 
-    height: 120, 
+    height: HEX_HEIGHT, 
     zIndex: 0, // Behind hexagon but above background
     overflow: 'visible', // Allow glow to extend beyond bounds
     left: -screenWidth * 0.25, // Start off-screen
@@ -890,12 +906,12 @@ const styles = StyleSheet.create<Styles>({
     width: '100%',
     height: '100%'
   },
-  hexagonContainer: { position: 'relative', width: 400, height: 120, justifyContent: 'center', alignItems: 'center', zIndex: 100, backgroundColor: 'transparent' },
+  hexagonContainer: { position: 'relative', width: HEX_WIDTH, height: HEX_HEIGHT, justifyContent: 'center', alignItems: 'center', zIndex: 100, backgroundColor: 'transparent' },
   hexagonSvg: { ...StyleSheet.absoluteFillObject },
-  particle: { position: 'absolute', width: 5, height: 4, borderRadius: 2, zIndex: 120, pointerEvents: 'none' as any },
-  particleWrapper: { width: 400, height: 120, alignItems: 'center', justifyContent: 'center', position: 'relative' },
-  particleLayer: { position: 'absolute', left: 0, top: 0, width: 400, height: 120, zIndex: 120, overflow: 'visible' },
-  toastContent: { ...StyleSheet.absoluteFillObject, paddingHorizontal: 50, paddingVertical: 20, justifyContent: 'center', alignItems: 'center' },
+  particle: { position: 'absolute', width: 5 * TOAST_SCALE, height: 4 * TOAST_SCALE, borderRadius: 2 * TOAST_SCALE, zIndex: 120, pointerEvents: 'none' as any },
+  particleWrapper: { width: HEX_WIDTH, height: HEX_HEIGHT, alignItems: 'center', justifyContent: 'center', position: 'relative' },
+  particleLayer: { position: 'absolute', left: 0, top: 0, width: HEX_WIDTH, height: HEX_HEIGHT, zIndex: 120, overflow: 'visible' },
+  toastContent: { ...StyleSheet.absoluteFillObject, paddingHorizontal: 50 * TOAST_SCALE, paddingVertical: 20 * TOAST_SCALE, justifyContent: 'center', alignItems: 'center' },
   content: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
-  message: { flex: 1, fontSize: 18, fontWeight: '600', color: '#ffffff', textAlign: 'center', lineHeight: 24, textShadowColor: 'rgba(0,0,0,0.5)', textShadowOffset: { width: 1, height: 1 }, textShadowRadius: 2 },
+  message: { flex: 1, fontSize: 18 * TOAST_SCALE, fontWeight: '600', color: '#ffffff', textAlign: 'center', lineHeight: 24 * TOAST_SCALE, textShadowColor: 'rgba(0,0,0,0.5)', textShadowOffset: { width: 1 * TOAST_SCALE, height: 1 * TOAST_SCALE }, textShadowRadius: 2 * TOAST_SCALE },
 });
