@@ -1,4 +1,5 @@
 // src/components/WorkoutAnalyzer.tsx
+import { roundToDecimals } from '@/utils/numberUtils';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Button, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -29,7 +30,8 @@ const WorkoutAnalyzer: React.FC = () => {
     try {
       const body: any = {};
       if (calories) {
-        body.calories = calories;
+        const parsed = parseFloat(calories as any);
+        body.calories = Number.isFinite(parsed) ? roundToDecimals(parsed, 1) : calories;
       } else {
         body.weight = weight;
         body.exercise = exercise;
@@ -135,7 +137,7 @@ const WorkoutAnalyzer: React.FC = () => {
           {aiResult.calories && (
             <Text style={styles.resultText}>
               {t('calories_burned')}:{' '}
-              <Text style={{ fontWeight: 'bold' }}>{aiResult.calories}</Text>
+              <Text style={{ fontWeight: 'bold' }}>{typeof aiResult.calories === 'number' ? roundToDecimals(aiResult.calories, 1) : aiResult.calories}</Text>
             </Text>
           )}
           {aiResult.exercise && (

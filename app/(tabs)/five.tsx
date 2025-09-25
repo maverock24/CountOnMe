@@ -3,6 +3,7 @@ import { WorkoutItem } from '@/components/data/types';
 import TimerButton from '@/components/TimerButton';
 import { generateExercisePlan } from '@/utils/generateExercisePlan';
 import { FitnessLevel, IntensityLevel } from '@/utils/intensity.enum';
+import { roundToDecimals } from '@/utils/numberUtils';
 import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useMemo, useState } from 'react';
@@ -115,7 +116,7 @@ const AnalyzerScreen: React.FC = () => {
         if (plan) {
           setAiResult({
             reps: plan.reps,
-            calories: plan.estimatedCalories,
+            calories: typeof plan.estimatedCalories === 'number' ? roundToDecimals(plan.estimatedCalories, 1) : plan.estimatedCalories,
             explanation: plan.notes,
             exercise: plan.exercise,
           });
@@ -154,7 +155,7 @@ const AnalyzerScreen: React.FC = () => {
         name: name,
         workout: unitInSeconds,
         group: undefined,
-        calories: aiResult.calories,
+        calories: typeof aiResult.calories === 'number' ? roundToDecimals(aiResult.calories, 1) : aiResult.calories,
         level: `${fitnessLevel}-${intensity}`
       };
       
