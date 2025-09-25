@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-    Animated,
-    Dimensions,
-    Easing,
-    Platform,
-    StyleSheet,
-    TextStyle,
-    TouchableOpacity,
-    View,
-    ViewStyle,
+  Animated,
+  Dimensions,
+  Easing,
+  Platform,
+  StyleSheet,
+  TextStyle,
+  TouchableOpacity,
+  View,
+  ViewStyle,
 } from 'react-native';
 import Svg, { Defs, Path, Polygon, Stop, LinearGradient as SvgLinearGradient } from 'react-native-svg';
 
@@ -728,103 +728,36 @@ export default function ToastMessage({
               ],
             }]}> 
               <Svg width={HEX_WIDTH} height={HEX_HEIGHT} style={styles.hexagonSvg}>
-            <Defs>
-              {/* Absolutely massive scale rock texture for completely seamless appearance */}
-              <pattern id="rockPattern" x="0" y="0" width="250" height="250" patternUnits="userSpaceOnUse">
-                <rect width="250" height="250" fill="#0f1719"/>
-                {/* Gigantic irregular rock formations */}
-                <polygon points="30,38 88,15 138,38 123,94 69,119 15,81" fill="#0a1214" opacity="0.9"/>
-                <polygon points="150,56 200,38 231,69 219,138 163,163 125,131" fill="#0d1518" opacity="0.8"/>
-                <polygon points="38,156 106,138 156,175 144,225 81,250 31,213" fill="#081012" opacity="0.9"/>
-                <polygon points="200,25 244,15 250,56 238,88 188,69" fill="#0c1417" opacity="0.8"/>
-                <polygon points="0,106 50,88 81,119 63,163 15,181 0,150" fill="#070f11" opacity="0.9"/>
-                <polygon points="175,188 225,169 250,200 250,250 200,250 150,225" fill="#111a1c" opacity="0.7"/>
-                {/* Gigantic geological cracks and fissures */}
-                <polygon points="94,0 110,0 123,50 110,81 88,63 78,31" fill="#030c0d" opacity="1.0"/>
-                <polygon points="219,81 235,63 250,100 244,131 219,113" fill="#050e10" opacity="0.9"/>
-                <polygon points="25,231 48,219 63,250 38,250" fill="#040d0e" opacity="1.0"/>
-                <polygon points="125,131 156,113 175,144 144,163" fill="#091113" opacity="0.8"/>
-                {/* Gigantic mineral veins and deposits */}
-                <polygon points="65,31 106,15 123,50 94,65" fill="#141e21" opacity="0.6"/>
-                <polygon points="175,144 219,119 238,163 206,181" fill="#0c1518" opacity="0.7"/>
-                <polygon points="38,81 69,56 88,88 60,113" fill="#081011" opacity="0.8"/>
-                {/* Gigantic rock fragments and boulders */}
-                <polygon points="15,25 31,15 48,31 31,50" fill="#060e0f" opacity="0.9"/>
-                <polygon points="219,206 238,188 250,219 238,238" fill="#0a1214" opacity="0.8"/>
-                <polygon points="113,206 138,188 156,213 131,238" fill="#050d0e" opacity="1.0"/>
-                <polygon points="81,113 106,94 123,123 98,138" fill="#0f181a" opacity="0.6"/>
-                {/* Massive stress fractures and canyon cracks */}
-                <line x1="60" y1="0" x2="73" y2="40" stroke="#020a0b" strokeWidth="3" opacity="0.8"/>
-                <line x1="156" y1="56" x2="181" y2="106" stroke="#050e10" strokeWidth="3" opacity="0.7"/>
-                <line x1="250" y1="144" x2="213" y2="169" stroke="#030c0d" strokeWidth="3" opacity="0.9"/>
-                <line x1="23" y1="144" x2="56" y2="181" stroke="#071011" strokeWidth="3" opacity="0.6"/>
-                {/* Additional gigantic formations */}
-                <polygon points="150,25 181,40 200,65 175,81 144,65" fill="#111a1c" opacity="0.5"/>
-                <polygon points="13,213 40,200 60,231 31,244 19,238" fill="#0a1214" opacity="0.7"/>
-                <polygon points="194,231 231,213 244,238 219,250 188,244" fill="#0d1518" opacity="0.6"/>
-                <polygon points="106,69 138,56 156,88 123,106 94,88" fill="#0c1417" opacity="0.7"/>
-                <polygon points="56,181 88,163 106,194 73,213 48,206" fill="#070f11" opacity="0.8"/>
-                {/* Massive cliff faces and plateaus */}
-                <polygon points="10,40 40,23 65,56 48,88 13,73" fill="#0b1314" opacity="0.7"/>
-                <polygon points="231,113 250,106 250,138 238,156 213,138" fill="#0f181a" opacity="0.6"/>
-                <polygon points="119,175 156,156 175,194 144,219 113,200" fill="#091213" opacity="0.8"/>
-                <polygon points="31,119 65,103 81,138 56,163 28,144" fill="#0d1619" opacity="0.7"/>
-                {/* Deep cavern entrances and chasms */}
-                <polygon points="181,40 206,31 219,56 200,65 175,56" fill="#020a0b" opacity="1.0"/>
-                <polygon points="40,194 65,181 73,206 56,225 35,213" fill="#030c0d" opacity="1.0"/>
-                <polygon points="138,88 163,78 173,106 156,123 131,113" fill="#040e0f" opacity="0.9"/>
-                {/* Enormous mountain ridges */}
-                <polygon points="6,6 44,0 69,31 44,56 10,44" fill="#0a1214" opacity="0.7"/>
-                <polygon points="206,69 244,56 250,94 231,106 194,94" fill="#0e1719" opacity="0.6"/>
-                <polygon points="75,219 119,206 138,238 106,250 69,244" fill="#071011" opacity="0.8"/>
-                <polygon points="156,119 194,106 213,144 181,169 150,156" fill="#0c1517" opacity="0.7"/>
-                {/* Additional massive geological features */}
-                <polygon points="98,31 123,23 135,48 119,60 94,53" fill="#0f181a" opacity="0.6"/>
-                <polygon points="28,156 53,144 65,169 48,188 25,181" fill="#081011" opacity="0.8"/>
-                <polygon points="213,156 238,144 250,175 231,194 206,181" fill="#111a1c" opacity="0.5"/>
-                <polygon points="81,40 106,28 123,53 100,73 78,60" fill="#0b1415" opacity="0.7"/>
-                {/* Colossal mountain ranges */}
-                <polygon points="15,75 45,60 65,90 50,120 18,105" fill="#0a1315" opacity="0.8"/>
-                <polygon points="185,100 220,85 240,115 225,145 190,130" fill="#0e1819" opacity="0.7"/>
-                <polygon points="90,190 125,175 145,205 120,235 85,220" fill="#081113" opacity="0.9"/>
-                <polygon points="50,225 85,210 105,240 80,250 45,245" fill="#0c1517" opacity="0.8"/>
-                {/* Enormous valleys and depressions */}
-                <polygon points="110,40 140,30 155,60 135,80 105,70" fill="#060f11" opacity="0.9"/>
-                <polygon points="35,130 65,115 80,145 60,170 30,155" fill="#091214" opacity="0.8"/>
-                <polygon points="170,200 200,185 215,215 195,240 165,225" fill="#0b1416" opacity="0.8"/>
-              </pattern>
-                </Defs>
-
-            <Polygon points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`} fill="url(#rockPattern)" opacity={0.8} />
-            {/* Multiple hexagon strokes for glow effect without container visibility */}
-            <AnimatedPolygon 
-              points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`} 
-              fill="none" 
-              stroke={toastConfig.borderColor} 
-              strokeWidth="3"
-              opacity={animValues.borderFlicker}
-            />
-            <AnimatedPolygon 
-              points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`} 
-              fill="none" 
-              stroke={toastConfig.borderColor} 
-              strokeWidth="1"
-              opacity={Animated.multiply(animValues.borderFlicker, 0.7)}
-            />
-            <AnimatedPolygon 
-              points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`} 
-              fill="none" 
-              stroke={toastConfig.borderColor} 
-              strokeWidth="1"
-              opacity={Animated.multiply(animValues.borderFlicker, 0.9)}
-            />
-            <AnimatedPolygon 
-              points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`} 
-              fill="none" 
-              stroke="#ffffff" 
-              strokeWidth="0.8"
-              opacity={Animated.multiply(animValues.borderFlicker, 0.5)}
-            />
+                <Polygon points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`} fill="#222831" opacity={0.8} />
+                {/* Multiple hexagon strokes for glow effect without container visibility */}
+                <AnimatedPolygon 
+                  points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`} 
+                  fill="none" 
+                  stroke={toastConfig.borderColor} 
+                  strokeWidth="2"
+                  opacity={animValues.borderFlicker}
+                />
+                <AnimatedPolygon 
+                  points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`} 
+                  fill="none" 
+                  stroke={toastConfig.borderColor} 
+                  strokeWidth="1"
+                  opacity={Animated.multiply(animValues.borderFlicker, 0.7)}
+                />
+                <AnimatedPolygon 
+                  points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`} 
+                  fill="none" 
+                  stroke={toastConfig.borderColor} 
+                  strokeWidth="1"
+                  opacity={Animated.multiply(animValues.borderFlicker, 0.9)}
+                />
+                <AnimatedPolygon 
+                  points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`} 
+                  fill="none" 
+                  stroke="#ffffff" 
+                  strokeWidth="0.8"
+                  opacity={Animated.multiply(animValues.borderFlicker, 0.5)}
+                />
             </Svg>
             <View style={styles.toastContent}>
             <View style={styles.content}><Animated.Text style={[styles.message, { opacity: animValues.textFlicker }]} numberOfLines={3}>{message}</Animated.Text></View>
@@ -904,7 +837,8 @@ const styles = StyleSheet.create<Styles>({
     top: 0, 
     left: 0, // Center the SVG within the ribbon
     width: '100%',
-    height: '100%'
+    height: '100%',
+    overflow: 'visible'
   },
   hexagonContainer: { position: 'relative', width: HEX_WIDTH, height: HEX_HEIGHT, justifyContent: 'center', alignItems: 'center', zIndex: 100, backgroundColor: 'transparent' },
   hexagonSvg: { ...StyleSheet.absoluteFillObject },
