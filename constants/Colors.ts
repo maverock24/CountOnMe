@@ -3,7 +3,7 @@ const tintColorDark = 'white';
 
 export default {
   glow: 'rgb(42, 199, 207)',
-  backgroundColor: 'rgba(32, 49, 59, 0.9)',
+  backgroundColor: 'rgba(41, 57, 68, 1)',
   highlight: 'rgba(100, 103, 105, 0.7)',
   light: {
     text: '#fff',

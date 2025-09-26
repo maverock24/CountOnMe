@@ -1,20 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import { FontAwesome } from '@expo/vector-icons';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  Dimensions,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
-  Dimensions
+  View
 } from 'react-native';
-import Svg, { Polygon } from 'react-native-svg';
-import { FontAwesome } from '@expo/vector-icons';
+import Svg, { Defs, Line, Polygon, Stop, LinearGradient as SvgLinearGradient, Filter, FeGaussianBlur, FeMerge, FeMergeNode } from 'react-native-svg';
 
 import commonStyles from '../styles';
-
-// Data from six_complex.tsx
-const { width: screenWidth } = Dimensions.get('window');
 
 interface TreeNode {
   id: string;
@@ -23,167 +21,218 @@ interface TreeNode {
   description: string;
   status: 'locked' | 'unlockable' | 'completed';
   children: string[];
-  unlockConditions: Array<{ 
+  unlockConditions: Array<{
     requires: string[];
     pathName?: string;
   }>;
   position?: { x: number; y: number };
 }
 
-// Mock user stats - in a real app this would come from user data
-const userStats = {
-    totalWorkouts: 5, // Mock value for demonstration
-    totalCalories: 1200, // Mock value
-    hasProfile: true,
-};
+const { width: screenWidth } = Dimensions.get('window');
 
-// Tree data structure with centered positioning
-const centerX = screenWidth * 0.5;
-const treeData: TreeNode[] = [
+const initialTreeData: TreeNode[] = [
     {
       id: "INITIATE",
       name: "Initiate",
       icon: "user-plus",
       description: "Create your profile and initiate the connection.",
-      status: userStats.hasProfile ? "completed" : "unlockable",
+      status: "completed",
       children: ["ACCESS_GRID"],
       unlockConditions: [],
-      position: { x: centerX, y: 120 }
     },
     {
       id: "ACCESS_GRID",
       name: "Assessment",
       icon: "clipboard",
       description: "Complete the initial fitness assessment to calibrate your journey.",
-      status: userStats.totalWorkouts > 0 ? "completed" : "unlockable",
+      status: "completed",
       children: ["FLEXIBILITY_PATH", "STRENGTH_PATH", "CORE_PATH"],
       unlockConditions: [{ requires: ["INITIATE"] }],
-      position: { x: centerX, y: 250 }
     },
     {
       id: "FLEXIBILITY_PATH",
       name: "Flexibility",
       icon: "users",
       description: "Unlock basic flexibility routines.",
-      status: userStats.totalWorkouts >= 2 ? "completed" : userStats.totalWorkouts > 0 ? "unlockable" : "locked",
+      status: "completed",
       children: ["DYNAMIC_STRETCHING", "STATIC_STRETCHING"],
       unlockConditions: [{ requires: ["ACCESS_GRID"] }],
-      position: { x: centerX - 120, y: 380 }
     },
     {
       id: "STRENGTH_PATH",
       name: "Strength",
       icon: "cog",
       description: "Engage foundational strength exercises.",
-      status: userStats.totalWorkouts >= 3 ? "completed" : userStats.totalWorkouts > 0 ? "unlockable" : "locked",
-      children: ["PUSHUPS_10", "SQUATS_10", "PULLUP_ASSIST"],
+      status: "completed",
+      children: ["PUSHUPS_10", "SQUATS_10"],
       unlockConditions: [{ requires: ["ACCESS_GRID"] }],
-      position: { x: centerX, y: 380 }
     },
     {
       id: "CORE_PATH",
       name: "Core",
       icon: "fire",
       description: "Activate your core stability.",
-      status: userStats.totalWorkouts >= 4 ? "completed" : userStats.totalWorkouts > 0 ? "unlockable" : "locked",
-      children: ["PLANK_30S", "LEG_RAISES"],
+      status: "completed",
+      children: ["PLANK_30S"],
       unlockConditions: [{ requires: ["ACCESS_GRID"] }],
-      position: { x: centerX + 120, y: 380 }
     },
     {
       id: "DYNAMIC_STRETCHING",
       name: "Dynamic Flow",
       icon: "bolt",
       description: "Complete a 5-minute dynamic stretching routine.",
-      status: userStats.totalWorkouts >= 5 ? "completed" : userStats.totalWorkouts >= 2 ? "unlockable" : "locked",
+      status: "completed",
       children: ["YOGA_CORE"],
       unlockConditions: [{ requires: ["FLEXIBILITY_PATH"] }],
-      position: { x: centerX - 150, y: 510 }
     },
     {
       id: "STATIC_STRETCHING",
       name: "Static Hold",
       icon: "pause",
       description: "Hold key stretches for 30 seconds each.",
-      status: userStats.totalWorkouts >= 6 ? "completed" : userStats.totalWorkouts >= 2 ? "unlockable" : "locked",
-      children: ["DEEP_STRETCH"],
+      status: "unlockable",
+      children: [],
       unlockConditions: [{ requires: ["FLEXIBILITY_PATH"] }],
-      position: { x: centerX - 90, y: 510 }
     },
     {
       id: "PUSHUPS_10",
       name: "10 Push-ups",
       icon: "hand-rock-o",
       description: "Complete 10 consecutive push-ups.",
-      status: userStats.totalWorkouts >= 7 ? "completed" : userStats.totalWorkouts >= 3 ? "unlockable" : "locked",
-      children: ["PUSHUPS_25"],
+      status: "unlockable",
+      children: [],
       unlockConditions: [{ requires: ["STRENGTH_PATH"] }],
-      position: { x: centerX - 30, y: 510 }
     },
     {
       id: "SQUATS_10",
       name: "10 Squats",
       icon: "male",
       description: "Complete 10 bodyweight squats with good form.",
-      status: userStats.totalWorkouts >= 8 ? "completed" : userStats.totalWorkouts >= 3 ? "unlockable" : "locked",
-      children: ["YOGA_CORE", "SQUATS_30"],
+      status: "unlockable",
+      children: ["YOGA_CORE"],
       unlockConditions: [{ requires: ["STRENGTH_PATH"] }],
-      position: { x: centerX + 30, y: 510 }
     },
     {
       id: "PLANK_30S",
       name: "30s Plank",
       icon: "minus",
       description: "Hold a plank for 30 seconds.",
-      status: userStats.totalWorkouts >= 9 ? "completed" : userStats.totalWorkouts >= 4 ? "unlockable" : "locked",
+      status: "unlockable",
       children: ["YOGA_CORE", "CORE_CIRCUIT"],
       unlockConditions: [{ requires: ["CORE_PATH"] }],
-      position: { x: centerX + 90, y: 510 }
     },
     {
       id: "YOGA_CORE",
       name: "Yoga Core",
       icon: "circle-o",
       description: "Unlock the fundamentals of Yoga, focusing on core engagement.",
-      status: userStats.totalWorkouts >= 12 ? "completed" : userStats.totalWorkouts >= 8 ? "unlockable" : "locked",
+      status: "locked",
       children: ["SUN_SALUTATION"],
       unlockConditions: [
         { pathName: "Flexibility Path", requires: ["DYNAMIC_STRETCHING"] },
         { pathName: "Strength & Core Path", requires: ["SQUATS_10", "PLANK_30S"] }
       ],
-      position: { x: centerX - 60, y: 640 }
     },
     {
       id: "CORE_CIRCUIT",
       name: "Core Circuit",
       icon: "refresh",
       description: "Survive the first core burnout circuit.",
-      status: userStats.totalWorkouts >= 15 ? "completed" : userStats.totalWorkouts >= 9 ? "unlockable" : "locked",
+      status: "locked",
       children: ["ADVANCED_CORE"],
       unlockConditions: [{ requires: ["PLANK_30S"] }],
-      position: { x: centerX + 120, y: 640 }
     },
     {
       id: "SUN_SALUTATION",
       name: "Sun Salutation",
       icon: "sun-o",
       description: "Master the full Sun Salutation yoga flow.",
-      status: userStats.totalWorkouts >= 20 ? "completed" : userStats.totalWorkouts >= 15 ? "unlockable" : "locked",
-      children: ["ADVANCED_YOGA"],
+      status: "locked",
+      children: [],
       unlockConditions: [{ requires: ["YOGA_CORE"] }],
-      position: { x: centerX - 30, y: 770 }
     },
     {
       id: "ADVANCED_CORE",
       name: "Advanced Core",
       icon: "fire",
       description: "Unlock advanced core exercises like L-sits.",
-      status: userStats.totalWorkouts >= 25 ? "completed" : userStats.totalWorkouts >= 20 ? "unlockable" : "locked",
+      status: "locked",
       children: [],
       unlockConditions: [{ requires: ["CORE_CIRCUIT"] }],
-      position: { x: centerX + 90, y: 770 }
     }
   ];
+
+const assignLayers = (data: TreeNode[]): { [key: string]: number } => {
+  const layers: { [key: string]: number } = {};
+  const nodeMap = new Map(data.map(node => [node.id, node]));
+  const memo: { [key: string]: number } = {};
+
+  const getLayer = (nodeId: string): number => {
+    if (memo[nodeId] !== undefined) {
+      return memo[nodeId];
+    }
+
+    const node = nodeMap.get(nodeId);
+    if (!node || node.unlockConditions.length === 0 || node.unlockConditions[0].requires.length === 0) {
+      memo[nodeId] = 0;
+      return 0;
+    }
+
+    let maxLayer = 0;
+    for (const condition of node.unlockConditions) {
+      for (const parentId of condition.requires) {
+        const parentLayer = getLayer(parentId);
+        if (parentLayer + 1 > maxLayer) {
+          maxLayer = parentLayer + 1;
+        }
+      }
+    }
+    memo[nodeId] = maxLayer;
+    return maxLayer;
+  };
+
+  for (const node of data) {
+    layers[node.id] = getLayer(node.id);
+  }
+
+  return layers;
+};
+
+const calculateNodePositions = (data: TreeNode[], screenWidth: number): TreeNode[] => {
+  const dataWithPositions = [...data];
+  const layers = assignLayers(data);
+  const nodesByLayer: { [key: number]: string[] } = {};
+
+  for (const nodeId in layers) {
+    const layer = layers[nodeId];
+    if (!nodesByLayer[layer]) {
+      nodesByLayer[layer] = [];
+    }
+    nodesByLayer[layer].push(nodeId);
+  }
+
+  const yOffset = 150;
+  const xOffset = 120;
+
+  for (const layer in nodesByLayer) {
+    const levelNodes = nodesByLayer[layer];
+    const y = parseInt(layer) * yOffset + 100;
+    const levelWidth = (levelNodes.length - 1) * xOffset;
+    const startX = (screenWidth - levelWidth) / 2;
+
+    levelNodes.forEach((nodeId, index) => {
+      const node = dataWithPositions.find(n => n.id === nodeId);
+      if (node) {
+        node.position = {
+          x: startX + index * xOffset,
+          y: y,
+        };
+      }
+    });
+  }
+
+  return dataWithPositions;
+};
 
 export default function ProgressionTreeScreen() {
   const { t } = useTranslation();
@@ -191,164 +240,146 @@ export default function ProgressionTreeScreen() {
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
 
   useEffect(() => {
-    // Update node statuses based on unlock conditions
-    const nodesMap = new Map(treeData.map(node => [node.id, { ...node }]));
-    
-    let changed = true;
-    while (changed) {
-      changed = false;
-      for (const [nodeId, node] of nodesMap) {
-        if (node.status === 'completed') continue;
-        
-        const canUnlock = node.unlockConditions.some(condition =>
-          condition.requires.every(reqId => nodesMap.get(reqId)?.status === 'completed')
-        );
-        
-        if (node.status === 'locked' || node.status === 'unlockable') {
-          const newStatus = canUnlock ? 'unlockable' : 'locked';
-          if (node.status !== newStatus) {
-            node.status = newStatus as 'locked' | 'unlockable' | 'completed';
-            changed = true;
-          }
-        }
-      }
-    }
-    
+    const positionedData = calculateNodePositions(initialTreeData, screenWidth);
+    const nodesMap = new Map(positionedData.map(node => [node.id, { ...node }]));
     setTreeNodes(nodesMap);
-  }, [userStats.totalWorkouts]);
+  }, []);
 
-  const getUnlockText = (node: TreeNode) => {
-    if (node.status === 'completed') return 'Completed!';
-    if (node.status === 'unlockable') return 'Available now!';
-    
-    if (node.unlockConditions) {
-      const requirements = node.unlockConditions.map((condition) => {
-        if (condition.requires) {
-          return condition.requires.map(reqId => {
-            const requiredNode = treeNodes.get(reqId);
-            return `${requiredNode?.name || reqId}: ${requiredNode?.status === 'completed' ? '✓' : '✗'}`;
-          }).join('\n');
-        }
-        return '';
-      }).filter((req: string) => req).join('\n');
-      return `Requirements:\n${requirements}`;
-    }
-    
-    return 'Complete previous steps to unlock';
+  const renderConnectionLines = () => {
+    const lines: JSX.Element[] = [];
+    let lineKey = 0;
+
+    treeNodes.forEach((node) => {
+      if (node.children.length === 0) return;
+
+      node.children.forEach((childId) => {
+        const childNode = treeNodes.get(childId);
+        if (!childNode || !node.position || !childNode.position) return;
+
+        const parentCompleted = node.status === 'completed';
+        const strokeColor = parentCompleted ? '#39ff14' : '#4a4a4a';
+
+        lines.push(
+          <Line
+            key={`line-${lineKey++}`}
+            x1={node.position.x}
+            y1={node.position.y + 40} // Adjusted for NODE_SIZE
+            x2={childNode.position.x}
+            y2={childNode.position.y - 40} // Adjusted for NODE_SIZE
+            stroke={strokeColor}
+            strokeWidth="2"
+            opacity={0.8}
+            strokeLinecap="round"
+          />
+        );
+      });
+    });
+
+    return lines;
   };
 
-  const renderHexNode = (node: TreeNode) => {
+  const NODE_SIZE = 80;
+
+  const renderNode = (node: TreeNode) => {
+    if (!node.position) return null;
+
     const isLocked = node.status === 'locked';
-  
-    // Inner hexagon, radius ~70 (almost touching outer edges)
-    const innerHexPoints = "70,10 122,46 122,94 70,130 18,94 18,46";
+    const hexPoints = `${NODE_SIZE/2},5 ${NODE_SIZE-5},${NODE_SIZE*0.275} ${NODE_SIZE-5},${NODE_SIZE*0.725} ${NODE_SIZE/2},${NODE_SIZE-5} 5,${NODE_SIZE*0.725} 5,${NODE_SIZE*0.275}`;
 
     return (
       <TouchableOpacity
         key={node.id}
-        style={[ 
-          styles.hexNode,
-          { 
-            opacity: isLocked ? 0.6 : 1,
+        style={[
+          styles.node,
+          {
+            left: node.position.x - NODE_SIZE/2,
+            top: node.position.y - NODE_SIZE/2,
+            width: NODE_SIZE,
+            height: NODE_SIZE,
+            opacity: isLocked ? 0.5 : 1,
           }
         ]}
         onPress={() => setSelectedNode(selectedNode === node.id ? null : node.id)}
         disabled={isLocked}
       >
-        <Svg width="140" height="140">
-          
-          {/* Inner black hexagon (TimerButton style) */}
+        <Svg width={NODE_SIZE} height={NODE_SIZE}>
           <Polygon
-            points={innerHexPoints}
+            points={hexPoints}
             fill='rgba(41, 57, 68, 1)'
             stroke={node.status === 'completed' ? '#39ff14' : node.status === 'unlockable' ? '#4a9eff' : '#6a6a6a'}
             strokeWidth={2}
           />
         </Svg>
         
-        <View style={styles.hexContent}>
+        <View style={styles.nodeContent}>
           <FontAwesome
             name={node.icon as any}
-            size={24}
+            size={20}
             color="#fff"
           />
-          <Text
-            style={[ 
-              styles.hexText,
-            ]}
-          >
-            {node.name}
-          </Text>
+          <Text style={styles.nodeName}>{node.name}</Text>
         </View>
-
+        
         {selectedNode === node.id && (
           <View style={styles.tooltip}>
             <Text style={styles.tooltipTitle}>{node.name}</Text>
             <Text style={styles.tooltipText}>{node.description}</Text>
-            <Text style={styles.tooltipUnlock}>{getUnlockText(node)}</Text>
+            {node.unlockConditions.length > 0 && (
+              <Text style={styles.requirementsText}>
+                Requirements: {node.unlockConditions.map(c => c.requires.join(', ')).join(' & ')}
+              </Text>
+            )}
           </View>
         )}
       </TouchableOpacity>
     );
   };
 
-  const renderProgressionTree = () => {
-    const nodes = Array.from(treeNodes.values());
-    if (nodes.length > 0) {
-      // Group components into rows of 2
-      const cols = 2;
-      const rows: any[] = [];
-      for (let i = 0; i < nodes.length; i += cols) {
-        rows.push(nodes.slice(i, i + cols));
-      }
-      return (
-        <View style={styles.hexTreeContainer}>
-          {rows.map((row, rIdx) => (
-            <View key={`row_${rIdx}`} style={styles.nodeRow}>
-              {row.map((node: TreeNode, cIdx: number) => (
-                <View key={`${rIdx}_node_${cIdx}`} style={{ marginHorizontal: 8, marginVertical:-5 }}>
-                  {renderHexNode(node)}
-                </View>
-              ))}
-            </View>
-          ))}
-        </View>
-      );
-    }
-    return null;
-  };
-
   return (
     <View style={commonStyles.container}>
-      <View style={[commonStyles.outerContainer, { maxHeight: 200 }]}>
+      <View style={commonStyles.outerContainer}>
         <Text style={commonStyles.tileTitle}>{t('progression')}</Text>
+        
         <View style={[commonStyles.tile, styles.headerTile]}>
           <View style={styles.headerContent}>
             <Text style={styles.title}>Your Fitness Journey</Text>
             <Text style={styles.subtitle}>
-              Total Workouts: {userStats.totalWorkouts} | Progress your skills!
+              Progress your skills!
             </Text>
           </View>
         </View>
+
+        <ScrollView 
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.treeContainer}> 
+            <Svg style={styles.svgOverlay} width={screenWidth} height={900}>
+              {renderConnectionLines()}
+            </Svg>
+            <View style={{ position: 'absolute', top: 0, left: 0, width: screenWidth, height: 900 }}>
+              {Array.from(treeNodes.values()).map(renderNode)}
+            </View>
+          </View>
+        </ScrollView>
       </View>
-      
-        <View style={[commonStyles.tile, { flex: 1, padding: 5 }]}> 
-          <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-            {renderProgressionTree()}
-          </ScrollView>
-        </View>
-      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#1a1d21',
+  },
   headerTile: {
     width: '100%',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   headerContent: {
     alignItems: 'center',
-    padding: 20,
+    padding: 15,
   },
   title: {
     fontSize: 24,
@@ -359,11 +390,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#f0f0f0',
     opacity: 0.8,
     textAlign: 'center',
-    marginBottom: 20,
   },
   scrollView: {
     flex: 1,
@@ -371,28 +401,24 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 10,
-    paddingBottom: 10,
+    paddingBottom: 100,
   },
   treeContainer: {
-    width: '100%',
-    marginBottom: 0,
-    zIndex: 0,
-  },
-  hexTreeContainer: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  nodeRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginVertical: 8,
-  },
-  hexNode: {
     position: 'relative',
-    width: 140,
-    height: 140,
+    height: 900,
+    width: '100%',
   },
-  hexContent: {
+  svgOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    zIndex: 1,
+  },
+  node: {
+    position: 'absolute',
+    zIndex: 2,
+  },
+  nodeContent: {
     position: 'absolute',
     top: 0,
     left: 0,
@@ -400,20 +426,19 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 8,
+    zIndex: 3,
   },
-  hexText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold',
+  nodeName: {
+    fontSize: 10,
+    fontWeight: '600',
     textAlign: 'center',
-    width: 110,
-    marginTop: 2,
+    marginTop: 4,
+    color: '#fff',
     textTransform: 'uppercase',
   },
   tooltip: {
     position: 'absolute',
-    top: -70,
+    top: -90,
     left: -60,
     width: 200,
     backgroundColor: '#2c2f33',
@@ -423,12 +448,6 @@ const styles = StyleSheet.create({
     borderColor: '#4a4a4a',
     zIndex: 10,
   },
-  tooltipText: {
-    color: '#f0f0f0',
-    fontSize: 12,
-    textAlign: 'center',
-    marginBottom: 8,
-  },
   tooltipTitle: {
     color: '#fff',
     fontSize: 14,
@@ -436,9 +455,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 8,
   },
-  tooltipUnlock: {
-    color: '#4a9eff',
-    fontSize: 11,
+  tooltipText: {
+    color: '#f0f0f0',
+    fontSize: 12,
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  requirementsText: {
+    color: '#6a6a6a',
+    fontSize: 10,
     textAlign: 'center',
     fontStyle: 'italic',
   },

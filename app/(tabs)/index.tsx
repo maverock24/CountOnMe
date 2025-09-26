@@ -521,33 +521,6 @@ export default function TabOneScreen() {
             />
           </View>
         </View>
-
-        {/* Toast Test Buttons */}
-        <Text style={commonStyles.tileTitle}>🧪 Test Toast Effects</Text>
-        <View style={commonStyles.tile}>
-          <View style={styles.toastTestContainer}>
-            <TimerButton
-              text="🔥 Tesla Coil Success"
-              onPress={() => showTestToast('success')}
-              style={{ marginHorizontal: 5, width: 160 }}
-            />
-            <TimerButton
-              text="⚡ Electric Error"
-              onPress={() => showTestToast('error')}
-              style={{ marginHorizontal: 5, width: 160 }}
-            />
-            <TimerButton
-              text="⚠️ Warning Flash"
-              onPress={() => showTestToast('warning')}
-              style={{ marginHorizontal: 5, width: 160 }}
-            />
-            <TimerButton
-              text="💫 Info Surge"
-              onPress={() => showTestToast('info')}
-              style={{ marginHorizontal: 5, width: 160 }}
-            />
-          </View>
-        </View>
       </View>
     </View>
   );
