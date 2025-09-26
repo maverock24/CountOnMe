@@ -190,20 +190,20 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 }}>
         <CustomPicker
           containerStyle={{ margin: 2, justifyContent: 'center' }}
-          style={{ alignSelf: 'center', justifyContent: 'center'}}
+          style={{ alignSelf: 'center', justifyContent: 'center', width: 250}}
           selectedValue={selectedGroup}
           onValueChange={onGroupChange}
           items={groupData}
           dropdownIconColor="#fff"
         />
-        {showSingleSelect && (
+        {/* {showSingleSelect && (
           <TimerButton 
             text={isSingleSelect ? t('Single') || 'Single' : t('all') || 'All'}
             onPress={toggleSingleSelect}
             isSelected={isSingleSelect}
             style={{ width: 100 }}
           />
-        )}
+        )} */}
         {showReorderButton && (
           <TimerButton 
             text={isReorderMode ? t('done') || 'Done' : t('reorder') || 'Reorder'}

@@ -1,6 +1,6 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { faBed, faRunning } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -18,12 +18,12 @@ import {
 } from 'react-native';
 import Svg, { Circle, Defs, FeGaussianBlur, FeMerge, FeMergeNode, Filter } from 'react-native-svg';
 
-import { useToast } from '@/components/ToastProvider';
 import { useData } from '@/components/data.provider';
 import { WorkoutItem } from '@/components/data/types';
 import ReorderableWorkoutList from '@/components/ReorderableWorkoutList';
 import TimerButton from '@/components/TimerButton';
 import TimerItem from '@/components/TimerItem';
+import { useToast } from '@/components/ToastProvider';
 import Colors from '@/constants/Colors';
 import { clearSeededProgressions, seedProgressionGroupsToStorage } from '@/utils/progressionStorage';
 
@@ -590,14 +590,14 @@ const TabTwoScreen: React.FC = () => {
           <Text style={commonStyles.tileTitle}>{t('workouts')}</Text>
           <View style={[commonStyles.tile, { flex: 1, padding: 5 }]}>            
             {noWorkout && <TimerButton text={t('add_button')} onPress={handleAddNew} maxWidth />}
-            {__DEV__ && (
+            {/* {__DEV__ && (
               <View style={{ marginTop: 8, alignItems: 'center' }}>
                 <TimerButton text={'DEV: Reseed'} onPress={handleDevReseed} small />
               </View>
-            )}
+            )} */}
             
             <View style={{ width: '100%' }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginBottom: 6 }}>
+              {/* <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginBottom: 6 }}>
                 <Text style={{ color: '#b0e0e6', marginRight: 8 }}>{selectedGroup}</Text>
                 <TouchableOpacity
                   onPress={() => {
@@ -630,7 +630,7 @@ const TabTwoScreen: React.FC = () => {
                 >
                   <Text style={styles.helpButtonText}>?</Text>
                 </TouchableOpacity>
-              </View>
+              </View> */}
               {/* Group description modal (safe rendering of description string) */}
               {groupDescVisible ? (
                 <Modal

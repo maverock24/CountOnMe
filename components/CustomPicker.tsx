@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     minHeight: 30,
     justifyContent: 'center',
-    paddingHorizontal: 5,
+    paddingHorizontal: 10,
     borderWidth: 1,
     borderColor: '#2A2E33',
   },
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     height: 30,
-    paddingHorizontal: 5,
+    paddingHorizontal: 15,
   },
   selectedText: {
     color: '#fff',
