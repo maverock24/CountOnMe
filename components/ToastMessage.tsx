@@ -728,7 +728,7 @@ export default function ToastMessage({
               ],
             }]}> 
               <Svg width={HEX_WIDTH} height={HEX_HEIGHT} style={styles.hexagonSvg}>
-                <Polygon points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`} fill="#222831" opacity={0.8} />
+                <Polygon points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`} fill="rgba(27, 34, 39, 0.95)" />
                 {/* Multiple hexagon strokes for glow effect without container visibility */}
                 <AnimatedPolygon 
                   points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`} 
@@ -847,5 +847,5 @@ const styles = StyleSheet.create<Styles>({
   particleLayer: { position: 'absolute', left: 0, top: 0, width: HEX_WIDTH, height: HEX_HEIGHT, zIndex: 120, overflow: 'visible' },
   toastContent: { ...StyleSheet.absoluteFillObject, paddingHorizontal: 50 * TOAST_SCALE, paddingVertical: 20 * TOAST_SCALE, justifyContent: 'center', alignItems: 'center' },
   content: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
-  message: { flex: 1, fontSize: 18 * TOAST_SCALE, fontWeight: '600', color: '#ffffff', textAlign: 'center', lineHeight: 24 * TOAST_SCALE, textShadowColor: 'rgba(0,0,0,0.5)', textShadowOffset: { width: 1 * TOAST_SCALE, height: 1 * TOAST_SCALE }, textShadowRadius: 2 * TOAST_SCALE },
+  message: { flex: 1, fontSize: 28 * TOAST_SCALE, fontWeight: 'bold', color: '#ffffff', textAlign: 'center', lineHeight: 24 * TOAST_SCALE, textShadowColor: 'rgba(0,0,0,0.5)', textShadowOffset: { width: 1 * TOAST_SCALE, height: 1 * TOAST_SCALE }, textShadowRadius: 2 * TOAST_SCALE },
 });
