@@ -255,13 +255,10 @@ export default function ProgressionTreeScreen() {
     }
   };
 
+  const TIMER_BUTTON_BG = '#181c20'; // TimerButton background color
   const getNodeBackground = (status: string): [string, string] => {
-    switch (status) {
-      case 'completed': return ['#39ff14', '#2ecc71'];
-      case 'unlockable': return ['#ffffff', '#ecf0f1'];
-      case 'locked': return ['#2c2f33', '#34495e'];
-      default: return ['#2c2f33', '#34495e'];
-    }
+    // All nodes use TimerButton background
+    return [TIMER_BUTTON_BG, TIMER_BUTTON_BG];
   };
 
   const renderConnectionLines = () => {
@@ -296,14 +293,14 @@ export default function ProgressionTreeScreen() {
     return lines;
   };
 
+  const NODE_SIZE = 60;
+  const hexPoints = `${NODE_SIZE/2},5 ${NODE_SIZE-5},${NODE_SIZE*0.275} ${NODE_SIZE-5},${NODE_SIZE*0.725} ${NODE_SIZE/2},${NODE_SIZE-5} 5,${NODE_SIZE*0.725} 5,${NODE_SIZE*0.275}`;
+
   const renderNode = (node: TreeNode) => {
     if (!node.position) return null;
 
     const nodeColors = getNodeBackground(node.status);
     const isLocked = node.status === 'locked';
-
-    // Hexagon points for a 100x100 hexagon
-    const hexPoints = "50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5";
 
     return (
       <TouchableOpacity
@@ -311,40 +308,45 @@ export default function ProgressionTreeScreen() {
         style={[
           styles.node,
           {
-            left: node.position.x - 50,
-            top: node.position.y - 50,
+            left: node.position.x - NODE_SIZE/2,
+            top: node.position.y - NODE_SIZE/2,
+            width: NODE_SIZE,
+            height: NODE_SIZE,
             opacity: isLocked ? 0.5 : 1,
           }
         ]}
         onPress={() => setSelectedNode(selectedNode === node.id ? null : node.id)}
         disabled={isLocked}
       >
-        <Svg width="100" height="100" style={styles.hexagonSvg}>
+        <Svg width={NODE_SIZE} height={NODE_SIZE} style={styles.hexagonSvg}>
           <Defs>
-            <SvgLinearGradient id={`hexGrad-${node.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
-              <Stop offset="0%" stopColor={nodeColors[0]} stopOpacity="1" />
-              <Stop offset="100%" stopColor={nodeColors[1]} stopOpacity="1" />
-            </SvgLinearGradient>
+            <filter id={`glow-${node.id}`} x="-40%" y="-40%" width="180%" height="180%">
+              <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor={node.status === 'completed' ? '#39ff14' : node.status === 'unlockable' ? '#4a9eff' : '#6a6a6a'} floodOpacity="0.8" />
+              <feDropShadow dx="0" dy="0" stdDeviation="8" floodColor="#fff" floodOpacity="0.3" />
+            </filter>
           </Defs>
           <Polygon
             points={hexPoints}
-            fill={`url(#hexGrad-${node.id})`}
-            stroke={node.status === 'completed' ? '#39ff14' : node.status === 'unlockable' ? '#ffffff' : '#6a6a6a'}
-            strokeWidth="2"
+            fill={TIMER_BUTTON_BG}
+            stroke={node.status === 'completed' ? '#39ff14' : node.status === 'unlockable' ? '#4a9eff' : '#6a6a6a'}
+            strokeWidth="2.5"
+            filter={`url(#glow-${node.id})`}
           />
         </Svg>
         
         <View style={styles.nodeContent}>
           <FontAwesome
             name={node.icon as any}
-            size={18}
-            color={node.status === 'completed' ? '#1a1d21' : node.status === 'unlockable' ? '#1a1d21' : '#ffffff'}
+            size={16}
+            color="#fff"
           />
           <Text
             style={[
               styles.nodeName,
               {
-                color: node.status === 'completed' ? '#1a1d21' : node.status === 'unlockable' ? '#1a1d21' : '#ffffff'
+                fontSize: 8,
+                marginTop: 2,
+                color: '#fff'
               }
             ]}
           >
@@ -385,7 +387,7 @@ export default function ProgressionTreeScreen() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.treeContainer}>
+          <View style={[styles.treeContainer, { alignItems: 'center', justifyContent: 'flex-start', position: 'relative' }]}> // Center the node tree horizontally
             <Svg style={styles.svgOverlay} width={screenWidth} height={900}>
               <Defs>
                 <SvgLinearGradient id="connectionGradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -395,8 +397,9 @@ export default function ProgressionTreeScreen() {
               </Defs>
               {renderConnectionLines()}
             </Svg>
-            
-            {Array.from(treeNodes.values()).map(renderNode)}
+            <View style={{ width: screenWidth, alignItems: 'center', position: 'relative' }}>
+              {Array.from(treeNodes.values()).map(renderNode)}
+            </View>
           </View>
         </ScrollView>
       </View>
@@ -449,6 +452,8 @@ const styles = StyleSheet.create({
     position: 'relative',
     height: 900,
     width: '100%',
+    alignItems: 'center', // Center horizontally
+    justifyContent: 'flex-start',
   },
   svgOverlay: {
     position: 'absolute',
@@ -458,8 +463,8 @@ const styles = StyleSheet.create({
   },
   node: {
     position: 'absolute',
-    width: 100,
-    height: 100,
+    width: 60,
+    height: 60,
     zIndex: 2,
   },
   hexagonSvg: {
@@ -478,10 +483,10 @@ const styles = StyleSheet.create({
     zIndex: 3,
   },
   nodeName: {
-    fontSize: 10,
+    fontSize: 8,
     fontWeight: '600',
     textAlign: 'center',
-    marginTop: 4,
+    marginTop: 2,
     textTransform: 'uppercase',
   },
   tooltip: {

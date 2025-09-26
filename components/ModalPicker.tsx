@@ -7,14 +7,14 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-    Alert,
-    FlatList,
-    Modal,
-    Platform,
-    Pressable,
-    StyleSheet,
-    TouchableOpacity,
-    View,
+  Alert,
+  FlatList,
+  Modal,
+  Platform,
+  Pressable,
+  StyleSheet,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { useData } from './data.provider';
 import { getBlob, setBlob } from './data/indexeddb';
@@ -520,7 +520,7 @@ const styles = StyleSheet.create({
   musicPickerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgb(31, 39, 44)',
+    backgroundColor: 'rgba(41, 57, 68, 1)',
     borderRadius: 5,
     marginBottom: 15,
     justifyContent: 'space-between',
@@ -529,7 +529,7 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
   pickerWithPreview: {
-    backgroundColor: 'rgb(45, 55, 73)',
+    backgroundColor: 'rgba(41, 57, 68, 1)',
     color: '#fff',
     flex: 1,
   },

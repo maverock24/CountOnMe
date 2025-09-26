@@ -2,14 +2,14 @@ import Colors from '@/constants/Colors';
 import { FontAwesome } from '@expo/vector-icons';
 import React, { useRef, useState } from 'react';
 import {
-    FlatList,
-    Modal,
-    Platform,
-    Pressable,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  FlatList,
+  Modal,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 export interface PickerItem {
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     width: '40%',
   },
   pickerContainer: {
-    backgroundColor: 'rgb(31, 39, 44)',
+    backgroundColor: 'rgba(41, 57, 68, 1)',
     borderRadius: 5,
     marginBottom: 10,
     minHeight: 30,
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderBottomWidth: 1,
     borderBottomColor: 'rgb(42, 46, 51)',
-    backgroundColor: 'rgb(31, 39, 44)',
+    backgroundColor: 'rgba(41, 57, 68, 1)',
   },
   selectedDropdownItem: {
     backgroundColor: Colors.highlight,
