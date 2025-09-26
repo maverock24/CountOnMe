@@ -40,7 +40,7 @@ export default function TabLayout() {
         screenOptions={{
           tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
           tabBarStyle: { backgroundColor: 'black', height: 60 },
-          tabBarLabelStyle: { fontSize: 14 },
+          tabBarLabelStyle: { fontSize: 12 },
           headerShown: false,
           animation: 'fade',
           transitionSpec: {
@@ -94,7 +94,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="six"
           options={{
-            title: t('progression'),
+            title: t('progress'),
             tabBarIcon: ({ color }) => <TabBarIcon iconName={faSitemap} color={color} />,
           }}
         />
