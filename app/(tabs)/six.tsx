@@ -1,14 +1,15 @@
-import { FontAwesome } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View
 } from 'react-native';
-import Svg, { Defs, Polygon, Stop, LinearGradient as SvgLinearGradient } from 'react-native-svg';
+import Svg, { Polygon } from 'react-native-svg';
 
+import CustomPicker from '@/components/CustomPicker';
 import { useToast } from '../../components/ToastProvider';
 import commonStyles from '../styles';
 
@@ -33,11 +34,13 @@ interface UserProgress {
   unlockedExercises: string[];
 }
 
+const glowColor = '#40bfff'; // Use your preferred glow color
+
 export default function ProgressionTreeScreen() {
   const { t } = useTranslation();
   const { showToast } = useToast();
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
-  const [selectedProgression, setSelectedProgression] = useState<string | null>(progressionsList?.[0]?.name ?? null);
+  const [selectedProgression, setSelectedProgression] = useState<string>(progressionsList?.[0]?.name ?? '');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [toastIndex, setToastIndex] = useState(0);
   const [userProgress, setUserProgress] = useState<UserProgress>({
@@ -135,20 +138,9 @@ export default function ProgressionTreeScreen() {
   const renderHexNode = (nodeId: string) => {
     const nodeInfo = getNodeDisplayInfo(nodeId);
     const status = nodeInfo.status;
-    
-    // TimerButton-style gradient colors based on status
-    const getGradientColors = () => {
-      if (status.isCompleted) {
-        return { start: '#39ff14', end: '#2dd10f' }; // Green gradient for completed
-      } else if (status.isUnlocked) {
-        return { start: '#4a9eff', end: '#2d7dd6' }; // Blue gradient for unlocked
-      } else {
-        return { start: '#6a6a6a', end: '#4a4a4a' }; // Gray gradient for locked
-      }
-    };
-
-    const { start: gradientStart, end: gradientEnd } = getGradientColors();
-    const hexPoints = "40,4 76,22 76,58 40,76 4,58 4,22";
+  
+    // Inner hexagon, radius ~70 (almost touching outer edges)
+    const innerHexPoints = "70,10 122,46 122,94 70,130 18,94 18,46";
 
     return (
       <TouchableOpacity
@@ -159,70 +151,23 @@ export default function ProgressionTreeScreen() {
             opacity: !status.isUnlocked ? 0.6 : 1,
           }
         ]}
-        onPress={() => {
-          setSelectedNode(selectedNode === nodeId ? null : nodeId);
-          
-          // Show different toast messages based on node status
-          if (status.isCompleted) {
-            showToast({
-              type: 'success',
-              message: `✅ ${nodeInfo.name} completed!`,
-              duration: 2000,
-              position: 'top',
-            });
-          } else if (status.isUnlocked) {
-            showToast({
-              type: 'info',
-              message: `🎯 ${nodeInfo.name} is ready to start!`,
-              duration: 2000,
-              position: 'top',
-            });
-          } else {
-            showToast({
-              type: 'warning',
-              message: `🔒 Complete previous steps to unlock ${nodeInfo.name}`,
-              duration: 3000,
-              position: 'top',
-            });
-          }
-        }}
+      
       >
-        <Svg width="80" height="80">
-          <Defs>
-            <SvgLinearGradient id={`grad_${nodeId}`} x1="0%" y1="0%" x2="100%" y2="100%">
-              <Stop offset="0%" stopColor={gradientStart} />
-              <Stop offset="100%" stopColor={gradientEnd} />
-            </SvgLinearGradient>
-          </Defs>
-          
-          {/* Outer border hexagon with gradient */}
-          <Polygon
-            points={hexPoints}
-            fill={`url(#grad_${nodeId})`}
-            stroke="#000"
-            strokeWidth="3"
-          />
+        <Svg width="140" height="140">
           
           {/* Inner black hexagon (TimerButton style) */}
           <Polygon
-            points="40,8 72,24 72,56 40,72 8,56 8,24"
-            fill="#000"
-            stroke="none"
+            points={innerHexPoints}
+            fill='rgba(41, 57, 68, 1)'
+            stroke="#00bcd4"
+            strokeWidth={2}
           />
         </Svg>
         
         <View style={styles.hexContent}>
-          <FontAwesome
-            name={nodeInfo.icon as any}
-            size={16}
-            color={status.isCompleted ? '#39ff14' : status.isUnlocked ? '#4a9eff' : '#6a6a6a'}
-          />
           <Text
             style={[
               styles.hexText,
-              { 
-                color: status.isCompleted ? '#39ff14' : status.isUnlocked ? '#4a9eff' : '#6a6a6a'
-              }
             ]}
           >
             {nodeInfo.name}
@@ -245,20 +190,26 @@ export default function ProgressionTreeScreen() {
     const chosen = selectedProgression ? progressionsList.find((p) => p.name === selectedProgression) : null;
 
     if (chosen && Array.isArray(chosen.components) && chosen.components.length > 0) {
-      // Render components in rows of up to 3 nodes per row
-      const cols = 3;
+      // Group components into rows of 4
+      const cols = 4;
       const rows: any[] = [];
       for (let i = 0; i < chosen.components.length; i += cols) {
         rows.push(chosen.components.slice(i, i + cols));
       }
-
       return (
         <View style={styles.hexTreeContainer}>
           {rows.map((row, rIdx) => (
             <View key={`row_${rIdx}`} style={styles.nodeRow}>
               {row.map((comp: any, cIdx: number) => (
-                <View key={`${rIdx}_${cIdx}`} style={{ marginHorizontal: 8 }}>
-                  {renderHexNode(comp.component)}
+                <View style={{ flexDirection: 'row' }} key={`col_${cIdx}`}>
+                  <View key={`${rIdx}_node_${cIdx}`} style={{ marginHorizontal: 8, marginVertical:-5 }}>
+                    {renderHexNode(comp.component)}
+                  </View>
+                  <View key={`${rIdx}_text_${cIdx}`} style={{ marginHorizontal: -10, marginTop: 0, width: 220, height: 160 }}>
+                    <Text style={{ color: '#fff', fontSize: 14, textAlign: 'left', justifyContent: 'flex-start', marginTop: 4 }}>
+                      {getNodeDisplayInfo(comp.component).description || comp.description || ''}
+                    </Text>
+                  </View>
                 </View>
               ))}
             </View>
@@ -266,90 +217,31 @@ export default function ProgressionTreeScreen() {
         </View>
       );
     }
-
-    // Fallback: original static progression tree
-    return (
-      <View style={styles.hexTreeContainer}>
-        {/* Row 1: START */}
-        <View style={styles.nodeRow}>
-          {renderHexNode('START')}
-        </View>
-        
-        {/* Row 2: ASSESSMENT */}
-        <View style={styles.nodeRow}>
-          {renderHexNode('ASSESSMENT')}
-        </View>
-        
-        {/* Row 3: BASIC_STRENGTH and BASIC_CARDIO */}
-        <View style={styles.nodeRow}>
-          {renderHexNode('BASIC_STRENGTH')}
-          <View style={styles.nodeSpacing} />
-          {renderHexNode('BASIC_CARDIO')}
-        </View>
-        
-        {/* Row 4: Specific exercises */}
-        <View style={styles.nodeRow}>
-          {renderHexNode('PUSH_UPS_10')}
-          <View style={styles.nodeSpacing} />
-          {renderHexNode('PLANK_1MIN')}
-          <View style={styles.nodeSpacing} />
-          {renderHexNode('SQUATS_10')}
-        </View>
-        
-        {/* Row 5: YOGA_BASICS */}
-        <View style={styles.nodeRow}>
-          {renderHexNode('YOGA_BASICS')}
-        </View>
-        
-        {/* Row 6: ADVANCED_STRENGTH */}
-        <View style={styles.nodeRow}>
-          {renderHexNode('ADVANCED_STRENGTH')}
-        </View>
-      </View>
-    );
   };
 
   return (
     <View style={commonStyles.container}>
-      <View style={commonStyles.outerContainer}>
-        <Text style={commonStyles.tileTitle}>{t('progression')}</Text>
-        
-        <View style={[commonStyles.tile, styles.headerTile]}>
-          <View style={styles.headerContent}>
-            <Text style={styles.title}>Your Fitness Journey</Text>
-            <Text style={styles.subtitle}>
-              Tap hexagons to see details!
-            </Text>
-            {/* Progression selector dropdown */}
-            <View style={{ width: '100%', alignItems: 'center', marginBottom: 12 }}>
-              <TouchableOpacity
-                style={styles.dropdownToggle}
-                onPress={() => setDropdownOpen((s) => !s)}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.dropdownText}>{selectedProgression ?? t('select_progression')}</Text>
-              </TouchableOpacity>
+      <View style={[commonStyles.outerContainer, { maxHeight: 200 }]}>
+        <Text style={commonStyles.tileTitle}>{t('Selected Progression')}</Text>
+        {/* Progression selector dropdown - now uses ModalPicker */}
+       <View style={[commonStyles.tile, { flex: 1, padding: 10 }]}> 
+          <CustomPicker
+            items={progressionsList.map((p) => ({ label: p.name, value: p.name }))}
+            selectedValue={selectedProgression}
+            onValueChange={(itemValue) => setSelectedProgression(itemValue)}
+               dropdownIconColor="#fff"
+            style={{ width: '95%', height: 40 }}
+          />
+           <View style={{ flexDirection: 'row', alignItems: 'center', width: '100%', padding: 10 }}>
+          <Text style={{ color: 'white' }}>{progressionsList.find((p) => p.name === selectedProgression)?.description}</Text>
+        </View>
+        </View>
 
-              {dropdownOpen && (
-                <View style={styles.dropdownList}>
-                  {progressionsList.map((p) => (
-                    <TouchableOpacity
-                      key={p.name}
-                      style={styles.dropdownItem}
-                      onPress={() => {
-                        setSelectedProgression(p.name);
-                        setDropdownOpen(false);
-                      }}
-                    >
-                      <Text style={styles.dropdownItemText}>{p.name}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            </View>
-            
+      </View>
+      
+
             {/* Demo Toast Button */}
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={styles.demoButton}
               onPress={() => {
                 const toastTypes = [
@@ -388,15 +280,15 @@ export default function ProgressionTreeScreen() {
             >
               <FontAwesome name="magic" size={16} color="#fff" />
               <Text style={styles.demoButtonText}>Demo Toast</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+            </TouchableOpacity> */}
 
-        <View style={[commonStyles.tile, styles.treeContainer]}>
-          {renderProgressionTree()}
+        {/* Add ScrollView for progression tree */}
+        <View style={[commonStyles.tile, { flex: 1, padding: 5 }]}> 
+          <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+            {renderProgressionTree()}
+          </ScrollView>
         </View>
       </View>
-    </View>
   );
 }
 
@@ -430,26 +322,31 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 10,
-    paddingBottom: 50,
+    paddingBottom: 10,
   },
   treeContainer: {
-    position: 'relative',
-    height: 500, // Increased height for more nodes
     width: '100%',
-    marginBottom: 20,
+    marginBottom: 0,
+    zIndex: 0,
   },
-  node: {
-    position: 'absolute',
-    width: 80,
-    height: 80,
-    zIndex: 2,
+  hexTreeContainer: {
+    flex: 1,
+    marginLeft: -25,
+    alignItems: 'flex-start',
   },
-  hexagonSvg: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
+  nodeRow: {
+    width: '100%',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    marginVertical: 8,
   },
-  nodeContent: {
+  hexNode: {
+    position: 'relative',
+    width: 140,
+    height: 140,
+  },
+  hexContent: {
     position: 'absolute',
     top: 0,
     left: 0,
@@ -457,12 +354,14 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 3,
+    zIndex: 8,
   },
-  nodeName: {
-    fontSize: 8,
-    fontWeight: '600',
+  hexText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
     textAlign: 'center',
+    width: 110,
     marginTop: 2,
     textTransform: 'uppercase',
   },
@@ -497,83 +396,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontStyle: 'italic',
   },
-  nodeSpacing: {
-    width: 20,
-  },
-  demoButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(64, 191, 255, 0.2)',
-    borderWidth: 2,
-    borderColor: '#40bfff',
-    borderRadius: 12,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    marginTop: 16,
-  },
-  demoButtonText: {
-    color: '#40bfff',
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginLeft: 8,
-  },
-  testContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  testNode: {
-    backgroundColor: '#2c2f33',
-    borderRadius: 50,
-    width: 100,
-    height: 100,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#39ff14',
-  },
-  testText: {
-    color: '#f0f0f0',
-    fontSize: 12,
-    marginTop: 5,
-    textAlign: 'center',
-  },
-  hexTreeContainer: {
-    flex: 1,
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    paddingVertical: 20,
-  },
-  nodeRow: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 8,
-  },
-  hexNode: {
-    position: 'relative',
-    width: 80,
-    height: 80,
-  },
-  hexContent: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 2,
-  },
-  hexText: {
-    fontSize: 8,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginTop: 2,
-    textTransform: 'uppercase',
-  },
   dropdownToggle: {
     width: '90%',
     paddingVertical: 8,
@@ -589,6 +411,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   dropdownList: {
+    position: 'absolute',
     marginTop: 8,
     width: '90%',
     maxHeight: 220,
@@ -596,15 +419,25 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#2A2E33',
+    zIndex: 9999,
+    alignItems: 'center', // Center items horizontally
   },
   dropdownItem: {
     paddingVertical: 10,
     paddingHorizontal: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#2A2E33',
+    backgroundColor: 'rgba(17,24,30,0.95)',
+  },
+  dropdownItemHover: {
+    backgroundColor: '#40bfff',
   },
   dropdownItemText: {
     color: '#EFF0F0',
     fontSize: 14,
+  },
+  dropdownItemTextHover: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });

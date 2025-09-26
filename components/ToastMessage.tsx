@@ -22,8 +22,8 @@ const Colors = {
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
-// Scale factor to make the toast 1/3 smaller (i.e. multiply sizes by 2/3)
-const TOAST_SCALE = 2 / 3;
+// Scale factor to make the toast ^1/3 smaller (i.e. multiply sizes by 2/3)
+const TOAST_SCALE = 4 / 5;
 const HEX_WIDTH = 400 * TOAST_SCALE;
 const HEX_HEIGHT = 120 * TOAST_SCALE;
 
