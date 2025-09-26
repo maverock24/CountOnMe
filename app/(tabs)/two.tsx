@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { faBed, faRunning } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { router } from 'expo-router';
@@ -17,6 +18,7 @@ import {
 } from 'react-native';
 import Svg, { Circle, Defs, FeGaussianBlur, FeMerge, FeMergeNode, Filter } from 'react-native-svg';
 
+import { useToast } from '@/components/ToastProvider';
 import { useData } from '@/components/data.provider';
 import { WorkoutItem } from '@/components/data/types';
 import ReorderableWorkoutList from '@/components/ReorderableWorkoutList';
@@ -53,6 +55,7 @@ const CircleWrapper = React.forwardRef((props: any, ref: any) => {
 const AnimatedCircle = Animated.createAnimatedComponent(CircleWrapper);
 
 const TabTwoScreen: React.FC = () => {
+  const { showToast } = useToast();
   const { 
     workoutItems, 
     groupItems, 
@@ -394,7 +397,26 @@ const TabTwoScreen: React.FC = () => {
 
   // Set up workout completion callback after all functions are defined
   useEffect(() => {
-    const handleWorkoutCompleteCallback = () => {
+    const handleWorkoutCompleteCallback = async () => {
+      if (selectedItem) {
+        try {
+          const completedWorkouts = await AsyncStorage.getItem('@countOnMe_completed');
+          const completedWorkoutsArray = completedWorkouts ? JSON.parse(completedWorkouts) : [];
+          if (!completedWorkoutsArray.includes(selectedItem)) {
+            completedWorkoutsArray.push(selectedItem);
+            await AsyncStorage.setItem('@countOnMe_completed', JSON.stringify(completedWorkoutsArray));
+            showToast({
+              type: 'success',
+              message: 'Great Job !!!',
+              duration: 4000,
+              position: 'center',
+            });
+          }
+        } catch (error) {
+          console.error('Failed to save completed workout', error);
+        }
+      }
+
       if (singleSelectMode) {
         // In single-select mode: stop at the end of the current workout and do not advance
         handleTimerReset();
@@ -406,7 +428,7 @@ const TabTwoScreen: React.FC = () => {
     };
 
     setWorkoutCompleteCallback(handleWorkoutCompleteCallback);
-  }, [orderedWorkouts, handleWorkoutCompleteFlow, setWorkoutCompleteCallback, singleSelectMode, handleTimerReset, resetTimer]);
+  }, [orderedWorkouts, handleWorkoutCompleteFlow, setWorkoutCompleteCallback, singleSelectMode, handleTimerReset, resetTimer, selectedItem, showToast]);
 
   const handleAddNew = () => {
     router.push('/three');
