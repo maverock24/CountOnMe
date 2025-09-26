@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ScrollView,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Svg, { Polygon } from 'react-native-svg';
 
 import CustomPicker from '@/components/CustomPicker';
@@ -54,6 +55,25 @@ export default function ProgressionTreeScreen() {
     },
     unlockedExercises: ['Basic Warm-up', 'Breathing Exercises'],
   });
+
+  useEffect(() => {
+    const loadCompletedWorkouts = async () => {
+      try {
+        const completedWorkouts = await AsyncStorage.getItem('@countOnMe_completed');
+        if (completedWorkouts) {
+          const completedWorkoutsArray = JSON.parse(completedWorkouts);
+          setUserProgress(prevProgress => ({
+            ...prevProgress,
+            completedNodes: [...new Set([...prevProgress.completedNodes, ...completedWorkoutsArray])]
+          }));
+        }
+      } catch (error) {
+        console.error('Failed to load completed workouts', error);
+      }
+    };
+
+    loadCompletedWorkouts();
+  }, []);
 
   // Calculate node status based on user progress
   const getNodeStatus = (nodeId: string): NodeStatus => {

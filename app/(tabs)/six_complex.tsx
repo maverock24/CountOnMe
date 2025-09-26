@@ -1,28 +1,20 @@
-import { FontAwesome } from '@expo/vector-icons';
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Dimensions,
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
+  Dimensions
 } from 'react-native';
-import Svg, { Defs, Line, LinearGradient as SvgLinearGradient, Polygon, Stop } from 'react-native-svg';
+import Svg, { Polygon } from 'react-native-svg';
+import { FontAwesome } from '@expo/vector-icons';
 
-import Colors from '@/constants/Colors';
 import commonStyles from '../styles';
 
-// Import achievement system
-let useAchievements: any = null;
-try {
-  const achievementModule = require('@/components/achievements/provider');
-  useAchievements = achievementModule.useAchievements;
-} catch (error) {
-  console.log('Achievement system not available in progression tree');
-}
+// Data from six_complex.tsx
+const { width: screenWidth } = Dimensions.get('window');
 
 interface TreeNode {
   id: string;
@@ -31,49 +23,23 @@ interface TreeNode {
   description: string;
   status: 'locked' | 'unlockable' | 'completed';
   children: string[];
-  unlockConditions: Array<{
+  unlockConditions: Array<{ 
     requires: string[];
     pathName?: string;
   }>;
   position?: { x: number; y: number };
 }
 
-const { width: screenWidth } = Dimensions.get('window');
-
-export default function ProgressionTreeScreen() {
-  const { t } = useTranslation();
-  const [treeNodes, setTreeNodes] = useState<Map<string, TreeNode>>(new Map());
-  const [selectedNode, setSelectedNode] = useState<string | null>(null);
-  
-  // Optional achievement tracking
-  let achievementTracker: any = null;
-  try {
-    if (useAchievements) {
-      achievementTracker = useAchievements();
-    }
-  } catch (error) {
-    console.log('Achievement tracking not available');
-  }
-
-  useEffect(() => {
-    // Track progression tree visit
-    if (achievementTracker?.trackFeatureUsage) {
-      achievementTracker.trackFeatureUsage('progression_tree').catch((error: any) => 
-        console.log('Achievement tracking error:', error)
-      );
-    }
-  }, [achievementTracker]);
-
-  // Mock user stats - in a real app this would come from user data
-  const userStats = {
+// Mock user stats - in a real app this would come from user data
+const userStats = {
     totalWorkouts: 5, // Mock value for demonstration
     totalCalories: 1200, // Mock value
     hasProfile: true,
-  };
+};
 
-  // Tree data structure with centered positioning
-  const centerX = screenWidth * 0.5;
-  const treeData: TreeNode[] = [
+// Tree data structure with centered positioning
+const centerX = screenWidth * 0.5;
+const treeData: TreeNode[] = [
     {
       id: "INITIATE",
       name: "Initiate",
@@ -219,6 +185,11 @@ export default function ProgressionTreeScreen() {
     }
   ];
 
+export default function ProgressionTreeScreen() {
+  const { t } = useTranslation();
+  const [treeNodes, setTreeNodes] = useState<Map<string, TreeNode>>(new Map());
+  const [selectedNode, setSelectedNode] = useState<string | null>(null);
+
   useEffect(() => {
     // Update node statuses based on unlock conditions
     const nodesMap = new Map(treeData.map(node => [node.id, { ...node }]));
@@ -246,133 +217,111 @@ export default function ProgressionTreeScreen() {
     setTreeNodes(nodesMap);
   }, [userStats.totalWorkouts]);
 
-  const getNodeColor = (status: string) => {
-    switch (status) {
-      case 'completed': return '#39ff14'; // Neon green
-      case 'unlockable': return '#ffffff'; // White
-      case 'locked': return '#6a6a6a'; // Gray
-      default: return '#6a6a6a';
+  const getUnlockText = (node: TreeNode) => {
+    if (node.status === 'completed') return 'Completed!';
+    if (node.status === 'unlockable') return 'Available now!';
+    
+    if (node.unlockConditions) {
+      const requirements = node.unlockConditions.map((condition) => {
+        if (condition.requires) {
+          return condition.requires.map(reqId => {
+            const requiredNode = treeNodes.get(reqId);
+            return `${requiredNode?.name || reqId}: ${requiredNode?.status === 'completed' ? '✓' : '✗'}`;
+          }).join('\n');
+        }
+        return '';
+      }).filter((req: string) => req).join('\n');
+      return `Requirements:\n${requirements}`;
     }
+    
+    return 'Complete previous steps to unlock';
   };
 
-  const TIMER_BUTTON_BG = '#181c20'; // TimerButton background color
-  const getNodeBackground = (status: string): [string, string] => {
-    // All nodes use TimerButton background
-    return [TIMER_BUTTON_BG, TIMER_BUTTON_BG];
-  };
-
-  const renderConnectionLines = () => {
-    const lines: JSX.Element[] = [];
-    let lineKey = 0;
-
-    treeNodes.forEach((node) => {
-      if (node.children.length === 0) return;
-
-      node.children.forEach((childId) => {
-        const childNode = treeNodes.get(childId);
-        if (!childNode || !node.position || !childNode.position) return;
-
-        const parentCompleted = node.status === 'completed';
-        const strokeColor = parentCompleted ? '#39ff14' : '#4a4a4a';
-
-        lines.push(
-          <Line
-            key={`line-${lineKey++}`}
-            x1={node.position.x}
-            y1={node.position.y + 35}
-            x2={childNode.position.x}
-            y2={childNode.position.y - 35}
-            stroke={strokeColor}
-            strokeWidth="3"
-            opacity={0.8}
-          />
-        );
-      });
-    });
-
-    return lines;
-  };
-
-  const NODE_SIZE = 60;
-  const hexPoints = `${NODE_SIZE/2},5 ${NODE_SIZE-5},${NODE_SIZE*0.275} ${NODE_SIZE-5},${NODE_SIZE*0.725} ${NODE_SIZE/2},${NODE_SIZE-5} 5,${NODE_SIZE*0.725} 5,${NODE_SIZE*0.275}`;
-
-  const renderNode = (node: TreeNode) => {
-    if (!node.position) return null;
-
-    const nodeColors = getNodeBackground(node.status);
+  const renderHexNode = (node: TreeNode) => {
     const isLocked = node.status === 'locked';
+  
+    // Inner hexagon, radius ~70 (almost touching outer edges)
+    const innerHexPoints = "70,10 122,46 122,94 70,130 18,94 18,46";
 
     return (
       <TouchableOpacity
         key={node.id}
-        style={[
-          styles.node,
-          {
-            left: node.position.x - NODE_SIZE/2,
-            top: node.position.y - NODE_SIZE/2,
-            width: NODE_SIZE,
-            height: NODE_SIZE,
-            opacity: isLocked ? 0.5 : 1,
+        style={[ 
+          styles.hexNode,
+          { 
+            opacity: isLocked ? 0.6 : 1,
           }
         ]}
         onPress={() => setSelectedNode(selectedNode === node.id ? null : node.id)}
         disabled={isLocked}
       >
-        <Svg width={NODE_SIZE} height={NODE_SIZE} style={styles.hexagonSvg}>
-          <Defs>
-            <filter id={`glow-${node.id}`} x="-40%" y="-40%" width="180%" height="180%">
-              <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor={node.status === 'completed' ? '#39ff14' : node.status === 'unlockable' ? '#4a9eff' : '#6a6a6a'} floodOpacity="0.8" />
-              <feDropShadow dx="0" dy="0" stdDeviation="8" floodColor="#fff" floodOpacity="0.3" />
-            </filter>
-          </Defs>
+        <Svg width="140" height="140">
+          
+          {/* Inner black hexagon (TimerButton style) */}
           <Polygon
-            points={hexPoints}
-            fill={TIMER_BUTTON_BG}
+            points={innerHexPoints}
+            fill='rgba(41, 57, 68, 1)'
             stroke={node.status === 'completed' ? '#39ff14' : node.status === 'unlockable' ? '#4a9eff' : '#6a6a6a'}
-            strokeWidth="2.5"
-            filter={`url(#glow-${node.id})`}
+            strokeWidth={2}
           />
         </Svg>
         
-        <View style={styles.nodeContent}>
+        <View style={styles.hexContent}>
           <FontAwesome
             name={node.icon as any}
-            size={16}
+            size={24}
             color="#fff"
           />
           <Text
-            style={[
-              styles.nodeName,
-              {
-                fontSize: 8,
-                marginTop: 2,
-                color: '#fff'
-              }
+            style={[ 
+              styles.hexText,
             ]}
           >
             {node.name}
           </Text>
         </View>
-        
+
         {selectedNode === node.id && (
           <View style={styles.tooltip}>
+            <Text style={styles.tooltipTitle}>{node.name}</Text>
             <Text style={styles.tooltipText}>{node.description}</Text>
-            {node.unlockConditions.length > 0 && (
-              <Text style={styles.requirementsText}>
-                Requirements: {node.unlockConditions[0].requires.join(', ')}
-              </Text>
-            )}
+            <Text style={styles.tooltipUnlock}>{getUnlockText(node)}</Text>
           </View>
         )}
       </TouchableOpacity>
     );
   };
 
+  const renderProgressionTree = () => {
+    const nodes = Array.from(treeNodes.values());
+    if (nodes.length > 0) {
+      // Group components into rows of 2
+      const cols = 2;
+      const rows: any[] = [];
+      for (let i = 0; i < nodes.length; i += cols) {
+        rows.push(nodes.slice(i, i + cols));
+      }
+      return (
+        <View style={styles.hexTreeContainer}>
+          {rows.map((row, rIdx) => (
+            <View key={`row_${rIdx}`} style={styles.nodeRow}>
+              {row.map((node: TreeNode, cIdx: number) => (
+                <View key={`${rIdx}_node_${cIdx}`} style={{ marginHorizontal: 8, marginVertical:-5 }}>
+                  {renderHexNode(node)}
+                </View>
+              ))}
+            </View>
+          ))}
+        </View>
+      );
+    }
+    return null;
+  };
+
   return (
     <View style={commonStyles.container}>
-      <View style={commonStyles.outerContainer}>
+      <View style={[commonStyles.outerContainer, { maxHeight: 200 }]}>
         <Text style={commonStyles.tileTitle}>{t('progression')}</Text>
-        
         <View style={[commonStyles.tile, styles.headerTile]}>
           <View style={styles.headerContent}>
             <Text style={styles.title}>Your Fitness Journey</Text>
@@ -381,50 +330,25 @@ export default function ProgressionTreeScreen() {
             </Text>
           </View>
         </View>
-
-        <ScrollView 
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={[styles.treeContainer, { alignItems: 'center', justifyContent: 'flex-start', position: 'relative' }]}> // Center the node tree horizontally
-            <Svg style={styles.svgOverlay} width={screenWidth} height={900}>
-              <Defs>
-                <SvgLinearGradient id="connectionGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <Stop offset="0%" stopColor="#39ff14" stopOpacity="1" />
-                  <Stop offset="100%" stopColor="#ffffff" stopOpacity="1" />
-                </SvgLinearGradient>
-              </Defs>
-              {renderConnectionLines()}
-            </Svg>
-            <View style={{ width: screenWidth, alignItems: 'center', position: 'relative' }}>
-              {Array.from(treeNodes.values()).map(renderNode)}
-            </View>
-          </View>
-        </ScrollView>
       </View>
-    </View>
+      
+        <View style={[commonStyles.tile, { flex: 1, padding: 5 }]}> 
+          <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+            {renderProgressionTree()}
+          </ScrollView>
+        </View>
+      </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#1a1d21',
-  },
   headerTile: {
     width: '100%',
-    marginBottom: 10,
+    marginBottom: 20,
   },
   headerContent: {
     alignItems: 'center',
-    padding: 15,
-  },
-  header: {
-    alignItems: 'center',
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
+    padding: 20,
   },
   title: {
     fontSize: 24,
@@ -435,10 +359,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 12,
+    fontSize: 14,
     color: '#f0f0f0',
     opacity: 0.8,
     textAlign: 'center',
+    marginBottom: 20,
   },
   scrollView: {
     flex: 1,
@@ -446,33 +371,28 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 10,
-    paddingBottom: 100,
+    paddingBottom: 10,
   },
   treeContainer: {
-    position: 'relative',
-    height: 900,
     width: '100%',
-    alignItems: 'center', // Center horizontally
-    justifyContent: 'flex-start',
+    marginBottom: 0,
+    zIndex: 0,
   },
-  svgOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    zIndex: 1,
+  hexTreeContainer: {
+    flex: 1,
+    alignItems: 'center',
   },
-  node: {
-    position: 'absolute',
-    width: 60,
-    height: 60,
-    zIndex: 2,
+  nodeRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginVertical: 8,
   },
-  hexagonSvg: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
+  hexNode: {
+    position: 'relative',
+    width: 140,
+    height: 140,
   },
-  nodeContent: {
+  hexContent: {
     position: 'absolute',
     top: 0,
     left: 0,
@@ -480,19 +400,21 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 3,
+    zIndex: 8,
   },
-  nodeName: {
-    fontSize: 8,
-    fontWeight: '600',
+  hexText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
     textAlign: 'center',
+    width: 110,
     marginTop: 2,
     textTransform: 'uppercase',
   },
   tooltip: {
     position: 'absolute',
-    top: -90,
-    left: -50,
+    top: -70,
+    left: -60,
     width: 200,
     backgroundColor: '#2c2f33',
     borderRadius: 8,
@@ -505,11 +427,18 @@ const styles = StyleSheet.create({
     color: '#f0f0f0',
     fontSize: 12,
     textAlign: 'center',
-    marginBottom: 4,
+    marginBottom: 8,
   },
-  requirementsText: {
-    color: '#6a6a6a',
-    fontSize: 10,
+  tooltipTitle: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  tooltipUnlock: {
+    color: '#4a9eff',
+    fontSize: 11,
     textAlign: 'center',
     fontStyle: 'italic',
   },
