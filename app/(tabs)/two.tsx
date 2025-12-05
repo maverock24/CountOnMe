@@ -173,20 +173,26 @@ const TabTwoScreen: React.FC = () => {
     return () => { mounted = false; };
   }, []);
 
+  // Determine current segment for animation speed
+  const currentSegment = timers.length > 0 && currentIndex < timers.length
+    ? timers[currentIndex].segment
+    : null;
+
   useEffect(() => {
-    let pulseDuration = 350;
-    let pulseUpDuration = 125;
-    if (isRunning && currentMusicBeingPlayed) {
-      if (currentMusicBeingPlayed.toLowerCase().includes('chill:')) {
-        pulseDuration += 1000;
-        pulseUpDuration += 1000;
-      }
-    }
+    // Pulse animation speed based on segment type
+    // Break/chill: slower, more relaxed pulse
+    // Workout/action: faster, energetic pulse
+    const isBreakSegment = currentSegment === 'break';
+
+    const pulseDuration = isBreakSegment ? 1200 : 350;
+    const pulseUpDuration = isBreakSegment ? 800 : 125;
+    const pulseScale = isBreakSegment ? 1.005 : 1.01;
+
     if (isRunning) {
       const pulseAnimation = Animated.loop(
         Animated.sequence([
           Animated.timing(scaleValue, {
-            toValue: 1.01,
+            toValue: pulseScale,
             duration: pulseUpDuration,
             useNativeDriver: true,
             easing: Easing.inOut(Easing.quad),
@@ -208,7 +214,7 @@ const TabTwoScreen: React.FC = () => {
       }
       scaleValue.setValue(1);
     }
-  }, [isRunning, scaleValue, currentMusicBeingPlayed]);
+  }, [isRunning, scaleValue, currentSegment]);
 
   useEffect(() => {
     // This is now handled by centralized timer state - disabled is computed automatically
