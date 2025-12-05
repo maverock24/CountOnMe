@@ -92,7 +92,8 @@ const TabTwoScreen: React.FC = () => {
     setWorkoutCompleteCallback,
     handleWorkoutCompleteFlow,
     getCurrentSegment,
-    getTotalTime
+    getTotalTime,
+    setOnWorkoutMusicStart
   } = useData();
 
   const [selectedGroup, setSelectedGroup] = useState<string>('All');
@@ -230,11 +231,11 @@ const TabTwoScreen: React.FC = () => {
   useEffect(() => {
     // Progress animation based on current segment completion
     let progressValue = 0;
-    
+
     if (timers.length > 0 && currentIndex < timers.length) {
       const currentTimer = timers[currentIndex];
       const currentSegmentTime = currentTimer.time;
-      
+
       // Calculate progress within the current segment (0-100)
       // When time decreases from initial value to 0, progress should increase from 0 to 100
       if (currentSegmentTime > 0) {
@@ -243,10 +244,13 @@ const TabTwoScreen: React.FC = () => {
         progressValue = Math.max(0, Math.min(100, progressValue));
       }
     }
-    
+
+    // Animate smoothly over ~900ms (slightly less than 1s tick) for fluid continuous motion
+    // Linear easing creates constant-speed animation that appears perfectly smooth
     Animated.timing(progress, {
       toValue: progressValue,
-      duration: 200, // Shorter duration for smoother updates
+      duration: 900,
+      easing: Easing.linear,
       useNativeDriver: false,
     }).start();
   }, [time, currentIndex, timers, progress]);
@@ -324,11 +328,14 @@ const TabTwoScreen: React.FC = () => {
         resetTimer();
       }
 
+      // Motivational toast is now shown via onWorkoutMusicStart callback
+      // whenever action music starts (including on initial start and segment transitions)
+
       setTimeout(() => {
         if (time === 0 && timers[currentIndex]) {
           updateTimerTime(timers[currentIndex].time);
         }
-        
+
         // Use centralized timer start
         const currentSegment = timers.length > 0 ? timers[currentIndex].segment : '';
         if (currentSegment) {
@@ -429,6 +436,32 @@ const TabTwoScreen: React.FC = () => {
 
     setWorkoutCompleteCallback(handleWorkoutCompleteCallback);
   }, [orderedWorkouts, handleWorkoutCompleteFlow, setWorkoutCompleteCallback, singleSelectMode, handleTimerReset, resetTimer, selectedItem, showToast]);
+
+  // Set up callback for when workout/action music starts (for motivational toasts)
+  useEffect(() => {
+    const showMotivationalToast = () => {
+      const motivationalMessages = [
+        t('lets_go'),
+        t('you_got_this'),
+        t('time_to_crush_it'),
+        t('stay_strong'),
+        t('push_yourself'),
+      ];
+      const randomMessage = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
+      showToast({
+        type: 'success',
+        message: randomMessage,
+        duration: 2000,
+        position: 'center',
+      });
+    };
+
+    setOnWorkoutMusicStart(showMotivationalToast);
+
+    return () => {
+      setOnWorkoutMusicStart(null);
+    };
+  }, [t, showToast, setOnWorkoutMusicStart]);
 
   const handleAddNew = () => {
     router.push('/three');

@@ -122,7 +122,10 @@ interface DataContextType {
   // Timer Utilities
   getCurrentSegment: () => string;
   getTotalTime: () => number;
-  
+
+  // Callbacks
+  setOnWorkoutMusicStart: (callback: (() => void) | null) => void;
+
   // Language settings
   currentLanguage: string | null;
   setLanguage: (language: string | null) => void;
@@ -211,7 +214,7 @@ const DataProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
    */
   const handleTimerStart = useCallback(async (isRunning: boolean, currentSegment?: string, isAutoTransition = false) => {
     console.log(`[DataProvider.handleTimerStart] Called with isRunning: ${isRunning}, currentSegment: "${currentSegment}", isAutoTransition: ${isAutoTransition}`);
-    
+
     if (!isRunning || !currentSegment) {
       console.log(`[DataProvider.handleTimerStart] Early return - isRunning: ${isRunning}, currentSegment: "${currentSegment}"`);
       return;
@@ -223,6 +226,10 @@ const DataProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
       currentSegmentRef.current = currentSegment;
       console.log(`[DataProvider.handleTimerStart] Auto transition - calling playSound with: "${currentSegment}"`);
       await playSound(currentSegment);
+      // Trigger workout music start callback for motivational toast
+      if (currentSegment === 'workout' && onWorkoutMusicStartRef.current) {
+        onWorkoutMusicStartRef.current();
+      }
       return;
     }
 
@@ -230,7 +237,7 @@ const DataProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
     const now = Date.now();
     const timeSinceLastCall = now - lastSoundPlayTimeRef.current;
     const isSameSegment = currentSegmentRef.current === currentSegment;
-    
+
     // Only debounce if it's the same segment within a short time (manual calls should be more intentional)
     if (isSameSegment && timeSinceLastCall < 500) {
       console.log(`[DataProvider.handleTimerStart] Debounced - same segment within 500ms`);
@@ -239,9 +246,13 @@ const DataProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
 
     lastSoundPlayTimeRef.current = now;
     currentSegmentRef.current = currentSegment;
-    
+
     console.log(`[DataProvider.handleTimerStart] Calling playSound with: "${currentSegment}"`);
     await playSound(currentSegment);
+    // Trigger workout music start callback for motivational toast
+    if (currentSegment === 'workout' && onWorkoutMusicStartRef.current) {
+      onWorkoutMusicStartRef.current();
+    }
   }, [playSound]);
 
   /**
@@ -523,9 +534,16 @@ const DataProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
 
   // Workout completion callback management
   const workoutCompleteCallbackRef = useRef<(() => void) | null>(null);
-  
+
   const setWorkoutCompleteCallback = useCallback((callback: () => void) => {
     workoutCompleteCallbackRef.current = callback;
+  }, []);
+
+  // Workout music start callback management (for motivational toasts)
+  const onWorkoutMusicStartRef = useRef<(() => void) | null>(null);
+
+  const setOnWorkoutMusicStart = useCallback((callback: (() => void) | null) => {
+    onWorkoutMusicStartRef.current = callback;
   }, []);
 
   // Simplified workout completion flow - handles everything in data provider
@@ -976,11 +994,14 @@ const DataProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
           autoSelectNextWorkout,
           setWorkoutCompleteCallback,
           handleWorkoutCompleteFlow,
-          
+
           // Timer Utilities
           getCurrentSegment,
           getTotalTime,
-          
+
+          // Callbacks
+          setOnWorkoutMusicStart,
+
           // Language settings
           currentLanguage: state.currentLanguage,
           setLanguage: (lang) => dispatch({ type: 'SET_LANGUAGE', payload: lang }),
