@@ -731,32 +731,32 @@ export default function ToastMessage({
               <Svg width={HEX_WIDTH} height={HEX_HEIGHT} style={styles.hexagonSvg}>
                 <Polygon points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`} fill={toastConfig.backgroundColor}/>
                 {/* Multiple hexagon strokes for glow effect without container visibility */}
-                <AnimatedPolygon 
-                  points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`} 
-                  fill="none" 
-                  stroke={toastConfig.borderColor} 
-                  strokeWidth="2"
+                <AnimatedPolygon
+                  points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`}
+                  fill="none"
+                  stroke={toastConfig.borderColor}
+                  strokeWidth="4"
                   opacity={animValues.borderFlicker}
                 />
-                <AnimatedPolygon 
-                  points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`} 
-                  fill="none" 
-                  stroke={toastConfig.borderColor} 
-                  strokeWidth="1"
+                <AnimatedPolygon
+                  points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`}
+                  fill="none"
+                  stroke={toastConfig.borderColor}
+                  strokeWidth="2.5"
                   opacity={Animated.multiply(animValues.borderFlicker, 0.7)}
                 />
-                <AnimatedPolygon 
-                  points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`} 
-                  fill="none" 
-                  stroke={toastConfig.borderColor} 
-                  strokeWidth="1"
+                <AnimatedPolygon
+                  points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`}
+                  fill="none"
+                  stroke={toastConfig.borderColor}
+                  strokeWidth="2"
                   opacity={Animated.multiply(animValues.borderFlicker, 0.9)}
                 />
-                <AnimatedPolygon 
-                  points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`} 
-                  fill="none" 
-                  stroke="#ffffff" 
-                  strokeWidth="0.8"
+                <AnimatedPolygon
+                  points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`}
+                  fill="none"
+                  stroke="#ffffff"
+                  strokeWidth="1.5"
                   opacity={Animated.multiply(animValues.borderFlicker, 0.5)}
                 />
             </Svg>
