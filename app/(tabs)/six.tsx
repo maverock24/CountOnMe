@@ -1,22 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import Svg, { Polygon } from 'react-native-svg';
+import Svg, { Circle, Defs, LinearGradient, Polygon, Stop } from 'react-native-svg';
 
 import CustomPicker from '@/components/CustomPicker';
-import { useToast } from '../../components/ToastProvider';
+import Colors from '@/constants/Colors';
 import commonStyles from '../styles';
 
 // Import progression configuration and progressions list
 const progressionConfig = require('../../assets/progression_config.json');
 const progressionsList: any[] = require('../../assets/progressions.json');
+
 
 interface NodeStatus {
   id: string;
@@ -35,22 +36,19 @@ interface UserProgress {
   unlockedExercises: string[];
 }
 
-const glowColor = '#40bfff'; // Use your preferred glow color
-
 export default function ProgressionTreeScreen() {
   const { t } = useTranslation();
-  const { showToast } = useToast();
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
-  const [selectedProgression, setSelectedProgression] = useState<string>(progressionsList?.[0]?.name ?? '');
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [toastIndex, setToastIndex] = useState(0);
+  const [selectedProgression, setSelectedProgression] = useState<string>(
+    progressionsList?.[0]?.name ?? ''
+  );
   const [userProgress, setUserProgress] = useState<UserProgress>({
-    completedNodes: ['START'], // Start is always completed
+    completedNodes: ['START'],
     exerciseHistory: {
-      'Wall Push-ups': 5, // Example: user has done 5 wall push-ups
-      'Modified Plank': 3, // Example: user has held modified plank 3 times
-      'Assisted Squats': 8, // Example: user has done 8 assisted squats
-      'Walking': 10,
+      'Wall Push-ups': 5,
+      'Modified Plank': 3,
+      'Assisted Squats': 8,
+      Walking: 10,
       'Marching in Place': 5,
     },
     unlockedExercises: ['Basic Warm-up', 'Breathing Exercises'],
@@ -62,9 +60,9 @@ export default function ProgressionTreeScreen() {
         const completedWorkouts = await AsyncStorage.getItem('@countOnMe_completed');
         if (completedWorkouts) {
           const completedWorkoutsArray = JSON.parse(completedWorkouts);
-          setUserProgress(prevProgress => ({
+          setUserProgress((prevProgress) => ({
             ...prevProgress,
-            completedNodes: [...new Set([...prevProgress.completedNodes, ...completedWorkoutsArray])]
+            completedNodes: [...new Set([...prevProgress.completedNodes, ...completedWorkoutsArray])],
           }));
         }
       } catch (error) {
@@ -75,36 +73,30 @@ export default function ProgressionTreeScreen() {
     loadCompletedWorkouts();
   }, []);
 
-  // Calculate node status based on user progress
   const getNodeStatus = (nodeId: string): NodeStatus => {
     const node = progressionConfig.progressionTree[nodeId];
     if (!node) return { id: nodeId, isCompleted: false, isUnlocked: false };
 
     const isCompleted = userProgress.completedNodes.includes(nodeId);
-    
-    // Check if node is unlocked
+
     let isUnlocked = false;
     if (nodeId === 'START') {
-      isUnlocked = true; // Start is always unlocked
+      isUnlocked = true;
     } else if (node.unlockConditions && node.unlockConditions.length > 0) {
-      // Check if all unlock conditions are met
       isUnlocked = node.unlockConditions.every((condition: any) => {
         if (condition.nodeId) {
-          // Check if required node is completed
           return userProgress.completedNodes.includes(condition.nodeId);
         }
         if (condition.exerciseCount) {
-          // Check if exercise count requirement is met
           const currentCount = userProgress.exerciseHistory[condition.exerciseCount] || 0;
           return currentCount >= condition.count;
         }
         return true;
       });
     } else {
-      isUnlocked = true; // No conditions means unlocked
+      isUnlocked = true;
     }
 
-    // Calculate progress for exercises
     const progress: { [exercise: string]: number } = {};
     if (node.unlockConditions) {
       node.unlockConditions.forEach((condition: any) => {
@@ -121,14 +113,14 @@ export default function ProgressionTreeScreen() {
   const getNodeDisplayInfo = (nodeId: string) => {
     const node = progressionConfig.progressionTree[nodeId];
     const status = getNodeStatus(nodeId);
-    
+
     return {
       id: nodeId,
       name: node?.name || nodeId,
       icon: node?.icon || 'circle',
       description: node?.description || '',
       status,
-      unlockText: getUnlockText(nodeId, status)
+      unlockText: getUnlockText(nodeId, status),
     };
   };
 
@@ -136,328 +128,429 @@ export default function ProgressionTreeScreen() {
     const node = progressionConfig.progressionTree[nodeId];
     if (status.isCompleted) return 'Completed!';
     if (status.isUnlocked) return 'Available now!';
-    
+
     if (node?.unlockConditions) {
-      const requirements = node.unlockConditions.map((condition: any) => {
-        if (condition.nodeId) {
-          const isCompleted = userProgress.completedNodes.includes(condition.nodeId);
-          return `${condition.nodeId}: ${isCompleted ? '✓' : '✗'}`;
-        }
-        if (condition.exerciseCount) {
-          const current = userProgress.exerciseHistory[condition.exerciseCount] || 0;
-          return `${condition.exerciseCount}: ${current}/${condition.count}`;
-        }
-        return '';
-      }).filter((req: string) => req).join('\n');
+      const requirements = node.unlockConditions
+        .map((condition: any) => {
+          if (condition.nodeId) {
+            const isCompleted = userProgress.completedNodes.includes(condition.nodeId);
+            return `${condition.nodeId}: ${isCompleted ? '✓' : '✗'}`;
+          }
+          if (condition.exerciseCount) {
+            const current = userProgress.exerciseHistory[condition.exerciseCount] || 0;
+            return `${condition.exerciseCount}: ${current}/${condition.count}`;
+          }
+          return '';
+        })
+        .filter((req: string) => req)
+        .join('\n');
       return `Requirements:\n${requirements}`;
     }
-    
+
     return 'Complete previous steps to unlock';
   };
 
-  const renderHexNode = (nodeId: string) => {
+  const renderStepNumber = (index: number, isCompleted: boolean) => {
+    return (
+      <View style={[styles.stepNumber, isCompleted && styles.stepNumberCompleted]}>
+        {isCompleted ? (
+          <Text style={styles.stepNumberText}>✓</Text>
+        ) : (
+          <Text style={styles.stepNumberText}>{index + 1}</Text>
+        )}
+      </View>
+    );
+  };
+
+  const renderHexNode = (nodeId: string, index: number) => {
     const nodeInfo = getNodeDisplayInfo(nodeId);
     const status = nodeInfo.status;
-  
-    // Inner hexagon, radius ~70 (almost touching outer edges)
-    const innerHexPoints = "70,10 122,46 122,94 70,130 18,94 18,46";
+    const isSelected = selectedNode === nodeId;
+
+    const hexPoints = '50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5';
 
     return (
       <TouchableOpacity
         key={nodeId}
-        style={[
-          styles.hexNode,
-          {
-            opacity: !status.isUnlocked ? 0.6 : 1,
-          }
-        ]}
-      
+        style={[styles.nodeCard, isSelected && styles.nodeCardSelected]}
+        onPress={() => setSelectedNode(isSelected ? null : nodeId)}
+        activeOpacity={0.7}
       >
-        <Svg width="140" height="140">
-          
-          {/* Inner black hexagon (TimerButton style) */}
-          <Polygon
-            points={innerHexPoints}
-            fill='rgba(41, 57, 68, 1)'
-            stroke="#00bcd4"
-            strokeWidth={2}
-          />
-        </Svg>
-        
-        <View style={styles.hexContent}>
-          <Text
-            style={[
-              styles.hexText,
-            ]}
-          >
-            {nodeInfo.name}
-          </Text>
+        {/* Left side: Step indicator and Hexagon */}
+        <View style={styles.nodeLeftSection}>
+          {renderStepNumber(index, status.isCompleted)}
+
+          <View style={styles.hexWrapper}>
+            <Svg width="100" height="100" viewBox="0 0 100 100">
+              <Defs>
+                <LinearGradient id={`grad_${nodeId}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                  <Stop
+                    offset="0%"
+                    stopColor={status.isCompleted ? '#00c853' : Colors.glow}
+                    stopOpacity="0.3"
+                  />
+                  <Stop
+                    offset="100%"
+                    stopColor={status.isCompleted ? '#00e676' : '#00bcd4'}
+                    stopOpacity="0.1"
+                  />
+                </LinearGradient>
+              </Defs>
+
+              {/* Background hex */}
+              <Polygon
+                points={hexPoints}
+                fill={`url(#grad_${nodeId})`}
+                stroke={status.isCompleted ? '#00c853' : status.isUnlocked ? Colors.glow : '#3a3f47'}
+                strokeWidth={status.isCompleted ? 2.5 : 1.5}
+                opacity={!status.isUnlocked ? 0.5 : 1}
+              />
+
+              {/* Inner glow for completed */}
+              {status.isCompleted && (
+                <Circle cx="50" cy="50" r="25" fill="rgba(0,200,83,0.15)" />
+              )}
+            </Svg>
+
+            {/* Hex content overlay */}
+            <View style={styles.hexContent}>
+              <Text
+                style={[
+                  styles.hexText,
+                  status.isCompleted && styles.hexTextCompleted,
+                  !status.isUnlocked && styles.hexTextLocked,
+                ]}
+                numberOfLines={2}
+              >
+                {nodeInfo.name}
+              </Text>
+            </View>
+          </View>
         </View>
 
-        {selectedNode === nodeId && (
-          <View style={styles.tooltip}>
-            <Text style={styles.tooltipTitle}>{nodeInfo.name}</Text>
-            <Text style={styles.tooltipText}>{nodeInfo.description}</Text>
-            <Text style={styles.tooltipUnlock}>{nodeInfo.unlockText}</Text>
+        {/* Right side: Description */}
+        <View style={styles.nodeRightSection}>
+          <View style={styles.nodeHeader}>
+            <Text style={[styles.nodeName, !status.isUnlocked && styles.nodeNameLocked]}>
+              {nodeInfo.name}
+            </Text>
+            <View
+              style={[
+                styles.statusBadge,
+                status.isCompleted
+                  ? styles.statusCompleted
+                  : status.isUnlocked
+                    ? styles.statusUnlocked
+                    : styles.statusLocked,
+              ]}
+            >
+              <Text style={styles.statusText}>
+                {status.isCompleted ? '✓ Done' : status.isUnlocked ? 'Ready' : 'Locked'}
+              </Text>
+            </View>
           </View>
-        )}
+
+          <Text
+            style={[styles.nodeDescription, !status.isUnlocked && styles.nodeDescriptionLocked]}
+            numberOfLines={isSelected ? undefined : 3}
+          >
+            {nodeInfo.description || 'No description available'}
+          </Text>
+
+          {isSelected && (
+            <View style={styles.expandedInfo}>
+              <View style={styles.divider} />
+              <Text style={styles.statusLabel}>{nodeInfo.unlockText}</Text>
+            </View>
+          )}
+        </View>
       </TouchableOpacity>
     );
   };
 
   const renderProgressionTree = () => {
-    // If a progression is selected from the dropdown, render its components as nodes
-    const chosen = selectedProgression ? progressionsList.find((p) => p.name === selectedProgression) : null;
+    const chosen = selectedProgression
+      ? progressionsList.find((p) => p.name === selectedProgression)
+      : null;
 
     if (chosen && Array.isArray(chosen.components) && chosen.components.length > 0) {
-      // Group components into rows of 4
-      const cols = 4;
-      const rows: any[] = [];
-      for (let i = 0; i < chosen.components.length; i += cols) {
-        rows.push(chosen.components.slice(i, i + cols));
-      }
       return (
-        <View style={styles.hexTreeContainer}>
-          {rows.map((row, rIdx) => (
-            <View key={`row_${rIdx}`} style={styles.nodeRow}>
-              {row.map((comp: any, cIdx: number) => (
-                <View style={{ flexDirection: 'row' }} key={`col_${cIdx}`}>
-                  <View key={`${rIdx}_node_${cIdx}`} style={{ marginHorizontal: 8, marginVertical:-5 }}>
-                    {renderHexNode(comp.component)}
-                  </View>
-                  <View key={`${rIdx}_text_${cIdx}`} style={{ marginHorizontal: -10, marginTop: 0, width: 220, height: 160 }}>
-                    <Text style={{ color: '#fff', fontSize: 14, textAlign: 'left', justifyContent: 'flex-start', marginTop: 4 }}>
-                      {getNodeDisplayInfo(comp.component).description || comp.description || ''}
-                    </Text>
-                  </View>
-                </View>
-              ))}
+        <View style={styles.treeContainer}>
+          {/* Vertical connector line */}
+          <View style={styles.connectorLine} />
+
+          {chosen.components.map((comp: any, index: number) => (
+            <View key={`node_${index}`} style={styles.nodeWrapper}>
+              {renderHexNode(comp.component, index)}
             </View>
           ))}
         </View>
       );
     }
+
+    return (
+      <View style={styles.emptyState}>
+        <Text style={styles.emptyStateText}>Select a progression to view exercises</Text>
+      </View>
+    );
   };
+
+  const selectedProgressionData = progressionsList.find((p) => p.name === selectedProgression);
 
   return (
     <View style={commonStyles.container}>
-      <View style={[commonStyles.outerContainer, { maxHeight: 200 }]}>
-        <Text style={commonStyles.tileTitle}>{t('Selected Progression')}</Text>
-        {/* Progression selector dropdown - now uses ModalPicker */}
-       <View style={[commonStyles.tile, { flex: 1, padding: 10 }]}> 
+      {/* Header Section */}
+      <View style={[commonStyles.outerContainer, { flex: 0, maxHeight: 180 }]}>
+        <Text style={commonStyles.tileTitle}>{t('progress')}</Text>
+        <View style={[commonStyles.tile, { padding: 12, paddingTop: 16 }]}>
           <CustomPicker
             items={progressionsList.map((p) => ({ label: p.name, value: p.name }))}
             selectedValue={selectedProgression}
-            onValueChange={(itemValue) => setSelectedProgression(itemValue)}
-               dropdownIconColor="#fff"
-            style={{ width: '95%', height: 40 }}
+            onValueChange={(itemValue) => {
+              setSelectedProgression(itemValue);
+              setSelectedNode(null);
+            }}
+            dropdownIconColor="#fff"
+            style={{ width: '100%', height: 44 }}
           />
-           <View style={{ flexDirection: 'row', alignItems: 'center', width: '100%', padding: 10 }}>
-          <Text style={{ color: 'white' }}>{progressionsList.find((p) => p.name === selectedProgression)?.description}</Text>
-        </View>
-        </View>
 
+          {selectedProgressionData && (
+            <View style={styles.progressionInfo}>
+              <Text style={styles.progressionDescription} numberOfLines={2}>
+                {selectedProgressionData.description}
+              </Text>
+              <View style={styles.statsRow}>
+                <View style={styles.statItem}>
+                  <Text style={styles.statValue}>{selectedProgressionData.components?.length || 0}</Text>
+                  <Text style={styles.statLabel}>Exercises</Text>
+                </View>
+                <View style={styles.statDivider} />
+                <View style={styles.statItem}>
+                  <Text style={styles.statValue}>
+                    {userProgress.completedNodes.filter((node) =>
+                      selectedProgressionData.components?.some((c: any) => c.component === node)
+                    ).length}
+                  </Text>
+                  <Text style={styles.statLabel}>Completed</Text>
+                </View>
+              </View>
+            </View>
+          )}
+        </View>
       </View>
-      
 
-            {/* Demo Toast Button */}
-            {/* <TouchableOpacity
-              style={styles.demoButton}
-              onPress={() => {
-                const toastTypes = [
-                  {
-                    type: 'success',
-                    message: 'Awesome! You just unlocked a new exercise!',
-                    emoji: ''
-                  },
-                  {
-                    type: 'error', 
-                    message: 'Oops! Something went wrong. Please try again.',
-                    emoji: ''
-                  },
-                  {
-                    type: 'warning',
-                    message: 'Next Level Unlocked!',
-                    emoji: ''
-                  },
-                  {
-                    type: 'info',
-                    message: 'Tip: Stay hydrated during your workout!',
-                    emoji: 'ℹ'
-                  }
-                ] as const;
-
-                const currentToast = toastTypes[toastIndex % toastTypes.length];
-                setToastIndex(prev => prev + 1);
-
-                showToast({
-                  type: currentToast.type,
-                  message: currentToast.message,
-                  duration: 4000,
-                  position: 'center', // Changed to center to test vertical centering
-                });
-              }}
-            >
-              <FontAwesome name="magic" size={16} color="#fff" />
-              <Text style={styles.demoButtonText}>Demo Toast</Text>
-            </TouchableOpacity> */}
-
-        {/* Add ScrollView for progression tree */}
-        <View style={[commonStyles.tile, { flex: 1, padding: 5 }]}> 
-          <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+      {/* Progression Tree Section */}
+      <View style={[commonStyles.outerContainer, { flex: 1 }]}>
+        <Text style={commonStyles.tileTitle}>Exercises</Text>
+        <View style={[commonStyles.tile, { flex: 1, padding: 0, overflow: 'hidden' }]}>
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
             {renderProgressionTree()}
           </ScrollView>
         </View>
       </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  headerTile: {
-    width: '100%',
-    marginBottom: 20,
-  },
-  headerContent: {
-    alignItems: 'center',
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#f0f0f0',
-    marginBottom: 8,
-    letterSpacing: 1,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#f0f0f0',
-    opacity: 0.8,
-    textAlign: 'center',
-    marginBottom: 20,
-  },
   scrollView: {
     flex: 1,
     width: '100%',
   },
   scrollContent: {
-    paddingHorizontal: 10,
-    paddingBottom: 10,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+  },
+  progressionInfo: {
+    marginTop: 12,
+    width: '100%',
+  },
+  progressionDescription: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 13,
+    lineHeight: 18,
+    marginBottom: 12,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(42, 199, 207, 0.08)',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  statItem: {
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  statValue: {
+    color: Colors.glow,
+    fontSize: 22,
+    fontWeight: '700',
+  },
+  statLabel: {
+    color: 'rgba(255,255,255,0.5)',
+    fontSize: 11,
+    marginTop: 2,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  statDivider: {
+    width: 1,
+    height: 30,
+    backgroundColor: 'rgba(255,255,255,0.1)',
   },
   treeContainer: {
-    width: '100%',
-    marginBottom: 0,
-    zIndex: 0,
-  },
-  hexTreeContainer: {
-    flex: 1,
-    marginLeft: -25,
-    alignItems: 'flex-start',
-  },
-  nodeRow: {
-    width: '100%',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    marginVertical: 8,
-  },
-  hexNode: {
     position: 'relative',
-    width: 140,
-    height: 140,
+    paddingLeft: 20,
+  },
+  connectorLine: {
+    position: 'absolute',
+    left: 38,
+    top: 50,
+    bottom: 50,
+    width: 2,
+    backgroundColor: 'rgba(42, 199, 207, 0.2)',
+    borderRadius: 1,
+  },
+  nodeWrapper: {
+    marginBottom: 12,
+  },
+  nodeCard: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(30, 40, 50, 0.6)',
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
+  },
+  nodeCardSelected: {
+    backgroundColor: 'rgba(42, 199, 207, 0.08)',
+    borderColor: 'rgba(42, 199, 207, 0.3)',
+  },
+  nodeLeftSection: {
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  stepNumber: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  stepNumberCompleted: {
+    backgroundColor: 'rgba(0, 200, 83, 0.2)',
+  },
+  stepNumberText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  hexWrapper: {
+    position: 'relative',
+    width: 100,
+    height: 100,
   },
   hexContent: {
     position: 'absolute',
     top: 0,
     left: 0,
-    width: '100%',
-    height: '100%',
+    right: 0,
+    bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 8,
+    padding: 10,
   },
   hexText: {
     color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold',
+    fontSize: 10,
+    fontWeight: '600',
     textAlign: 'center',
-    width: 110,
-    marginTop: 2,
     textTransform: 'uppercase',
+    letterSpacing: 0.3,
   },
-  tooltip: {
-    position: 'absolute',
-    top: -70,
-    left: -60,
-    width: 200,
-    backgroundColor: '#2c2f33',
-    borderRadius: 8,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#4a4a4a',
-    zIndex: 10,
+  hexTextCompleted: {
+    color: '#00e676',
   },
-  tooltipText: {
-    color: '#f0f0f0',
-    fontSize: 12,
-    textAlign: 'center',
-    marginBottom: 8,
+  hexTextLocked: {
+    color: 'rgba(255,255,255,0.4)',
   },
-  tooltipTitle: {
+  nodeRightSection: {
+    flex: 1,
+    justifyContent: 'flex-start',
+  },
+  nodeHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 6,
+  },
+  nodeName: {
     color: '#fff',
-    fontSize: 14,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 8,
+    fontSize: 15,
+    fontWeight: '600',
+    flex: 1,
+    marginRight: 8,
   },
-  tooltipUnlock: {
-    color: '#4a9eff',
+  nodeNameLocked: {
+    color: 'rgba(255,255,255,0.5)',
+  },
+  statusBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+  },
+  statusCompleted: {
+    backgroundColor: 'rgba(0, 200, 83, 0.2)',
+  },
+  statusUnlocked: {
+    backgroundColor: 'rgba(42, 199, 207, 0.2)',
+  },
+  statusLocked: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+  },
+  statusText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '500',
+    textTransform: 'uppercase',
+    letterSpacing: 0.3,
+  },
+  nodeDescription: {
+    color: 'rgba(255,255,255,0.6)',
+    fontSize: 12,
+    lineHeight: 17,
+  },
+  nodeDescriptionLocked: {
+    color: 'rgba(255,255,255,0.35)',
+  },
+  expandedInfo: {
+    marginTop: 10,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    marginBottom: 10,
+  },
+  statusLabel: {
+    color: Colors.glow,
     fontSize: 11,
-    textAlign: 'center',
     fontStyle: 'italic',
   },
-  dropdownToggle: {
-    width: '90%',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#2A2E33',
-    backgroundColor: 'rgba(0,0,0,0.4)',
+  emptyState: {
+    padding: 40,
     alignItems: 'center',
   },
-  dropdownText: {
-    color: '#EFF0F0',
+  emptyStateText: {
+    color: 'rgba(255,255,255,0.4)',
     fontSize: 14,
-  },
-  dropdownList: {
-    position: 'absolute',
-    marginTop: 8,
-    width: '90%',
-    maxHeight: 220,
-    backgroundColor: 'rgba(17,24,30,0.95)',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#2A2E33',
-    zIndex: 9999,
-    alignItems: 'center', // Center items horizontally
-  },
-  dropdownItem: {
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#2A2E33',
-    backgroundColor: 'rgba(17,24,30,0.95)',
-  },
-  dropdownItemHover: {
-    backgroundColor: '#40bfff',
-  },
-  dropdownItemText: {
-    color: '#EFF0F0',
-    fontSize: 14,
-  },
-  dropdownItemTextHover: {
-    color: '#fff',
-    fontWeight: 'bold',
   },
 });

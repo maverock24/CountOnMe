@@ -51,22 +51,26 @@ const getToastConfig = (type: ToastConfig['type']) => {
       return {
         backgroundColor: 'rgba(8, 10, 12, 0.95)',
         borderColor: 'rgba(78, 230, 225, 1)',
+        glowColor: '#00ffff',
       };
     case 'error':
       return {
         backgroundColor: 'rgba(12, 8, 8, 0.95)',
         borderColor: 'rgb(2, 248, 240)',
+        glowColor: '#00ffff',
       };
     case 'warning':
       return {
         backgroundColor: 'rgba(10, 10, 8, 0.95)',
         borderColor: 'rgb(2, 248, 240)',
+        glowColor: '#00ffff',
       };
     case 'info':
     default:
       return {
         backgroundColor: 'rgba(8, 10, 12, 0.95)',
         borderColor: 'rgb(2, 248, 240)',
+        glowColor: '#00ffff',
       };
   }
 };
@@ -370,157 +374,154 @@ export default function ToastMessage({
   };
 
   const animateIn = useCallback(() => {
-  setIsVisible(true);
-    // Start border flicker immediately when the hexagon appears
+    setIsVisible(true);
+
+    // Start border flicker with smoother, more elegant timing
     try { if (borderLoopRef.current) { borderLoopRef.current.stop(); } } catch (e) {}
     borderLoopRef.current = Animated.loop(Animated.sequence([
-      Animated.timing(animValues.borderFlicker, { toValue: 0.3, duration: 80 + Math.random() * 40, useNativeDriver: true }),
-      Animated.timing(animValues.borderFlicker, { toValue: 1.0, duration: 60 + Math.random() * 30, useNativeDriver: true }),
-      Animated.timing(animValues.borderFlicker, { toValue: 0.7, duration: 90 + Math.random() * 50, useNativeDriver: true }),
-      Animated.timing(animValues.borderFlicker, { toValue: 1.0, duration: 70 + Math.random() * 35, useNativeDriver: true }),
-      Animated.delay(120 + Math.random() * 180),
+      Animated.timing(animValues.borderFlicker, { toValue: 0.5, duration: 60, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+      Animated.timing(animValues.borderFlicker, { toValue: 1.0, duration: 80, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+      Animated.timing(animValues.borderFlicker, { toValue: 0.8, duration: 70, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+      Animated.timing(animValues.borderFlicker, { toValue: 1.0, duration: 50, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+      Animated.delay(200 + Math.random() * 100),
     ]));
     borderLoopRef.current.start();
 
-    // Start a subtle text flicker immediately
+    // Text pulse with subtle glow effect - less flickery, more elegant
     try { if (textLoopRef.current) { textLoopRef.current.stop(); } } catch (e) {}
     textLoopRef.current = Animated.loop(Animated.sequence([
-      Animated.timing(animValues.textFlicker, { toValue: 0.6, duration: 120, useNativeDriver: true }),
-      Animated.timing(animValues.textFlicker, { toValue: 1.0, duration: 90, useNativeDriver: true }),
-      Animated.delay(100 + Math.random() * 200),
+      Animated.timing(animValues.textFlicker, { toValue: 0.85, duration: 150, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      Animated.timing(animValues.textFlicker, { toValue: 1.0, duration: 150, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      Animated.delay(300 + Math.random() * 150),
     ]));
     textLoopRef.current.start();
-    
-    // Stronger and longer initial shake for explosion: more steps, larger amplitudes and slightly longer durations
-    const createShakeSequence = (animValue: Animated.Value, intensity: number) => Animated.sequence([
-      ...[intensity * 2.8, -intensity*2.4, intensity*2.0, -intensity*1.6, intensity*1.3, -intensity*1.1, intensity*0.9, -intensity*0.7, intensity*0.5, -intensity*0.35, intensity*0.18].map(toValue => 
-        Animated.timing(animValue, { toValue, duration: 42, useNativeDriver: true })
-      ),
-      Animated.timing(animValue, { toValue: 0, duration: 140, useNativeDriver: true }),
-    ]);
 
-    // Scale-based shake sequence for hexagon (applied to hexagon scale instead of translate X/Y)
+    // Smoother scale-based shake with easing for more fluid motion
     const createScaleShakeSequence = (animValue: Animated.Value, intensity: number) => Animated.sequence([
-      ...[3.0, -2.4, 2.0, -1.6, 1.3, -1.1, 0.95, -0.7, 0.5, -0.35, 0.18].map(mult => 
-        Animated.timing(animValue, { toValue: 1 + mult * intensity, duration: 36, useNativeDriver: true })
+      ...[2.2, -1.8, 1.4, -1.0, 0.6, -0.3, 0.15].map((mult, i) =>
+        Animated.timing(animValue, {
+          toValue: 1 + mult * intensity,
+          duration: 30 + i * 5,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: true
+        })
       ),
-      Animated.timing(animValue, { toValue: 1, duration: 140, useNativeDriver: true }),
+      Animated.spring(animValue, { toValue: 1, tension: 300, friction: 10, useNativeDriver: true }),
     ]);
 
-  // Entrance: stronger explosive sequence
-  Animated.parallel([
-    // Use scale-based shake on the hexagon itself instead of translating the whole toast
-    createScaleShakeSequence(animValues.hexagonShakeScale, 0.09),
-    // small X/Y nudge to add extra realism to the shake
-    ((): Animated.CompositeAnimation => {
-      const createNudgeSequence = (animX: Animated.Value, animY: Animated.Value, intensity: number) => {
-        const steps: Array<[number, number]> = [
-          [10 * intensity, 6 * intensity],
-          [-8 * intensity, -5 * intensity],
-          [6 * intensity, 4 * intensity],
-          [-4 * intensity, -3 * intensity],
-          [2 * intensity, 1 * intensity],
-          [0, 0],
-        ];
-        return Animated.sequence(steps.map(([x, y]) => Animated.parallel([
-          Animated.timing(animX, { toValue: x, duration: 36, useNativeDriver: true }),
-          Animated.timing(animY, { toValue: y, duration: 36, useNativeDriver: true }),
-        ])));
-      };
-      return createNudgeSequence(animValues.hexagonNudgeX, animValues.hexagonNudgeY, 1);
-    })(),
-    // Add a quick rotational burst for extra punch
-    Animated.sequence([
-      Animated.timing(animValues.entranceRotate, { toValue: 12, duration: 80, useNativeDriver: true }),
-      Animated.timing(animValues.entranceRotate, { toValue: -6, duration: 100, useNativeDriver: true }),
-      Animated.timing(animValues.entranceRotate, { toValue: 0, duration: 120, useNativeDriver: true }),
-    ]),
-    // Flash pulse to emphasize the explosion
-    Animated.sequence([
-      Animated.timing(animValues.flashOpacity, { toValue: 1.6, duration: 90, useNativeDriver: true }),
-      Animated.timing(animValues.flashOpacity, { toValue: 0.6, duration: 200, useNativeDriver: true }),
-    ]),
-      Animated.sequence([
-        Animated.timing(animValues.crackFlash, { toValue: 1, duration: 150, useNativeDriver: true }),
-        Animated.timing(animValues.crackFlash, { toValue: 0, duration: 300, useNativeDriver: true }),
-      ]),
-      // (explosionScale animation removed so the hexagon won't scale up/shrink)
-      Animated.sequence([
-        Animated.delay(50),
-        Animated.parallel([
-          Animated.spring(animValues.slide, { toValue: 1, tension: 200, friction: 7, useNativeDriver: true }),
-          Animated.spring(animValues.scale, { toValue: 1, tension: 180, friction: 8, useNativeDriver: true }),
-          Animated.timing(animValues.opacity, { toValue: 1, duration: 400, useNativeDriver: true }),
-        ]),
-      ]),
-      Animated.sequence([
-        Animated.delay(80),
-        // Break-through pop: push toward the user (positive translateZ), increase Z-scale and rotateX toward camera
-        Animated.parallel([
-          Animated.sequence([
-            Animated.spring(animValues.hexagonTranslateZ, { toValue: 80, tension: 1200, friction: 18, useNativeDriver: true }),
-            Animated.spring(animValues.hexagonTranslateZ, { toValue: 8, tension: 160, friction: 12, useNativeDriver: true }),
-          ]),
-          Animated.sequence([
-            Animated.spring(animValues.hexagonScaleZ, { toValue: 1.15, tension: 900, friction: 14, useNativeDriver: true }),
-            Animated.spring(animValues.hexagonScaleZ, { toValue: 1.02, tension: 200, friction: 12, useNativeDriver: true }),
-          ]),
-          Animated.sequence([
-            Animated.spring(animValues.hexagonRotateX, { toValue: 18, tension: 900, friction: 12, useNativeDriver: true }),
-            Animated.spring(animValues.hexagonRotateX, { toValue: -4, tension: 160, friction: 16, useNativeDriver: true }),
-          ]),
-          // small settle rotate after the pop
-        ]),
-      ]),
-    ]).start(() => {
-      // entrance sequence finished
-    });
-    // schedule particle emission close to the pop moment
-    if (particlesTimerRef.current) clearTimeout(particlesTimerRef.current);
-    particlesTimerRef.current = setTimeout(() => emitParticles(), 110);
+    // Entrance: snappy and impactful
+    Animated.parallel([
+      // Scale shake with smooth easing
+      createScaleShakeSequence(animValues.hexagonShakeScale, 0.06),
 
-    // Schedule mild electric surges to begin right after the explosion effect
+      // Quick nudge for punch
+      ((): Animated.CompositeAnimation => {
+        const steps: Array<[number, number]> = [
+          [6, 3], [-4, -2], [2, 1], [0, 0],
+        ];
+        return Animated.sequence(steps.map(([x, y], i) => Animated.parallel([
+          Animated.timing(animValues.hexagonNudgeX, { toValue: x, duration: 25 + i * 10, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+          Animated.timing(animValues.hexagonNudgeY, { toValue: y, duration: 25 + i * 10, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+        ])));
+      })(),
+
+      // Quick rotational punch
+      Animated.sequence([
+        Animated.timing(animValues.entranceRotate, { toValue: 8, duration: 60, easing: Easing.out(Easing.back(2)), useNativeDriver: true }),
+        Animated.timing(animValues.entranceRotate, { toValue: -3, duration: 80, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+        Animated.spring(animValues.entranceRotate, { toValue: 0, tension: 200, friction: 8, useNativeDriver: true }),
+      ]),
+
+      // Flash pulse - quick and bright
+      Animated.sequence([
+        Animated.timing(animValues.flashOpacity, { toValue: 1.8, duration: 60, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+        Animated.timing(animValues.flashOpacity, { toValue: 0.4, duration: 150, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+      ]),
+
+      // Crack flash
+      Animated.sequence([
+        Animated.timing(animValues.crackFlash, { toValue: 1, duration: 100, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+        Animated.timing(animValues.crackFlash, { toValue: 0, duration: 200, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+      ]),
+
+      // Main entrance - fast spring animation
+      Animated.parallel([
+        Animated.spring(animValues.slide, { toValue: 1, tension: 280, friction: 9, useNativeDriver: true }),
+        Animated.spring(animValues.scale, { toValue: 1, tension: 250, friction: 10, useNativeDriver: true }),
+        Animated.timing(animValues.opacity, { toValue: 1, duration: 200, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+      ]),
+
+      // 3D pop effect - more dramatic
+      Animated.sequence([
+        Animated.delay(40),
+        Animated.parallel([
+          Animated.sequence([
+            Animated.spring(animValues.hexagonTranslateZ, { toValue: 60, tension: 800, friction: 12, useNativeDriver: true }),
+            Animated.spring(animValues.hexagonTranslateZ, { toValue: 5, tension: 200, friction: 14, useNativeDriver: true }),
+          ]),
+          Animated.sequence([
+            Animated.spring(animValues.hexagonScaleZ, { toValue: 1.12, tension: 600, friction: 10, useNativeDriver: true }),
+            Animated.spring(animValues.hexagonScaleZ, { toValue: 1.01, tension: 180, friction: 12, useNativeDriver: true }),
+          ]),
+          Animated.sequence([
+            Animated.spring(animValues.hexagonRotateX, { toValue: 12, tension: 600, friction: 10, useNativeDriver: true }),
+            Animated.spring(animValues.hexagonRotateX, { toValue: -2, tension: 180, friction: 14, useNativeDriver: true }),
+          ]),
+        ]),
+      ]),
+    ]).start();
+
+    // Emit particles slightly earlier for more impact
+    if (particlesTimerRef.current) clearTimeout(particlesTimerRef.current);
+    particlesTimerRef.current = setTimeout(() => emitParticles(), 80);
+
+    // Start electric surges earlier
     if (electricStartTimer.current) clearTimeout(electricStartTimer.current);
     electricStartTimer.current = setTimeout(() => {
       if (!shouldAnimateElectric.current) {
         shouldAnimateElectric.current = true;
         animateElectricity();
-        // start a mild flash loop
+        // Smooth pulsing flash loop
         if (flashLoopRef.current) try { flashLoopRef.current.stop(); } catch (e) {}
         flashLoopRef.current = Animated.loop(Animated.sequence([
-          Animated.timing(animValues.flashOpacity, { toValue: 1.0, duration: 100, useNativeDriver: true }),
-          Animated.timing(animValues.flashOpacity, { toValue: 0.5 + Math.random() * 0.3, duration: 90, useNativeDriver: true }),
+          Animated.timing(animValues.flashOpacity, { toValue: 0.9, duration: 120, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+          Animated.timing(animValues.flashOpacity, { toValue: 0.4, duration: 120, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
         ]));
         flashLoopRef.current.start();
       }
-  }, 300); // start surges 300ms after the explosion spring sequence (earlier)
+    }, 200);
   }, [animValues]);
 
   const animateOut = useCallback(() => {
-    // When shrinking starts, intensify surges if already active; otherwise start them immediately
+    // Intensify surges during exit
     if (!shouldAnimateElectric.current) {
       shouldAnimateElectric.current = true;
       animateElectricity();
     }
-    // ramp up flash intensity: replace current flash loop with a more intense one
+
+    // Quick flash burst before exit
     if (flashLoopRef.current) {
       try { flashLoopRef.current.stop(); } catch (e) { }
       flashLoopRef.current = null;
     }
-    flashLoopRef.current = Animated.loop(Animated.sequence([
-      Animated.timing(animValues.flashOpacity, { toValue: 1.8, duration: 80, useNativeDriver: true }),
-      Animated.timing(animValues.flashOpacity, { toValue: 0.4 + Math.random() * 0.5, duration: 60, useNativeDriver: true }),
-    ]));
-    flashLoopRef.current.start();
 
     if (electricStartTimer.current) { clearTimeout(electricStartTimer.current); electricStartTimer.current = null; }
 
+    // Smooth, elegant exit animation
     Animated.parallel([
-      Animated.timing(animValues.flashOpacity, { toValue: 1, duration: 120, useNativeDriver: true }),
-      Animated.timing(animValues.scale, { toValue: 0.8, duration: 250, useNativeDriver: true }),
-      Animated.timing(animValues.opacity, { toValue: 0, duration: 250, useNativeDriver: true }),
+      // Quick flash then fade
+      Animated.sequence([
+        Animated.timing(animValues.flashOpacity, { toValue: 1.2, duration: 80, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+        Animated.timing(animValues.flashOpacity, { toValue: 0, duration: 150, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+      ]),
+      // Scale down with spring for natural feel
+      Animated.spring(animValues.scale, { toValue: 0.85, tension: 200, friction: 12, useNativeDriver: true }),
+      // Smooth opacity fade
+      Animated.timing(animValues.opacity, { toValue: 0, duration: 200, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+      // Slight upward movement during exit
+      Animated.timing(animValues.slide, { toValue: 0.5, duration: 200, easing: Easing.in(Easing.quad), useNativeDriver: true }),
     ]).start(() => {
-      // Stop electric animation and flash loop after shrink completes
+      // Cleanup
       shouldAnimateElectric.current = false;
       if (animationFrameId.current) {
         try { cancelAnimationFrame(animationFrameId.current); } catch (e) { }
@@ -530,17 +531,15 @@ export default function ToastMessage({
         try { clearTimeout(electricTimeoutId.current); } catch (e) {}
         electricTimeoutId.current = null;
       }
-      // Ensure particle timer is cleared so we don't emit after hide
       if (particlesTimerRef.current) {
         try { clearTimeout(particlesTimerRef.current); } catch (e) {}
         particlesTimerRef.current = null;
       }
-  try { flashLoopRef.current && flashLoopRef.current.stop(); } catch (e) { /* ignore */ }
+      try { flashLoopRef.current && flashLoopRef.current.stop(); } catch (e) { /* ignore */ }
       try { borderLoopRef.current && borderLoopRef.current.stop(); } catch (e) { /* ignore */ }
       try { textLoopRef.current && textLoopRef.current.stop(); } catch (e) { /* ignore */ }
       borderLoopRef.current = null;
       textLoopRef.current = null;
-      Animated.timing(animValues.flashOpacity, { toValue: 0, duration: 180, useNativeDriver: true }).start();
 
       setIsVisible(false);
       onHide();
@@ -597,7 +596,8 @@ export default function ToastMessage({
   });
   return (
     <View style={positionStyle}>
-      {/* Electric surge layers live outside the transformed wrapper so they aren't clipped by transforms */}
+      {/* Electric surge layers wrapped in a container behind the hexagon content */}
+      <View style={styles.electricSurgeContainer}>
       <Animated.View style={[styles.electricFlash, { opacity: Animated.multiply(animValues.flashOpacity, electricOpacity) }]}>
         <Svg width="100%" height={HEX_HEIGHT} style={styles.flashSvg}>
           <Defs>
@@ -709,9 +709,10 @@ export default function ToastMessage({
           <Path d={electricPath6} stroke="url(#seventhFlashGrad)" strokeWidth="1.8" fill="none" filter="url(#seventhGlow)" />
         </Svg>
       </Animated.View>
+      </View>
 
       {/* Now render the interactive/animated hexagon and particles inside a transformed Animated.View */}
-      <Animated.View style={[positionStyle, { transform: [{ translateY: slideTransform }, { scale: animValues.scale }], opacity: animValues.opacity }]}>
+      <Animated.View style={[positionStyle, { transform: [{ translateY: slideTransform }, { scale: animValues.scale }], opacity: animValues.opacity, zIndex: 10 }]}>
         <Animated.View style={[styles.crackFlash, { opacity: animValues.crackFlash }]}><View style={styles.crackPattern} /></Animated.View>
         <TouchableOpacity activeOpacity={0.9} onPress={handlePress} style={styles.container}>
           {/* Wrapper keeps hexagon (which is transformed) and particles (which should NOT be transformed) aligned */}
@@ -728,7 +729,7 @@ export default function ToastMessage({
               ],
             }]}> 
               <Svg width={HEX_WIDTH} height={HEX_HEIGHT} style={styles.hexagonSvg}>
-                <Polygon points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`} fill="rgba(0,188,212,0.25)"/>
+                <Polygon points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`} fill={toastConfig.backgroundColor}/>
                 {/* Multiple hexagon strokes for glow effect without container visibility */}
                 <AnimatedPolygon 
                   points={`${HEX_WIDTH*0.1},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.1666667} ${HEX_WIDTH*0.95},${HEX_HEIGHT*0.5} ${HEX_WIDTH*0.9},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.1},${HEX_HEIGHT*0.8333333} ${HEX_WIDTH*0.05},${HEX_HEIGHT*0.5}`} 
@@ -760,7 +761,7 @@ export default function ToastMessage({
                 />
             </Svg>
             <View style={styles.toastContent}>
-            <View style={styles.content}><Animated.Text style={[styles.message, { opacity: animValues.textFlicker }]} numberOfLines={3}>{message}</Animated.Text></View>
+            <View style={styles.content}><Animated.Text style={[styles.message, { opacity: animValues.textFlicker, textShadowColor: toastConfig.glowColor }]} numberOfLines={3}>{message}</Animated.Text></View>
           </View>
           </Animated.View>
 
@@ -805,6 +806,7 @@ type Styles = {
   container: ViewStyle;
   crackFlash: ViewStyle;
   crackPattern: ViewStyle;
+  electricSurgeContainer: ViewStyle;
   electricFlash: ViewStyle;
   flashSvg: ViewStyle;
   hexagonContainer: ViewStyle;
@@ -822,11 +824,20 @@ const styles = StyleSheet.create<Styles>({
   crackFlash: { ...StyleSheet.absoluteFillObject, backgroundColor: 'transparent', zIndex: 20, borderRadius: 10 },
   // Hide the visible dashed borderline while preserving the crackPattern element for layout/animation
   crackPattern: { flex: 1, borderWidth: 0, borderColor: 'transparent', borderStyle: 'solid', borderRadius: 15, opacity: 0 },
-  electricFlash: { 
-    position: 'absolute', 
-    top: 0, 
-    height: HEX_HEIGHT, 
-    zIndex: 0, // Behind hexagon but above background
+  electricSurgeContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1, // Behind hexagon content
+    overflow: 'visible',
+  },
+  electricFlash: {
+    position: 'absolute',
+    top: 0,
+    height: HEX_HEIGHT,
+    zIndex: 1, // Behind hexagon content (zIndex: 10) but above background
     overflow: 'visible', // Allow glow to extend beyond bounds
     left: -screenWidth * 0.25, // Start off-screen
     right: -screenWidth * 0.25, // End off-screen
@@ -847,5 +858,17 @@ const styles = StyleSheet.create<Styles>({
   particleLayer: { position: 'absolute', left: 0, top: 0, width: HEX_WIDTH, height: HEX_HEIGHT, zIndex: 120, overflow: 'visible' },
   toastContent: { ...StyleSheet.absoluteFillObject, paddingHorizontal: 50 * TOAST_SCALE, paddingVertical: 20 * TOAST_SCALE, justifyContent: 'center', alignItems: 'center' },
   content: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
-  message: { flex: 1, zIndex: 9999, fontSize: 28 * TOAST_SCALE, fontWeight: 'bold', color: '#ffffff', textAlign: 'center', lineHeight: 24 * TOAST_SCALE, textShadowColor: 'rgba(0,0,0,0.5)', textShadowOffset: { width: 1 * TOAST_SCALE, height: 1 * TOAST_SCALE }, textShadowRadius: 2 * TOAST_SCALE },
+  message: {
+    flex: 1,
+    zIndex: 9999,
+    fontSize: 26 * TOAST_SCALE,
+    fontWeight: '800',
+    color: '#ffffff',
+    textAlign: 'center',
+    lineHeight: 30 * TOAST_SCALE,
+    textShadowColor: 'rgba(0, 255, 255, 0.8)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 12 * TOAST_SCALE,
+    letterSpacing: 1.5,
+  },
 });
