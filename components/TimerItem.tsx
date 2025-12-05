@@ -62,20 +62,32 @@ const TimerItem: React.FC<TimerItemProps> = ({
     };
   }, []);
 
+  // Determine current segment for animation speed
+  const currentSegment = timers.length > 0 && currentIndex < timers.length
+    ? timers[currentIndex].segment
+    : null;
+
   // Pulse animation: run when isRunning is true
+  // Slower, subtler pulse during break/chill segments
   useEffect(() => {
+    const isBreakSegment = currentSegment === 'break';
+
+    const pulseUpDuration = isBreakSegment ? 600 : 100;
+    const pulseDownDuration = isBreakSegment ? 900 : 350;
+    const pulseScale = isBreakSegment ? 1.015 : 1.04;
+
     if (isRunning) {
       const pulseAnimation = Animated.loop(
         Animated.sequence([
           Animated.timing(scaleValue, {
-            toValue: 1.04,
-            duration: 100,
+            toValue: pulseScale,
+            duration: pulseUpDuration,
             useNativeDriver: true,
             easing: Easing.inOut(Easing.quad),
           }),
           Animated.timing(scaleValue, {
             toValue: 1,
-            duration: 350,
+            duration: pulseDownDuration,
             useNativeDriver: true,
             easing: Easing.inOut(Easing.quad),
           }),
@@ -90,7 +102,7 @@ const TimerItem: React.FC<TimerItemProps> = ({
       }
       scaleValue.setValue(1);
     }
-  }, [isRunning, scaleValue]);
+  }, [isRunning, scaleValue, currentSegment]);
 
   return (
     <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
