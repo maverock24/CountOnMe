@@ -9,6 +9,7 @@ import { useData } from '@/components/data.provider';
 import { WorkoutItem } from '@/components/data/types';
 import ListTile from '@/components/ListTile';
 import TimerButton from '@/components/TimerButton';
+import { useTheme } from './ThemeProvider';
 import CustomPicker from './CustomPicker';
 
 interface ReorderableWorkoutListProps {
@@ -43,6 +44,7 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
 }) => {
   const { workoutItems, groupItems, getOrderedWorkoutsForGroup, reorderWorkoutInGroup, reorderEntireGroup, reload } = useData();
   const { t } = useTranslation();
+  const { theme } = useTheme();
   const [isReorderMode, setIsReorderMode] = useState<boolean>(false);
   const [isSingleSelect, setIsSingleSelect] = useState<boolean>(false);
   const [reorderableWorkouts, setReorderableWorkouts] = useState<WorkoutItem[]>([]);
@@ -127,28 +129,28 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
   const renderWorkoutItem = ({ item, index }: { item: WorkoutItem, index: number }) => {
     if (isReorderMode) {
       return (
-        <View style={styles.reorderableItem}>
+        <View style={[styles.reorderableItem, { backgroundColor: theme.colors.listTileBackground, borderColor: theme.colors.tileBorder }]}>
           <View style={styles.reorderControls}>
             <TouchableOpacity
               onPress={() => moveWorkoutUp(index)}
               disabled={index === 0}
-              style={[styles.reorderButton, index === 0 && styles.disabledButton]}
+              style={[styles.reorderButton, { backgroundColor: theme.colors.surface }, index === 0 && styles.disabledButton]}
             >
               <FontAwesomeIcon
                 icon={faArrowUp}
                 size={16}
-                color={index === 0 ? '#666' : '#fff'}
+                color={index === 0 ? theme.colors.textMuted : theme.colors.textPrimary}
               />
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => moveWorkoutDown(index)}
               disabled={index === displayWorkouts.length - 1}
-              style={[styles.reorderButton, index === displayWorkouts.length - 1 && styles.disabledButton]}
+              style={[styles.reorderButton, { backgroundColor: theme.colors.surface }, index === displayWorkouts.length - 1 && styles.disabledButton]}
             >
               <FontAwesomeIcon
                 icon={faArrowDown}
                 size={16}
-                color={index === displayWorkouts.length - 1 ? '#666' : '#fff'}
+                color={index === displayWorkouts.length - 1 ? theme.colors.textMuted : theme.colors.textPrimary}
               />
             </TouchableOpacity>
           </View>
@@ -164,7 +166,7 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
             />
           </View>
           <View style={styles.gripHandle}>
-            <FontAwesomeIcon icon={faGripVertical} size={20} color="#666" />
+            <FontAwesomeIcon icon={faGripVertical} size={20} color={theme.colors.textMuted} />
           </View>
         </View>
       );
@@ -241,11 +243,10 @@ const styles = StyleSheet.create({
   reorderableItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1A1E23',
+    // backgroundColor and borderColor set dynamically via theme
     marginVertical: 2,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#333',
   },
   reorderControls: {
     flexDirection: 'column',
@@ -253,7 +254,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
   },
   reorderButton: {
-    backgroundColor: '#2A2E33',
+    // backgroundColor set dynamically via theme
     borderRadius: 4,
     padding: 6,
     marginVertical: 2,
@@ -262,7 +263,6 @@ const styles = StyleSheet.create({
     minWidth: 30,
   },
   disabledButton: {
-    backgroundColor: '#1A1A1A',
     opacity: 0.5,
   },
   workoutInfo: {

@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useEffect, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import React, { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ScrollView,
@@ -11,150 +12,92 @@ import {
 import Svg, { Circle, Defs, LinearGradient, Polygon, Stop } from 'react-native-svg';
 
 import CustomPicker from '@/components/CustomPicker';
-import Colors from '@/constants/Colors';
+import { useTheme } from '@/components/ThemeProvider';
+import ThemedText from '@/components/ThemedText';
 import commonStyles from '../styles';
 
-// Import progression configuration and progressions list
-const progressionConfig = require('../../assets/progression_config.json');
+// Import progressions list (exercises with their component progressions)
 const progressionsList: any[] = require('../../assets/progressions.json');
 
+// Storage key for exercise completion counts
+const EXERCISE_COUNTS_KEY = '@countOnMe_exercise_counts';
 
-interface NodeStatus {
-  id: string;
-  isCompleted: boolean;
-  isUnlocked: boolean;
-  progress?: {
-    [exercise: string]: number;
-  };
-}
-
-interface UserProgress {
-  completedNodes: string[];
-  exerciseHistory: {
-    [exercise: string]: number;
-  };
-  unlockedExercises: string[];
+interface ExerciseProgress {
+  [exerciseName: string]: number; // count of completions
 }
 
 export default function ProgressionTreeScreen() {
   const { t } = useTranslation();
+  const { theme } = useTheme();
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [selectedProgression, setSelectedProgression] = useState<string>(
     progressionsList?.[0]?.name ?? ''
   );
-  const [userProgress, setUserProgress] = useState<UserProgress>({
-    completedNodes: ['START'],
-    exerciseHistory: {
-      'Wall Push-ups': 5,
-      'Modified Plank': 3,
-      'Assisted Squats': 8,
-      Walking: 10,
-      'Marching in Place': 5,
-    },
-    unlockedExercises: ['Basic Warm-up', 'Breathing Exercises'],
-  });
+  const [completedExercises, setCompletedExercises] = useState<string[]>([]);
+  const [exerciseCounts, setExerciseCounts] = useState<ExerciseProgress>({});
 
-  useEffect(() => {
-    const loadCompletedWorkouts = async () => {
-      try {
-        const completedWorkouts = await AsyncStorage.getItem('@countOnMe_completed');
-        if (completedWorkouts) {
-          const completedWorkoutsArray = JSON.parse(completedWorkouts);
-          setUserProgress((prevProgress) => ({
-            ...prevProgress,
-            completedNodes: [...new Set([...prevProgress.completedNodes, ...completedWorkoutsArray])],
-          }));
-        }
-      } catch (error) {
-        console.error('Failed to load completed workouts', error);
+  // Load completed workouts and exercise counts from storage
+  const loadProgressData = useCallback(async () => {
+    try {
+      // Load list of completed exercises (at least once)
+      const completedWorkouts = await AsyncStorage.getItem('@countOnMe_completed');
+      if (completedWorkouts) {
+        const completedArray = JSON.parse(completedWorkouts);
+        setCompletedExercises(completedArray);
       }
-    };
 
-    loadCompletedWorkouts();
+      // Load exercise completion counts
+      const counts = await AsyncStorage.getItem(EXERCISE_COUNTS_KEY);
+      if (counts) {
+        setExerciseCounts(JSON.parse(counts));
+      }
+    } catch (error) {
+      console.error('Failed to load progress data', error);
+    }
   }, []);
 
-  const getNodeStatus = (nodeId: string): NodeStatus => {
-    const node = progressionConfig.progressionTree[nodeId];
-    if (!node) return { id: nodeId, isCompleted: false, isUnlocked: false };
+  // Reload progress data when screen is focused (e.g., after completing a workout)
+  useFocusEffect(
+    useCallback(() => {
+      loadProgressData();
+    }, [loadProgressData])
+  );
 
-    const isCompleted = userProgress.completedNodes.includes(nodeId);
-
-    let isUnlocked = false;
-    if (nodeId === 'START') {
-      isUnlocked = true;
-    } else if (node.unlockConditions && node.unlockConditions.length > 0) {
-      isUnlocked = node.unlockConditions.every((condition: any) => {
-        if (condition.nodeId) {
-          return userProgress.completedNodes.includes(condition.nodeId);
-        }
-        if (condition.exerciseCount) {
-          const currentCount = userProgress.exerciseHistory[condition.exerciseCount] || 0;
-          return currentCount >= condition.count;
-        }
-        return true;
-      });
-    } else {
-      isUnlocked = true;
-    }
-
-    const progress: { [exercise: string]: number } = {};
-    if (node.unlockConditions) {
-      node.unlockConditions.forEach((condition: any) => {
-        if (condition.exerciseCount) {
-          const currentCount = userProgress.exerciseHistory[condition.exerciseCount] || 0;
-          progress[condition.exerciseCount] = Math.min(currentCount / condition.count, 1);
-        }
-      });
-    }
-
-    return { id: nodeId, isCompleted, isUnlocked, progress };
+  // Check if an exercise component is completed
+  const isComponentCompleted = (componentName: string): boolean => {
+    return completedExercises.includes(componentName);
   };
 
-  const getNodeDisplayInfo = (nodeId: string) => {
-    const node = progressionConfig.progressionTree[nodeId];
-    const status = getNodeStatus(nodeId);
+  // Get completion count for an exercise
+  const getCompletionCount = (exerciseName: string): number => {
+    return exerciseCounts[exerciseName] || 0;
+  };
+
+  // Calculate progress for a progression (how many components completed)
+  const getProgressionProgress = (progression: any) => {
+    if (!progression?.components?.length) return { completed: 0, total: 0, percentage: 0 };
+
+    const total = progression.components.length;
+    const completed = progression.components.filter((comp: any) =>
+      isComponentCompleted(comp.component)
+    ).length;
 
     return {
-      id: nodeId,
-      name: node?.name || nodeId,
-      icon: node?.icon || 'circle',
-      description: node?.description || '',
-      status,
-      unlockText: getUnlockText(nodeId, status),
+      completed,
+      total,
+      percentage: total > 0 ? Math.round((completed / total) * 100) : 0
     };
-  };
-
-  const getUnlockText = (nodeId: string, status: NodeStatus) => {
-    const node = progressionConfig.progressionTree[nodeId];
-    if (status.isCompleted) return 'Completed!';
-    if (status.isUnlocked) return 'Available now!';
-
-    if (node?.unlockConditions) {
-      const requirements = node.unlockConditions
-        .map((condition: any) => {
-          if (condition.nodeId) {
-            const isCompleted = userProgress.completedNodes.includes(condition.nodeId);
-            return `${condition.nodeId}: ${isCompleted ? '✓' : '✗'}`;
-          }
-          if (condition.exerciseCount) {
-            const current = userProgress.exerciseHistory[condition.exerciseCount] || 0;
-            return `${condition.exerciseCount}: ${current}/${condition.count}`;
-          }
-          return '';
-        })
-        .filter((req: string) => req)
-        .join('\n');
-      return `Requirements:\n${requirements}`;
-    }
-
-    return 'Complete previous steps to unlock';
   };
 
   const renderStepNumber = (index: number, isCompleted: boolean) => {
     return (
-      <View style={[styles.stepNumber, isCompleted && styles.stepNumberCompleted]}>
+      <View style={[
+        styles.stepNumber,
+        isCompleted && styles.stepNumberCompleted,
+        { backgroundColor: isCompleted ? `${theme.colors.success}30` : 'rgba(255,255,255,0.1)' }
+      ]}>
         {isCompleted ? (
-          <Text style={styles.stepNumberText}>✓</Text>
+          <Text style={[styles.stepNumberText, { color: theme.colors.success }]}>✓</Text>
         ) : (
           <Text style={styles.stepNumberText}>{index + 1}</Text>
         )}
@@ -162,36 +105,48 @@ export default function ProgressionTreeScreen() {
     );
   };
 
-  const renderHexNode = (nodeId: string, index: number) => {
-    const nodeInfo = getNodeDisplayInfo(nodeId);
-    const status = nodeInfo.status;
-    const isSelected = selectedNode === nodeId;
+  const renderHexNode = (component: any, index: number) => {
+    const componentName = component.component;
+    const isCompleted = isComponentCompleted(componentName);
+    const completionCount = getCompletionCount(componentName);
+    const isSelected = selectedNode === componentName;
 
     const hexPoints = '50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5';
 
     return (
       <TouchableOpacity
-        key={nodeId}
-        style={[styles.nodeCard, isSelected && styles.nodeCardSelected]}
-        onPress={() => setSelectedNode(isSelected ? null : nodeId)}
+        key={`${componentName}_${index}`}
+        style={[
+          styles.nodeCard,
+          isSelected && styles.nodeCardSelected,
+          {
+            backgroundColor: isSelected
+              ? `${theme.colors.primary}15`
+              : theme.colors.listTileBackground,
+            borderColor: isSelected
+              ? `${theme.colors.primary}50`
+              : theme.colors.tileBorder
+          }
+        ]}
+        onPress={() => setSelectedNode(isSelected ? null : componentName)}
         activeOpacity={0.7}
       >
         {/* Left side: Step indicator and Hexagon */}
         <View style={styles.nodeLeftSection}>
-          {renderStepNumber(index, status.isCompleted)}
+          {renderStepNumber(index, isCompleted)}
 
           <View style={styles.hexWrapper}>
             <Svg width="100" height="100" viewBox="0 0 100 100">
               <Defs>
-                <LinearGradient id={`grad_${nodeId}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                <LinearGradient id={`grad_${componentName}_${index}`} x1="0%" y1="0%" x2="100%" y2="100%">
                   <Stop
                     offset="0%"
-                    stopColor={status.isCompleted ? '#00c853' : Colors.glow}
+                    stopColor={isCompleted ? theme.colors.success : theme.colors.glow}
                     stopOpacity="0.3"
                   />
                   <Stop
                     offset="100%"
-                    stopColor={status.isCompleted ? '#00e676' : '#00bcd4'}
+                    stopColor={isCompleted ? theme.colors.success : theme.colors.primary}
                     stopOpacity="0.1"
                   />
                 </LinearGradient>
@@ -200,15 +155,15 @@ export default function ProgressionTreeScreen() {
               {/* Background hex */}
               <Polygon
                 points={hexPoints}
-                fill={`url(#grad_${nodeId})`}
-                stroke={status.isCompleted ? '#00c853' : status.isUnlocked ? Colors.glow : '#3a3f47'}
-                strokeWidth={status.isCompleted ? 2.5 : 1.5}
-                opacity={!status.isUnlocked ? 0.5 : 1}
+                fill={`url(#grad_${componentName}_${index})`}
+                stroke={isCompleted ? theme.colors.success : theme.colors.glow}
+                strokeWidth={isCompleted ? 2.5 : 1.5}
+                opacity={1}
               />
 
               {/* Inner glow for completed */}
-              {status.isCompleted && (
-                <Circle cx="50" cy="50" r="25" fill="rgba(0,200,83,0.15)" />
+              {isCompleted && (
+                <Circle cx="50" cy="50" r="25" fill={`${theme.colors.success}25`} />
               )}
             </Svg>
 
@@ -217,12 +172,11 @@ export default function ProgressionTreeScreen() {
               <Text
                 style={[
                   styles.hexText,
-                  status.isCompleted && styles.hexTextCompleted,
-                  !status.isUnlocked && styles.hexTextLocked,
+                  isCompleted && { color: theme.colors.success },
                 ]}
                 numberOfLines={2}
               >
-                {nodeInfo.name}
+                {componentName}
               </Text>
             </View>
           </View>
@@ -231,36 +185,44 @@ export default function ProgressionTreeScreen() {
         {/* Right side: Description */}
         <View style={styles.nodeRightSection}>
           <View style={styles.nodeHeader}>
-            <Text style={[styles.nodeName, !status.isUnlocked && styles.nodeNameLocked]}>
-              {nodeInfo.name}
+            <Text style={[styles.nodeName, { color: theme.colors.textPrimary }]}>
+              {componentName}
             </Text>
             <View
               style={[
                 styles.statusBadge,
-                status.isCompleted
-                  ? styles.statusCompleted
-                  : status.isUnlocked
-                    ? styles.statusUnlocked
-                    : styles.statusLocked,
+                isCompleted
+                  ? { backgroundColor: `${theme.colors.success}30` }
+                  : { backgroundColor: `${theme.colors.primary}30` },
               ]}
             >
-              <Text style={styles.statusText}>
-                {status.isCompleted ? '✓ Done' : status.isUnlocked ? 'Ready' : 'Locked'}
+              <Text style={[styles.statusText, { color: isCompleted ? theme.colors.success : theme.colors.primary }]}>
+                {isCompleted ? '✓ Done' : 'Ready'}
               </Text>
             </View>
           </View>
 
           <Text
-            style={[styles.nodeDescription, !status.isUnlocked && styles.nodeDescriptionLocked]}
+            style={[styles.nodeDescription, { color: theme.colors.textMuted }]}
             numberOfLines={isSelected ? undefined : 3}
           >
-            {nodeInfo.description || 'No description available'}
+            {component.description || 'No description available'}
           </Text>
 
           {isSelected && (
             <View style={styles.expandedInfo}>
-              <View style={styles.divider} />
-              <Text style={styles.statusLabel}>{nodeInfo.unlockText}</Text>
+              <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
+              <View style={styles.workoutInfo}>
+                <ThemedText style={styles.workoutLabel}>{t('workout') || 'Workout'}:</ThemedText>
+                <Text style={[styles.workoutValue, { color: theme.colors.primary }]}>
+                  {component.workout?.split(';').map((t: string) => `${Math.round(parseFloat(t) / 60 * 10) / 10}m`).join(' | ') || 'N/A'}
+                </Text>
+              </View>
+              {completionCount > 0 && (
+                <ThemedText style={styles.completionCount}>
+                  {t('completed_times', { count: completionCount }) || `Completed ${completionCount} time${completionCount !== 1 ? 's' : ''}`}
+                </ThemedText>
+              )}
             </View>
           )}
         </View>
@@ -277,11 +239,11 @@ export default function ProgressionTreeScreen() {
       return (
         <View style={styles.treeContainer}>
           {/* Vertical connector line */}
-          <View style={styles.connectorLine} />
+          <View style={[styles.connectorLine, { backgroundColor: `${theme.colors.primary}30` }]} />
 
           {chosen.components.map((comp: any, index: number) => (
             <View key={`node_${index}`} style={styles.nodeWrapper}>
-              {renderHexNode(comp.component, index)}
+              {renderHexNode(comp, index)}
             </View>
           ))}
         </View>
@@ -290,19 +252,22 @@ export default function ProgressionTreeScreen() {
 
     return (
       <View style={styles.emptyState}>
-        <Text style={styles.emptyStateText}>Select a progression to view exercises</Text>
+        <Text style={[styles.emptyStateText, { color: theme.colors.textMuted }]}>
+          {t('select_progression') || 'Select a progression to view exercises'}
+        </Text>
       </View>
     );
   };
 
   const selectedProgressionData = progressionsList.find((p) => p.name === selectedProgression);
+  const progress = selectedProgressionData ? getProgressionProgress(selectedProgressionData) : { completed: 0, total: 0, percentage: 0 };
 
   return (
-    <View style={commonStyles.container}>
+    <View style={[commonStyles.container, { backgroundColor: theme.colors.void }]}>
       {/* Header Section */}
-      <View style={[commonStyles.outerContainer, { flex: 0, maxHeight: 180 }]}>
-        <Text style={commonStyles.tileTitle}>{t('progress')}</Text>
-        <View style={[commonStyles.tile, { padding: 12, paddingTop: 16 }]}>
+      <View style={[commonStyles.outerContainer, { flex: 0, maxHeight: 200 }]}>
+        <ThemedText style={commonStyles.tileTitle}>{t('progress')}</ThemedText>
+        <View style={[commonStyles.tile, { padding: 12, paddingTop: 16, backgroundColor: theme.colors.tileBackground, borderColor: theme.colors.tileBorder }]}>
           <CustomPicker
             items={progressionsList.map((p) => ({ label: p.name, value: p.name }))}
             selectedValue={selectedProgression}
@@ -316,22 +281,23 @@ export default function ProgressionTreeScreen() {
 
           {selectedProgressionData && (
             <View style={styles.progressionInfo}>
-              <Text style={styles.progressionDescription} numberOfLines={2}>
+              <Text style={[styles.progressionDescription, { color: theme.colors.textMuted }]} numberOfLines={2}>
                 {selectedProgressionData.description}
               </Text>
-              <View style={styles.statsRow}>
+              <View style={[styles.statsRow, { backgroundColor: `${theme.colors.primary}15` }]}>
                 <View style={styles.statItem}>
-                  <Text style={styles.statValue}>{selectedProgressionData.components?.length || 0}</Text>
-                  <Text style={styles.statLabel}>Exercises</Text>
+                  <Text style={[styles.statValue, { color: theme.colors.primary }]}>{progress.total}</Text>
+                  <Text style={[styles.statLabel, { color: theme.colors.textMuted }]}>{t('exercises') || 'Exercises'}</Text>
                 </View>
-                <View style={styles.statDivider} />
+                <View style={[styles.statDivider, { backgroundColor: theme.colors.border }]} />
                 <View style={styles.statItem}>
-                  <Text style={styles.statValue}>
-                    {userProgress.completedNodes.filter((node) =>
-                      selectedProgressionData.components?.some((c: any) => c.component === node)
-                    ).length}
-                  </Text>
-                  <Text style={styles.statLabel}>Completed</Text>
+                  <Text style={[styles.statValue, { color: theme.colors.success }]}>{progress.completed}</Text>
+                  <Text style={[styles.statLabel, { color: theme.colors.textMuted }]}>{t('completed') || 'Completed'}</Text>
+                </View>
+                <View style={[styles.statDivider, { backgroundColor: theme.colors.border }]} />
+                <View style={styles.statItem}>
+                  <Text style={[styles.statValue, { color: theme.colors.primary }]}>{progress.percentage}%</Text>
+                  <Text style={[styles.statLabel, { color: theme.colors.textMuted }]}>{t('progress_label') || 'Progress'}</Text>
                 </View>
               </View>
             </View>
@@ -341,8 +307,8 @@ export default function ProgressionTreeScreen() {
 
       {/* Progression Tree Section */}
       <View style={[commonStyles.outerContainer, { flex: 1 }]}>
-        <Text style={commonStyles.tileTitle}>Exercises</Text>
-        <View style={[commonStyles.tile, { flex: 1, padding: 0, overflow: 'hidden' }]}>
+        <ThemedText style={commonStyles.tileTitle}>{t('exercises') || 'Exercises'}</ThemedText>
+        <View style={[commonStyles.tile, { flex: 1, padding: 0, overflow: 'hidden', backgroundColor: theme.colors.tileBackground, borderColor: theme.colors.tileBorder }]}>
           <ScrollView
             style={styles.scrollView}
             contentContainerStyle={styles.scrollContent}
@@ -370,7 +336,6 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   progressionDescription: {
-    color: 'rgba(255,255,255,0.7)',
     fontSize: 13,
     lineHeight: 18,
     marginBottom: 12,
@@ -379,22 +344,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(42, 199, 207, 0.08)',
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: 20,
   },
   statItem: {
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
   },
   statValue: {
-    color: Colors.glow,
     fontSize: 22,
     fontWeight: '700',
   },
   statLabel: {
-    color: 'rgba(255,255,255,0.5)',
     fontSize: 11,
     marginTop: 2,
     textTransform: 'uppercase',
@@ -403,7 +365,6 @@ const styles = StyleSheet.create({
   statDivider: {
     width: 1,
     height: 30,
-    backgroundColor: 'rgba(255,255,255,0.1)',
   },
   treeContainer: {
     position: 'relative',
@@ -415,7 +376,6 @@ const styles = StyleSheet.create({
     top: 50,
     bottom: 50,
     width: 2,
-    backgroundColor: 'rgba(42, 199, 207, 0.2)',
     borderRadius: 1,
   },
   nodeWrapper: {
@@ -423,15 +383,12 @@ const styles = StyleSheet.create({
   },
   nodeCard: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(30, 40, 50, 0.6)',
     borderRadius: 12,
     padding: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
   },
   nodeCardSelected: {
-    backgroundColor: 'rgba(42, 199, 207, 0.08)',
-    borderColor: 'rgba(42, 199, 207, 0.3)',
+    // Dynamic styles applied inline
   },
   nodeLeftSection: {
     alignItems: 'center',
@@ -441,13 +398,12 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.1)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 8,
   },
   stepNumberCompleted: {
-    backgroundColor: 'rgba(0, 200, 83, 0.2)',
+    // Dynamic styles applied inline
   },
   stepNumberText: {
     color: '#fff',
@@ -477,12 +433,6 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.3,
   },
-  hexTextCompleted: {
-    color: '#00e676',
-  },
-  hexTextLocked: {
-    color: 'rgba(255,255,255,0.4)',
-  },
   nodeRightSection: {
     flex: 1,
     justifyContent: 'flex-start',
@@ -494,63 +444,56 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   nodeName: {
-    color: '#fff',
     fontSize: 15,
     fontWeight: '600',
     flex: 1,
     marginRight: 8,
-  },
-  nodeNameLocked: {
-    color: 'rgba(255,255,255,0.5)',
   },
   statusBadge: {
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 10,
   },
-  statusCompleted: {
-    backgroundColor: 'rgba(0, 200, 83, 0.2)',
-  },
-  statusUnlocked: {
-    backgroundColor: 'rgba(42, 199, 207, 0.2)',
-  },
-  statusLocked: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-  },
   statusText: {
-    color: '#fff',
     fontSize: 10,
     fontWeight: '500',
     textTransform: 'uppercase',
     letterSpacing: 0.3,
   },
   nodeDescription: {
-    color: 'rgba(255,255,255,0.6)',
     fontSize: 12,
     lineHeight: 17,
-  },
-  nodeDescriptionLocked: {
-    color: 'rgba(255,255,255,0.35)',
   },
   expandedInfo: {
     marginTop: 10,
   },
   divider: {
     height: 1,
-    backgroundColor: 'rgba(255,255,255,0.1)',
     marginBottom: 10,
   },
-  statusLabel: {
-    color: Colors.glow,
+  workoutInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  workoutLabel: {
+    fontSize: 12,
+    marginRight: 6,
+  },
+  workoutValue: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  completionCount: {
     fontSize: 11,
     fontStyle: 'italic',
+    marginTop: 4,
   },
   emptyState: {
     padding: 40,
     alignItems: 'center',
   },
   emptyStateText: {
-    color: 'rgba(255,255,255,0.4)',
     fontSize: 14,
   },
 });

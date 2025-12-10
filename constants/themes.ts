@@ -37,6 +37,7 @@ export interface Theme {
     buttonBorder: string;
     tileBackground: string;
     tileBorder: string;
+    listTileBackground: string;  // Darker background for list tiles
     inputBackground: string;
     inputBorder: string;
 
@@ -72,6 +73,7 @@ export const originalDark: Theme = {
     buttonBorder: 'rgb(83, 90, 92)',
     tileBackground: 'rgba(17, 24, 30, 0.8)',
     tileBorder: '#2A2E33',
+    listTileBackground: 'rgba(26, 36, 43, 1)',
     inputBackground: 'transparent',
     inputBorder: 'rgb(81, 84, 90)',
     progressTrack: '#2A2E33',
@@ -105,6 +107,7 @@ export const midnightBlue: Theme = {
     buttonBorder: 'rgb(50, 70, 100)',
     tileBackground: 'rgba(15, 25, 40, 0.85)',
     tileBorder: '#1e3050',
+    listTileBackground: 'rgba(14, 24, 38, 1)',
     inputBackground: 'transparent',
     inputBorder: 'rgb(50, 70, 100)',
     progressTrack: '#1e3050',
@@ -138,6 +141,7 @@ export const cyberPurple: Theme = {
     buttonBorder: 'rgb(80, 50, 110)',
     tileBackground: 'rgba(25, 15, 40, 0.85)',
     tileBorder: '#3d2060',
+    listTileBackground: 'rgba(20, 12, 32, 1)',
     inputBackground: 'transparent',
     inputBorder: 'rgb(80, 50, 110)',
     progressTrack: '#3d2060',
@@ -171,6 +175,7 @@ export const neonGreen: Theme = {
     buttonBorder: 'rgb(50, 90, 55)',
     tileBackground: 'rgba(15, 35, 18, 0.85)',
     tileBorder: '#1a3d1a',
+    listTileBackground: 'rgba(12, 28, 14, 1)',
     inputBackground: 'transparent',
     inputBorder: 'rgb(50, 90, 55)',
     progressTrack: '#1a3d1a',
@@ -204,6 +209,7 @@ export const crimsonNight: Theme = {
     buttonBorder: 'rgb(100, 50, 60)',
     tileBackground: 'rgba(40, 15, 18, 0.85)',
     tileBorder: '#4a1a20',
+    listTileBackground: 'rgba(32, 12, 14, 1)',
     inputBackground: 'transparent',
     inputBorder: 'rgb(100, 50, 60)',
     progressTrack: '#4a1a20',
@@ -237,6 +243,7 @@ export const oceanDepths: Theme = {
     buttonBorder: 'rgb(40, 80, 100)',
     tileBackground: 'rgba(10, 30, 45, 0.85)',
     tileBorder: '#0f3545',
+    listTileBackground: 'rgba(8, 24, 36, 1)',
     inputBackground: 'transparent',
     inputBorder: 'rgb(40, 80, 100)',
     progressTrack: '#0f3545',
@@ -270,6 +277,7 @@ export const goldenHour: Theme = {
     buttonBorder: 'rgb(90, 75, 45)',
     tileBackground: 'rgba(35, 28, 15, 0.85)',
     tileBorder: '#4a3d20',
+    listTileBackground: 'rgba(28, 22, 12, 1)',
     inputBackground: 'transparent',
     inputBorder: 'rgb(90, 75, 45)',
     progressTrack: '#4a3d20',
@@ -303,6 +311,7 @@ export const arcticFrost: Theme = {
     buttonBorder: 'rgb(65, 85, 100)',
     tileBackground: 'rgba(22, 35, 45, 0.85)',
     tileBorder: '#2a3d4a',
+    listTileBackground: 'rgba(18, 28, 36, 1)',
     inputBackground: 'transparent',
     inputBorder: 'rgb(65, 85, 100)',
     progressTrack: '#2a3d4a',
@@ -336,6 +345,7 @@ export const emberGlow: Theme = {
     buttonBorder: 'rgb(100, 65, 40)',
     tileBackground: 'rgba(40, 24, 14, 0.85)',
     tileBorder: '#4a2a18',
+    listTileBackground: 'rgba(32, 19, 11, 1)',
     inputBackground: 'transparent',
     inputBorder: 'rgb(100, 65, 40)',
     progressTrack: '#4a2a18',
@@ -369,6 +379,7 @@ export const stealthMode: Theme = {
     buttonBorder: 'rgb(60, 60, 65)',
     tileBackground: 'rgba(18, 18, 20, 0.9)',
     tileBorder: '#2a2a2d',
+    listTileBackground: 'rgba(14, 14, 16, 1)',
     inputBackground: 'transparent',
     inputBorder: 'rgb(60, 60, 65)',
     progressTrack: '#2a2a2d',
