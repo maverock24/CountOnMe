@@ -413,18 +413,29 @@ const TabTwoScreen: React.FC = () => {
     const handleWorkoutCompleteCallback = async () => {
       if (selectedItem) {
         try {
+          // Track unique completions (for "completed at least once" list)
           const completedWorkouts = await AsyncStorage.getItem('@countOnMe_completed');
           const completedWorkoutsArray = completedWorkouts ? JSON.parse(completedWorkouts) : [];
-          if (!completedWorkoutsArray.includes(selectedItem)) {
+          const isFirstCompletion = !completedWorkoutsArray.includes(selectedItem);
+          if (isFirstCompletion) {
             completedWorkoutsArray.push(selectedItem);
             await AsyncStorage.setItem('@countOnMe_completed', JSON.stringify(completedWorkoutsArray));
-            showToast({
-              type: 'success',
-              message: 'Great Job !!!',
-              duration: 4000,
-              position: 'center',
-            });
           }
+
+          // Track completion counts (for progression tracking)
+          const countsKey = '@countOnMe_exercise_counts';
+          const existingCounts = await AsyncStorage.getItem(countsKey);
+          const counts = existingCounts ? JSON.parse(existingCounts) : {};
+          counts[selectedItem] = (counts[selectedItem] || 0) + 1;
+          await AsyncStorage.setItem(countsKey, JSON.stringify(counts));
+
+          // Show success toast
+          showToast({
+            type: 'success',
+            message: isFirstCompletion ? t('first_completion') || 'First time! Great Job!' : t('workout_complete') || 'Great Job!',
+            duration: 4000,
+            position: 'center',
+          });
         } catch (error) {
           console.error('Failed to save completed workout', error);
         }
@@ -441,7 +452,7 @@ const TabTwoScreen: React.FC = () => {
     };
 
     setWorkoutCompleteCallback(handleWorkoutCompleteCallback);
-  }, [orderedWorkouts, handleWorkoutCompleteFlow, setWorkoutCompleteCallback, singleSelectMode, handleTimerReset, resetTimer, selectedItem, showToast]);
+  }, [orderedWorkouts, handleWorkoutCompleteFlow, setWorkoutCompleteCallback, singleSelectMode, handleTimerReset, resetTimer, selectedItem, showToast, t]);
 
   // Set up callback for when workout/action music starts (for motivational toasts)
   useEffect(() => {

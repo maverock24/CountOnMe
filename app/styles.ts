@@ -67,8 +67,7 @@ const commonStyles = StyleSheet.create({
     borderRadius: 5,
     margin: 5,
     padding: 10,
-    borderColor: 'rgb(27, 41, 46)',
-    backgroundColor: Colors.backgroundColor,
+    // backgroundColor and borderColor now set via theme in ListTile component
   } as any, // Temporarily cast to avoid web-specific style warnings
   buttonPressed: {
     // alignItems: 'center',
