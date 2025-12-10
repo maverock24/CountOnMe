@@ -145,7 +145,7 @@ const commonStyles = StyleSheet.create({
     width: '100%',
   },
   listItemTitle: {
-    fontSize: 14,   
+    fontSize: 14,
     color: 'rgb(201, 213, 215)',
     marginBottom: 5,
   },

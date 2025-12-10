@@ -55,7 +55,7 @@ const CircleWrapper = React.forwardRef((props: any, ref: any) => {
 const AnimatedCircle = Animated.createAnimatedComponent(CircleWrapper);
 
 const TabTwoScreen: React.FC = () => {
-  const { showToast } = useToast();
+  const { showToast, showMotivationalToast } = useToast();
   const { 
     workoutItems, 
     groupItems, 
@@ -445,29 +445,39 @@ const TabTwoScreen: React.FC = () => {
 
   // Set up callback for when workout/action music starts (for motivational toasts)
   useEffect(() => {
-    const showMotivationalToast = () => {
-      const motivationalMessages = [
-        t('lets_go'),
-        t('you_got_this'),
-        t('time_to_crush_it'),
-        t('stay_strong'),
-        t('push_yourself'),
-      ];
-      const randomMessage = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
-      showToast({
-        type: 'success',
-        message: randomMessage,
-        duration: 2000,
-        position: 'center',
+    // Animation variants for each message - Superbowl quality!
+    const motivationalVariants: Array<{
+      key: string;
+      variant: 'lightning_strike' | 'explosion_burst' | 'champion_reveal' | 'sonic_boom' | 'fire_rise' | 'matrix_decode' | 'stadium_roar' | 'victory_slam' | 'neon_pulse' | 'phoenix_ascend';
+    }> = [
+      { key: 'lets_go', variant: 'lightning_strike' },
+      { key: 'you_got_this', variant: 'champion_reveal' },
+      { key: 'time_to_crush_it', variant: 'explosion_burst' },
+      { key: 'stay_strong', variant: 'victory_slam' },
+      { key: 'push_yourself', variant: 'fire_rise' },
+      { key: 'unleash_beast', variant: 'phoenix_ascend' },
+      { key: 'no_limits', variant: 'sonic_boom' },
+      { key: 'champion_mode', variant: 'stadium_roar' },
+      { key: 'rise_up', variant: 'matrix_decode' },
+      { key: 'unstoppable', variant: 'neon_pulse' },
+    ];
+
+    const showMotivationalToastCallback = () => {
+      const randomIndex = Math.floor(Math.random() * motivationalVariants.length);
+      const { key, variant } = motivationalVariants[randomIndex];
+      showMotivationalToast({
+        message: t(key),
+        variant,
+        duration: 2500,
       });
     };
 
-    setOnWorkoutMusicStart(showMotivationalToast);
+    setOnWorkoutMusicStart(showMotivationalToastCallback);
 
     return () => {
       setOnWorkoutMusicStart(null);
     };
-  }, [t, showToast, setOnWorkoutMusicStart]);
+  }, [t, showMotivationalToast, setOnWorkoutMusicStart]);
 
   const handleAddNew = () => {
     router.push('/three');
@@ -635,7 +645,7 @@ const TabTwoScreen: React.FC = () => {
               </View>
             )} */}
             
-            <View style={{ width: '100%' }}>
+            <View style={{ width: '100%', flex: 1 }}>
               {/* <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginBottom: 6 }}>
                 <Text style={{ color: '#b0e0e6', marginRight: 8 }}>{selectedGroup}</Text>
                 <TouchableOpacity
@@ -692,28 +702,22 @@ const TabTwoScreen: React.FC = () => {
                 </Modal>
               ) : null}
 
-              <ScrollView
-                style={{ width: '100%', maxHeight: Math.max(200, height * 0.45) }}
-                contentContainerStyle={{ flexGrow: 1 }}
-                keyboardShouldPersistTaps="handled"
-              >
-                <ReorderableWorkoutList
-                  key={`${selectedGroup}-${groupItems.length}`}
-                  groupData={groupData}
-                  selectedGroup={selectedGroup}
-                  onGroupChange={handleGroupChange}
-                  selectedItem={selectedItem}
-                  selectedItems={selectedItem ? new Set([selectedItem]) : new Set()}
-                  onWorkoutSelect={toggleSelectSet}
-                  currentIndex={currentIndex}
-                  showReorderButton={true}
-                  showSingleSelect={true}
-                  onReorderComplete={handleReorderComplete}
-                  onWorkoutsChanged={setOrderedWorkouts}
-                  // NEW: capture Single/All toggle changes
-                  onSingleSelectChange={setSingleSelectMode}
-                />
-              </ScrollView>
+              <ReorderableWorkoutList
+                key={`${selectedGroup}-${groupItems.length}`}
+                groupData={groupData}
+                selectedGroup={selectedGroup}
+                onGroupChange={handleGroupChange}
+                selectedItem={selectedItem}
+                selectedItems={selectedItem ? new Set([selectedItem]) : new Set()}
+                onWorkoutSelect={toggleSelectSet}
+                currentIndex={currentIndex}
+                showReorderButton={true}
+                showSingleSelect={true}
+                onReorderComplete={handleReorderComplete}
+                onWorkoutsChanged={setOrderedWorkouts}
+                // NEW: capture Single/All toggle changes
+                onSingleSelectChange={setSingleSelectMode}
+              />
             </View>
           </View>
         </View>
@@ -729,7 +733,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'lightgray',
     marginBottom: 5,
-    
+
   },
   currentMusicLabel: {
     position: 'absolute',

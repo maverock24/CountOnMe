@@ -1,19 +1,22 @@
 import CustomPicker from '@/components/CustomPicker';
 import { useData } from '@/components/data.provider';
 import ModalPicker from '@/components/ModalPicker';
+import ThemedText from '@/components/ThemedText';
+import { useTheme } from '@/components/ThemeProvider';
 import Colors from '@/constants/Colors';
 import { language as languageData } from '@/constants/media';
 import i18n from '@/i18n';
 import { FitnessLevel } from '@/utils/intensity.enum';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Platform, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
 import commonStyles from '../styles';
 
 const SettingsScreen: React.FC = () => {
   const { audioEnabled, setAudioEnabled, userWeight, setWeight, setFitness, fitnessLevel, storeItem, getStoredItem } = useData();
+  const { theme, themes, setTheme, font, fonts, setFont } = useTheme();
   const { t } = useTranslation();
-  
+
   const [currentLanguage, setCurrentLanguage] = React.useState(i18n.language);
   
   React.useEffect(() => {
@@ -43,7 +46,7 @@ const SettingsScreen: React.FC = () => {
   return (
     <View style={commonStyles.container}>
       <View style={[commonStyles.outerContainer]}>
-        <Text style={commonStyles.tileTitle}>{t('settings')}</Text>
+        <ThemedText style={commonStyles.tileTitle}>{t('settings')}</ThemedText>
         <View
           style={[
             styles.section,
@@ -67,8 +70,8 @@ const SettingsScreen: React.FC = () => {
           ]}
         >
           <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          <Text style={styles.sectionTitle}>{t('profile')}</Text>
-            <Text style={styles.label}>{t('weight')}</Text>
+          <ThemedText weight="bold" style={styles.sectionTitle}>{t('profile')}</ThemedText>
+            <ThemedText style={styles.label}>{t('weight')}</ThemedText>
             <TextInput
               style={styles.input}
               placeholder={t('enter_weight')}
@@ -76,7 +79,7 @@ const SettingsScreen: React.FC = () => {
               onChangeText={(text: string) => setWeight(text)}
               value={userWeight?.toString() ?? ''}
             />
-            <Text style={styles.label}>{t('fitness_level')}</Text>
+            <ThemedText style={styles.label}>{t('fitness_level')}</ThemedText>
             <CustomPicker
               selectedValue={fitnessLevel || FitnessLevel.Beginner}
               onValueChange={(itemValue: string) => setFitness(itemValue as FitnessLevel)}
@@ -87,7 +90,7 @@ const SettingsScreen: React.FC = () => {
               ]}
               dropdownIconColor="#fff"
             />
-            <Text style={styles.sectionTitle}>{t('general')}</Text>
+            <ThemedText weight="bold" style={styles.sectionTitle}>{t('general')}</ThemedText>
             <View
               style={{
                 flexDirection: 'row',
@@ -95,7 +98,7 @@ const SettingsScreen: React.FC = () => {
                 justifyContent: 'space-between',
               }}
             >
-              <Text style={styles.label}>{t('sound_on_off')}</Text>
+              <ThemedText style={styles.label}>{t('sound_on_off')}</ThemedText>
               <Switch
                 style={{ marginRight: 10, marginTop: 10 }}
                 trackColor={{ false: 'gray', true: 'white' }}
@@ -104,18 +107,42 @@ const SettingsScreen: React.FC = () => {
                 value={audioEnabled}
               />
             </View>
-            <Text style={styles.sectionTitle}>{t('music')}</Text>
+            <ThemedText weight="bold" style={styles.sectionTitle}>{t('music')}</ThemedText>
             <ModalPicker label={t('workout')} dataKey="workoutMusic" />
             <ModalPicker label={t('break')} dataKey="breakMusic" />
             <ModalPicker label={t('success')} dataKey="successSound" />
-            <Text style={styles.sectionTitle}>{t('language')}</Text>
-            <Text style={styles.label}>{t('selected_language')}</Text>
+            <ThemedText weight="bold" style={styles.sectionTitle}>{t('language')}</ThemedText>
+            <ThemedText style={styles.label}>{t('selected_language')}</ThemedText>
             <CustomPicker
               selectedValue={currentLanguage}
               onValueChange={handleLanguageChange}
               items={languageData}
               dropdownIconColor="#fff"
             />
+
+            <ThemedText weight="bold" style={styles.sectionTitle}>{t('appearance') || 'Appearance'}</ThemedText>
+            <ThemedText style={styles.label}>{t('theme') || 'Theme'}</ThemedText>
+            <CustomPicker
+              selectedValue={theme.id}
+              onValueChange={(themeId: string) => setTheme(themeId)}
+              items={themes.map(t => ({ label: t.name, value: t.id }))}
+              dropdownIconColor="#fff"
+            />
+            <View style={styles.themePreview}>
+              <View style={[styles.colorSwatch, { backgroundColor: theme.colors.primary }]} />
+              <View style={[styles.colorSwatch, { backgroundColor: theme.colors.secondary }]} />
+              <View style={[styles.colorSwatch, { backgroundColor: theme.colors.borderActive }]} />
+              <View style={[styles.colorSwatch, { backgroundColor: theme.colors.glow }]} />
+            </View>
+
+            <ThemedText style={styles.label}>{t('font') || 'Font'}</ThemedText>
+            <CustomPicker
+              selectedValue={font.id}
+              onValueChange={(fontId: string) => setFont(fontId)}
+              items={fonts.map(f => ({ label: f.displayName, value: f.id }))}
+              dropdownIconColor="#fff"
+            />
+            <ThemedText style={styles.fontPreviewText}>{font.description}</ThemedText>
           </ScrollView>
         </View>
       </View>
@@ -170,5 +197,24 @@ const styles = StyleSheet.create({
     marginTop: 20,
     width: '90%',
     alignSelf: 'center',
+  },
+  themePreview: {
+    flexDirection: 'row',
+    marginTop: 10,
+    marginBottom: 5,
+    gap: 8,
+  },
+  colorSwatch: {
+    width: 32,
+    height: 32,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  fontPreviewText: {
+    fontSize: 12,
+    color: 'lightgray',
+    marginTop: 5,
+    fontStyle: 'italic',
   },
 });

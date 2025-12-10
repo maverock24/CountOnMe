@@ -4,11 +4,12 @@ import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View 
 
 import commonStyles from '@/app/styles';
 import { WorkoutItem } from '@/components/data/types';
-import Colors from '@/constants/Colors';
 import { roundToDecimals } from '@/utils/numberUtils';
 
 import { useTranslation } from 'react-i18next';
 import TimerButton from './TimerButton';
+import { useTheme } from './ThemeProvider';
+import ThemedText from './ThemedText';
 
 const ListTile = ({
   isSelected,
@@ -36,6 +37,7 @@ const ListTile = ({
   const [workoutStage, setWorkoutStage] = useState(currentIndex || 0);
   const [descVisible, setDescVisible] = useState(false);
   const { t } = useTranslation();
+  const { theme } = useTheme();
   
   // Handle both new WorkoutItem structure and legacy format
   let workoutData: string;
@@ -136,12 +138,12 @@ const ListTile = ({
           borderWidth: 1,
         },
         isSelected && {
-          borderColor: 'rgb(2, 248, 240)',
+          borderColor: theme.colors.borderActive,
           borderWidth:1,
-          shadowColor: Colors.glow,
+          shadowColor: theme.colors.glow,
           shadowOpacity: 1,
           shadowRadius: 1,
-          boxShadow: '0px 0px 8px rgba(0, 162, 212, 0.5)',
+          boxShadow: `0px 0px 8px ${theme.colors.glow}`,
           elevation: 6,
         },
         style
@@ -157,14 +159,14 @@ const ListTile = ({
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                borderBottomColor: '#b0e0e6',
+                borderBottomColor: theme.colors.textMuted,
                 borderBottomWidth: 1,
                 width: '100%',
                 paddingBottom: 5,
               }}
             >
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={commonStyles.listItemTitle}>{title}</Text>
+                <ThemedText style={commonStyles.listItemTitle}>{title}</ThemedText>
                 {description ? (
                   <TouchableOpacity
                     onPress={() => setDescVisible(true)}
@@ -177,14 +179,14 @@ const ListTile = ({
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 {(workoutItem?.calories !== undefined && workoutItem?.calories !== null) || caloriesData ? (
-                  <Text style={{ fontSize: 14, color: '#b0e0e6', marginRight: 10 }}>
+                  <ThemedText style={{ fontSize: 14, color: theme.colors.textMuted, marginRight: 10 }}>
                     {t('calories_colon')} {caloriesData}
-                  </Text>
+                  </ThemedText>
                 ) : null}
                 {workoutItem?.level && levelDisplay && (
-                  <Text style={{ fontSize: 14, color: '#b0e0e6', marginRight: 5 }}>
+                  <ThemedText style={{ fontSize: 14, color: theme.colors.textMuted, marginRight: 5 }}>
                     {levelDisplay}
-                  </Text>
+                  </ThemedText>
                 )}
                 {intensityData && (
                   [...Array(totalStars)].map((_, i) => (
@@ -192,7 +194,7 @@ const ListTile = ({
                       key={i}
                       name={i < filledStars ? 'star' : 'star-o'}
                       size={14}
-                      color={i < filledStars ? 'white' : '#b0e0e6'}
+                      color={i < filledStars ? theme.colors.textPrimary : theme.colors.textMuted}
                       style={{ marginLeft: 1, marginRight: 1 }}
                     />
                   ))

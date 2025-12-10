@@ -129,26 +129,26 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
       return (
         <View style={styles.reorderableItem}>
           <View style={styles.reorderControls}>
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => moveWorkoutUp(index)}
               disabled={index === 0}
               style={[styles.reorderButton, index === 0 && styles.disabledButton]}
             >
-              <FontAwesomeIcon 
-                icon={faArrowUp} 
-                size={16} 
-                color={index === 0 ? '#666' : '#fff'} 
+              <FontAwesomeIcon
+                icon={faArrowUp}
+                size={16}
+                color={index === 0 ? '#666' : '#fff'}
               />
             </TouchableOpacity>
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => moveWorkoutDown(index)}
               disabled={index === displayWorkouts.length - 1}
               style={[styles.reorderButton, index === displayWorkouts.length - 1 && styles.disabledButton]}
             >
-              <FontAwesomeIcon 
-                icon={faArrowDown} 
-                size={16} 
-                color={index === displayWorkouts.length - 1 ? '#666' : '#fff'} 
+              <FontAwesomeIcon
+                icon={faArrowDown}
+                size={16}
+                color={index === displayWorkouts.length - 1 ? '#666' : '#fff'}
               />
             </TouchableOpacity>
           </View>
@@ -214,11 +214,12 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
         )}
       </View>
       <FlatList
-        style={styles.listContainer}
+        style={[styles.listContainer, { flex: 1 }]}
         data={displayWorkouts}
         renderItem={renderWorkoutItem}
         keyExtractor={(item) => item.name}
         showsVerticalScrollIndicator={false}
+        nestedScrollEnabled={true}
       />
     </View>
   );

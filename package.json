@@ -19,6 +19,17 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@expo-google-fonts/chakra-petch": "^0.4.1",
+    "@expo-google-fonts/exo-2": "^0.4.2",
+    "@expo-google-fonts/inter": "^0.4.2",
+    "@expo-google-fonts/orbitron": "^0.4.2",
+    "@expo-google-fonts/quantico": "^0.4.1",
+    "@expo-google-fonts/rajdhani": "^0.4.1",
+    "@expo-google-fonts/roboto": "^0.4.2",
+    "@expo-google-fonts/roboto-mono": "^0.4.1",
+    "@expo-google-fonts/share-tech": "^0.4.1",
+    "@expo-google-fonts/share-tech-mono": "^0.4.1",
+    "@expo-google-fonts/space-mono": "^0.4.2",
     "@expo/vector-icons": "^14.0.2",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
