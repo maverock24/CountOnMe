@@ -1,7 +1,8 @@
 import commonStyles from '@/app/styles';
-import Colors from '@/constants/Colors';
 import React from 'react';
-import { Pressable, StyleProp, Text, ViewStyle } from 'react-native';
+import { Pressable, StyleProp, ViewStyle } from 'react-native';
+import { useTheme } from './ThemeProvider';
+import ThemedText from './ThemedText';
 
 const TimerButton = ({
   onPress,
@@ -20,6 +21,8 @@ const TimerButton = ({
   small?: boolean;
   isSelected?: boolean;
 }) => {
+  const { theme } = useTheme();
+
   return (
     // <Pressable disabled={disabled} onPress={onPress} style={{ width: maxWidth ? '100%' : 'auto' }}>
     //   {({ pressed }) => (
@@ -64,37 +67,37 @@ const TimerButton = ({
       disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [
-        { 
-          width: maxWidth ? '100%' : 'auto', 
+        {
+          width: maxWidth ? '100%' : 'auto',
           alignItems: 'center',
           borderRadius: 5,
           margin: 7,
           padding: 7,
           borderWidth: 1,
-          borderColor: 'rgb(83, 90, 92)',
-          backgroundColor: Colors.backgroundColor,
+          borderColor: theme.colors.buttonBorder,
+          backgroundColor: theme.colors.buttonBackground,
         },
         pressed && {
-          borderColor: 'rgb(2, 248, 240)',
-          boxShadow: '0px 0px 8px rgba(0, 188, 212, 0.5)',
-          // backgroundColor: 'rgba(15, 19, 20, 0.2)',
+          borderColor: theme.colors.borderActive,
+          boxShadow: `0px 0px 8px ${theme.colors.glow}`,
         },
         disabled && commonStyles.buttonDisabled,
         isSelected && {
-          borderColor: 'rgb(2, 248, 240)',
-          boxShadow: '0px 0px 8px rgba(0, 188, 212, 0.5)',
+          borderColor: theme.colors.borderActive,
+          boxShadow: `0px 0px 8px ${theme.colors.glow}`,
         },
-        style, 
+        style,
       ]}
     >
-      <Text
+      <ThemedText
+        weight="bold"
         style={[
           commonStyles.buttonText,
-          { paddingLeft: 5, paddingRight: 5, fontSize: small ? 14 : 16, justifyContent: 'center'},
+          { paddingLeft: 5, paddingRight: 5, fontSize: small ? 14 : 16, justifyContent: 'center', color: theme.colors.textPrimary },
         ]}
       >
         {text}
-      </Text>
+      </ThemedText>
     </Pressable>
   );
 };

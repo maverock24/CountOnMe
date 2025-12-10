@@ -1,4 +1,3 @@
-import Colors from '@/constants/Colors';
 import { FontAwesome } from '@expo/vector-icons';
 import React, { useRef, useState } from 'react';
 import {
@@ -7,10 +6,11 @@ import {
   Platform,
   Pressable,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View
 } from 'react-native';
+import { useTheme } from './ThemeProvider';
+import ThemedText from './ThemedText';
 
 export interface PickerItem {
   label: string;
@@ -36,6 +36,7 @@ const CustomPicker: React.FC<CustomPickerProps> = ({
   containerStyle,
   dropdownIconColor = '#fff',
 }) => {
+  const { theme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [buttonLayout, setButtonLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const buttonRef = useRef<View>(null);
@@ -64,36 +65,38 @@ const CustomPicker: React.FC<CustomPickerProps> = ({
     <TouchableOpacity
       style={[
         styles.dropdownItem,
-        item.value === selectedValue && styles.selectedDropdownItem,
+        { backgroundColor: theme.colors.surface },
+        item.value === selectedValue && { backgroundColor: `${theme.colors.primary}33` },
       ]}
       onPress={() => handleItemPress(item.value)}
     >
-      <Text
+      <ThemedText
         style={[
           styles.dropdownItemText,
+          { color: theme.colors.textPrimary },
           item.value === selectedValue && styles.selectedDropdownItemText,
         ]}
       >
         {item.label}
-      </Text>
+      </ThemedText>
       {item.value === selectedValue && (
-        <FontAwesome name="check" size={16} color="white" />
+        <FontAwesome name="check" size={16} color={theme.colors.primary} />
       )}
     </TouchableOpacity>
   );
 
   return (
     <View style={[styles.container, style]}>
-      <View ref={buttonRef} style={[styles.pickerContainer, containerStyle]}>
+      <View ref={buttonRef} style={[styles.pickerContainer, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }, containerStyle]}>
         <TouchableOpacity
           style={[styles.pickerButton, style]}
           onPress={toggleDropdown}
         >
-          <Text style={styles.selectedText}>{displayText}</Text>
-          <FontAwesome 
-            name={isOpen ? "chevron-up" : "chevron-down"} 
-            size={16} 
-            color={dropdownIconColor} 
+          <ThemedText style={[styles.selectedText, { color: theme.colors.textPrimary }]}>{displayText}</ThemedText>
+          <FontAwesome
+            name={isOpen ? "chevron-up" : "chevron-down"}
+            size={16}
+            color={theme.colors.textPrimary}
             style={styles.dropdownIcon}
           />
         </TouchableOpacity>
@@ -107,7 +110,7 @@ const CustomPicker: React.FC<CustomPickerProps> = ({
           onRequestClose={() => setIsOpen(false)}
         >
           <Pressable onPress={() => setIsOpen(false)} style={styles.modalOverlay}>
-            <View 
+            <View
               style={[
                 styles.dropdown,
                 {
@@ -117,6 +120,8 @@ const CustomPicker: React.FC<CustomPickerProps> = ({
                   width: buttonLayout.width,
                   minWidth: buttonLayout.width,
                   maxWidth: Math.max(buttonLayout.width, 300),
+                  backgroundColor: theme.colors.surfaceAlt,
+                  borderColor: theme.colors.border,
                 }
               ]}
             >
@@ -207,7 +212,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(41, 57, 68, 1)',
   },
   selectedDropdownItem: {
-    backgroundColor: Colors.highlight,
+    backgroundColor: 'rgba(42, 199, 207, 0.3)',
   },
   dropdownItemText: {
     color: '#fff',
