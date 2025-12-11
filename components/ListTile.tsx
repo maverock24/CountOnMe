@@ -91,6 +91,7 @@ const YouTubePlayer = ({ searchQuery }: { searchQuery: string }) => {
 const ListTile = ({
   isSelected,
   isCompleted,
+  isLocked,
   title,
   value,
   description,
@@ -103,6 +104,7 @@ const ListTile = ({
 }: {
   isSelected?: boolean;
   isCompleted?: boolean;
+  isLocked?: boolean;
   title: string;
   value: string | null;
   description?: string;
@@ -239,20 +241,26 @@ const ListTile = ({
       )}
       <View style={[localStyles.tileContent, {
         // Glass effect - semi-transparent matching progression tiles
-        backgroundColor: isSelected
-          ? `${theme.colors.selectedHighlight}DD`
-          : `${theme.colors.surface}60`,
-        borderColor: isCompleted
-          ? `${theme.colors.success}80`
+        backgroundColor: isLocked
+          ? `${theme.colors.surface}30`
           : isSelected
-            ? `${theme.colors.primary}90`
-            : `${theme.colors.tileBorder}70`,
+            ? `${theme.colors.selectedHighlight}DD`
+            : `${theme.colors.surface}60`,
+        borderColor: isLocked
+          ? `${theme.colors.tileBorder}40`
+          : isCompleted
+            ? `${theme.colors.success}80`
+            : isSelected
+              ? `${theme.colors.primary}90`
+              : `${theme.colors.tileBorder}70`,
         borderWidth: isSelected ? 2 : 1,
+        opacity: isLocked ? 0.6 : 1,
       }]}>
       <Pressable
         style={{ flex: 1, flexDirection: 'row' }}
-        onPress={onPressTile}
-        onLongPress={onLongPress}
+        onPress={isLocked ? undefined : onPressTile}
+        onLongPress={isLocked ? undefined : onLongPress}
+        disabled={isLocked}
       >
         <>
           <View style={{ flexDirection: 'column', alignItems: 'flex-start', width: '100%' }}>
@@ -281,22 +289,30 @@ const ListTile = ({
                 ) : null}
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                {isCompleted && (
+                {isLocked && (
+                  <View style={localStyles.lockedBadge}>
+                    <FontAwesome name="lock" size={12} color={theme.colors.textMuted} style={{ marginRight: 4 }} />
+                    <Text style={[localStyles.lockedText, { color: theme.colors.textMuted }]}>
+                      {t('locked') || 'locked'}
+                    </Text>
+                  </View>
+                )}
+                {isCompleted && !isLocked && (
                   <Text style={[localStyles.completedText, { color: theme.colors.success }]}>
                     {t('completed') || 'completed'}
                   </Text>
                 )}
-                {(workoutItem?.calories !== undefined && workoutItem?.calories !== null) || caloriesData ? (
+                {!isLocked && ((workoutItem?.calories !== undefined && workoutItem?.calories !== null) || caloriesData) ? (
                   <ThemedText style={{ fontSize: 14, color: theme.colors.textMuted, marginRight: 10 }}>
                     {t('calories_colon')} {caloriesData}
                   </ThemedText>
                 ) : null}
-                {workoutItem?.level && levelDisplay && (
+                {!isLocked && workoutItem?.level && levelDisplay && (
                   <ThemedText style={{ fontSize: 14, color: theme.colors.textMuted, marginRight: 5 }}>
                     {levelDisplay}
                   </ThemedText>
                 )}
-                {intensityData && (
+                {!isLocked && intensityData && (
                   [...Array(totalStars)].map((_, i) => (
                     <FontAwesome
                       key={i}
@@ -477,6 +493,20 @@ const localStyles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     marginRight: 10,
+    textTransform: 'lowercase',
+  },
+  // Locked badge style
+  lockedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+    backgroundColor: 'rgba(128, 128, 128, 0.2)',
+  },
+  lockedText: {
+    fontSize: 11,
+    fontWeight: '600',
     textTransform: 'lowercase',
   },
 });

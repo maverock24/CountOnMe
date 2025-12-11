@@ -39,6 +39,7 @@ export type AnimationVariant =
 
 export interface MotivationalToastConfig {
   message: string;
+  subtitle?: string;
   variant?: AnimationVariant;
   duration?: number;
   onDismiss?: () => void;
@@ -81,6 +82,7 @@ const CIRCUIT_NODES = [
 export default function MotivationalToast({
   visible,
   message,
+  subtitle,
   variant = 'lightning_strike',
   duration = 2500,
   onHide,
@@ -999,9 +1001,14 @@ export default function MotivationalToast({
 
           {/* Text content */}
           <Animated.View style={[styles.textContainer, textContainerStyle]}>
-            <Animated.Text style={styles.messageText} numberOfLines={2} adjustsFontSizeToFit>
+            <Animated.Text style={styles.messageText} numberOfLines={subtitle ? 1 : 2} adjustsFontSizeToFit>
               {message}
             </Animated.Text>
+            {subtitle && (
+              <Animated.Text style={styles.subtitleText} numberOfLines={1} adjustsFontSizeToFit>
+                {subtitle}
+              </Animated.Text>
+            )}
           </Animated.View>
 
           {/* Top label */}
@@ -1144,6 +1151,15 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     color: COLORS.highlight,
     fontFamily: 'System',
+  },
+  subtitleText: {
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
+    letterSpacing: 1,
+    color: COLORS.primary,
+    fontFamily: 'System',
+    marginTop: 4,
   },
   topLabel: {
     position: 'absolute',

@@ -13,6 +13,9 @@ import TimerButton from '@/components/TimerButton';
 import { useTheme } from './ThemeProvider';
 import CustomPicker from './CustomPicker';
 
+// Import progressions list to determine which exercises are unlocked
+const progressionsList: any[] = require('@/assets/progressions.json');
+
 interface ReorderableWorkoutListProps {
   groupData: { label: string; value: string }[];
   selectedGroup: string;
@@ -67,23 +70,62 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
     loadCompletedExercises();
   }, [selectedGroup]); // Reload when group changes
 
+  // Helper function to check if an exercise is unlocked based on progression order
+  const isExerciseUnlocked = (exerciseName: string, completedList: string[]): boolean => {
+    // Search through all progressions to find which one contains this exercise
+    for (const progression of progressionsList) {
+      // Build the full list of exercises in this progression (components + goal)
+      const allSteps = [
+        ...(progression.components || []).map((c: any) => c.component),
+        progression.name, // The goal exercise
+      ];
+
+      const exerciseIndex = allSteps.indexOf(exerciseName);
+      if (exerciseIndex === -1) continue; // Exercise not in this progression
+
+      // First exercise in a progression is always unlocked
+      if (exerciseIndex === 0) {
+        return true;
+      }
+
+      // Exercise is unlocked if the previous exercise in the progression is completed
+      const previousExercise = allSteps[exerciseIndex - 1];
+      if (completedList.includes(previousExercise)) {
+        return true;
+      }
+
+      // Found the exercise but it's locked in this progression
+      return false;
+    }
+
+    // Exercise not found in any progression - assume it's unlocked (custom exercise)
+    return true;
+  };
+
   // Load workouts for selected group from data provider
   useEffect(() => {
     let loadedWorkouts: WorkoutItem[] = [];
-    
+
     // Always use the data provider's method to get ordered workouts
     // This will handle both regular groups and the "All" group correctly
     loadedWorkouts = getOrderedWorkoutsForGroup(selectedGroup);
-    
+
+    // For "All" group, filter to only show unlocked exercises
+    if (selectedGroup.toLowerCase() === 'all') {
+      loadedWorkouts = loadedWorkouts.filter(workout =>
+        isExerciseUnlocked(workout.name, completedExercises)
+      );
+    }
+
     // Add orderId for display purposes if not present
     loadedWorkouts = loadedWorkouts.map((workout, idx) => ({
       ...workout,
       orderId: workout.orderId || idx + 1,
     }));
-    
+
     setWorkouts(loadedWorkouts);
     if (onWorkoutsChanged) onWorkoutsChanged(loadedWorkouts);
-  }, [selectedGroup, workoutItems, groupItems, getOrderedWorkoutsForGroup]);
+  }, [selectedGroup, workoutItems, groupItems, getOrderedWorkoutsForGroup, completedExercises]);
 
   // Move workout up/down in reorder mode
   const moveWorkoutUp = (index: number) => {
@@ -191,10 +233,25 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
       // Multi-select: highlight if item is in selectedItems
       const isSelected = selectedItems.has(item.name);
       const isCompleted = completedExercises.includes(item.name);
+
+      // Determine if this exercise is locked based on progression order
+      // Only apply locking for specific progression groups, NOT for "All"
+      let isLocked = false;
+      if (selectedGroup.toLowerCase() !== 'all') {
+        // Find the first uncompleted exercise index
+        const firstUncompletedIndex = displayWorkouts.findIndex(
+          (w) => !completedExercises.includes(w.name)
+        );
+        // Exercise is locked if it comes after the first uncompleted exercise
+        // (but not if all exercises are completed, i.e., firstUncompletedIndex === -1)
+        isLocked = firstUncompletedIndex !== -1 && index > firstUncompletedIndex;
+      }
+
       return (
         <ListTile
           isSelected={isSelected}
           isCompleted={isCompleted}
+          isLocked={isLocked}
           title={item.name}
           value={item.workout}
           description={(exercisesEn.find((e: any) => e.name === item.name)?.description) || undefined}
@@ -225,8 +282,8 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
             style={{ width: 100 }}
           />
         )} */}
-        {showReorderButton && (
-          <TimerButton 
+        {showReorderButton && selectedGroup.toLowerCase() === 'all' && (
+          <TimerButton
             text={isReorderMode ? t('done') || 'Done' : t('reorder') || 'Reorder'}
             onPress={toggleReorderMode}
             isSelected={isReorderMode}
