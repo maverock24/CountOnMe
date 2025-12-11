@@ -59,14 +59,14 @@ const commonStyles = StyleSheet.create({
     boxShadow: '0px 2px 2px rgba(0, 0, 0, 0.8)',
   } as any, // Temporarily cast to avoid web-specific style warnings
   listTile: {
-    alignItems: 'center',
+    alignItems: 'stretch',
     justifyContent: 'center',
-    paddingLeft: 10,
-    paddingRight: 10,
-    height: 50, // Set the button height
-    borderRadius: 5,
+    paddingLeft: 0,
+    paddingRight: 0,
+    minHeight: 50,
+    borderRadius: 10,
     margin: 5,
-    padding: 10,
+    padding: 0,
     // backgroundColor and borderColor now set via theme in ListTile component
   } as any, // Temporarily cast to avoid web-specific style warnings
   buttonPressed: {

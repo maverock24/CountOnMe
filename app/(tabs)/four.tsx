@@ -3,22 +3,26 @@ import { useData } from '@/components/data.provider';
 import ModalPicker from '@/components/ModalPicker';
 import ThemedText from '@/components/ThemedText';
 import { useTheme } from '@/components/ThemeProvider';
+import TimerButton from '@/components/TimerButton';
 import Colors from '@/constants/Colors';
 import { language as languageData } from '@/constants/media';
 import i18n from '@/i18n';
 import { FitnessLevel } from '@/utils/intensity.enum';
+import { clearSeededProgressions, seedProgressionGroupsToStorage } from '@/utils/progressionStorage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Platform, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
+import { Alert, Platform, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
 import commonStyles from '../styles';
 
 const SettingsScreen: React.FC = () => {
-  const { audioEnabled, setAudioEnabled, userWeight, setWeight, setFitness, fitnessLevel, storeItem, getStoredItem } = useData();
+  const { audioEnabled, setAudioEnabled, userWeight, setWeight, setFitness, fitnessLevel, storeItem, getStoredItem, reload } = useData();
   const { theme, themes, setTheme, font, fonts, setFont } = useTheme();
   const { t } = useTranslation();
 
   const [currentLanguage, setCurrentLanguage] = React.useState(i18n.language);
-  
+  const [isResetting, setIsResetting] = React.useState(false);
+
   React.useEffect(() => {
     const loadLanguage = async () => {
       try {
@@ -40,6 +44,70 @@ const SettingsScreen: React.FC = () => {
       i18n.changeLanguage(languageCode);
     } catch (error) {
       console.error('Error saving language:', error);
+    }
+  };
+
+  const handleResetApp = async () => {
+    // Confirm reset
+    const confirmReset = () => {
+      if (Platform.OS === 'web') {
+        return window.confirm(t('reset_confirm') || 'Are you sure you want to reset all progress? This will clear all workout data and re-seed progressions.');
+      }
+      return new Promise<boolean>((resolve) => {
+        Alert.alert(
+          t('reset_app') || 'Reset App',
+          t('reset_confirm') || 'Are you sure you want to reset all progress? This will clear all workout data and re-seed progressions.',
+          [
+            { text: t('cancel') || 'Cancel', style: 'cancel', onPress: () => resolve(false) },
+            { text: t('reset') || 'Reset', style: 'destructive', onPress: () => resolve(true) },
+          ]
+        );
+      });
+    };
+
+    const confirmed = await confirmReset();
+    if (!confirmed) return;
+
+    setIsResetting(true);
+    try {
+      // Clear completed exercises
+      await AsyncStorage.removeItem('@countOnMe_completed');
+      // Clear exercise counts
+      await AsyncStorage.removeItem('@countOnMe_exercise_counts');
+      // Clear all workout items
+      const allKeys = await AsyncStorage.getAllKeys();
+      const workoutKeys = allKeys.filter(key =>
+        key.startsWith('@countOnMe_') &&
+        !key.includes('language') &&
+        !key.includes('theme') &&
+        !key.includes('font') &&
+        !key.includes('audio') &&
+        !key.includes('weight') &&
+        !key.includes('fitness')
+      );
+      if (workoutKeys.length > 0) {
+        await AsyncStorage.multiRemove(workoutKeys);
+      }
+      // Clear seeded progressions and re-seed
+      await clearSeededProgressions();
+      await seedProgressionGroupsToStorage({ force: true });
+      // Reload data
+      await reload();
+
+      if (Platform.OS === 'web') {
+        window.alert(t('reset_success') || 'App has been reset successfully!');
+      } else {
+        Alert.alert(t('success') || 'Success', t('reset_success') || 'App has been reset successfully!');
+      }
+    } catch (error) {
+      console.error('Error resetting app:', error);
+      if (Platform.OS === 'web') {
+        window.alert(t('reset_error') || 'Failed to reset app. Please try again.');
+      } else {
+        Alert.alert(t('error') || 'Error', t('reset_error') || 'Failed to reset app. Please try again.');
+      }
+    } finally {
+      setIsResetting(false);
     }
   };
 
@@ -143,6 +211,17 @@ const SettingsScreen: React.FC = () => {
               dropdownIconColor="#fff"
             />
             <ThemedText style={styles.fontPreviewText}>{font.description}</ThemedText>
+
+            <ThemedText weight="bold" style={styles.sectionTitle}>{t('data') || 'Data'}</ThemedText>
+            <ThemedText style={styles.label}>{t('reset_description') || 'Clear all workout progress and re-seed exercise progressions'}</ThemedText>
+            <View style={styles.resetButtonContainer}>
+              <TimerButton
+                text={isResetting ? (t('resetting') || 'Resetting...') : (t('reset_app') || 'Reset App')}
+                onPress={handleResetApp}
+                disabled={isResetting}
+                style={styles.resetButton}
+              />
+            </View>
           </ScrollView>
         </View>
       </View>
@@ -216,5 +295,13 @@ const styles = StyleSheet.create({
     color: 'lightgray',
     marginTop: 5,
     fontStyle: 'italic',
+  },
+  resetButtonContainer: {
+    marginTop: 15,
+    marginBottom: 20,
+    alignItems: 'flex-start',
+  },
+  resetButton: {
+    backgroundColor: '#8B0000',
   },
 });

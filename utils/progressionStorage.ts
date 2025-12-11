@@ -94,12 +94,21 @@ export async function seedProgressionGroupsToStorage(options?: { force?: boolean
     desiredMap.set(`@countOnMe_group_All`, JSON.stringify({ name: 'All', workouts: allArray }));
 
     // Build per-progression groups: list the components required for that progression
+    // The goal exercise (progression itself) is added as the LAST item in the list
     (progressions as Progression[]).forEach((p) => {
       const groupKey = `@countOnMe_group_${sanitizeKey(p.name)}`;
       const workouts: GroupWorkoutItem[] = [];
       if (Array.isArray(p.components) && p.components.length > 0) {
+        // Add component exercises first (preparatory exercises)
         p.components.forEach((c, idx) => {
           workouts.push({ orderId: idx + 1, name: c.component, workout: c.workout ?? '', description: c.description ?? '' });
+        });
+        // Add the goal exercise (the progression itself) as the LAST item
+        workouts.push({
+          orderId: p.components.length + 1,
+          name: p.name,
+          workout: p.workout ?? '',
+          description: p.description ?? ''
         });
       } else {
         // fallback to include the progression name itself
