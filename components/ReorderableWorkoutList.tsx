@@ -1,5 +1,6 @@
 import { faArrowDown, faArrowUp, faGripVertical } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
@@ -49,6 +50,22 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
   const [isSingleSelect, setIsSingleSelect] = useState<boolean>(false);
   const [reorderableWorkouts, setReorderableWorkouts] = useState<WorkoutItem[]>([]);
   const [workouts, setWorkouts] = useState<WorkoutItem[]>([]);
+  const [completedExercises, setCompletedExercises] = useState<string[]>([]);
+
+  // Load completed exercises from storage
+  useEffect(() => {
+    const loadCompletedExercises = async () => {
+      try {
+        const completed = await AsyncStorage.getItem('@countOnMe_completed');
+        if (completed) {
+          setCompletedExercises(JSON.parse(completed));
+        }
+      } catch (error) {
+        console.error('Failed to load completed exercises', error);
+      }
+    };
+    loadCompletedExercises();
+  }, [selectedGroup]); // Reload when group changes
 
   // Load workouts for selected group from data provider
   useEffect(() => {
@@ -173,9 +190,11 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
     } else {
       // Multi-select: highlight if item is in selectedItems
       const isSelected = selectedItems.has(item.name);
+      const isCompleted = completedExercises.includes(item.name);
       return (
         <ListTile
           isSelected={isSelected}
+          isCompleted={isCompleted}
           title={item.name}
           value={item.workout}
           description={(exercisesEn.find((e: any) => e.name === item.name)?.description) || undefined}
