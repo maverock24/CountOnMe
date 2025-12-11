@@ -12,7 +12,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 
 import CustomPicker from '@/components/CustomPicker';
 import { useTheme } from '@/components/ThemeProvider';
@@ -29,30 +28,30 @@ interface ExerciseProgress {
   [exerciseName: string]: number;
 }
 
-// Animated glow border effect for the current step (pulsing glow only, no border width change)
-const useGlowBorderAnimation = (isActive: boolean) => {
-  const glowAnim = useRef(new Animated.Value(0.4)).current;
+// Slow border glow pulsing effect - opacity pulses between 0.3 and 1
+const useBorderGlowPulse = (isActive: boolean) => {
+  const glowAnim = useRef(new Animated.Value(0.3)).current;
 
   useEffect(() => {
     if (!isActive) {
-      glowAnim.setValue(0.4);
+      glowAnim.setValue(0.3);
       return;
     }
 
-    // Pulsing glow opacity animation
+    // Slow pulsing glow animation (2.5s per direction = 5s full cycle)
     const glowLoop = Animated.loop(
       Animated.sequence([
         Animated.timing(glowAnim, {
           toValue: 1,
-          duration: 1200,
+          duration: 2500,
           easing: Easing.inOut(Easing.ease),
-          useNativeDriver: false,
+          useNativeDriver: true,
         }),
         Animated.timing(glowAnim, {
-          toValue: 0.4,
-          duration: 1200,
+          toValue: 0.3,
+          duration: 2500,
           easing: Easing.inOut(Easing.ease),
-          useNativeDriver: false,
+          useNativeDriver: true,
         }),
       ])
     );
@@ -64,7 +63,7 @@ const useGlowBorderAnimation = (isActive: boolean) => {
     };
   }, [isActive, glowAnim]);
 
-  return { glowAnim };
+  return glowAnim;
 };
 
 // Animated progress node component
@@ -78,6 +77,8 @@ const ProgressNode = ({
   onPress,
   theme,
   t,
+  isGoal = false,
+  entranceAnim,
 }: {
   component: any;
   index: number;
@@ -88,8 +89,10 @@ const ProgressNode = ({
   onPress: () => void;
   theme: any;
   t: any;
+  isGoal?: boolean;
+  entranceAnim?: Animated.Value;
 }) => {
-  const { glowAnim } = useGlowBorderAnimation(isCurrentStep);
+  const glowAnim = useBorderGlowPulse(isCurrentStep);
   const componentName = component.component;
 
   // Determine node state color
@@ -101,52 +104,66 @@ const ProgressNode = ({
 
   const nodeColor = getNodeColor();
 
-  // Animated glow shadow for current step (pulsing glow border effect)
-  const animatedShadowRadius = glowAnim.interpolate({
-    inputRange: [0.4, 1],
-    outputRange: [8, 18],
-  });
-
-  // Web-specific animated box shadow for glow border effect
-  const animatedBoxShadow = glowAnim.interpolate({
-    inputRange: [0.4, 1],
-    outputRange: [
-      `0px 0px 8px ${theme.colors.glow}60`,
-      `0px 0px 18px ${theme.colors.glow}`,
+  // Entrance animation transforms
+  const animatedStyle = entranceAnim ? {
+    opacity: entranceAnim,
+    transform: [
+      {
+        translateY: entranceAnim.interpolate({
+          inputRange: [0, 1],
+          outputRange: [-20, 0],
+        }),
+      },
+      {
+        scale: entranceAnim.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0.95, 1],
+        }),
+      },
     ],
-  });
+  } : {};
 
   return (
-    <Animated.View
-      style={[
-        styles.nodeContainer,
-      ]}
-    >
-      <Animated.View
+    <Animated.View style={[styles.nodeContainer, animatedStyle]}>
+      {/* Animated glow border overlay for current step */}
+      {isCurrentStep && (
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            styles.glowOverlay,
+            {
+              borderColor: theme.colors.glow,
+              opacity: glowAnim,
+              ...Platform.select({
+                web: {
+                  boxShadow: `0px 0px 12px 2px ${theme.colors.glow}`,
+                },
+                default: {
+                  shadowColor: theme.colors.glow,
+                  shadowOpacity: 1,
+                  shadowRadius: 12,
+                  shadowOffset: { width: 0, height: 0 },
+                  elevation: 8,
+                },
+              }),
+            },
+          ]}
+        />
+      )}
+      <View
         style={[
           styles.nodeCard,
           {
+            // Glass effect - semi-transparent with subtle gradient feel
             backgroundColor: isSelected
-              ? theme.colors.selectedHighlight
-              : `${theme.colors.surface}90`,
+              ? `${theme.colors.selectedHighlight}DD`
+              : `${theme.colors.surface}60`,
             borderColor: isCompleted
-              ? theme.colors.success
+              ? `${theme.colors.success}80`
               : isCurrentStep
-                ? theme.colors.primary
-                : theme.colors.tileBorder,
+                ? `${theme.colors.primary}90`
+                : `${theme.colors.tileBorder}70`,
             borderWidth: isCurrentStep ? 2 : 1,
-          },
-          // Native shadow for current step
-          isCurrentStep && {
-            shadowColor: theme.colors.glow,
-            shadowOpacity: glowAnim,
-            shadowRadius: animatedShadowRadius,
-            shadowOffset: { width: 0, height: 0 },
-            elevation: 8,
-          },
-          // Web-specific box shadow
-          isCurrentStep && Platform.OS === 'web' && {
-            boxShadow: animatedBoxShadow,
           },
         ]}
       >
@@ -155,61 +172,17 @@ const ProgressNode = ({
           onPress={onPress}
           activeOpacity={0.7}
         >
-        {/* Step number circle */}
+        {/* Step number */}
         <View style={styles.nodeLeftSection}>
-          <View
-            style={[
-              styles.stepCircle,
-              {
-                backgroundColor: isCompleted
-                  ? theme.colors.success
-                  : isCurrentStep
-                    ? theme.colors.primary
-                    : 'transparent',
-                borderColor: nodeColor,
-                borderWidth: 2,
-              },
-            ]}
-          >
-            {isCompleted ? (
-              <Text style={styles.stepCheckmark}>✓</Text>
-            ) : (
-              <Text style={[styles.stepNumber, { color: nodeColor }]}>
-                {index + 1}
-              </Text>
-            )}
-          </View>
-
-          {/* Progress indicator */}
-          <Svg width="50" height="50" style={styles.progressRing}>
-            <Defs>
-              <LinearGradient id={`nodeGrad_${index}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                <Stop offset="0%" stopColor={nodeColor} stopOpacity="0.8" />
-                <Stop offset="100%" stopColor={nodeColor} stopOpacity="0.3" />
-              </LinearGradient>
-            </Defs>
-            <Circle
-              cx="25"
-              cy="25"
-              r="22"
-              stroke={`${nodeColor}30`}
-              strokeWidth="3"
-              fill="transparent"
-            />
-            {isCompleted && (
-              <Circle
-                cx="25"
-                cy="25"
-                r="22"
-                stroke={`url(#nodeGrad_${index})`}
-                strokeWidth="3"
-                fill="transparent"
-                strokeDasharray={`${2 * Math.PI * 22}`}
-                strokeDashoffset="0"
-                strokeLinecap="round"
-              />
-            )}
-          </Svg>
+          {isCompleted ? (
+            <Text style={[styles.stepCheckmark, { color: theme.colors.success }]}>{isGoal ? '🏆' : '✓'}</Text>
+          ) : isGoal ? (
+            <Text style={styles.stepGoalIcon}>🎯</Text>
+          ) : (
+            <Text style={[styles.stepNumber, { color: nodeColor }]}>
+              {index + 1}
+            </Text>
+          )}
         </View>
 
         {/* Content */}
@@ -224,17 +197,17 @@ const ProgressNode = ({
             >
               {componentName}
             </Text>
-            {isCurrentStep && (
-              <View style={[styles.currentBadge, { backgroundColor: `${theme.colors.primary}30` }]}>
-                <Text style={[styles.currentBadgeText, { color: theme.colors.primary }]}>
-                  NEXT
+            {isGoal && !isCompleted && (
+              <View style={[styles.goalBadge, { backgroundColor: `${theme.colors.warning || '#FFD700'}30` }]}>
+                <Text style={[styles.goalBadgeText, { color: theme.colors.warning || '#FFD700' }]}>
+                  GOAL
                 </Text>
               </View>
             )}
             {isCompleted && (
               <View style={[styles.completedBadge, { backgroundColor: `${theme.colors.success}30` }]}>
                 <Text style={[styles.completedBadgeText, { color: theme.colors.success }]}>
-                  ✓
+                  {isGoal ? '🏆' : '✓'}
                 </Text>
               </View>
             )}
@@ -276,10 +249,13 @@ const ProgressNode = ({
             </View>
           )}
         </TouchableOpacity>
-      </Animated.View>
+      </View>
     </Animated.View>
   );
 };
+
+// Maximum number of nodes to animate (for performance)
+const MAX_ANIMATED_NODES = 15;
 
 export default function ProgressionTreeScreen() {
   const { t } = useTranslation();
@@ -290,6 +266,41 @@ export default function ProgressionTreeScreen() {
   );
   const [completedExercises, setCompletedExercises] = useState<string[]>([]);
   const [exerciseCounts, setExerciseCounts] = useState<ExerciseProgress>({});
+
+  // Entrance animation values for staggered node reveal
+  const nodeAnimations = useRef<Animated.Value[]>(
+    Array.from({ length: MAX_ANIMATED_NODES }, () => new Animated.Value(0))
+  ).current;
+
+  // Run staggered entrance animation when progression changes
+  const runEntranceAnimation = useCallback((nodeCount: number) => {
+    // Reset all animations
+    nodeAnimations.forEach(anim => anim.setValue(0));
+
+    // Create staggered animations for each node
+    const animations = nodeAnimations.slice(0, Math.min(nodeCount, MAX_ANIMATED_NODES)).map((anim, index) => {
+      return Animated.timing(anim, {
+        toValue: 1,
+        duration: 400,
+        delay: index * 100, // 100ms stagger between each node
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      });
+    });
+
+    // Run all animations in parallel (stagger is handled by delay)
+    Animated.parallel(animations).start();
+  }, [nodeAnimations]);
+
+  // Trigger entrance animation when progression changes or on initial load
+  useEffect(() => {
+    const progression = progressionsList.find((p) => p.name === selectedProgression);
+    if (progression) {
+      const stepCount = (progression.components?.length || 0) + 1; // +1 for goal
+      // Small delay to ensure UI is ready
+      setTimeout(() => runEntranceAnimation(stepCount), 50);
+    }
+  }, [selectedProgression, runEntranceAnimation]);
 
   // Load completed workouts and exercise counts from storage
   const loadProgressData = useCallback(async () => {
@@ -322,24 +333,55 @@ export default function ProgressionTreeScreen() {
     return exerciseCounts[exerciseName] || 0;
   };
 
+  // Build the full progression steps including the goal exercise as the last item
+  const getFullProgressionSteps = (progression: any) => {
+    if (!progression) return [];
+
+    const steps: Array<{ component: string; description?: string; workout?: string; isGoal?: boolean }> = [];
+
+    // Add component exercises (preparatory exercises)
+    if (Array.isArray(progression.components)) {
+      progression.components.forEach((c: any) => {
+        steps.push({
+          component: c.component,
+          description: c.description,
+          workout: c.workout,
+          isGoal: false,
+        });
+      });
+    }
+
+    // Add the goal exercise (the progression itself) as the LAST item
+    steps.push({
+      component: progression.name,
+      description: progression.description,
+      workout: progression.workout,
+      isGoal: true,
+    });
+
+    return steps;
+  };
+
   const getProgressionProgress = (progression: any) => {
-    if (!progression?.components?.length) return { completed: 0, total: 0, percentage: 0, currentStepIndex: 0 };
+    const steps = getFullProgressionSteps(progression);
+    if (steps.length === 0) return { completed: 0, total: 0, percentage: 0, currentStepIndex: 0 };
 
-    const total = progression.components.length;
+    const total = steps.length;
     let completed = 0;
-    let currentStepIndex = 0;
+    let currentStepIndex = -1; // -1 means not found yet
 
-    for (let i = 0; i < progression.components.length; i++) {
-      if (isComponentCompleted(progression.components[i].component)) {
+    for (let i = 0; i < steps.length; i++) {
+      if (isComponentCompleted(steps[i].component)) {
         completed++;
-      } else if (currentStepIndex === 0 || currentStepIndex === completed) {
+      } else if (currentStepIndex === -1) {
+        // First uncompleted item is the current step
         currentStepIndex = i;
       }
     }
 
-    // If all completed, set currentStepIndex to last
-    if (completed === total) {
-      currentStepIndex = total - 1;
+    // If all completed, set currentStepIndex to last (or 0 if no steps)
+    if (currentStepIndex === -1) {
+      currentStepIndex = total > 0 ? total - 1 : 0;
     }
 
     return {
@@ -356,7 +398,9 @@ export default function ProgressionTreeScreen() {
     : { completed: 0, total: 0, percentage: 0, currentStepIndex: 0 };
 
   const renderProgressionPath = () => {
-    if (!selectedProgressionData?.components?.length) {
+    const fullSteps = getFullProgressionSteps(selectedProgressionData);
+
+    if (fullSteps.length === 0) {
       return (
         <View style={styles.emptyState}>
           <Text style={[styles.emptyStateText, { color: theme.colors.textMuted }]}>
@@ -368,24 +412,35 @@ export default function ProgressionTreeScreen() {
 
     return (
       <View style={styles.pathContainer}>
-        {selectedProgressionData.components.map((comp: any, index: number) => {
-          const componentName = comp.component;
+        {fullSteps.map((step: any, index: number) => {
+          const componentName = step.component;
           const isCompleted = isComponentCompleted(componentName);
           const isCurrentStep = index === progress.currentStepIndex && !isCompleted;
           const isSelected = selectedNode === componentName;
+          const isGoalExercise = step.isGoal === true;
+          const entranceAnim = index < MAX_ANIMATED_NODES ? nodeAnimations[index] : undefined;
+
+          // Connector animation style
+          const connectorAnimStyle = entranceAnim ? {
+            opacity: entranceAnim,
+            transform: [{
+              scaleY: entranceAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, 1],
+              }),
+            }],
+          } : {};
 
           return (
             <View key={`node_${index}`}>
               {/* Connector line */}
               {index > 0 && (
-                <View style={styles.connectorContainer}>
+                <Animated.View style={[styles.connectorContainer, connectorAnimStyle]}>
                   <View
                     style={[
                       styles.connectorLine,
                       {
-                        backgroundColor: isComponentCompleted(
-                          selectedProgressionData.components[index - 1].component
-                        )
+                        backgroundColor: isComponentCompleted(fullSteps[index - 1].component)
                           ? theme.colors.success
                           : theme.colors.tileBorder,
                       },
@@ -399,11 +454,11 @@ export default function ProgressionTreeScreen() {
                       <View style={[styles.dot, { backgroundColor: theme.colors.primary, opacity: 0.3 }]} />
                     </View>
                   )}
-                </View>
+                </Animated.View>
               )}
 
               <ProgressNode
-                component={comp}
+                component={step}
                 index={index}
                 isCompleted={isCompleted}
                 isCurrentStep={isCurrentStep}
@@ -412,34 +467,12 @@ export default function ProgressionTreeScreen() {
                 onPress={() => setSelectedNode(isSelected ? null : componentName)}
                 theme={theme}
                 t={t}
+                isGoal={isGoalExercise}
+                entranceAnim={entranceAnim}
               />
             </View>
           );
         })}
-
-        {/* Goal indicator at the end */}
-        <View style={styles.goalContainer}>
-          <View
-            style={[
-              styles.goalCircle,
-              {
-                backgroundColor: progress.percentage === 100
-                  ? theme.colors.success
-                  : `${theme.colors.primary}20`,
-                borderColor: progress.percentage === 100
-                  ? theme.colors.success
-                  : theme.colors.primary,
-              },
-            ]}
-          >
-            <Text style={[styles.goalIcon, { color: progress.percentage === 100 ? '#fff' : theme.colors.primary }]}>
-              {progress.percentage === 100 ? '🏆' : '🎯'}
-            </Text>
-          </View>
-          <Text style={[styles.goalText, { color: theme.colors.textMuted }]}>
-            {progress.percentage === 100 ? 'Progression Complete!' : selectedProgressionData.name}
-          </Text>
-        </View>
       </View>
     );
   };
@@ -636,10 +669,26 @@ const styles = StyleSheet.create({
   },
   nodeContainer: {
     marginBottom: 5,
+    position: 'relative',
+  },
+  glowOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 12,
+    borderWidth: 2,
+    zIndex: 1,
   },
   nodeCard: {
     borderRadius: 12,
     overflow: 'hidden',
+    position: 'relative',
+    // Glass effect - frosted glass appearance
+    backdropFilter: 'blur(10px)',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.1)',
   },
   nodeCardInner: {
     flexDirection: 'row',
@@ -647,20 +696,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   nodeLeftSection: {
-    width: 50,
-    height: 50,
+    width: 28,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
-  },
-  stepCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'absolute',
-    zIndex: 2,
   },
   stepNumber: {
     fontSize: 14,
@@ -671,8 +710,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
-  progressRing: {
-    position: 'absolute',
+  stepGoalIcon: {
+    fontSize: 18,
   },
   nodeContent: {
     flex: 1,
@@ -687,13 +726,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     flex: 1,
   },
-  currentBadge: {
+  goalBadge: {
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 10,
     marginLeft: 8,
   },
-  currentBadgeText: {
+  goalBadgeText: {
     fontSize: 9,
     fontWeight: '700',
     letterSpacing: 0.5,
@@ -768,27 +807,6 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-  },
-  goalContainer: {
-    alignItems: 'center',
-    marginTop: 20,
-    paddingVertical: 15,
-  },
-  goalCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    borderWidth: 3,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 10,
-  },
-  goalIcon: {
-    fontSize: 28,
-  },
-  goalText: {
-    fontSize: 14,
-    fontWeight: '600',
   },
   emptyState: {
     padding: 40,

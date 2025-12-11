@@ -1,90 +1,53 @@
 import { FontAwesome } from '@expo/vector-icons';
 import * as Linking from 'expo-linking';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, Easing, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import commonStyles from '@/app/styles';
 import { WorkoutItem } from '@/components/data/types';
 import { roundToDecimals } from '@/utils/numberUtils';
 
 import { useTranslation } from 'react-i18next';
-import TimerButton from './TimerButton';
 import { useTheme } from './ThemeProvider';
 import ThemedText from './ThemedText';
+import TimerButton from './TimerButton';
 
-// Neon flicker animation - creates a broken/flickering neon tube effect
-const useNeonFlicker = (isActive: boolean) => {
-  const glowAnim = useRef(new Animated.Value(1)).current;
+// Slow border glow pulsing effect - opacity pulses between 0.3 and 1
+const useBorderGlowPulse = (isActive: boolean) => {
+  const glowAnim = useRef(new Animated.Value(0.3)).current;
 
   useEffect(() => {
     if (!isActive) {
-      glowAnim.setValue(1);
+      glowAnim.setValue(0.3);
       return;
     }
 
-    // Create irregular flicker pattern like a broken neon tube
-    const createFlickerSequence = () => {
-      const flickerPatterns = [
-        // Quick double flicker
-        { toValue: 0.3, duration: 50 },
-        { toValue: 1, duration: 30 },
-        { toValue: 0.4, duration: 40 },
-        { toValue: 1, duration: 60 },
-        // Stable period
-        { toValue: 0.95, duration: 800 },
-        { toValue: 1, duration: 200 },
-        // Single flicker
-        { toValue: 0.2, duration: 30 },
-        { toValue: 0.8, duration: 50 },
-        { toValue: 1, duration: 100 },
-        // Longer stable
-        { toValue: 1, duration: 1200 },
-        // Triple quick flicker
-        { toValue: 0.35, duration: 25 },
-        { toValue: 0.9, duration: 35 },
-        { toValue: 0.25, duration: 30 },
-        { toValue: 0.85, duration: 40 },
-        { toValue: 0.3, duration: 25 },
-        { toValue: 1, duration: 80 },
-        // Medium stable
-        { toValue: 0.92, duration: 600 },
-        { toValue: 1, duration: 150 },
-        // Dim and recover
-        { toValue: 0.5, duration: 100 },
-        { toValue: 0.7, duration: 200 },
-        { toValue: 1, duration: 150 },
-        // Long stable period
-        { toValue: 1, duration: 1500 },
-      ];
-
-      const animations = flickerPatterns.map(({ toValue, duration }) =>
+    // Slow pulsing glow animation (2.5s per direction = 5s full cycle)
+    const glowLoop = Animated.loop(
+      Animated.sequence([
         Animated.timing(glowAnim, {
-          toValue,
-          duration,
-          useNativeDriver: false,
-        })
-      );
+          toValue: 1,
+          duration: 2500,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(glowAnim, {
+          toValue: 0.3,
+          duration: 2500,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ])
+    );
 
-      return Animated.sequence(animations);
-    };
-
-    // Loop the flicker animation
-    const loopAnimation = Animated.loop(createFlickerSequence());
-    loopAnimation.start();
+    glowLoop.start();
 
     return () => {
-      loopAnimation.stop();
-      glowAnim.setValue(1);
+      glowLoop.stop();
     };
   }, [isActive, glowAnim]);
 
-  // Interpolate for glow intensity and shadow radius
-  const glowIntensity = glowAnim.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [2, 8, 15],
-  });
-
-  return { glowAnim, glowIntensity };
+  return glowAnim;
 };
 
 // YouTube video tutorial section - opens YouTube search in browser/app
@@ -155,8 +118,8 @@ const ListTile = ({
   const { t } = useTranslation();
   const { theme } = useTheme();
 
-  // Neon flicker effect for selected state
-  const { glowAnim, glowIntensity } = useNeonFlicker(!!isSelected);
+  // Slow border glow pulsing effect for selected state
+  const glowAnim = useBorderGlowPulse(!!isSelected);
 
   // Handle both new WorkoutItem structure and legacy format
   let workoutData: string;
@@ -246,44 +209,46 @@ const ListTile = ({
 
   const totalStars = 3;
 
-  // Create animated box shadow style for web
-  const animatedBoxShadow = glowAnim.interpolate({
-    inputRange: [0, 0.3, 0.5, 1],
-    outputRange: [
-      `0px 0px 4px ${theme.colors.glow}50`,
-      `0px 0px 8px ${theme.colors.glow}70`,
-      `0px 0px 12px ${theme.colors.glow}A0`,
-      `0px 0px 18px ${theme.colors.glow}`,
-    ],
-  });
-
   return (
     <>
-    <Animated.View
-      style={[
-        commonStyles.listTile,
-        {
-          flexDirection: 'row',
-          flex: 1,
-          borderWidth: 1,
-          backgroundColor: theme.colors.listTileBackground,
-          borderColor: theme.colors.tileBorder,
-        },
-        isSelected && {
-          borderColor: theme.colors.borderActive,
-          borderWidth: 2,
-          shadowColor: theme.colors.glow,
-          shadowOpacity: glowAnim,
-          shadowRadius: glowIntensity,
-          elevation: 8,
-        },
-        // Web-specific animated glow
-        isSelected && {
-          boxShadow: animatedBoxShadow,
-        },
-        style
-      ]}
-    >
+    <View style={[commonStyles.listTile, { position: 'relative' }, style]}>
+      {/* Animated glow border overlay */}
+      {isSelected && (
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            localStyles.glowOverlay,
+            {
+              borderColor: theme.colors.glow,
+              opacity: glowAnim,
+              ...Platform.select({
+                web: {
+                  boxShadow: `0px 0px 12px 2px ${theme.colors.glow}`,
+                },
+                default: {
+                  shadowColor: theme.colors.glow,
+                  shadowOpacity: 1,
+                  shadowRadius: 12,
+                  shadowOffset: { width: 0, height: 0 },
+                  elevation: 8,
+                },
+              }),
+            },
+          ]}
+        />
+      )}
+      <View style={[localStyles.tileContent, {
+        // Glass effect - semi-transparent matching progression tiles
+        backgroundColor: isSelected
+          ? `${theme.colors.selectedHighlight}DD`
+          : `${theme.colors.surface}60`,
+        borderColor: isCompleted
+          ? `${theme.colors.success}80`
+          : isSelected
+            ? `${theme.colors.primary}90`
+            : `${theme.colors.tileBorder}70`,
+        borderWidth: isSelected ? 2 : 1,
+      }]}>
       <Pressable
         style={{ flex: 1, flexDirection: 'row' }}
         onPress={onPressTile}
@@ -297,7 +262,7 @@ const ListTile = ({
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                borderBottomColor: theme.colors.textMuted,
+                borderBottomColor: `white`,
                 borderBottomWidth: 1,
                 width: '100%',
                 paddingBottom: 5,
@@ -371,7 +336,8 @@ const ListTile = ({
         </>
         {onPressBtn && <TimerButton text="Delete" onPress={onPressBtn} small />}
       </Pressable>
-    </Animated.View>
+      </View>
+    </View>
     {description ? (
       <Modal
         visible={descVisible}
@@ -404,6 +370,26 @@ const ListTile = ({
 export default ListTile;
 
 const localStyles = StyleSheet.create({
+  glowOverlay: {
+    position: 'absolute',
+    top: -1,
+    left: -1,
+    right: -1,
+    bottom: -1,
+    borderRadius: 11,
+    borderWidth: 2,
+    zIndex: 2,
+  },
+  tileContent: {
+    flex: 1,
+    flexDirection: 'row',
+    overflow: 'hidden',
+    paddingLeft: 12,
+    paddingRight: 10,
+    paddingTop: 10,
+    paddingBottom: 10,
+    borderRadius: 10,
+  },
   helpButton: {
     marginLeft: 8,
     backgroundColor: '#2a2e33',
