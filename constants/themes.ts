@@ -46,6 +46,9 @@ export interface Theme {
     progressFill: string;
     timerActive: string;
     timerBreak: string;
+
+    // Selection highlight (darker background for selected items)
+    selectedHighlight: string;
   };
 }
 
@@ -80,6 +83,7 @@ export const originalDark: Theme = {
     progressFill: 'rgb(42, 199, 207)',
     timerActive: 'green',
     timerBreak: 'red',
+    selectedHighlight: 'rgba(42, 199, 207, 0.15)',
   },
 };
 
@@ -114,6 +118,7 @@ export const midnightBlue: Theme = {
     progressFill: '#5c9eff',
     timerActive: '#4caf50',
     timerBreak: '#ff5722',
+    selectedHighlight: 'rgba(92, 158, 255, 0.15)',
   },
 };
 
@@ -148,6 +153,7 @@ export const cyberPurple: Theme = {
     progressFill: '#b366ff',
     timerActive: '#66bb6a',
     timerBreak: '#ef5350',
+    selectedHighlight: 'rgba(179, 102, 255, 0.15)',
   },
 };
 
@@ -182,6 +188,7 @@ export const neonGreen: Theme = {
     progressFill: '#39ff14',
     timerActive: '#39ff14',
     timerBreak: '#ff5252',
+    selectedHighlight: 'rgba(57, 255, 20, 0.12)',
   },
 };
 
@@ -216,6 +223,7 @@ export const crimsonNight: Theme = {
     progressFill: '#ff4757',
     timerActive: '#2ed573',
     timerBreak: '#ff4757',
+    selectedHighlight: 'rgba(255, 71, 87, 0.15)',
   },
 };
 
@@ -250,6 +258,7 @@ export const oceanDepths: Theme = {
     progressFill: '#00d9ff',
     timerActive: '#00e676',
     timerBreak: '#ff1744',
+    selectedHighlight: 'rgba(0, 217, 255, 0.15)',
   },
 };
 
@@ -284,6 +293,7 @@ export const goldenHour: Theme = {
     progressFill: '#ffb347',
     timerActive: '#7cb342',
     timerBreak: '#e53935',
+    selectedHighlight: 'rgba(255, 179, 71, 0.15)',
   },
 };
 
@@ -318,6 +328,7 @@ export const arcticFrost: Theme = {
     progressFill: '#a8d8ea',
     timerActive: '#81c784',
     timerBreak: '#e57373',
+    selectedHighlight: 'rgba(168, 216, 234, 0.15)',
   },
 };
 
@@ -352,6 +363,7 @@ export const emberGlow: Theme = {
     progressFill: '#ff6b35',
     timerActive: '#8bc34a',
     timerBreak: '#f44336',
+    selectedHighlight: 'rgba(255, 107, 53, 0.15)',
   },
 };
 
@@ -386,6 +398,7 @@ export const stealthMode: Theme = {
     progressFill: '#888888',
     timerActive: '#69f0ae',
     timerBreak: '#ff5252',
+    selectedHighlight: 'rgba(136, 136, 136, 0.12)',
   },
 };
 

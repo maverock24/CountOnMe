@@ -1,7 +1,7 @@
 import { FontAwesome } from '@expo/vector-icons';
+import * as Linking from 'expo-linking';
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Dimensions, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { WebView } from 'react-native-webview';
+import { Animated, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import commonStyles from '@/app/styles';
 import { WorkoutItem } from '@/components/data/types';
@@ -87,63 +87,47 @@ const useNeonFlicker = (isActive: boolean) => {
   return { glowAnim, glowIntensity };
 };
 
-// YouTube embedded player component
+// YouTube video tutorial section - opens YouTube search in browser/app
 const YouTubePlayer = ({ searchQuery }: { searchQuery: string }) => {
-  const [isLoading, setIsLoading] = useState(true);
   const { theme } = useTheme();
+  const { t } = useTranslation();
 
-  // Create YouTube search embed URL
-  // Using YouTube's embed search feature with videoseries for search results
+  // Encode the search query for YouTube
   const encodedQuery = encodeURIComponent(`${searchQuery} exercise how to`);
-
-  // YouTube search results page URL for WebView
   const youtubeSearchUrl = `https://www.youtube.com/results?search_query=${encodedQuery}`;
 
-  // Get screen dimensions for responsive sizing
-  const screenWidth = Dimensions.get('window').width;
-  const videoWidth = Math.min(screenWidth - 76, 640); // Max 640px, with padding
-  const videoHeight = (videoWidth * 9) / 16; // 16:9 aspect ratio
+  const openYouTube = () => {
+    Linking.openURL(youtubeSearchUrl);
+  };
 
   return (
-    <View style={[localStyles.youtubeContainer, { height: videoHeight + 40 }]}>
+    <View style={localStyles.youtubeContainer}>
       <Text style={[localStyles.youtubeLabel, { color: theme.colors.primary }]}>
-        Video Tutorial
+        {t('video_tutorial') || 'Video Tutorial'}
       </Text>
-      <View style={[localStyles.videoWrapper, { width: videoWidth, height: videoHeight }]}>
-        {isLoading && (
-          <View style={localStyles.loadingOverlay}>
-            <ActivityIndicator size="large" color={theme.colors.primary} />
-            <Text style={[localStyles.loadingText, { color: theme.colors.textMuted }]}>
-              Loading video...
-            </Text>
-          </View>
-        )}
-        <WebView
-          style={{ flex: 1, backgroundColor: 'transparent' }}
-          source={{ uri: youtubeSearchUrl }}
-          allowsFullscreenVideo={true}
-          allowsInlineMediaPlayback={true}
-          mediaPlaybackRequiresUserAction={false}
-          javaScriptEnabled={true}
-          domStorageEnabled={true}
-          onLoadEnd={() => setIsLoading(false)}
-          onError={() => setIsLoading(false)}
-          startInLoadingState={false}
-          // Allow YouTube to work properly
-          originWhitelist={['*']}
-          mixedContentMode="compatibility"
-          userAgent={Platform.OS === 'android'
-            ? 'Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36'
-            : undefined
-          }
-        />
-      </View>
+      <TouchableOpacity
+        style={[localStyles.youtubeButton, {
+          backgroundColor: '#FF0000',
+          borderColor: theme.colors.border,
+        }]}
+        onPress={openYouTube}
+        activeOpacity={0.8}
+      >
+        <FontAwesome name="youtube-play" size={24} color="#fff" style={{ marginRight: 10 }} />
+        <Text style={localStyles.youtubeButtonText}>
+          {t('watch_on_youtube') || 'Watch on YouTube'}
+        </Text>
+      </TouchableOpacity>
+      <Text style={[localStyles.youtubeHint, { color: theme.colors.textMuted }]}>
+        {t('youtube_hint') || `Search for "${searchQuery}" exercise tutorials`}
+      </Text>
     </View>
   );
 };
 
 const ListTile = ({
   isSelected,
+  isCompleted,
   title,
   value,
   description,
@@ -155,6 +139,7 @@ const ListTile = ({
   style,
 }: {
   isSelected?: boolean;
+  isCompleted?: boolean;
   title: string;
   value: string | null;
   description?: string;
@@ -319,7 +304,7 @@ const ListTile = ({
               }}
             >
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <ThemedText style={commonStyles.listItemTitle}>{title}</ThemedText>
+                <ThemedText style={[commonStyles.listItemTitle, isCompleted && { color: theme.colors.textMuted }]}>{title}</ThemedText>
                 {description ? (
                   <TouchableOpacity
                     onPress={() => setDescVisible(true)}
@@ -331,6 +316,11 @@ const ListTile = ({
                 ) : null}
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                {isCompleted && (
+                  <Text style={[localStyles.completedText, { color: theme.colors.success }]}>
+                    {t('completed') || 'completed'}
+                  </Text>
+                )}
                 {(workoutItem?.calories !== undefined && workoutItem?.calories !== null) || caloriesData ? (
                   <ThemedText style={{ fontSize: 14, color: theme.colors.textMuted, marginRight: 10 }}>
                     {t('calories_colon')} {caloriesData}
@@ -474,27 +464,33 @@ const localStyles = StyleSheet.create({
   youtubeLabel: {
     fontSize: 14,
     fontWeight: '600',
-    marginBottom: 8,
+    marginBottom: 12,
     alignSelf: 'flex-start',
   },
-  videoWrapper: {
-    borderRadius: 8,
-    overflow: 'hidden',
-    backgroundColor: '#000',
-  },
-  loadingOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
+  youtubeButton: {
+    flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.8)',
-    zIndex: 1,
+    justifyContent: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    width: '100%',
   },
-  loadingText: {
-    marginTop: 8,
+  youtubeButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  youtubeHint: {
     fontSize: 12,
+    marginTop: 10,
+    textAlign: 'center',
+  },
+  // Completed text style
+  completedText: {
+    fontSize: 12,
+    fontWeight: '600',
+    marginRight: 10,
+    textTransform: 'lowercase',
   },
 });
