@@ -29,6 +29,9 @@ import { clearSeededProgressions, seedProgressionGroupsToStorage } from '@/utils
 
 import commonStyles from '../styles';
 
+// Import progressions list to find next exercise in progression
+const progressionsList: any[] = require('../../assets/progressions.json');
+
 const { height } = Dimensions.get('window');
 
 const baseRadius = 120;
@@ -408,6 +411,31 @@ const TabTwoScreen: React.FC = () => {
     }
   };
 
+  // Helper function to find the next unlocked exercise in a progression
+  const findNextUnlockedExercise = (completedExerciseName: string, completedExercises: string[]): string | null => {
+    // Search through all progressions to find which one contains this exercise
+    for (const progression of progressionsList) {
+      // Build the full list of exercises in this progression (components + goal)
+      const allSteps = [
+        ...(progression.components || []).map((c: any) => c.component),
+        progression.name, // The goal exercise
+      ];
+
+      const exerciseIndex = allSteps.indexOf(completedExerciseName);
+      if (exerciseIndex === -1) continue; // Exercise not in this progression
+
+      // Check if there's a next exercise that isn't already completed
+      if (exerciseIndex < allSteps.length - 1) {
+        const nextExercise = allSteps[exerciseIndex + 1];
+        // Only return if the next exercise hasn't been completed yet
+        if (!completedExercises.includes(nextExercise)) {
+          return nextExercise;
+        }
+      }
+    }
+    return null;
+  };
+
   // Set up workout completion callback after all functions are defined
   useEffect(() => {
     const handleWorkoutCompleteCallback = async () => {
@@ -417,7 +445,11 @@ const TabTwoScreen: React.FC = () => {
           const completedWorkouts = await AsyncStorage.getItem('@countOnMe_completed');
           const completedWorkoutsArray = completedWorkouts ? JSON.parse(completedWorkouts) : [];
           const isFirstCompletion = !completedWorkoutsArray.includes(selectedItem);
+
+          // Find next unlocked exercise BEFORE updating completed list
+          let unlockedExercise: string | null = null;
           if (isFirstCompletion) {
+            unlockedExercise = findNextUnlockedExercise(selectedItem, completedWorkoutsArray);
             completedWorkoutsArray.push(selectedItem);
             await AsyncStorage.setItem('@countOnMe_completed', JSON.stringify(completedWorkoutsArray));
           }
@@ -429,13 +461,24 @@ const TabTwoScreen: React.FC = () => {
           counts[selectedItem] = (counts[selectedItem] || 0) + 1;
           await AsyncStorage.setItem(countsKey, JSON.stringify(counts));
 
-          // Show success toast
-          showToast({
-            type: 'success',
-            message: isFirstCompletion ? t('first_completion') || 'First time! Great Job!' : t('workout_complete') || 'Great Job!',
-            duration: 4000,
-            position: 'center',
-          });
+          // Show motivational toast with unlocked exercise info if applicable
+          if (isFirstCompletion && unlockedExercise) {
+            // Show motivational toast with unlocked exercise
+            showMotivationalToast({
+              message: t('exercise_unlocked') || 'New Exercise Unlocked!',
+              subtitle: `🔓 ${unlockedExercise}`,
+              variant: 'champion_reveal',
+              duration: 3500,
+            });
+          } else {
+            // Show regular success toast
+            showToast({
+              type: 'success',
+              message: isFirstCompletion ? t('first_completion') || 'First time! Great Job!' : t('workout_complete') || 'Great Job!',
+              duration: 4000,
+              position: 'center',
+            });
+          }
         } catch (error) {
           console.error('Failed to save completed workout', error);
         }
@@ -452,7 +495,7 @@ const TabTwoScreen: React.FC = () => {
     };
 
     setWorkoutCompleteCallback(handleWorkoutCompleteCallback);
-  }, [orderedWorkouts, handleWorkoutCompleteFlow, setWorkoutCompleteCallback, singleSelectMode, handleTimerReset, resetTimer, selectedItem, showToast, t]);
+  }, [orderedWorkouts, handleWorkoutCompleteFlow, setWorkoutCompleteCallback, singleSelectMode, handleTimerReset, resetTimer, selectedItem, showToast, showMotivationalToast, t]);
 
   // Set up callback for when workout/action music starts (for motivational toasts)
   useEffect(() => {
