@@ -395,7 +395,7 @@ const DataProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
    */
   const startTimer = useCallback(async (segment?: string) => {
     dispatch({ type: 'START_TIMER' });
-    
+
     // Trigger sound if segment is provided
     if (segment) {
       await handleTimerStart(true, segment);
@@ -581,51 +581,79 @@ const DataProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
 
   // Timer interval management - centralized countdown logic
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  
+
+  // Use refs to track timer state and callbacks inside interval without triggering re-renders
+  // Update ref synchronously during render to ensure it's always current
+  const timerStateRef = useRef(state.timerState);
+  timerStateRef.current = state.timerState; // Synchronous update during render
+
+  // Refs for callbacks to avoid useEffect re-running when callbacks change
+  // Update refs synchronously during render to ensure they're always current
+  const handleTimerStartRef = useRef(handleTimerStart);
+  const handleTimerFadeOutRef = useRef(handleTimerFadeOut);
+  const stopAllSoundsRef = useRef(stopAllSounds);
+  handleTimerStartRef.current = handleTimerStart;
+  handleTimerFadeOutRef.current = handleTimerFadeOut;
+  stopAllSoundsRef.current = stopAllSounds;
+
+  // Track whether we should be running - only changes when isRunning changes or time goes from 0 to >0
+  const shouldTimerRun = state.timerState.isRunning && state.timerState.currentTime > 0;
+
   useEffect(() => {
-    if (state.timerState.isRunning && state.timerState.currentTime > 0) {
+    if (shouldTimerRun) {
+      // Don't restart if already running
+      if (timerIntervalRef.current) {
+        return;
+      }
+
       // Start the countdown interval
       timerIntervalRef.current = setInterval(() => {
-        const newTime = Math.max(0, state.timerState.currentTime - 1);
+        // Read current state from ref to avoid stale closures
+        const currentTimerState = timerStateRef.current;
+
+        // Safety check: if timer is not running or currentTime is invalid, skip this tick
+        if (!currentTimerState.isRunning || currentTimerState.currentTime <= 0) {
+          return;
+        }
+
+        const newTime = Math.max(0, currentTimerState.currentTime - 1);
+
         dispatch({ type: 'UPDATE_TIMER_TIME', payload: newTime });
         dispatch({ type: 'INCREMENT_ELAPSED_TIME' });
-        
+
         // Handle fadeout when time reaches exactly 3 seconds
         if (newTime === 3) {
-          const { timers, currentIndex } = state.timerState;
+          const { timers, currentIndex } = currentTimerState;
           if (timers.length > 0 && currentIndex < timers.length) {
             const currentSegment = timers[currentIndex].segment;
-            handleTimerFadeOut(newTime, currentSegment);
+            handleTimerFadeOutRef.current(newTime, currentSegment);
           }
         }
-        
+
         // Check if timer has reached 0
         if (newTime === 0) {
-          const { timers, currentIndex } = state.timerState;
-          
+          const { timers, currentIndex } = currentTimerState;
+
           if (currentIndex < timers.length - 1) {
             // Move to next segment
             const nextIndex = currentIndex + 1;
             const nextSegment = timers[nextIndex].segment;
-            
-            console.log(`[Timer Transition] Moving from index ${currentIndex} (${timers[currentIndex]?.segment}) to index ${nextIndex} (${nextSegment})`);
-            console.log(`[Timer Transition] Current timers:`, timers.map((t, i) => `${i}: ${t.time}s ${t.segment}`));
-            
+
             dispatch({ type: 'SET_CURRENT_INDEX', payload: nextIndex });
             dispatch({ type: 'UPDATE_TIMER_TIME', payload: timers[nextIndex].time });
-            
+
             // Trigger sound for the new segment
             setTimeout(() => {
-              handleTimerStart(true, nextSegment, true); // Mark as auto transition
+              handleTimerStartRef.current(true, nextSegment, true); // Mark as auto transition
             }, 100);
           } else {
             // Timer completed - stop any ongoing sounds first
             dispatch({ type: 'STOP_TIMER' });
             clearInterval(timerIntervalRef.current!);
             timerIntervalRef.current = null;
-            
+
             // Stop any ongoing sounds immediately before completion
-            stopAllSounds().then(() => {
+            stopAllSoundsRef.current().then(() => {
               // Call the workout completion callback if set
               if (workoutCompleteCallbackRef.current) {
                 workoutCompleteCallbackRef.current();
@@ -649,7 +677,7 @@ const DataProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
         timerIntervalRef.current = null;
       }
     };
-  }, [state.timerState.isRunning, state.timerState.currentTime, state.timerState.currentIndex, state.timerState.timers, handleTimerFadeOut]);
+  }, [shouldTimerRun]);
 
   // User profile operations
   const setWeight = useCallback(async (newWeight: string | null) => {
