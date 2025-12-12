@@ -1,23 +1,24 @@
 // ============================================================================
-// THEME SYSTEM - 10 Dark Themes
-// All themes maintain dark aesthetic while offering distinct color palettes
+// THEME SYSTEM - 10 Dark Sci-Fi Themes
+// All themes maintain dark mysterious aesthetic with distinct glow colors
+// Surface colors are kept consistent for the dark sci-fi look
 // ============================================================================
 
 export interface Theme {
   id: string;
   name: string;
   colors: {
-    // Core backgrounds
+    // Core backgrounds - consistent dark base across all themes
     void: string;           // Deepest background
     surface: string;        // Elevated surfaces (tiles, cards)
     surfaceAlt: string;     // Alternative surface color
 
-    // Accent colors
+    // Accent colors - subtle variations per theme
     primary: string;        // Main accent color
     primaryMuted: string;   // Muted version of primary
     secondary: string;      // Secondary accent
 
-    // Text colors
+    // Text colors - consistent for readability
     textPrimary: string;    // Main text color
     textSecondary: string;  // Secondary text
     textMuted: string;      // Muted/disabled text
@@ -25,7 +26,7 @@ export interface Theme {
     // UI elements
     border: string;         // Default borders
     borderActive: string;   // Active/selected borders
-    glow: string;           // Glow effects
+    glow: string;           // Glow effects - main differentiator
 
     // Semantic colors
     success: string;
@@ -37,7 +38,7 @@ export interface Theme {
     buttonBorder: string;
     tileBackground: string;
     tileBorder: string;
-    listTileBackground: string;  // Darker background for list tiles
+    listTileBackground: string;
     inputBackground: string;
     inputBorder: string;
 
@@ -47,358 +48,264 @@ export interface Theme {
     timerActive: string;
     timerBreak: string;
 
-    // Selection highlight (darker background for selected items)
+    // Selection highlight
     selectedHighlight: string;
   };
 }
 
-// 1. Original Dark (Current theme - baseline)
+// Shared dark base colors for consistency
+const darkBase = {
+  void: '#0c1014',
+  surface: 'rgba(28, 38, 48, 0.95)',
+  surfaceAlt: 'rgba(18, 26, 34, 0.9)',
+  textPrimary: '#e8eaec',
+  textSecondary: 'rgb(180, 190, 198)',
+  border: '#242c34',
+  buttonBackground: 'rgba(28, 38, 48, 0.95)',
+  tileBackground: 'rgba(16, 22, 28, 0.92)',
+  tileBorder: '#1e262e',
+  listTileBackground: 'rgba(20, 28, 36, 1)',
+  inputBackground: 'transparent',
+  inputBorder: 'rgb(60, 70, 80)',
+  progressTrack: '#1e262e',
+};
+
+// 1. Cyan Core (Default - cyan glow)
 export const originalDark: Theme = {
   id: 'original-dark',
-  name: 'Original Dark',
+  name: 'Cyan Core',
   colors: {
-    void: '#101418',
-    surface: 'rgba(41, 57, 68, 1)',
-    surfaceAlt: 'rgba(17, 24, 30, 0.8)',
+    ...darkBase,
     primary: 'rgb(42, 199, 207)',
-    primaryMuted: 'rgba(42, 199, 207, 0.5)',
-    secondary: 'rgb(27, 41, 46)',
-    textPrimary: '#ffffff',
-    textSecondary: 'rgb(201, 213, 215)',
-    textMuted: 'rgb(176, 224, 230)',
-    border: '#2A2E33',
-    borderActive: 'rgb(2, 248, 240)',
+    primaryMuted: 'rgba(42, 199, 207, 0.4)',
+    secondary: 'rgb(30, 80, 90)',
+    textMuted: 'rgb(120, 160, 170)',
+    borderActive: 'rgb(42, 199, 207)',
     glow: 'rgb(42, 199, 207)',
-    success: 'green',
+    success: '#4caf50',
     warning: '#f0ad4e',
-    error: 'red',
-    buttonBackground: 'rgba(41, 57, 68, 1)',
-    buttonBorder: 'rgb(83, 90, 92)',
-    tileBackground: 'rgba(17, 24, 30, 0.8)',
-    tileBorder: '#2A2E33',
-    listTileBackground: 'rgba(26, 36, 43, 1)',
-    inputBackground: 'transparent',
-    inputBorder: 'rgb(81, 84, 90)',
-    progressTrack: '#2A2E33',
+    error: '#ef5350',
+    buttonBorder: 'rgb(50, 70, 80)',
     progressFill: 'rgb(42, 199, 207)',
-    timerActive: 'green',
-    timerBreak: 'red',
-    selectedHighlight: 'rgba(42, 199, 207, 0.15)',
+    timerActive: '#4caf50',
+    timerBreak: '#ef5350',
+    selectedHighlight: 'rgba(42, 199, 207, 0.12)',
   },
 };
 
-// 2. Midnight Blue
+// 2. Azure Pulse (Blue glow)
 export const midnightBlue: Theme = {
   id: 'midnight-blue',
-  name: 'Midnight Blue',
+  name: 'Azure Pulse',
   colors: {
-    void: '#0a0e14',
-    surface: 'rgba(20, 35, 55, 1)',
-    surfaceAlt: 'rgba(15, 25, 40, 0.85)',
-    primary: '#5c9eff',
-    primaryMuted: 'rgba(92, 158, 255, 0.5)',
-    secondary: 'rgb(25, 40, 60)',
-    textPrimary: '#ffffff',
-    textSecondary: 'rgb(180, 200, 220)',
-    textMuted: 'rgb(130, 160, 200)',
-    border: '#1e3050',
-    borderActive: '#5c9eff',
-    glow: 'rgba(92, 158, 255, 0.6)',
+    ...darkBase,
+    primary: '#4da6ff',
+    primaryMuted: 'rgba(77, 166, 255, 0.4)',
+    secondary: 'rgb(30, 55, 85)',
+    textMuted: 'rgb(110, 145, 180)',
+    borderActive: '#4da6ff',
+    glow: 'rgb(77, 166, 255)',
     success: '#4caf50',
     warning: '#ff9800',
     error: '#f44336',
-    buttonBackground: 'rgba(20, 35, 55, 1)',
-    buttonBorder: 'rgb(50, 70, 100)',
-    tileBackground: 'rgba(15, 25, 40, 0.85)',
-    tileBorder: '#1e3050',
-    listTileBackground: 'rgba(14, 24, 38, 1)',
-    inputBackground: 'transparent',
-    inputBorder: 'rgb(50, 70, 100)',
-    progressTrack: '#1e3050',
-    progressFill: '#5c9eff',
+    buttonBorder: 'rgb(45, 65, 90)',
+    progressFill: '#4da6ff',
     timerActive: '#4caf50',
-    timerBreak: '#ff5722',
-    selectedHighlight: 'rgba(92, 158, 255, 0.15)',
+    timerBreak: '#f44336',
+    selectedHighlight: 'rgba(77, 166, 255, 0.12)',
   },
 };
 
-// 3. Cyber Purple
+// 3. Violet Nexus (Purple glow)
 export const cyberPurple: Theme = {
   id: 'cyber-purple',
-  name: 'Cyber Purple',
+  name: 'Violet Nexus',
   colors: {
-    void: '#0d0a14',
-    surface: 'rgba(35, 20, 55, 1)',
-    surfaceAlt: 'rgba(25, 15, 40, 0.85)',
-    primary: '#b366ff',
-    primaryMuted: 'rgba(179, 102, 255, 0.5)',
-    secondary: 'rgb(40, 25, 60)',
-    textPrimary: '#ffffff',
-    textSecondary: 'rgb(210, 190, 230)',
-    textMuted: 'rgb(170, 140, 200)',
-    border: '#3d2060',
-    borderActive: '#b366ff',
-    glow: 'rgba(179, 102, 255, 0.6)',
+    ...darkBase,
+    primary: '#a855f7',
+    primaryMuted: 'rgba(168, 85, 247, 0.4)',
+    secondary: 'rgb(50, 35, 75)',
+    textMuted: 'rgb(140, 120, 170)',
+    borderActive: '#a855f7',
+    glow: 'rgb(168, 85, 247)',
     success: '#66bb6a',
     warning: '#ffa726',
     error: '#ef5350',
-    buttonBackground: 'rgba(35, 20, 55, 1)',
-    buttonBorder: 'rgb(80, 50, 110)',
-    tileBackground: 'rgba(25, 15, 40, 0.85)',
-    tileBorder: '#3d2060',
-    listTileBackground: 'rgba(20, 12, 32, 1)',
-    inputBackground: 'transparent',
-    inputBorder: 'rgb(80, 50, 110)',
-    progressTrack: '#3d2060',
-    progressFill: '#b366ff',
+    buttonBorder: 'rgb(60, 50, 85)',
+    progressFill: '#a855f7',
     timerActive: '#66bb6a',
     timerBreak: '#ef5350',
-    selectedHighlight: 'rgba(179, 102, 255, 0.15)',
+    selectedHighlight: 'rgba(168, 85, 247, 0.12)',
   },
 };
 
-// 4. Neon Green
+// 4. Reactor Green (Green glow)
 export const neonGreen: Theme = {
   id: 'neon-green',
-  name: 'Neon Green',
+  name: 'Reactor Green',
   colors: {
-    void: '#0a110a',
-    surface: 'rgba(20, 45, 25, 1)',
-    surfaceAlt: 'rgba(15, 35, 18, 0.85)',
-    primary: '#39ff14',
-    primaryMuted: 'rgba(57, 255, 20, 0.4)',
-    secondary: 'rgb(25, 50, 30)',
-    textPrimary: '#ffffff',
-    textSecondary: 'rgb(180, 220, 185)',
-    textMuted: 'rgb(120, 180, 130)',
-    border: '#1a3d1a',
-    borderActive: '#39ff14',
-    glow: 'rgba(57, 255, 20, 0.5)',
-    success: '#39ff14',
-    warning: '#ffeb3b',
-    error: '#ff5252',
-    buttonBackground: 'rgba(20, 45, 25, 1)',
-    buttonBorder: 'rgb(50, 90, 55)',
-    tileBackground: 'rgba(15, 35, 18, 0.85)',
-    tileBorder: '#1a3d1a',
-    listTileBackground: 'rgba(12, 28, 14, 1)',
-    inputBackground: 'transparent',
-    inputBorder: 'rgb(50, 90, 55)',
-    progressTrack: '#1a3d1a',
-    progressFill: '#39ff14',
-    timerActive: '#39ff14',
-    timerBreak: '#ff5252',
-    selectedHighlight: 'rgba(57, 255, 20, 0.12)',
+    ...darkBase,
+    primary: '#22c55e',
+    primaryMuted: 'rgba(34, 197, 94, 0.4)',
+    secondary: 'rgb(30, 55, 40)',
+    textMuted: 'rgb(100, 150, 120)',
+    borderActive: '#22c55e',
+    glow: 'rgb(34, 197, 94)',
+    success: '#22c55e',
+    warning: '#eab308',
+    error: '#ef4444',
+    buttonBorder: 'rgb(45, 70, 55)',
+    progressFill: '#22c55e',
+    timerActive: '#22c55e',
+    timerBreak: '#ef4444',
+    selectedHighlight: 'rgba(34, 197, 94, 0.12)',
   },
 };
 
-// 5. Crimson Night
+// 5. Crimson Flare (Red glow)
 export const crimsonNight: Theme = {
   id: 'crimson-night',
-  name: 'Crimson Night',
+  name: 'Crimson Flare',
   colors: {
-    void: '#110a0a',
-    surface: 'rgba(50, 20, 25, 1)',
-    surfaceAlt: 'rgba(40, 15, 18, 0.85)',
-    primary: '#ff4757',
-    primaryMuted: 'rgba(255, 71, 87, 0.5)',
-    secondary: 'rgb(55, 25, 30)',
-    textPrimary: '#ffffff',
-    textSecondary: 'rgb(230, 190, 195)',
-    textMuted: 'rgb(200, 140, 150)',
-    border: '#4a1a20',
-    borderActive: '#ff4757',
-    glow: 'rgba(255, 71, 87, 0.5)',
-    success: '#2ed573',
-    warning: '#ffa502',
-    error: '#ff4757',
-    buttonBackground: 'rgba(50, 20, 25, 1)',
-    buttonBorder: 'rgb(100, 50, 60)',
-    tileBackground: 'rgba(40, 15, 18, 0.85)',
-    tileBorder: '#4a1a20',
-    listTileBackground: 'rgba(32, 12, 14, 1)',
-    inputBackground: 'transparent',
-    inputBorder: 'rgb(100, 50, 60)',
-    progressTrack: '#4a1a20',
-    progressFill: '#ff4757',
-    timerActive: '#2ed573',
-    timerBreak: '#ff4757',
-    selectedHighlight: 'rgba(255, 71, 87, 0.15)',
+    ...darkBase,
+    primary: '#ef4444',
+    primaryMuted: 'rgba(239, 68, 68, 0.4)',
+    secondary: 'rgb(65, 35, 40)',
+    textMuted: 'rgb(160, 120, 130)',
+    borderActive: '#ef4444',
+    glow: 'rgb(239, 68, 68)',
+    success: '#22c55e',
+    warning: '#f59e0b',
+    error: '#ef4444',
+    buttonBorder: 'rgb(80, 50, 55)',
+    progressFill: '#ef4444',
+    timerActive: '#22c55e',
+    timerBreak: '#ef4444',
+    selectedHighlight: 'rgba(239, 68, 68, 0.12)',
   },
 };
 
-// 6. Ocean Depths
+// 6. Deep Teal (Teal glow)
 export const oceanDepths: Theme = {
   id: 'ocean-depths',
-  name: 'Ocean Depths',
+  name: 'Deep Teal',
   colors: {
-    void: '#060d12',
-    surface: 'rgba(15, 40, 55, 1)',
-    surfaceAlt: 'rgba(10, 30, 45, 0.85)',
-    primary: '#00d9ff',
-    primaryMuted: 'rgba(0, 217, 255, 0.4)',
-    secondary: 'rgb(15, 45, 60)',
-    textPrimary: '#ffffff',
-    textSecondary: 'rgb(170, 210, 225)',
-    textMuted: 'rgb(100, 160, 185)',
-    border: '#0f3545',
-    borderActive: '#00d9ff',
-    glow: 'rgba(0, 217, 255, 0.5)',
-    success: '#00e676',
-    warning: '#ffab00',
-    error: '#ff1744',
-    buttonBackground: 'rgba(15, 40, 55, 1)',
-    buttonBorder: 'rgb(40, 80, 100)',
-    tileBackground: 'rgba(10, 30, 45, 0.85)',
-    tileBorder: '#0f3545',
-    listTileBackground: 'rgba(8, 24, 36, 1)',
-    inputBackground: 'transparent',
-    inputBorder: 'rgb(40, 80, 100)',
-    progressTrack: '#0f3545',
-    progressFill: '#00d9ff',
-    timerActive: '#00e676',
-    timerBreak: '#ff1744',
-    selectedHighlight: 'rgba(0, 217, 255, 0.15)',
+    ...darkBase,
+    primary: '#14b8a6',
+    primaryMuted: 'rgba(20, 184, 166, 0.4)',
+    secondary: 'rgb(25, 55, 55)',
+    textMuted: 'rgb(100, 150, 150)',
+    borderActive: '#14b8a6',
+    glow: 'rgb(20, 184, 166)',
+    success: '#22c55e',
+    warning: '#f59e0b',
+    error: '#ef4444',
+    buttonBorder: 'rgb(40, 70, 70)',
+    progressFill: '#14b8a6',
+    timerActive: '#22c55e',
+    timerBreak: '#ef4444',
+    selectedHighlight: 'rgba(20, 184, 166, 0.12)',
   },
 };
 
-// 7. Golden Hour
+// 7. Amber Signal (Orange/Gold glow)
 export const goldenHour: Theme = {
   id: 'golden-hour',
-  name: 'Golden Hour',
+  name: 'Amber Signal',
   colors: {
-    void: '#12100a',
-    surface: 'rgba(45, 35, 20, 1)',
-    surfaceAlt: 'rgba(35, 28, 15, 0.85)',
-    primary: '#ffb347',
-    primaryMuted: 'rgba(255, 179, 71, 0.5)',
-    secondary: 'rgb(50, 40, 25)',
-    textPrimary: '#ffffff',
-    textSecondary: 'rgb(230, 215, 190)',
-    textMuted: 'rgb(190, 170, 130)',
-    border: '#4a3d20',
-    borderActive: '#ffb347',
-    glow: 'rgba(255, 179, 71, 0.5)',
-    success: '#7cb342',
-    warning: '#ffb347',
-    error: '#e53935',
-    buttonBackground: 'rgba(45, 35, 20, 1)',
-    buttonBorder: 'rgb(90, 75, 45)',
-    tileBackground: 'rgba(35, 28, 15, 0.85)',
-    tileBorder: '#4a3d20',
-    listTileBackground: 'rgba(28, 22, 12, 1)',
-    inputBackground: 'transparent',
-    inputBorder: 'rgb(90, 75, 45)',
-    progressTrack: '#4a3d20',
-    progressFill: '#ffb347',
-    timerActive: '#7cb342',
-    timerBreak: '#e53935',
-    selectedHighlight: 'rgba(255, 179, 71, 0.15)',
+    ...darkBase,
+    primary: '#f59e0b',
+    primaryMuted: 'rgba(245, 158, 11, 0.4)',
+    secondary: 'rgb(55, 45, 30)',
+    textMuted: 'rgb(160, 140, 110)',
+    borderActive: '#f59e0b',
+    glow: 'rgb(245, 158, 11)',
+    success: '#22c55e',
+    warning: '#f59e0b',
+    error: '#ef4444',
+    buttonBorder: 'rgb(75, 60, 45)',
+    progressFill: '#f59e0b',
+    timerActive: '#22c55e',
+    timerBreak: '#ef4444',
+    selectedHighlight: 'rgba(245, 158, 11, 0.12)',
   },
 };
 
-// 8. Arctic Frost
+// 8. Ice Blue (Light blue/white glow)
 export const arcticFrost: Theme = {
   id: 'arctic-frost',
-  name: 'Arctic Frost',
+  name: 'Ice Blue',
   colors: {
-    void: '#0c1015',
-    surface: 'rgba(30, 45, 55, 1)',
-    surfaceAlt: 'rgba(22, 35, 45, 0.85)',
-    primary: '#a8d8ea',
-    primaryMuted: 'rgba(168, 216, 234, 0.5)',
-    secondary: 'rgb(35, 50, 60)',
-    textPrimary: '#ffffff',
-    textSecondary: 'rgb(200, 215, 225)',
-    textMuted: 'rgb(140, 165, 185)',
-    border: '#2a3d4a',
-    borderActive: '#a8d8ea',
-    glow: 'rgba(168, 216, 234, 0.5)',
-    success: '#81c784',
-    warning: '#ffcc80',
-    error: '#e57373',
-    buttonBackground: 'rgba(30, 45, 55, 1)',
-    buttonBorder: 'rgb(65, 85, 100)',
-    tileBackground: 'rgba(22, 35, 45, 0.85)',
-    tileBorder: '#2a3d4a',
-    listTileBackground: 'rgba(18, 28, 36, 1)',
-    inputBackground: 'transparent',
-    inputBorder: 'rgb(65, 85, 100)',
-    progressTrack: '#2a3d4a',
-    progressFill: '#a8d8ea',
-    timerActive: '#81c784',
-    timerBreak: '#e57373',
-    selectedHighlight: 'rgba(168, 216, 234, 0.15)',
+    ...darkBase,
+    primary: '#7dd3fc',
+    primaryMuted: 'rgba(125, 211, 252, 0.4)',
+    secondary: 'rgb(40, 55, 65)',
+    textMuted: 'rgb(130, 160, 180)',
+    borderActive: '#7dd3fc',
+    glow: 'rgb(125, 211, 252)',
+    success: '#4ade80',
+    warning: '#fbbf24',
+    error: '#f87171',
+    buttonBorder: 'rgb(55, 70, 85)',
+    progressFill: '#7dd3fc',
+    timerActive: '#4ade80',
+    timerBreak: '#f87171',
+    selectedHighlight: 'rgba(125, 211, 252, 0.12)',
   },
 };
 
-// 9. Ember Glow
+// 9. Magma Core (Orange-red glow)
 export const emberGlow: Theme = {
   id: 'ember-glow',
-  name: 'Ember Glow',
+  name: 'Magma Core',
   colors: {
-    void: '#120d08',
-    surface: 'rgba(50, 30, 18, 1)',
-    surfaceAlt: 'rgba(40, 24, 14, 0.85)',
-    primary: '#ff6b35',
-    primaryMuted: 'rgba(255, 107, 53, 0.5)',
-    secondary: 'rgb(55, 35, 22)',
-    textPrimary: '#ffffff',
-    textSecondary: 'rgb(230, 200, 180)',
-    textMuted: 'rgb(190, 150, 120)',
-    border: '#4a2a18',
-    borderActive: '#ff6b35',
-    glow: 'rgba(255, 107, 53, 0.5)',
-    success: '#8bc34a',
-    warning: '#ff9800',
-    error: '#f44336',
-    buttonBackground: 'rgba(50, 30, 18, 1)',
-    buttonBorder: 'rgb(100, 65, 40)',
-    tileBackground: 'rgba(40, 24, 14, 0.85)',
-    tileBorder: '#4a2a18',
-    listTileBackground: 'rgba(32, 19, 11, 1)',
-    inputBackground: 'transparent',
-    inputBorder: 'rgb(100, 65, 40)',
-    progressTrack: '#4a2a18',
-    progressFill: '#ff6b35',
-    timerActive: '#8bc34a',
-    timerBreak: '#f44336',
-    selectedHighlight: 'rgba(255, 107, 53, 0.15)',
+    ...darkBase,
+    primary: '#f97316',
+    primaryMuted: 'rgba(249, 115, 22, 0.4)',
+    secondary: 'rgb(60, 40, 30)',
+    textMuted: 'rgb(160, 130, 110)',
+    borderActive: '#f97316',
+    glow: 'rgb(249, 115, 22)',
+    success: '#22c55e',
+    warning: '#f59e0b',
+    error: '#ef4444',
+    buttonBorder: 'rgb(80, 55, 40)',
+    progressFill: '#f97316',
+    timerActive: '#22c55e',
+    timerBreak: '#ef4444',
+    selectedHighlight: 'rgba(249, 115, 22, 0.12)',
   },
 };
 
-// 10. Stealth Mode
+// 10. Ghost Protocol (Minimal white/gray glow)
 export const stealthMode: Theme = {
   id: 'stealth-mode',
-  name: 'Stealth Mode',
+  name: 'Ghost Protocol',
   colors: {
-    void: '#0a0a0a',
-    surface: 'rgba(25, 25, 28, 1)',
-    surfaceAlt: 'rgba(18, 18, 20, 0.9)',
-    primary: '#888888',
-    primaryMuted: 'rgba(136, 136, 136, 0.5)',
-    secondary: 'rgb(35, 35, 38)',
-    textPrimary: '#e0e0e0',
-    textSecondary: 'rgb(180, 180, 180)',
-    textMuted: 'rgb(120, 120, 120)',
-    border: '#2a2a2d',
-    borderActive: '#a0a0a0',
-    glow: 'rgba(160, 160, 160, 0.4)',
-    success: '#69f0ae',
-    warning: '#ffd740',
-    error: '#ff5252',
-    buttonBackground: 'rgba(25, 25, 28, 1)',
-    buttonBorder: 'rgb(60, 60, 65)',
-    tileBackground: 'rgba(18, 18, 20, 0.9)',
-    tileBorder: '#2a2a2d',
-    listTileBackground: 'rgba(14, 14, 16, 1)',
-    inputBackground: 'transparent',
-    inputBorder: 'rgb(60, 60, 65)',
-    progressTrack: '#2a2a2d',
-    progressFill: '#888888',
-    timerActive: '#69f0ae',
-    timerBreak: '#ff5252',
-    selectedHighlight: 'rgba(136, 136, 136, 0.12)',
+    ...darkBase,
+    void: '#08090a',
+    surface: 'rgba(22, 26, 30, 0.95)',
+    surfaceAlt: 'rgba(14, 18, 22, 0.9)',
+    primary: '#94a3b8',
+    primaryMuted: 'rgba(148, 163, 184, 0.4)',
+    secondary: 'rgb(40, 45, 50)',
+    textMuted: 'rgb(100, 110, 120)',
+    border: '#1e2228',
+    borderActive: '#94a3b8',
+    glow: 'rgb(148, 163, 184)',
+    success: '#4ade80',
+    warning: '#fbbf24',
+    error: '#f87171',
+    buttonBackground: 'rgba(22, 26, 30, 0.95)',
+    buttonBorder: 'rgb(50, 55, 62)',
+    tileBackground: 'rgba(12, 16, 20, 0.92)',
+    tileBorder: '#181c22',
+    listTileBackground: 'rgba(16, 20, 24, 1)',
+    progressTrack: '#181c22',
+    progressFill: '#94a3b8',
+    timerActive: '#4ade80',
+    timerBreak: '#f87171',
+    selectedHighlight: 'rgba(148, 163, 184, 0.1)',
   },
 };
 

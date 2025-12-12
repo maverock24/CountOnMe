@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
   Dimensions,
@@ -7,20 +7,31 @@ import {
   View,
 } from 'react-native';
 import Svg, { Circle, Defs, G, LinearGradient, Path, Stop } from 'react-native-svg';
+import { useTheme } from './ThemeProvider';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-// Strict Color Palette - Sci-Fi HUD Design System (matching MotivationalToast)
-const COLORS = {
-  void: '#050810',
-  surface: '#0B1221',
-  surfaceAlpha: 'rgba(11, 18, 33, 0.85)',
-  primary: '#00F0FF',
-  secondary: '#005577',
-  highlight: '#FFFFFF',
-  glow: 'rgba(0, 240, 255, 0.6)',
-  glowStrong: 'rgba(0, 240, 255, 0.8)',
-  glowWeak: 'rgba(0, 240, 255, 0.4)',
+// Helper to create glow color variants from a base color
+const createGlowVariants = (baseColor: string) => {
+  let r = 0, g = 240, b = 255; // default cyan
+  if (baseColor.startsWith('#')) {
+    const hex = baseColor.slice(1);
+    r = parseInt(hex.substr(0, 2), 16);
+    g = parseInt(hex.substr(2, 2), 16);
+    b = parseInt(hex.substr(4, 2), 16);
+  } else if (baseColor.startsWith('rgb')) {
+    const match = baseColor.match(/(\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+      r = parseInt(match[1]);
+      g = parseInt(match[2]);
+      b = parseInt(match[3]);
+    }
+  }
+  return {
+    glow: `rgba(${r}, ${g}, ${b}, 0.6)`,
+    glowStrong: `rgba(${r}, ${g}, ${b}, 0.8)`,
+    glowWeak: `rgba(${r}, ${g}, ${b}, 0.4)`,
+  };
 };
 
 const CONTAINER_WIDTH = Math.min(SCREEN_WIDTH * 0.8, 320);
@@ -58,13 +69,28 @@ interface LoadingScreenProps {
 }
 
 export default function LoadingScreen({ visible, message = 'INITIALIZING SYSTEM' }: LoadingScreenProps) {
-  const [isRendered, setIsRendered] = useState(true);
+  const { theme } = useTheme();
+  const [isRendered, setIsRendered] = useState(false);
+  const [isReady, setIsReady] = useState(false);
+
+  // Dynamic colors based on theme
+  const COLORS = useMemo(() => {
+    const glowVariants = createGlowVariants(theme.colors.glow);
+    return {
+      void: theme.colors.void,
+      surface: theme.colors.surface,
+      surfaceAlpha: `${theme.colors.surface}DD`,
+      primary: theme.colors.primary,
+      secondary: theme.colors.secondary,
+      highlight: theme.colors.textPrimary,
+      ...glowVariants,
+    };
+  }, [theme]);
   const animValues = useRef({
     opacity: new Animated.Value(1),
     scale: new Animated.Value(1),
     borderGlow: new Animated.Value(0.3),
     scanLineY: new Animated.Value(-20),
-    shimmerX: new Animated.Value(-CONTAINER_WIDTH),
     nodePulse: new Animated.Value(0.3),
     gaugeRotation: new Animated.Value(0),
     textOpacity: new Animated.Value(0.5),
@@ -76,9 +102,22 @@ export default function LoadingScreen({ visible, message = 'INITIALIZING SYSTEM'
 
   useEffect(() => {
     if (visible) {
-      setIsRendered(true);
+      // Reset animation values to initial state
       animValues.opacity.setValue(1);
-      startAnimations();
+      animValues.borderGlow.setValue(0.3);
+      animValues.scanLineY.setValue(-20);
+      animValues.nodePulse.setValue(0.3);
+      animValues.gaugeRotation.setValue(0);
+      animValues.textOpacity.setValue(0.5);
+      animValues.progressWidth.setValue(0);
+      animValues.glowIntensity.setValue(0.4);
+
+      // Wait for next frame to ensure animations are reset before showing
+      requestAnimationFrame(() => {
+        setIsRendered(true);
+        setIsReady(true);
+        startAnimations();
+      });
     } else {
       // Fade out
       Animated.timing(animValues.opacity, {
@@ -89,6 +128,7 @@ export default function LoadingScreen({ visible, message = 'INITIALIZING SYSTEM'
       }).start(() => {
         stopAnimations();
         setIsRendered(false);
+        setIsReady(false);
       });
     }
 
@@ -111,14 +151,6 @@ export default function LoadingScreen({ visible, message = 'INITIALIZING SYSTEM'
       Animated.sequence([
         Animated.timing(animValues.scanLineY, { toValue: CONTAINER_HEIGHT + 20, duration: 1500, easing: Easing.linear, useNativeDriver: true }),
         Animated.timing(animValues.scanLineY, { toValue: -20, duration: 0, useNativeDriver: true }),
-      ])
-    );
-
-    // Shimmer effect
-    const shimmerLoop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(animValues.shimmerX, { toValue: CONTAINER_WIDTH * 2, duration: 2000, easing: Easing.linear, useNativeDriver: true }),
-        Animated.timing(animValues.shimmerX, { toValue: -CONTAINER_WIDTH, duration: 0, useNativeDriver: true }),
       ])
     );
 
@@ -162,7 +194,6 @@ export default function LoadingScreen({ visible, message = 'INITIALIZING SYSTEM'
     loopAnimationsRef.current = [
       borderGlowLoop,
       scanLineLoop,
-      shimmerLoop,
       gaugeLoop,
       nodePulseLoop,
       textPulseLoop,
@@ -172,7 +203,6 @@ export default function LoadingScreen({ visible, message = 'INITIALIZING SYSTEM'
 
     borderGlowLoop.start();
     setTimeout(() => scanLineLoop.start(), 100);
-    setTimeout(() => shimmerLoop.start(), 200);
     gaugeLoop.start();
     nodePulseLoop.start();
     textPulseLoop.start();
@@ -185,17 +215,17 @@ export default function LoadingScreen({ visible, message = 'INITIALIZING SYSTEM'
     loopAnimationsRef.current = [];
   };
 
-  if (!isRendered) {
+  if (!isRendered || !isReady) {
     return null;
   }
 
   const chamferedPath = generateChamferedPath(CONTAINER_WIDTH, CONTAINER_HEIGHT, CHAMFER_SIZE);
 
   return (
-    <Animated.View style={[styles.overlay, { opacity: animValues.opacity }]}>
+    <Animated.View style={[styles.overlay, { opacity: animValues.opacity, backgroundColor: COLORS.void }]}>
       <View style={styles.container}>
         {/* Main loading card */}
-        <View style={styles.cardWrapper}>
+        <View style={[styles.cardWrapper, { shadowColor: COLORS.primary }]}>
           {/* Background with glass effect */}
           <Svg width={CONTAINER_WIDTH} height={CONTAINER_HEIGHT} style={StyleSheet.absoluteFill}>
             <Defs>
@@ -235,6 +265,7 @@ export default function LoadingScreen({ visible, message = 'INITIALIZING SYSTEM'
             style={[
               styles.glowLayer,
               {
+                backgroundColor: COLORS.glow,
                 opacity: animValues.glowIntensity.interpolate({
                   inputRange: [0, 1],
                   outputRange: [0, 0.2],
@@ -247,7 +278,7 @@ export default function LoadingScreen({ visible, message = 'INITIALIZING SYSTEM'
           <Animated.View
             style={[
               styles.borderGlowContainer,
-              { opacity: animValues.borderGlow },
+              { opacity: animValues.borderGlow, shadowColor: COLORS.primary },
             ]}
           >
             <Svg width={CONTAINER_WIDTH} height={CONTAINER_HEIGHT}>
@@ -259,16 +290,7 @@ export default function LoadingScreen({ visible, message = 'INITIALIZING SYSTEM'
           <Animated.View
             style={[
               styles.scanLine,
-              { transform: [{ translateY: animValues.scanLineY }] },
-            ]}
-            pointerEvents="none"
-          />
-
-          {/* Shimmer effect */}
-          <Animated.View
-            style={[
-              styles.shimmer,
-              { transform: [{ translateX: animValues.shimmerX }, { rotate: '20deg' }] },
+              { transform: [{ translateY: animValues.scanLineY }], backgroundColor: COLORS.primary },
             ]}
             pointerEvents="none"
           />
@@ -314,11 +336,11 @@ export default function LoadingScreen({ visible, message = 'INITIALIZING SYSTEM'
 
           {/* Top label */}
           <View style={styles.topLabel}>
-            <View style={styles.labelLine} />
-            <Animated.Text style={[styles.labelText, { opacity: animValues.textOpacity }]}>
+            <View style={[styles.labelLine, { backgroundColor: COLORS.secondary }]} />
+            <Animated.Text style={[styles.labelText, { opacity: animValues.textOpacity, color: COLORS.primary }]}>
               SYSTEM STATUS
             </Animated.Text>
-            <View style={styles.labelLine} />
+            <View style={[styles.labelLine, { backgroundColor: COLORS.secondary }]} />
           </View>
 
           {/* Main content */}
@@ -341,17 +363,18 @@ export default function LoadingScreen({ visible, message = 'INITIALIZING SYSTEM'
             </Animated.View>
 
             {/* Message */}
-            <Animated.Text style={[styles.messageText, { opacity: animValues.textOpacity }]}>
+            <Animated.Text style={[styles.messageText, { opacity: animValues.textOpacity, color: COLORS.highlight }]}>
               {message}
             </Animated.Text>
 
             {/* Progress bar */}
             <View style={styles.progressContainer}>
-              <View style={styles.progressTrack}>
+              <View style={[styles.progressTrack, { backgroundColor: COLORS.secondary }]}>
                 <Animated.View
                   style={[
                     styles.progressFill,
                     {
+                      backgroundColor: COLORS.primary,
                       width: animValues.progressWidth.interpolate({
                         inputRange: [0, 1],
                         outputRange: ['0%', '100%'],
@@ -365,7 +388,7 @@ export default function LoadingScreen({ visible, message = 'INITIALIZING SYSTEM'
 
           {/* Bottom status */}
           <View style={styles.bottomStatus}>
-            <Animated.Text style={[styles.statusText, { opacity: animValues.textOpacity }]}>
+            <Animated.Text style={[styles.statusText, { opacity: animValues.textOpacity, color: COLORS.primary }]}>
               {'>>>'} LOADING {'<<<'}
             </Animated.Text>
           </View>
@@ -378,7 +401,6 @@ export default function LoadingScreen({ visible, message = 'INITIALIZING SYSTEM'
 const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: COLORS.void,
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 99999,
@@ -392,7 +414,6 @@ const styles = StyleSheet.create({
     height: CONTAINER_HEIGHT,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.6,
     shadowRadius: 25,
@@ -400,11 +421,9 @@ const styles = StyleSheet.create({
   },
   glowLayer: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: COLORS.glow,
   },
   borderGlowContainer: {
     ...StyleSheet.absoluteFillObject,
-    shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 1,
     shadowRadius: 15,
@@ -414,15 +433,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 2,
-    backgroundColor: COLORS.primary,
     opacity: 0.5,
-  },
-  shimmer: {
-    position: 'absolute',
-    width: 50,
-    height: '300%',
-    backgroundColor: COLORS.highlight,
-    opacity: 0.08,
   },
   cornerGauge: {
     position: 'absolute',
@@ -450,14 +461,12 @@ const styles = StyleSheet.create({
   labelLine: {
     flex: 1,
     height: 1,
-    backgroundColor: COLORS.secondary,
     opacity: 0.5,
   },
   labelText: {
     fontSize: 9,
     fontWeight: '700',
     letterSpacing: 2,
-    color: COLORS.primary,
     marginHorizontal: 8,
     textTransform: 'uppercase',
     fontFamily: 'monospace',
@@ -471,7 +480,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     letterSpacing: 2,
-    color: COLORS.highlight,
     marginTop: 12,
     textTransform: 'uppercase',
     fontFamily: 'monospace',
@@ -482,13 +490,11 @@ const styles = StyleSheet.create({
   },
   progressTrack: {
     height: 4,
-    backgroundColor: COLORS.secondary,
     borderRadius: 2,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: COLORS.primary,
     borderRadius: 2,
   },
   bottomStatus: {
@@ -502,7 +508,6 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '600',
     letterSpacing: 1.5,
-    color: COLORS.primary,
     fontFamily: 'monospace',
   },
 });

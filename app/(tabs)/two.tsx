@@ -1,8 +1,9 @@
 import { faBed, faRunning } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Animated,
@@ -12,19 +13,19 @@ import {
   ScrollView,
   StyleSheet,
   Switch,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Text } from '@/components/Themed';
 import Svg, { Circle, Defs, FeGaussianBlur, FeMerge, FeMergeNode, Filter } from 'react-native-svg';
 
 import { useData } from '@/components/data.provider';
 import { WorkoutItem } from '@/components/data/types';
 import ReorderableWorkoutList from '@/components/ReorderableWorkoutList';
+import { useTheme } from '@/components/ThemeProvider';
 import TimerButton from '@/components/TimerButton';
 import TimerItem from '@/components/TimerItem';
 import { useToast } from '@/components/ToastProvider';
-import Colors from '@/constants/Colors';
 import { clearSeededProgressions, seedProgressionGroupsToStorage } from '@/utils/progressionStorage';
 
 import commonStyles from '../styles';
@@ -59,6 +60,7 @@ const AnimatedCircle = Animated.createAnimatedComponent(CircleWrapper);
 
 const TabTwoScreen: React.FC = () => {
   const { showToast, showMotivationalToast } = useToast();
+  const { theme } = useTheme();
   const { 
     workoutItems, 
     groupItems, 
@@ -562,6 +564,28 @@ const TabTwoScreen: React.FC = () => {
     handleAudioToggle(audioEnabled, isRunning, currentSegment);
   }, [audioEnabled, isRunning, timers, currentIndex, handleAudioToggle]);
 
+  // Track running state in a ref to avoid useFocusEffect re-running when isRunning changes
+  const isRunningRef = useRef(isRunning);
+  useEffect(() => {
+    isRunningRef.current = isRunning;
+  }, [isRunning]);
+
+  // Stop timer and music when user navigates away from this tab
+  useFocusEffect(
+    useCallback(() => {
+      // This runs when the screen comes into focus - nothing to do here
+
+      return () => {
+        // This runs when the screen loses focus (user navigates away)
+        if (isRunningRef.current) {
+          console.log('[TabTwoScreen] Screen lost focus - stopping timer and music');
+          stopTimer();
+          handleTimerStop();
+        }
+      };
+    }, [stopTimer, handleTimerStop])
+  );
+
   return (
     <View style={commonStyles.container}>
       <View style={commonStyles.outerContainer}>
@@ -614,7 +638,7 @@ const TabTwoScreen: React.FC = () => {
                     cx={radius + strokeWidth / 2}
                     cy={radius + strokeWidth / 2}
                     r={radius}
-                    stroke="#2A2E33"
+                    stroke={theme.colors.border}
                     strokeWidth={strokeWidth}
                     fill="none"
                   />
@@ -622,7 +646,7 @@ const TabTwoScreen: React.FC = () => {
                     cx={radius + strokeWidth / 2}
                     cy={radius + strokeWidth / 2}
                     r={radius}
-                    stroke={Colors.glow}
+                    stroke={theme.colors.glow}
                     strokeWidth={strokeWidth}
                     fill="none"
                     strokeDasharray={circumference}

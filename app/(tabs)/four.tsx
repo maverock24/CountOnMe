@@ -4,7 +4,6 @@ import ModalPicker from '@/components/ModalPicker';
 import ThemedText from '@/components/ThemedText';
 import { useTheme } from '@/components/ThemeProvider';
 import TimerButton from '@/components/TimerButton';
-import Colors from '@/constants/Colors';
 import { language as languageData } from '@/constants/media';
 import i18n from '@/i18n';
 import { FitnessLevel } from '@/utils/intensity.enum';
@@ -114,21 +113,21 @@ const SettingsScreen: React.FC = () => {
   return (
     <View style={commonStyles.container}>
       <View style={[commonStyles.outerContainer]}>
-        <ThemedText style={commonStyles.tileTitle}>{t('settings')}</ThemedText>
+        <ThemedText style={[commonStyles.tileTitle, { color: theme.colors.textPrimary }]}>{t('settings')}</ThemedText>
         <View
           style={[
             styles.section,
             {
-              backgroundColor: 'rgba(17, 24, 30, 0.8)',
+              backgroundColor: theme.colors.tileBackground,
               borderRadius: 10,
-              borderColor: '#2A2E33',
+              borderColor: theme.colors.tileBorder,
               borderWidth: 1,
               ...Platform.select({
                 web: {
-                  boxShadow: `0px 0px 12px ${Colors.glow}33`,
+                  boxShadow: `0px 0px 12px ${theme.colors.glow}33`,
                 },
                 default: {
-                  shadowColor: Colors.glow,
+                  shadowColor: theme.colors.glow,
                   shadowOpacity: 0.2,
                   shadowRadius: 12,
                   shadowOffset: { width: 0, height: 0 },
@@ -138,16 +137,16 @@ const SettingsScreen: React.FC = () => {
           ]}
         >
           <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          <ThemedText weight="bold" style={styles.sectionTitle}>{t('profile')}</ThemedText>
-            <ThemedText style={styles.label}>{t('weight')}</ThemedText>
+          <ThemedText weight="bold" style={[styles.sectionTitle, { color: theme.colors.textPrimary, borderBottomColor: theme.colors.border }]}>{t('profile')}</ThemedText>
+            <ThemedText style={[styles.label, { color: theme.colors.textMuted }]}>{t('weight')}</ThemedText>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: theme.colors.surface, color: theme.colors.textPrimary, borderColor: theme.colors.inputBorder, borderWidth: 1 }]}
               placeholder={t('enter_weight')}
-              placeholderTextColor="lightgray"
+              placeholderTextColor={theme.colors.textMuted}
               onChangeText={(text: string) => setWeight(text)}
               value={userWeight?.toString() ?? ''}
             />
-            <ThemedText style={styles.label}>{t('fitness_level')}</ThemedText>
+            <ThemedText style={[styles.label, { color: theme.colors.textMuted }]}>{t('fitness_level')}</ThemedText>
             <CustomPicker
               selectedValue={fitnessLevel || FitnessLevel.Beginner}
               onValueChange={(itemValue: string) => setFitness(itemValue as FitnessLevel)}
@@ -156,9 +155,9 @@ const SettingsScreen: React.FC = () => {
                 { label: t('intermediate'), value: FitnessLevel.Intermediate },
                 { label: t('expert'), value: FitnessLevel.Expert },
               ]}
-              dropdownIconColor="#fff"
+              dropdownIconColor={theme.colors.textPrimary}
             />
-            <ThemedText weight="bold" style={styles.sectionTitle}>{t('general')}</ThemedText>
+            <ThemedText weight="bold" style={[styles.sectionTitle, { color: theme.colors.textPrimary, borderBottomColor: theme.colors.border }]}>{t('general')}</ThemedText>
             <View
               style={{
                 flexDirection: 'row',
@@ -166,54 +165,54 @@ const SettingsScreen: React.FC = () => {
                 justifyContent: 'space-between',
               }}
             >
-              <ThemedText style={styles.label}>{t('sound_on_off')}</ThemedText>
+              <ThemedText style={[styles.label, { color: theme.colors.textMuted }]}>{t('sound_on_off')}</ThemedText>
               <Switch
                 style={{ marginRight: 10, marginTop: 10 }}
-                trackColor={{ false: 'gray', true: 'white' }}
-                thumbColor={audioEnabled ? 'gray' : 'white'}
+                trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
+                thumbColor={audioEnabled ? theme.colors.textPrimary : theme.colors.textMuted}
                 onValueChange={setAudioEnabled}
                 value={audioEnabled}
               />
             </View>
-            <ThemedText weight="bold" style={styles.sectionTitle}>{t('music')}</ThemedText>
+            <ThemedText weight="bold" style={[styles.sectionTitle, { color: theme.colors.textPrimary, borderBottomColor: theme.colors.border }]}>{t('music')}</ThemedText>
             <ModalPicker label={t('workout')} dataKey="workoutMusic" />
             <ModalPicker label={t('break')} dataKey="breakMusic" />
             <ModalPicker label={t('success')} dataKey="successSound" />
-            <ThemedText weight="bold" style={styles.sectionTitle}>{t('language')}</ThemedText>
-            <ThemedText style={styles.label}>{t('selected_language')}</ThemedText>
+            <ThemedText weight="bold" style={[styles.sectionTitle, { color: theme.colors.textPrimary, borderBottomColor: theme.colors.border }]}>{t('language')}</ThemedText>
+            <ThemedText style={[styles.label, { color: theme.colors.textMuted }]}>{t('selected_language')}</ThemedText>
             <CustomPicker
               selectedValue={currentLanguage}
               onValueChange={handleLanguageChange}
               items={languageData}
-              dropdownIconColor="#fff"
+              dropdownIconColor={theme.colors.textPrimary}
             />
 
-            <ThemedText weight="bold" style={styles.sectionTitle}>{t('appearance') || 'Appearance'}</ThemedText>
-            <ThemedText style={styles.label}>{t('theme') || 'Theme'}</ThemedText>
+            <ThemedText weight="bold" style={[styles.sectionTitle, { color: theme.colors.textPrimary, borderBottomColor: theme.colors.border }]}>{t('appearance') || 'Appearance'}</ThemedText>
+            <ThemedText style={[styles.label, { color: theme.colors.textMuted }]}>{t('theme') || 'Theme'}</ThemedText>
             <CustomPicker
               selectedValue={theme.id}
               onValueChange={(themeId: string) => setTheme(themeId)}
-              items={themes.map(t => ({ label: t.name, value: t.id }))}
-              dropdownIconColor="#fff"
+              items={themes.map(th => ({ label: th.name, value: th.id }))}
+              dropdownIconColor={theme.colors.textPrimary}
             />
             <View style={styles.themePreview}>
-              <View style={[styles.colorSwatch, { backgroundColor: theme.colors.primary }]} />
-              <View style={[styles.colorSwatch, { backgroundColor: theme.colors.secondary }]} />
-              <View style={[styles.colorSwatch, { backgroundColor: theme.colors.borderActive }]} />
-              <View style={[styles.colorSwatch, { backgroundColor: theme.colors.glow }]} />
+              <View style={[styles.colorSwatch, { backgroundColor: theme.colors.primary, borderColor: theme.colors.border }]} />
+              <View style={[styles.colorSwatch, { backgroundColor: theme.colors.secondary, borderColor: theme.colors.border }]} />
+              <View style={[styles.colorSwatch, { backgroundColor: theme.colors.borderActive, borderColor: theme.colors.border }]} />
+              <View style={[styles.colorSwatch, { backgroundColor: theme.colors.glow, borderColor: theme.colors.border }]} />
             </View>
 
-            <ThemedText style={styles.label}>{t('font') || 'Font'}</ThemedText>
+            <ThemedText style={[styles.label, { color: theme.colors.textMuted }]}>{t('font') || 'Font'}</ThemedText>
             <CustomPicker
               selectedValue={font.id}
               onValueChange={(fontId: string) => setFont(fontId)}
               items={fonts.map(f => ({ label: f.displayName, value: f.id }))}
-              dropdownIconColor="#fff"
+              dropdownIconColor={theme.colors.textPrimary}
             />
-            <ThemedText style={styles.fontPreviewText}>{font.description}</ThemedText>
+            <ThemedText style={[styles.fontPreviewText, { color: theme.colors.textMuted }]}>{font.description}</ThemedText>
 
-            <ThemedText weight="bold" style={styles.sectionTitle}>{t('data') || 'Data'}</ThemedText>
-            <ThemedText style={styles.label}>{t('reset_description') || 'Clear all workout progress and re-seed exercise progressions'}</ThemedText>
+            <ThemedText weight="bold" style={[styles.sectionTitle, { color: theme.colors.textPrimary, borderBottomColor: theme.colors.border }]}>{t('data') || 'Data'}</ThemedText>
+            <ThemedText style={[styles.label, { color: theme.colors.textMuted }]}>{t('reset_description') || 'Clear all workout progress and re-seed exercise progressions'}</ThemedText>
             <View style={styles.resetButtonContainer}>
               <TimerButton
                 text={isResetting ? (t('resetting') || 'Resetting...') : (t('reset_app') || 'Reset App')}
@@ -288,7 +287,6 @@ const styles = StyleSheet.create({
     height: 32,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   fontPreviewText: {
     fontSize: 12,

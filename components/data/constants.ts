@@ -14,6 +14,9 @@ export const RESERVED_KEYS = [
   'profileWeight',
   'profileFitness',
   'tutorialSeen',
+  // Progression tracking data (not workouts)
+  'completed',
+  'exercise_counts',
 ];
 
 export const DEFAULT_AUDIO_SETTINGS = {

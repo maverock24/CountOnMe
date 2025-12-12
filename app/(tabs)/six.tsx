@@ -8,12 +8,12 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 
 import CustomPicker from '@/components/CustomPicker';
+import { Text } from '@/components/Themed';
 import { useTheme } from '@/components/ThemeProvider';
 import ThemedText from '@/components/ThemedText';
 import commonStyles from '../styles';
@@ -66,12 +66,115 @@ const useBorderGlowPulse = (isActive: boolean) => {
   return glowAnim;
 };
 
+// Sequential border glow animation hook - creates a wave that travels through node borders in order
+// Note: Scale animations removed to prevent clipping issues with container margins/padding
+const useSequentialBorderGlow = (
+  nodeIndex: number,
+  totalUncompletedNodes: number,
+  isUncompleted: boolean,
+  isGoal: boolean
+) => {
+  const borderGlow = useRef(new Animated.Value(0)).current;
+  // Goal-specific animations - glow only (no scale/rotation to avoid clipping)
+  const goalGlow = useRef(new Animated.Value(0.3)).current;
+  const goalShimmer = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (!isUncompleted) {
+      borderGlow.setValue(0);
+      goalGlow.setValue(0.3);
+      goalShimmer.setValue(0);
+      return;
+    }
+
+    // For goal exercise - golden glow pulsing animation (no scale/rotation to avoid clipping)
+    if (isGoal) {
+      const goalAnimation = Animated.loop(
+        Animated.sequence([
+          // Phase 1: Glow intensifies with shimmer
+          Animated.parallel([
+            Animated.timing(goalGlow, {
+              toValue: 1,
+              duration: 1200,
+              easing: Easing.out(Easing.cubic),
+              useNativeDriver: true,
+            }),
+            Animated.timing(goalShimmer, {
+              toValue: 1,
+              duration: 1400,
+              easing: Easing.inOut(Easing.ease),
+              useNativeDriver: true,
+            }),
+          ]),
+          // Phase 2: Hold at peak briefly
+          Animated.delay(200),
+          // Phase 3: Glow fades back
+          Animated.parallel([
+            Animated.timing(goalGlow, {
+              toValue: 0.4,
+              duration: 1200,
+              easing: Easing.inOut(Easing.ease),
+              useNativeDriver: true,
+            }),
+            Animated.timing(goalShimmer, {
+              toValue: 0,
+              duration: 1000,
+              easing: Easing.in(Easing.ease),
+              useNativeDriver: true,
+            }),
+          ]),
+          // Brief pause before next cycle
+          Animated.delay(600),
+        ])
+      );
+      goalAnimation.start();
+      return () => goalAnimation.stop();
+    }
+
+    // For non-goal uncompleted nodes - sequential border glow wave (no scale to avoid clipping)
+    const perNodeDuration = 700;
+    const totalSequenceDuration = totalUncompletedNodes * perNodeDuration;
+    const pauseBetweenCycles = 1200;
+    const fullCycleDuration = totalSequenceDuration + pauseBetweenCycles;
+    const myStartTime = nodeIndex * perNodeDuration;
+
+    const sequenceAnimation = Animated.loop(
+      Animated.sequence([
+        // Wait for this node's turn
+        Animated.delay(myStartTime),
+        // GLOW UP - border lights up
+        Animated.timing(borderGlow, {
+          toValue: 1,
+          duration: perNodeDuration * 0.4,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        // GLOW DOWN - fade back
+        Animated.timing(borderGlow, {
+          toValue: 0.1,
+          duration: perNodeDuration * 0.6,
+          easing: Easing.in(Easing.ease),
+          useNativeDriver: true,
+        }),
+        // Wait for cycle to complete
+        Animated.delay(Math.max(fullCycleDuration - myStartTime - perNodeDuration, 0)),
+      ])
+    );
+
+    sequenceAnimation.start();
+    return () => sequenceAnimation.stop();
+  }, [nodeIndex, totalUncompletedNodes, isUncompleted, isGoal, borderGlow, goalGlow, goalShimmer]);
+
+  return { borderGlow, goalGlow, goalShimmer };
+};
+
 // Animated progress node component
 const ProgressNode = ({
   component,
   index,
   isCompleted,
   isCurrentStep,
+  isLocked,
   isSelected,
   completionCount,
   onPress,
@@ -79,11 +182,14 @@ const ProgressNode = ({
   t,
   isGoal = false,
   entranceAnim,
+  uncompletedIndex,
+  totalUncompletedNodes,
 }: {
   component: any;
   index: number;
   isCompleted: boolean;
   isCurrentStep: boolean;
+  isLocked: boolean;
   isSelected: boolean;
   completionCount: number;
   onPress: () => void;
@@ -91,21 +197,23 @@ const ProgressNode = ({
   t: any;
   isGoal?: boolean;
   entranceAnim?: Animated.Value;
+  uncompletedIndex: number;
+  totalUncompletedNodes: number;
 }) => {
   const glowAnim = useBorderGlowPulse(isCurrentStep);
+  const isUncompleted = !isCompleted;
+  // Run sequential border glow for ALL uncompleted items (including locked ones) to show the path
+  // Note: No scale/rotation animations to avoid clipping with container margins
+  const { borderGlow, goalGlow, goalShimmer } = useSequentialBorderGlow(
+    uncompletedIndex,
+    totalUncompletedNodes,
+    isUncompleted,
+    isGoal
+  );
   const componentName = component.component;
 
-  // Determine node state color
-  const getNodeColor = () => {
-    if (isCompleted) return theme.colors.success;
-    if (isCurrentStep) return theme.colors.primary;
-    return theme.colors.textMuted;
-  };
-
-  const nodeColor = getNodeColor();
-
   // Entrance animation transforms
-  const animatedStyle = entranceAnim ? {
+  const entranceStyle = entranceAnim ? {
     opacity: entranceAnim,
     transform: [
       {
@@ -124,8 +232,68 @@ const ProgressNode = ({
   } : {};
 
   return (
-    <Animated.View style={[styles.nodeContainer, animatedStyle]}>
-      {/* Animated glow border overlay for current step */}
+    <Animated.View style={[styles.nodeContainer, entranceStyle]}>
+      {/* Sequential border glow overlay for uncompleted non-goal exercises */}
+      {isUncompleted && !isGoal && !isCurrentStep && (
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            styles.sequenceGlowOverlay,
+            {
+              borderColor: theme.colors.primary,
+              opacity: borderGlow,
+              ...Platform.select({
+                web: {
+                  boxShadow: borderGlow.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [`0px 0px 0px 0px ${theme.colors.primary}`, `0px 0px 15px 3px ${theme.colors.primary}`],
+                  }),
+                },
+                default: {
+                  shadowColor: theme.colors.primary,
+                  shadowOpacity: 1,
+                  shadowRadius: 10,
+                  shadowOffset: { width: 0, height: 0 },
+                  elevation: 6,
+                },
+              }),
+            },
+          ]}
+        />
+      )}
+      {/* Special golden glow overlay for goal exercise */}
+      {isGoal && isUncompleted && (
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            styles.goalGlowOverlay,
+            {
+              borderColor: theme.colors.warning || '#FFD700',
+              opacity: goalGlow,
+              ...Platform.select({
+                web: {
+                  boxShadow: goalShimmer.interpolate({
+                    inputRange: [0, 0.5, 1],
+                    outputRange: [
+                      `0px 0px 8px 2px ${theme.colors.warning || '#FFD700'}`,
+                      `0px 0px 20px 5px ${theme.colors.warning || '#FFD700'}`,
+                      `0px 0px 12px 3px ${theme.colors.warning || '#FFD700'}`,
+                    ],
+                  }),
+                },
+                default: {
+                  shadowColor: theme.colors.warning || '#FFD700',
+                  shadowOpacity: 1,
+                  shadowRadius: 15,
+                  shadowOffset: { width: 0, height: 0 },
+                  elevation: 10,
+                },
+              }),
+            },
+          ]}
+        />
+      )}
+      {/* Animated glow border overlay for current step only */}
       {isCurrentStep && (
         <Animated.View
           pointerEvents="none"
@@ -155,15 +323,21 @@ const ProgressNode = ({
           styles.nodeCard,
           {
             // Glass effect - semi-transparent with subtle gradient feel
-            backgroundColor: isSelected
-              ? `${theme.colors.selectedHighlight}DD`
-              : `${theme.colors.surface}60`,
-            borderColor: isCompleted
-              ? `${theme.colors.success}80`
-              : isCurrentStep
-                ? `${theme.colors.primary}90`
-                : `${theme.colors.tileBorder}70`,
+            // Match ListTile locked styling: surface30 bg, tileBorder40 border, 0.6 opacity
+            backgroundColor: isLocked
+              ? `${theme.colors.surface}30`
+              : isSelected
+                ? `${theme.colors.selectedHighlight}DD`
+                : `${theme.colors.surface}60`,
+            borderColor: isLocked
+              ? `${theme.colors.tileBorder}40`
+              : isCompleted
+                ? `${theme.colors.success}80`
+                : isCurrentStep
+                  ? `${theme.colors.primary}90`
+                  : `${theme.colors.tileBorder}70`,
             borderWidth: isCurrentStep ? 2 : 1,
+            opacity: isLocked ? 0.6 : 1,
           },
         ]}
       >
@@ -172,14 +346,45 @@ const ProgressNode = ({
           onPress={onPress}
           activeOpacity={0.7}
         >
-        {/* Step number */}
+        {/* Step number - simple static display (animation is now on card border) */}
         <View style={styles.nodeLeftSection}>
           {isCompleted ? (
             <Text style={[styles.stepCheckmark, { color: theme.colors.success }]}>{isGoal ? '🏆' : '✓'}</Text>
           ) : isGoal ? (
-            <Text style={styles.stepGoalIcon}>🎯</Text>
+            /* GOAL exercise - golden number */
+            <Text
+              style={[
+                styles.stepNumberLarge,
+                {
+                  color: theme.colors.warning || '#FFD700',
+                }
+              ]}
+            >
+              {index + 1}
+            </Text>
+          ) : isCurrentStep ? (
+            /* Current step - primary colored number with subtle glow */
+            <Animated.Text
+              style={[
+                styles.stepNumberLarge,
+                {
+                  color: theme.colors.primary,
+                  opacity: glowAnim,
+                }
+              ]}
+            >
+              {index + 1}
+            </Animated.Text>
           ) : (
-            <Text style={[styles.stepNumber, { color: nodeColor }]}>
+            /* Other uncompleted - muted number */
+            <Text
+              style={[
+                styles.stepNumberLarge,
+                {
+                  color: theme.colors.textMuted,
+                }
+              ]}
+            >
               {index + 1}
             </Text>
           )}
@@ -191,13 +396,20 @@ const ProgressNode = ({
             <Text
               style={[
                 styles.nodeName,
-                { color: isCompleted ? theme.colors.success : theme.colors.textPrimary },
+                { color: isLocked ? theme.colors.textMuted : isCompleted ? theme.colors.success : theme.colors.textPrimary },
               ]}
               numberOfLines={1}
             >
               {componentName}
             </Text>
-            {isGoal && !isCompleted && (
+            {isLocked && (
+              <View style={styles.lockedBadge}>
+                <Text style={[styles.lockedBadgeText, { color: theme.colors.textMuted }]}>
+                  🔒 {t('locked') || 'locked'}
+                </Text>
+              </View>
+            )}
+            {isGoal && !isCompleted && !isLocked && (
               <View style={[styles.goalBadge, { backgroundColor: `${theme.colors.warning || '#FFD700'}30` }]}>
                 <Text style={[styles.goalBadgeText, { color: theme.colors.warning || '#FFD700' }]}>
                   GOAL
@@ -410,6 +622,32 @@ export default function ProgressionTreeScreen() {
       );
     }
 
+    // Find the first uncompleted exercise index (for locking logic)
+    const firstUncompletedIndex = fullSteps.findIndex(
+      (step) => !isComponentCompleted(step.component)
+    );
+
+    // Calculate ALL uncompleted nodes for sequential animation (including locked ones)
+    // Exclude the goal from the sequential count (goal has its own animation)
+    const uncompletedNonGoalSteps = fullSteps.filter(
+      (step) => {
+        const isStepCompleted = isComponentCompleted(step.component);
+        return !isStepCompleted && !step.isGoal;
+      }
+    );
+    const totalUncompletedNodes = uncompletedNonGoalSteps.length;
+
+    // Build a map of uncompleted index for each step (for ALL uncompleted, including locked)
+    let uncompletedCounter = 0;
+    const uncompletedIndexMap: { [key: string]: number } = {};
+    fullSteps.forEach((step) => {
+      const isStepCompleted = isComponentCompleted(step.component);
+      if (!isStepCompleted && !step.isGoal) {
+        uncompletedIndexMap[step.component] = uncompletedCounter;
+        uncompletedCounter++;
+      }
+    });
+
     return (
       <View style={styles.pathContainer}>
         {fullSteps.map((step: any, index: number) => {
@@ -419,6 +657,13 @@ export default function ProgressionTreeScreen() {
           const isSelected = selectedNode === componentName;
           const isGoalExercise = step.isGoal === true;
           const entranceAnim = index < MAX_ANIMATED_NODES ? nodeAnimations[index] : undefined;
+
+          // Exercise is locked if it comes after the first uncompleted exercise
+          // (but not if all exercises are completed, i.e., firstUncompletedIndex === -1)
+          const isLocked = firstUncompletedIndex !== -1 && index > firstUncompletedIndex;
+
+          // Get uncompleted index for this node (for sequential animation)
+          const uncompletedIndex = uncompletedIndexMap[componentName] ?? 0;
 
           // Connector animation style
           const connectorAnimStyle = entranceAnim ? {
@@ -462,6 +707,7 @@ export default function ProgressionTreeScreen() {
                 index={index}
                 isCompleted={isCompleted}
                 isCurrentStep={isCurrentStep}
+                isLocked={isLocked}
                 isSelected={isSelected}
                 completionCount={getCompletionCount(componentName)}
                 onPress={() => setSelectedNode(isSelected ? null : componentName)}
@@ -469,6 +715,8 @@ export default function ProgressionTreeScreen() {
                 t={t}
                 isGoal={isGoalExercise}
                 entranceAnim={entranceAnim}
+                uncompletedIndex={uncompletedIndex}
+                totalUncompletedNodes={totalUncompletedNodes}
               />
             </View>
           );
@@ -681,6 +929,26 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     zIndex: 1,
   },
+  sequenceGlowOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 12,
+    borderWidth: 1,
+    zIndex: 1,
+  },
+  goalGlowOverlay: {
+    position: 'absolute',
+    top: -2,
+    left: -2,
+    right: -2,
+    bottom: -2,
+    borderRadius: 14,
+    borderWidth: 2,
+    zIndex: 1,
+  },
   nodeCard: {
     borderRadius: 12,
     overflow: 'hidden',
@@ -696,7 +964,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   nodeLeftSection: {
-    width: 28,
+    width: 50,
+    height: 50,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -705,13 +974,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
   },
+  stepNumberLarge: {
+    fontSize: 26,
+    fontWeight: '800',
+  },
   stepCheckmark: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: '700',
   },
   stepGoalIcon: {
-    fontSize: 18,
+    fontSize: 22,
   },
   nodeContent: {
     flex: 1,
@@ -748,6 +1021,20 @@ const styles = StyleSheet.create({
   completedBadgeText: {
     fontSize: 12,
     fontWeight: '700',
+  },
+  lockedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+    backgroundColor: 'rgba(128, 128, 128, 0.2)',
+    marginLeft: 8,
+  },
+  lockedBadgeText: {
+    fontSize: 11,
+    fontWeight: '600',
+    textTransform: 'lowercase',
   },
   nodeDescription: {
     fontSize: 12,
@@ -789,7 +1076,7 @@ const styles = StyleSheet.create({
     height: 30,
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 37,
+    marginLeft: 32,
   },
   connectorLine: {
     width: 3,
