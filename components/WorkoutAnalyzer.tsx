@@ -2,7 +2,8 @@
 import { roundToDecimals } from '@/utils/numberUtils';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Button, StyleSheet, TextInput, View } from 'react-native';
+import { Text } from '@/components/Themed';
 
 const USER_WEIGHT_KG = 70; // Example weight, get this from user profile
 

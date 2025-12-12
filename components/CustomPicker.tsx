@@ -65,7 +65,7 @@ const CustomPicker: React.FC<CustomPickerProps> = ({
     <TouchableOpacity
       style={[
         styles.dropdownItem,
-        { backgroundColor: theme.colors.surface },
+        { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.border },
         item.value === selectedValue && { backgroundColor: `${theme.colors.primary}33` },
       ]}
       onPress={() => handleItemPress(item.value)}
@@ -117,9 +117,9 @@ const CustomPicker: React.FC<CustomPickerProps> = ({
                   position: 'absolute',
                   top: buttonLayout.y + buttonLayout.height + 5,
                   left: buttonLayout.x,
-                  width: buttonLayout.width,
-                  minWidth: buttonLayout.width,
-                  maxWidth: Math.max(buttonLayout.width, 300),
+                  width: Math.max(buttonLayout.width, 220),
+                  minWidth: 220,
+                  maxWidth: Math.max(buttonLayout.width, 350),
                   backgroundColor: theme.colors.surfaceAlt,
                   borderColor: theme.colors.border,
                 }
@@ -144,29 +144,28 @@ const CustomPicker: React.FC<CustomPickerProps> = ({
 const styles = StyleSheet.create({
   container: {
     position: 'relative',
-    width: '40%',
+    width: '100%',
+    maxWidth: 300,
   },
   pickerContainer: {
-    backgroundColor: 'rgba(41, 57, 68, 1)',
     borderRadius: 5,
     marginBottom: 10,
-    minHeight: 30,
+    minHeight: 40,
     justifyContent: 'center',
     paddingHorizontal: 10,
     borderWidth: 1,
-    borderColor: '#2A2E33',
   },
   pickerButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    height: 30,
-    paddingHorizontal: 15,
+    minHeight: 40,
+    paddingHorizontal: 12,
   },
   selectedText: {
-    color: '#fff',
-    fontSize: 16,
+    fontSize: 14,
     flex: 1,
+    marginRight: 8,
   },
   dropdownIcon: {
     marginLeft: 10,
@@ -176,12 +175,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.1)',
   },
   dropdown: {
-    backgroundColor: 'rgb(17, 24, 30)',
     borderRadius: 5,
     borderWidth: 1,
-    borderColor: '#2A2E33',
-    maxHeight: 200,
-    minWidth: 200,
+    maxHeight: 250,
+    minWidth: 220,
     ...Platform.select({
       web: {
         boxShadow: '0px 2px 3.84px rgba(0, 0, 0, 0.25)',
@@ -205,23 +202,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: 15,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgb(42, 46, 51)',
-    backgroundColor: 'rgba(41, 57, 68, 1)',
   },
   selectedDropdownItem: {
-    backgroundColor: 'rgba(42, 199, 207, 0.3)',
   },
   dropdownItemText: {
-    color: '#fff',
-    fontSize: 16,
+    fontSize: 14,
     flex: 1,
+    marginRight: 8,
   },
   selectedDropdownItemText: {
-    fontWeight: 'bold',
-    color: '#fff',
   },
 });
 

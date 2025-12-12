@@ -7,22 +7,32 @@ import {
   View,
 } from 'react-native';
 import Svg, { Circle, Defs, G, LinearGradient, Path, Stop } from 'react-native-svg';
+import { useTheme } from './ThemeProvider';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-// ============================================================================
-// STRICT COLOR PALETTE - Sci-Fi HUD Design System
-// ============================================================================
-const COLORS = {
-  void: '#050810',
-  surface: '#0B1221',
-  surfaceAlpha: 'rgba(11, 18, 33, 0.85)',
-  primary: '#00F0FF',
-  secondary: '#005577',
-  highlight: '#FFFFFF',
-  glow: 'rgba(0, 240, 255, 0.6)',
-  glowStrong: 'rgba(0, 240, 255, 0.8)',
-  glowWeak: 'rgba(0, 240, 255, 0.4)',
+// Helper to create glow color variants from a base color
+const createGlowVariants = (baseColor: string) => {
+  // Extract RGB values if it's a hex or rgb color
+  let r = 0, g = 240, b = 255; // default cyan
+  if (baseColor.startsWith('#')) {
+    const hex = baseColor.slice(1);
+    r = parseInt(hex.substr(0, 2), 16);
+    g = parseInt(hex.substr(2, 2), 16);
+    b = parseInt(hex.substr(4, 2), 16);
+  } else if (baseColor.startsWith('rgb')) {
+    const match = baseColor.match(/(\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+      r = parseInt(match[1]);
+      g = parseInt(match[2]);
+      b = parseInt(match[3]);
+    }
+  }
+  return {
+    glow: `rgba(${r}, ${g}, ${b}, 0.6)`,
+    glowStrong: `rgba(${r}, ${g}, ${b}, 0.8)`,
+    glowWeak: `rgba(${r}, ${g}, ${b}, 0.4)`,
+  };
 };
 
 export type AnimationVariant =
@@ -87,7 +97,23 @@ export default function MotivationalToast({
   duration = 2500,
   onHide,
 }: MotivationalToastProps) {
+  const { theme } = useTheme();
   const [isVisible, setIsVisible] = useState(false);
+  const [isReady, setIsReady] = useState(false);
+
+  // Dynamic colors based on theme
+  const COLORS = useMemo(() => {
+    const glowVariants = createGlowVariants(theme.colors.glow);
+    return {
+      void: theme.colors.void,
+      surface: theme.colors.surface,
+      surfaceAlpha: `${theme.colors.surface}DD`,
+      primary: theme.colors.primary,
+      secondary: theme.colors.secondary,
+      highlight: theme.colors.textPrimary,
+      ...glowVariants,
+    };
+  }, [theme]);
 
   // Store references to continuous loop animations so we can stop them
   const loopAnimationsRef = useRef<Animated.CompositeAnimation[]>([]);
@@ -731,14 +757,18 @@ export default function MotivationalToast({
   useEffect(() => {
     if (visible) {
       resetAnimations();
-      setIsVisible(true);
+      // Wait for next frame to ensure animations are reset before showing
+      requestAnimationFrame(() => {
+        setIsVisible(true);
+        setIsReady(true);
 
-      // Start the entrance animation
-      const entranceAnim = createEntranceAnimation();
-      entranceAnim.start();
+        // Start the entrance animation
+        const entranceAnim = createEntranceAnimation();
+        entranceAnim.start();
 
-      // Start continuous loop animations (they run forever until stopped)
-      startContinuousAnimations();
+        // Start continuous loop animations (they run forever until stopped)
+        startContinuousAnimations();
+      });
 
       if (duration > 0) {
         const timer = setTimeout(() => {
@@ -748,6 +778,7 @@ export default function MotivationalToast({
           const exitAnim = createExitAnimation();
           exitAnim.start(() => {
             setIsVisible(false);
+            setIsReady(false);
             onHide();
           });
         }, duration);
@@ -761,6 +792,7 @@ export default function MotivationalToast({
       const exitAnim = createExitAnimation();
       exitAnim.start(() => {
         setIsVisible(false);
+        setIsReady(false);
         onHide();
       });
     }
@@ -796,7 +828,7 @@ export default function MotivationalToast({
     ],
   }), [animValues]);
 
-  if (!isVisible) return null;
+  if (!isVisible || !isReady) return null;
 
   const chamferedPath = generateChamferedPath(CONTAINER_WIDTH, CONTAINER_HEIGHT, CHAMFER_SIZE);
 
@@ -883,7 +915,7 @@ export default function MotivationalToast({
         </Animated.View>
 
         {/* Main container */}
-        <View style={styles.mainContainer}>
+        <View style={[styles.mainContainer, { shadowColor: COLORS.primary }]}>
           <Svg width={CONTAINER_WIDTH} height={CONTAINER_HEIGHT} style={StyleSheet.absoluteFill}>
             <Defs>
               <LinearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -922,6 +954,7 @@ export default function MotivationalToast({
             style={[
               styles.glowLayer,
               {
+                backgroundColor: COLORS.glow,
                 opacity: animValues.glowIntensity.interpolate({
                   inputRange: [0, 1],
                   outputRange: [0, 0.3],
@@ -934,7 +967,7 @@ export default function MotivationalToast({
           <Animated.View
             style={[
               styles.borderGlowContainer,
-              { opacity: animValues.borderGlow },
+              { opacity: animValues.borderGlow, shadowColor: COLORS.primary },
             ]}
           >
             <Svg width={CONTAINER_WIDTH} height={CONTAINER_HEIGHT}>
@@ -946,7 +979,7 @@ export default function MotivationalToast({
           <Animated.View
             style={[
               styles.scanLine,
-              { transform: [{ translateY: animValues.scanLineY }] },
+              { transform: [{ translateY: animValues.scanLineY }], backgroundColor: COLORS.primary },
             ]}
             pointerEvents="none"
           />
@@ -955,7 +988,7 @@ export default function MotivationalToast({
           <Animated.View
             style={[
               styles.shimmer,
-              { transform: [{ translateX: animValues.shimmerX }, { rotate: '20deg' }] },
+              { transform: [{ translateX: animValues.shimmerX }, { rotate: '20deg' }], backgroundColor: COLORS.highlight },
             ]}
             pointerEvents="none"
           />
@@ -1001,11 +1034,11 @@ export default function MotivationalToast({
 
           {/* Text content */}
           <Animated.View style={[styles.textContainer, textContainerStyle]}>
-            <Animated.Text style={styles.messageText} numberOfLines={subtitle ? 1 : 2} adjustsFontSizeToFit>
+            <Animated.Text style={[styles.messageText, { color: COLORS.highlight }]} numberOfLines={subtitle ? 1 : 2} adjustsFontSizeToFit>
               {message}
             </Animated.Text>
             {subtitle && (
-              <Animated.Text style={styles.subtitleText} numberOfLines={1} adjustsFontSizeToFit>
+              <Animated.Text style={[styles.subtitleText, { color: COLORS.primary }]} numberOfLines={1} adjustsFontSizeToFit>
                 {subtitle}
               </Animated.Text>
             )}
@@ -1013,16 +1046,16 @@ export default function MotivationalToast({
 
           {/* Top label */}
           <View style={styles.topLabel}>
-            <View style={styles.labelLine} />
-            <Animated.Text style={[styles.labelText, { opacity: animValues.textOpacity }]}>
+            <View style={[styles.labelLine, { backgroundColor: COLORS.secondary }]} />
+            <Animated.Text style={[styles.labelText, { opacity: animValues.textOpacity, color: COLORS.primary }]}>
               SYSTEM ALERT
             </Animated.Text>
-            <View style={styles.labelLine} />
+            <View style={[styles.labelLine, { backgroundColor: COLORS.secondary }]} />
           </View>
 
           {/* Bottom status */}
           <View style={styles.bottomStatus}>
-            <Animated.Text style={[styles.statusText, { opacity: animValues.textOpacity }]}>
+            <Animated.Text style={[styles.statusText, { opacity: animValues.textOpacity, color: COLORS.primary }]}>
               {'>>>'} ACTIVE {'<<<'}
             </Animated.Text>
           </View>
@@ -1085,7 +1118,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
-    shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.6,
     shadowRadius: 20,
@@ -1093,11 +1125,9 @@ const styles = StyleSheet.create({
   },
   glowLayer: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: COLORS.glow,
   },
   borderGlowContainer: {
     ...StyleSheet.absoluteFillObject,
-    shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 1,
     shadowRadius: 15,
@@ -1107,14 +1137,12 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 2,
-    backgroundColor: COLORS.primary,
     opacity: 0.6,
   },
   shimmer: {
     position: 'absolute',
     width: 60,
     height: '300%',
-    backgroundColor: COLORS.highlight,
     opacity: 0.1,
   },
   cornerGauge: {
@@ -1132,13 +1160,10 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 10,
-    paddingHorizontal: 50,
-    paddingTop: 18,
-    paddingBottom: 24,
+    top: 20,
+    left: 50,
+    right: 50,
+    bottom: 20,
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
@@ -1149,7 +1174,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     letterSpacing: 2,
     textTransform: 'uppercase',
-    color: COLORS.highlight,
     fontFamily: 'System',
   },
   subtitleText: {
@@ -1157,7 +1181,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
     letterSpacing: 1,
-    color: COLORS.primary,
     fontFamily: 'System',
     marginTop: 4,
   },
@@ -1174,14 +1197,12 @@ const styles = StyleSheet.create({
   labelLine: {
     flex: 1,
     height: 1,
-    backgroundColor: COLORS.secondary,
     opacity: 0.5,
   },
   labelText: {
     fontSize: 8,
     fontWeight: '700',
     letterSpacing: 2,
-    color: COLORS.primary,
     marginHorizontal: 8,
     textTransform: 'uppercase',
     fontFamily: 'monospace',
@@ -1197,7 +1218,6 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontWeight: '600',
     letterSpacing: 1.5,
-    color: COLORS.primary,
     fontFamily: 'monospace',
   },
 });

@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, StyleSheet, Text } from 'react-native';
+import { Animated, Easing, StyleSheet } from 'react-native';
 import { useData } from './data.provider';
+import ThemedText from './ThemedText';
+import { useTheme } from './ThemeProvider';
 
 // Define the props for the TimerItem component
 interface TimerItemProps {
@@ -18,7 +20,7 @@ const TimerItem: React.FC<TimerItemProps> = ({
   onSegmentChange,
 }) => {
   // Get centralized timer state and functions
-  const { 
+  const {
     timerIsRunning: isRunning,
     timerCurrentTime: time,
     timerCurrentIndex: currentIndex,
@@ -29,6 +31,7 @@ const TimerItem: React.FC<TimerItemProps> = ({
     stopTimer,
     getCurrentSegment
   } = useData();
+  const { theme } = useTheme();
   
   const scaleValue = useRef(new Animated.Value(1)).current;
   const pulseAnimationRef = useRef<Animated.CompositeAnimation | null>(null);
@@ -106,7 +109,7 @@ const TimerItem: React.FC<TimerItemProps> = ({
 
   return (
     <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
-      <Text style={styles.count}>{formatTime(time)}</Text>
+      <ThemedText weight="bold" style={[styles.count, { color: theme.colors.textPrimary }]}>{formatTime(time)}</ThemedText>
     </Animated.View>
   );
 };
@@ -115,8 +118,6 @@ const styles = StyleSheet.create({
   count: {
     marginTop: -20,
     fontSize: 60,
-    fontWeight: 'bold',
-    color: 'white',
   },
 });
 

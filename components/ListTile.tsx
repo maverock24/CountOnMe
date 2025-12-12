@@ -1,7 +1,7 @@
 import { FontAwesome } from '@expo/vector-icons';
 import * as Linking from 'expo-linking';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, Easing, Modal, Platform, Pressable, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import commonStyles from '@/app/styles';
 import { WorkoutItem } from '@/components/data/types';
@@ -65,9 +65,9 @@ const YouTubePlayer = ({ searchQuery }: { searchQuery: string }) => {
 
   return (
     <View style={localStyles.youtubeContainer}>
-      <Text style={[localStyles.youtubeLabel, { color: theme.colors.primary }]}>
+      <ThemedText style={[localStyles.youtubeLabel, { color: theme.colors.primary }]}>
         {t('video_tutorial') || 'Video Tutorial'}
-      </Text>
+      </ThemedText>
       <TouchableOpacity
         style={[localStyles.youtubeButton, {
           backgroundColor: '#FF0000',
@@ -77,13 +77,13 @@ const YouTubePlayer = ({ searchQuery }: { searchQuery: string }) => {
         activeOpacity={0.8}
       >
         <FontAwesome name="youtube-play" size={24} color="#fff" style={{ marginRight: 10 }} />
-        <Text style={localStyles.youtubeButtonText}>
+        <ThemedText style={localStyles.youtubeButtonText}>
           {t('watch_on_youtube') || 'Watch on YouTube'}
-        </Text>
+        </ThemedText>
       </TouchableOpacity>
-      <Text style={[localStyles.youtubeHint, { color: theme.colors.textMuted }]}>
+      <ThemedText style={[localStyles.youtubeHint, { color: theme.colors.textMuted }]}>
         {t('youtube_hint') || `Search for "${searchQuery}" exercise tutorials`}
-      </Text>
+      </ThemedText>
     </View>
   );
 };
@@ -281,10 +281,10 @@ const ListTile = ({
                 {description ? (
                   <TouchableOpacity
                     onPress={() => setDescVisible(true)}
-                    style={localStyles.helpButton}
+                    style={[localStyles.helpButton, { backgroundColor: theme.colors.surface, borderColor: theme.colors.primary }]}
                     accessibilityLabel={`Show description for ${title}`}
                   >
-                    <Text style={localStyles.helpButtonText}>?</Text>
+                    <ThemedText weight="medium" style={[localStyles.helpButtonText, { color: theme.colors.primary }]}>?</ThemedText>
                   </TouchableOpacity>
                 ) : null}
               </View>
@@ -292,15 +292,15 @@ const ListTile = ({
                 {isLocked && (
                   <View style={localStyles.lockedBadge}>
                     <FontAwesome name="lock" size={12} color={theme.colors.textMuted} style={{ marginRight: 4 }} />
-                    <Text style={[localStyles.lockedText, { color: theme.colors.textMuted }]}>
+                    <ThemedText style={[localStyles.lockedText, { color: theme.colors.textMuted }]}>
                       {t('locked') || 'locked'}
-                    </Text>
+                    </ThemedText>
                   </View>
                 )}
                 {isCompleted && !isLocked && (
-                  <Text style={[localStyles.completedText, { color: theme.colors.success }]}>
+                  <ThemedText style={[localStyles.completedText, { color: theme.colors.success }]}>
                     {t('completed') || 'completed'}
-                  </Text>
+                  </ThemedText>
                 )}
                 {!isLocked && ((workoutItem?.calories !== undefined && workoutItem?.calories !== null) || caloriesData) ? (
                   <ThemedText style={{ fontSize: 14, color: theme.colors.textMuted, marginRight: 10 }}>
@@ -335,7 +335,7 @@ const ListTile = ({
                   const minutes = Number.isFinite(seconds) ? seconds / 60 : NaN;
                   const display = Number.isFinite(minutes) ? roundToDecimals(minutes, 1).toString() : time;
                   return (
-                    <Text
+                    <ThemedText
                       key={index}
                       style={
                         isSelected && index === workoutStage
@@ -344,7 +344,7 @@ const ListTile = ({
                       }
                     >
                       {display}
-                    </Text>
+                    </ThemedText>
                   );
                 })}
             </View>
@@ -364,8 +364,8 @@ const ListTile = ({
         <View style={localStyles.modalOverlay}>
           <View style={[localStyles.modalBox, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
             <ScrollView style={{ maxHeight: 500 }} showsVerticalScrollIndicator={false}>
-              <Text style={[localStyles.modalTitle, { color: theme.colors.textPrimary }]}>{title}</Text>
-              <Text style={[localStyles.modalText, { color: theme.colors.textMuted }]}>{description}</Text>
+              <ThemedText weight="bold" style={[localStyles.modalTitle, { color: theme.colors.textPrimary }]}>{title}</ThemedText>
+              <ThemedText style={[localStyles.modalText, { color: theme.colors.textMuted }]}>{description}</ThemedText>
 
               {/* YouTube Video Player */}
               <YouTubePlayer searchQuery={title} />
@@ -374,7 +374,7 @@ const ListTile = ({
               style={[localStyles.modalClose, { backgroundColor: theme.colors.buttonBackground }]}
               onPress={() => setDescVisible(false)}
             >
-              <Text style={[localStyles.modalCloseText, { color: theme.colors.primary }]}>{t('close') || 'Close'}</Text>
+              <ThemedText weight="medium" style={[localStyles.modalCloseText, { color: theme.colors.primary }]}>{t('close') || 'Close'}</ThemedText>
             </TouchableOpacity>
           </View>
         </View>
@@ -408,20 +408,16 @@ const localStyles = StyleSheet.create({
   },
   helpButton: {
     marginLeft: 8,
-    backgroundColor: '#2a2e33',
     width: 22,
     height: 22,
     borderRadius: 11,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#b0e0e6',
   },
   helpButtonText: {
-    color: '#b0e0e6',
     fontSize: 14,
     lineHeight: 18,
-    fontWeight: '600',
   },
   modalOverlay: {
     flex: 1,
@@ -439,7 +435,6 @@ const localStyles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: '700',
     marginBottom: 8,
   },
   modalText: {
@@ -455,7 +450,6 @@ const localStyles = StyleSheet.create({
     borderRadius: 6,
   },
   modalCloseText: {
-    fontWeight: '600',
   },
   // YouTube player styles
   youtubeContainer: {

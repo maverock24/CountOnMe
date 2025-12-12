@@ -1,4 +1,5 @@
-import { FlatList, SafeAreaView, Text, View } from 'react-native';
+import { FlatList, SafeAreaView, View } from 'react-native';
+import { Text } from '@/components/Themed';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import commonStyles from '../app/styles';
 import { useData } from './data.provider';

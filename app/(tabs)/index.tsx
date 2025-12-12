@@ -1,6 +1,7 @@
 import { ClientOnlySlider } from '@/components/ClientOnlySlider';
 import { useData } from '@/components/data.provider';
 import { Text, View } from '@/components/Themed';
+import { useTheme } from '@/components/ThemeProvider';
 import TimerButton from '@/components/TimerButton';
 import ToastMessage from '@/components/ToastMessage';
 import { TriangleLeft } from '@/components/TriangleLeft';
@@ -30,6 +31,7 @@ let nativeStatusListenerHasLoggedNoMetering = false;
 
 export default function TabOneScreen() {
   const { t } = useTranslation();
+  const { theme } = useTheme();
   const [count, setCount] = useState(0);
   const [remaining, setRemaining] = useState(0);
   const repititions = [5, 10, 15, 200];
@@ -462,9 +464,9 @@ export default function TabOneScreen() {
       />
 
       <View style={commonStyles.outerContainer}>
-        <Text style={commonStyles.tileTitle}>{t('sound_trigger')}</Text>
+        <Text style={[commonStyles.tileTitle, { color: theme.colors.textPrimary }]}>{t('sound_trigger')}</Text>
         {/* Updated Title */}
-        <View style={commonStyles.tile}>
+        <View style={[commonStyles.tile, { backgroundColor: theme.colors.tileBackground, borderColor: theme.colors.tileBorder }]}>
           <View style={styles.innerWrapperTopTile}>
             {/* UI elements removed as per user's latest code structure */}
             <ClientOnlySlider
@@ -475,11 +477,11 @@ export default function TabOneScreen() {
               maximumValue={100}
               step={1}
               onValueChange={handleSliderChange}
-              thumbTintColor={isListening ? 'rgb(80, 80, 80)' : 'rgb(124, 183, 174)'}
-              minimumTrackTintColor={isListening ? 'grey' : 'rgb(74, 125, 118)'}
-              maximumTrackTintColor="gray"
+              thumbTintColor={isListening ? theme.colors.textMuted : theme.colors.primary}
+              minimumTrackTintColor={isListening ? theme.colors.textMuted : theme.colors.secondary}
+              maximumTrackTintColor={theme.colors.border}
             />
-            <Text style={styles.audioLevel}>{levelDisplayText}</Text>
+            <Text style={[styles.audioLevel, { color: theme.colors.textMuted }]}>{levelDisplayText}</Text>
             <TimerButton
               text={isListening ? t('stop_listening') : t('start_listening')}
               onPress={toggleListening}
@@ -488,9 +490,9 @@ export default function TabOneScreen() {
           </View>
         </View>
 
-        <Text style={commonStyles.tileTitle}>{t('counter')}</Text>
+        <Text style={[commonStyles.tileTitle, { color: theme.colors.textPrimary }]}>{t('counter')}</Text>
         <View
-          style={[commonStyles.tile, { flex: 1, alignItems: 'center', justifyContent: 'center', maxHeight: 500 }]}
+          style={[commonStyles.tile, { flex: 1, alignItems: 'center', justifyContent: 'center', maxHeight: 500, backgroundColor: theme.colors.tileBackground, borderColor: theme.colors.tileBorder }]}
         >
           <View style={[styles.innerWrapperBottomTile, { paddingVertical: 10 }]}>
             <View style={{ backgroundColor: 'transparent', alignItems: 'center'}}>
@@ -504,20 +506,19 @@ export default function TabOneScreen() {
                   />
                 ))}
               </View>
-              <Text style={styles.remainingLabel}>{t('target_reps')}:</Text>
-              <Text style={styles.remaining}>{remaining > 0 ? remaining : '-'}</Text>
+              <Text style={[styles.remainingLabel, { color: theme.colors.textMuted }]}>{t('target_reps')}:</Text>
+              <Text weight="bold" style={[styles.remaining, { color: theme.colors.textPrimary, borderBottomColor: theme.colors.border }]}>{remaining > 0 ? remaining : '-'}</Text>
             </View>
             <View style={styles.buttonContainer}>
               {/* <TouchableOpacity style={styles.triangleLeft} onPress={handleCountDown} /> */}
               <TriangleLeft size={80} onPress={handleCountDown} />
-              <Text style={styles.count}>{count}</Text>
+              <Text weight="bold" style={[styles.count, { color: theme.colors.textPrimary }]}>{count}</Text>
               {/* <TouchableOpacity style={styles.triangleRight} onPress={handleCountUp} /> */}
               <TriangleRight size={80} onPress={handleCountUp} />
             </View>
             <TimerButton
               text={t('reset')}
               onPress={handleReset}
-              style={{paddingTop:15, height: 50, width: '50%' }}
             />
           </View>
         </View>
@@ -542,15 +543,12 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     backgroundColor: 'transparent',
   },
-  count: { fontSize: 110, fontWeight: 'bold', color: 'white', textAlign: 'center', minWidth: 150 },
-  remainingLabel: { color: '#ccc', fontSize: 14, marginBottom: 2 },
+  count: { fontSize: 110, textAlign: 'center', minWidth: 150 },
+  remainingLabel: { fontSize: 14, marginBottom: 2 },
   remaining: {
-    color: 'white',
     fontSize: 24,
-    fontWeight: 'bold',
     marginHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#fff',
     textAlign: 'center',
     width: 80,
     marginBottom: 15,
@@ -604,7 +602,6 @@ const styles = StyleSheet.create({
   },
   audioLevel: {
     fontSize: 14,
-    color: '#aaa',
     backgroundColor: 'transparent',
     marginTop: 0,
     marginBottom: 15,

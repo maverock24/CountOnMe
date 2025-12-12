@@ -1,9 +1,9 @@
 import { useData } from '@/components/data.provider';
-import { View } from '@/components/Themed';
+import { Text, View } from '@/components/Themed';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Keyboard, StyleSheet, Text, TextInput } from 'react-native';
+import { Keyboard, StyleSheet, TextInput } from 'react-native';
 
 import CustomPicker from '@/components/CustomPicker';
 import type { WorkoutItem } from '@/components/data/types';

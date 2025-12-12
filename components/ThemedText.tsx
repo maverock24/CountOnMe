@@ -4,6 +4,9 @@ import { useTheme } from './ThemeProvider';
 
 interface ThemedTextProps extends TextProps {
   weight?: 'regular' | 'medium' | 'bold';
+  // Backwards compatibility props (ignored - theme colors are used instead)
+  lightColor?: string;
+  darkColor?: string;
 }
 
 /**
@@ -18,9 +21,11 @@ export const ThemedText: React.FC<ThemedTextProps> = ({
   children,
   style,
   weight = 'regular',
+  lightColor: _lightColor,
+  darkColor: _darkColor,
   ...props
 }) => {
-  const { font } = useTheme();
+  const { font, theme } = useTheme();
 
   // Get the appropriate font family based on weight
   const getFontFamily = (): string | undefined => {
@@ -34,6 +39,7 @@ export const ThemedText: React.FC<ThemedTextProps> = ({
 
   const combinedStyle: TextStyle[] = [
     fontFamily ? { fontFamily } : {},
+    { color: theme.colors.textPrimary }, // Default to theme text color
     StyleSheet.flatten(style) as TextStyle,
   ];
 
