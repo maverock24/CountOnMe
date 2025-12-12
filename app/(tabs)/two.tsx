@@ -570,6 +570,12 @@ const TabTwoScreen: React.FC = () => {
     isRunningRef.current = isRunning;
   }, [isRunning]);
 
+  // Use refs for callbacks to prevent useFocusEffect from re-running when callbacks change
+  const stopTimerRef = useRef(stopTimer);
+  const handleTimerStopRef = useRef(handleTimerStop);
+  stopTimerRef.current = stopTimer;
+  handleTimerStopRef.current = handleTimerStop;
+
   // Stop timer and music when user navigates away from this tab
   useFocusEffect(
     useCallback(() => {
@@ -579,11 +585,11 @@ const TabTwoScreen: React.FC = () => {
         // This runs when the screen loses focus (user navigates away)
         if (isRunningRef.current) {
           console.log('[TabTwoScreen] Screen lost focus - stopping timer and music');
-          stopTimer();
-          handleTimerStop();
+          stopTimerRef.current();
+          handleTimerStopRef.current();
         }
       };
-    }, [stopTimer, handleTimerStop])
+    }, []) // Empty dependency array - callbacks accessed via refs
   );
 
   return (
