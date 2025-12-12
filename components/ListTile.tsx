@@ -249,7 +249,7 @@ const ListTile = ({
         borderColor: isLocked
           ? `${theme.colors.tileBorder}40`
           : isCompleted
-            ? `${theme.colors.success}80`
+            ? `${theme.colors.glow}80`
             : isSelected
               ? `${theme.colors.primary}90`
               : `${theme.colors.tileBorder}70`,
@@ -298,7 +298,7 @@ const ListTile = ({
                   </View>
                 )}
                 {isCompleted && !isLocked && (
-                  <ThemedText style={[localStyles.completedText, { color: theme.colors.success }]}>
+                  <ThemedText style={[localStyles.completedText, { color: theme.colors.glow }]}>
                     {t('completed') || 'completed'}
                   </ThemedText>
                 )}
