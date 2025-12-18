@@ -45,7 +45,8 @@ export type AnimationVariant =
   | 'stadium_roar'
   | 'victory_slam'
   | 'neon_pulse'
-  | 'phoenix_ascend';
+  | 'phoenix_ascend'
+  | 'unlock_achievement';
 
 export interface MotivationalToastConfig {
   message: string;
@@ -698,6 +699,73 @@ export default function MotivationalToast({
           Animated.sequence([
             Animated.delay(480),
             Animated.spring(textScale, { toValue: 1, tension: 200, friction: 10, useNativeDriver: true }),
+          ]),
+        ]);
+
+      case 'unlock_achievement':
+        // Special unlock animation: golden key-turn effect with celebratory burst
+        return Animated.parallel([
+          // Main container: starts small and rotated like a key turning
+          Animated.sequence([
+            Animated.parallel([
+              Animated.timing(scale, { toValue: 0.1, duration: 0, useNativeDriver: true }),
+              Animated.timing(rotateZ, { toValue: -180, duration: 0, useNativeDriver: true }),
+              Animated.timing(rotateY, { toValue: 90, duration: 0, useNativeDriver: true }),
+              Animated.timing(opacity, { toValue: 1, duration: 0, useNativeDriver: true }),
+            ]),
+            // Key turn animation - rotate and grow
+            Animated.parallel([
+              Animated.timing(rotateZ, { toValue: 0, duration: 500, easing: Easing.out(Easing.back(1.5)), useNativeDriver: true }),
+              Animated.timing(rotateY, { toValue: -15, duration: 500, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+              Animated.timing(scale, { toValue: 1.3, duration: 500, easing: Easing.out(Easing.back(1.2)), useNativeDriver: true }),
+            ]),
+            // Unlock flash
+            Animated.parallel([
+              Animated.timing(impactFlash, { toValue: 1, duration: 80, useNativeDriver: true }),
+              Animated.timing(impactScale, { toValue: 1.5, duration: 100, useNativeDriver: true }),
+            ]),
+            // Settle with bounce
+            Animated.parallel([
+              Animated.spring(rotateY, { toValue: 0, tension: 300, friction: 8, useNativeDriver: true }),
+              Animated.spring(scale, { toValue: 1, tension: 250, friction: 7, useNativeDriver: true }),
+              Animated.spring(impactScale, { toValue: 1, tension: 350, friction: 7, useNativeDriver: true }),
+              Animated.timing(impactFlash, { toValue: 0, duration: 300, useNativeDriver: true }),
+            ]),
+          ]),
+          Animated.timing(translateY, { toValue: 0, duration: 500, useNativeDriver: true }),
+          // Celebration shake
+          Animated.sequence([
+            Animated.delay(500),
+            createShakeSequence(1.5, 400),
+          ]),
+          // Expanding unlock rings (like ripples from unlocking)
+          Animated.sequence([
+            Animated.delay(480),
+            Animated.parallel([
+              Animated.timing(ringOpacity, { toValue: 1, duration: 50, useNativeDriver: true }),
+              Animated.timing(ringScale, { toValue: 4, duration: 600, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+            ]),
+            Animated.timing(ringOpacity, { toValue: 0, duration: 300, useNativeDriver: true }),
+          ]),
+          Animated.sequence([
+            Animated.delay(550),
+            Animated.parallel([
+              Animated.timing(ring2Opacity, { toValue: 0.8, duration: 50, useNativeDriver: true }),
+              Animated.timing(ring2Scale, { toValue: 5, duration: 700, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+            ]),
+            Animated.timing(ring2Opacity, { toValue: 0, duration: 350, useNativeDriver: true }),
+          ]),
+          // Text reveal with pop
+          Animated.sequence([
+            Animated.delay(400),
+            Animated.parallel([
+              Animated.sequence([
+                Animated.timing(textScale, { toValue: 1.4, duration: 150, useNativeDriver: true }),
+                Animated.spring(textScale, { toValue: 1, tension: 350, friction: 8, useNativeDriver: true }),
+              ]),
+              Animated.timing(textOpacity, { toValue: 1, duration: 200, useNativeDriver: true }),
+              Animated.spring(textRotateX, { toValue: 0, tension: 300, friction: 10, useNativeDriver: true }),
+            ]),
           ]),
         ]);
 

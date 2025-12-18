@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useContext, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import MotivationalToast, { MotivationalToastConfig } from './MotivationalToast';
 import ToastMessage, { ToastConfig } from './ToastMessage';
+import UnlockToast, { UnlockToastConfig } from './UnlockToast';
 
 interface Toast extends ToastConfig {
   id: string;
@@ -13,9 +14,15 @@ interface MotivationalToastState extends MotivationalToastConfig {
   visible: boolean;
 }
 
+interface UnlockToastState extends UnlockToastConfig {
+  id: string;
+  visible: boolean;
+}
+
 interface ToastContextType {
   showToast: (config: Omit<ToastConfig, 'id'>) => void;
   showMotivationalToast: (config: Omit<MotivationalToastConfig, 'id'>) => void;
+  showUnlockToast: (config: Omit<UnlockToastConfig, 'id'>) => void;
   hideToast: (id: string) => void;
   hideAllToasts: () => void;
 }
@@ -38,12 +45,16 @@ interface ToastProviderProps {
 export function ToastProvider({ children, maxToasts = 3 }: ToastProviderProps) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [motivationalToast, setMotivationalToast] = useState<MotivationalToastState | null>(null);
+  const [unlockToast, setUnlockToast] = useState<UnlockToastState | null>(null);
 
   const generateId = useCallback(() => {
     return Date.now().toString() + Math.random().toString(36).slice(2, 11);
   }, []);
 
   const showToast = useCallback((config: Omit<ToastConfig, 'id'>) => {
+    // Don't show regular toasts while unlock toast is active
+    if (unlockToast?.visible) return;
+
     const id = generateId();
     const newToast: Toast = {
       ...config,
@@ -59,16 +70,19 @@ export function ToastProvider({ children, maxToasts = 3 }: ToastProviderProps) {
       }
       return updatedToasts;
     });
-  }, [generateId, maxToasts]);
+  }, [generateId, maxToasts, unlockToast]);
 
   const showMotivationalToast = useCallback((config: Omit<MotivationalToastConfig, 'id'>) => {
+    // Don't show motivational toasts while unlock toast is active
+    if (unlockToast?.visible) return;
+
     const id = generateId();
     setMotivationalToast({
       ...config,
       id,
       visible: true,
     });
-  }, [generateId]);
+  }, [generateId, unlockToast]);
 
   const hideMotivationalToast = useCallback(() => {
     setMotivationalToast((prev) => prev ? { ...prev, visible: false } : null);
@@ -76,6 +90,28 @@ export function ToastProvider({ children, maxToasts = 3 }: ToastProviderProps) {
 
   const removeMotivationalToast = useCallback(() => {
     setMotivationalToast(null);
+  }, []);
+
+  // Unlock toast - exclusive mode: clears all other toasts when shown
+  const showUnlockToast = useCallback((config: Omit<UnlockToastConfig, 'id'>) => {
+    // Clear all existing toasts first
+    setToasts([]);
+    setMotivationalToast(null);
+
+    const id = generateId();
+    setUnlockToast({
+      ...config,
+      id,
+      visible: true,
+    });
+  }, [generateId]);
+
+  const hideUnlockToast = useCallback(() => {
+    setUnlockToast((prev) => prev ? { ...prev, visible: false } : null);
+  }, []);
+
+  const removeUnlockToast = useCallback(() => {
+    setUnlockToast(null);
   }, []);
 
   const hideToast = useCallback((id: string) => {
@@ -95,11 +131,13 @@ export function ToastProvider({ children, maxToasts = 3 }: ToastProviderProps) {
       prevToasts.map((toast) => ({ ...toast, visible: false }))
     );
     hideMotivationalToast();
-  }, [hideMotivationalToast]);
+    hideUnlockToast();
+  }, [hideMotivationalToast, hideUnlockToast]);
 
   const contextValue: ToastContextType = {
     showToast,
     showMotivationalToast,
+    showUnlockToast,
     hideToast,
     hideAllToasts,
   };
@@ -122,6 +160,14 @@ export function ToastProvider({ children, maxToasts = 3 }: ToastProviderProps) {
             {...motivationalToast}
             onHide={removeMotivationalToast}
             onDismiss={hideMotivationalToast}
+          />
+        )}
+        {unlockToast && (
+          <UnlockToast
+            key={unlockToast.id}
+            {...unlockToast}
+            onHide={removeUnlockToast}
+            onDismiss={hideUnlockToast}
           />
         )}
       </View>

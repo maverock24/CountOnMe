@@ -59,7 +59,7 @@ const CircleWrapper = React.forwardRef((props: any, ref: any) => {
 const AnimatedCircle = Animated.createAnimatedComponent(CircleWrapper);
 
 const TabTwoScreen: React.FC = () => {
-  const { showToast, showMotivationalToast } = useToast();
+  const { showToast, showMotivationalToast, showUnlockToast } = useToast();
   const { theme } = useTheme();
   const { 
     workoutItems, 
@@ -463,14 +463,12 @@ const TabTwoScreen: React.FC = () => {
           counts[selectedItem] = (counts[selectedItem] || 0) + 1;
           await AsyncStorage.setItem(countsKey, JSON.stringify(counts));
 
-          // Show motivational toast with unlocked exercise info if applicable
+          // Show special unlock toast if a new exercise was unlocked
           if (isFirstCompletion && unlockedExercise) {
-            // Show motivational toast with unlocked exercise
-            showMotivationalToast({
-              message: t('exercise_unlocked') || 'New Exercise Unlocked!',
-              subtitle: `🔓 ${unlockedExercise}`,
-              variant: 'champion_reveal',
-              duration: 3500,
+            // Show exclusive unlock toast - clears other toasts and stays longer
+            showUnlockToast({
+              exerciseName: unlockedExercise,
+              duration: 6000, // Longer duration for unlock celebration
             });
           } else {
             // Show regular success toast
@@ -497,7 +495,7 @@ const TabTwoScreen: React.FC = () => {
     };
 
     setWorkoutCompleteCallback(handleWorkoutCompleteCallback);
-  }, [orderedWorkouts, handleWorkoutCompleteFlow, setWorkoutCompleteCallback, singleSelectMode, handleTimerReset, resetTimer, selectedItem, showToast, showMotivationalToast, t]);
+  }, [orderedWorkouts, handleWorkoutCompleteFlow, setWorkoutCompleteCallback, singleSelectMode, handleTimerReset, resetTimer, selectedItem, showToast, showUnlockToast, t]);
 
   // Set up callback for when workout/action music starts (for motivational toasts)
   useEffect(() => {
