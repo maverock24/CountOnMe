@@ -10,19 +10,20 @@ import { Platform, Pressable, Text, TextInput, View } from 'react-native';
 import 'react-native-reanimated';
 
 // Google Fonts imports
+import { ChakraPetch_400Regular, ChakraPetch_500Medium, ChakraPetch_700Bold } from '@expo-google-fonts/chakra-petch';
+import { Exo2_400Regular, Exo2_500Medium, Exo2_700Bold } from '@expo-google-fonts/exo-2';
 import { Inter_400Regular, Inter_500Medium, Inter_700Bold } from '@expo-google-fonts/inter';
+import { Orbitron_400Regular, Orbitron_500Medium, Orbitron_700Bold } from '@expo-google-fonts/orbitron';
+import { Quantico_400Regular, Quantico_700Bold } from '@expo-google-fonts/quantico';
+import { Rajdhani_400Regular, Rajdhani_500Medium, Rajdhani_700Bold } from '@expo-google-fonts/rajdhani';
 import { Roboto_400Regular, Roboto_500Medium, Roboto_700Bold } from '@expo-google-fonts/roboto';
 import { RobotoMono_400Regular, RobotoMono_500Medium, RobotoMono_700Bold } from '@expo-google-fonts/roboto-mono';
-import { SpaceMono_400Regular, SpaceMono_700Bold } from '@expo-google-fonts/space-mono';
-import { Orbitron_400Regular, Orbitron_500Medium, Orbitron_700Bold } from '@expo-google-fonts/orbitron';
-import { Exo2_400Regular, Exo2_500Medium, Exo2_700Bold } from '@expo-google-fonts/exo-2';
-import { Rajdhani_400Regular, Rajdhani_500Medium, Rajdhani_700Bold } from '@expo-google-fonts/rajdhani';
-import { ChakraPetch_400Regular, ChakraPetch_500Medium, ChakraPetch_700Bold } from '@expo-google-fonts/chakra-petch';
 import { ShareTech_400Regular } from '@expo-google-fonts/share-tech';
 import { ShareTechMono_400Regular } from '@expo-google-fonts/share-tech-mono';
-import { Quantico_400Regular, Quantico_700Bold } from '@expo-google-fonts/quantico';
+import { SpaceMono_400Regular, SpaceMono_700Bold } from '@expo-google-fonts/space-mono';
 
 import { DataProvider, prefixKey } from '@/components/data.provider';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import GlobalStyle from '@/components/GlobalStyle';
 import { ThemeProvider as AppThemeProvider } from '@/components/ThemeProvider';
 import { ToastProvider } from '@/components/ToastProvider';
@@ -189,6 +190,7 @@ export default function RootLayout() {
     <ThemeProvider value={CustomDarkTheme}>
       <GlobalStyle css="input {outline: none;} select {outline: none;}" />
       <AppThemeProvider>
+        <ErrorBoundary>
         <DataProvider>
           <ToastProvider maxToasts={3}>
           <Stack
@@ -244,6 +246,7 @@ export default function RootLayout() {
           )}
           </ToastProvider>
         </DataProvider>
+        </ErrorBoundary>
       </AppThemeProvider>
     </ThemeProvider>
   );

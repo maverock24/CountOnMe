@@ -7,15 +7,15 @@ import { router } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Animated,
-  Dimensions,
-  Easing,
-  Modal,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  TouchableOpacity,
-  View,
+    Animated,
+    Dimensions,
+    Easing,
+    Modal,
+    ScrollView,
+    StyleSheet,
+    Switch,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import Svg, { Circle, Defs, FeGaussianBlur, FeMerge, FeMergeNode, Filter } from 'react-native-svg';
 
@@ -617,7 +617,7 @@ const TabTwoScreen: React.FC = () => {
                 />
               </View>
               <Text style={styles.currentMusicLabel}>
-                {isRunning ? t('playing') + ' ' + currentMusicBeingPlayed : ''}
+                {isRunning && currentMusicBeingPlayed ? t('playing') + ' ' + currentMusicBeingPlayed : ''}
               </Text>
               <Animated.View key={progressKey} style={{ transform: [{ scale: scaleValue }] }}>
                 <Svg

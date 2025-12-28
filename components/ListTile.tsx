@@ -5,7 +5,7 @@ import { Animated, Easing, Modal, Platform, Pressable, ScrollView, StyleSheet, T
 
 import commonStyles from '@/app/styles';
 import { WorkoutItem } from '@/components/data/types';
-import { roundToDecimals } from '@/utils/numberUtils';
+import { formatNumber, safeNumber, safeText } from '@/utils/validation';
 
 import { useTranslation } from 'react-i18next';
 import { useTheme } from './ThemeProvider';
@@ -51,7 +51,7 @@ const useBorderGlowPulse = (isActive: boolean) => {
 };
 
 // YouTube video tutorial section - opens YouTube search in browser/app
-const YouTubePlayer = ({ searchQuery }: { searchQuery: string }) => {
+const YouTubePlayer = React.memo(({ searchQuery }: { searchQuery: string }) => {
   const { theme } = useTheme();
   const { t } = useTranslation();
 
@@ -86,7 +86,7 @@ const YouTubePlayer = ({ searchQuery }: { searchQuery: string }) => {
       </ThemedText>
     </View>
   );
-};
+});
 
 const ListTile = ({
   isSelected,
@@ -164,7 +164,7 @@ const ListTile = ({
 
     // Use calories from WorkoutItem (round to 1 decimal for display)
     if (typeof workoutItem.calories === 'number') {
-      caloriesData = roundToDecimals(workoutItem.calories, 1).toString();
+      caloriesData = formatNumber(workoutItem.calories, 1, '');
     } else {
       caloriesData = '';
     }
@@ -176,8 +176,12 @@ const ListTile = ({
     // Try to parse legacy calories and round for display
     const legacyCalories = exerciseData[2];
     if (legacyCalories !== undefined && legacyCalories !== null && legacyCalories !== '') {
-      const parsed = parseFloat(legacyCalories as any);
-      caloriesData = Number.isFinite(parsed) ? roundToDecimals(parsed, 1).toString() : legacyCalories;
+      const parsed = safeNumber(legacyCalories, NaN);
+      if (Number.isFinite(parsed)) {
+        caloriesData = formatNumber(parsed, 1, '');
+      } else {
+        caloriesData = '';
+      }
     } else {
       caloriesData = '';
     }
@@ -215,7 +219,7 @@ const ListTile = ({
     <>
     <View style={[commonStyles.listTile, { position: 'relative' }, style]}>
       {/* Animated glow border overlay */}
-      {isSelected && (
+      {isSelected ? (
         <Animated.View
           pointerEvents="none"
           style={[
@@ -238,7 +242,7 @@ const ListTile = ({
             },
           ]}
         />
-      )}
+      ) : null}
       <View style={[localStyles.tileContent, {
         // Glass effect - semi-transparent matching progression tiles
         backgroundColor: isLocked
@@ -289,30 +293,30 @@ const ListTile = ({
                 ) : null}
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                {isLocked && (
+                {isLocked ? (
                   <View style={localStyles.lockedBadge}>
                     <FontAwesome name="lock" size={12} color={theme.colors.textMuted} style={{ marginRight: 4 }} />
                     <ThemedText style={[localStyles.lockedText, { color: theme.colors.textMuted }]}>
                       {t('locked') || 'locked'}
                     </ThemedText>
                   </View>
-                )}
-                {isCompleted && !isLocked && (
+                ) : null}
+                {isCompleted && !isLocked ? (
                   <ThemedText style={[localStyles.completedText, { color: theme.colors.glow }]}>
                     {t('completed') || 'completed'}
                   </ThemedText>
-                )}
+                ) : null}
                 {!isLocked && ((workoutItem?.calories !== undefined && workoutItem?.calories !== null) || caloriesData) ? (
                   <ThemedText style={{ fontSize: 14, color: theme.colors.textMuted, marginRight: 10 }}>
-                    {t('calories_colon')} {caloriesData}
+                    {`${t('calories_colon')} ${safeText(caloriesData, '0')}`}
                   </ThemedText>
                 ) : null}
-                {!isLocked && workoutItem?.level && levelDisplay && (
+                {!isLocked && workoutItem?.level && levelDisplay ? (
                   <ThemedText style={{ fontSize: 14, color: theme.colors.textMuted, marginRight: 5 }}>
-                    {levelDisplay}
+                    {safeText(levelDisplay, '')}
                   </ThemedText>
-                )}
-                {!isLocked && intensityData && (
+                ) : null}
+                {!isLocked && intensityData && intensityData.trim() !== '' && intensityData !== '.' ? (
                   [...Array(totalStars)].map((_, i) => (
                     <FontAwesome
                       key={i}
@@ -322,18 +326,22 @@ const ListTile = ({
                       style={{ marginLeft: 1, marginRight: 1 }}
                     />
                   ))
-                )}
+                ) : null}
               </View>
             </View>
 
             <View
               style={{ flexDirection: 'row', width: '100%', paddingHorizontal: 15, marginTop: 10 }}
             >
-              {workoutData &&
-                workoutData.split(';').map((time, index) => {
-                  const seconds = parseFloat(time);
-                  const minutes = Number.isFinite(seconds) ? seconds / 60 : NaN;
-                  const display = Number.isFinite(minutes) ? roundToDecimals(minutes, 1).toString() : time;
+              {workoutData && workoutData.trim() !== '' && workoutData.trim() !== '.' ? (
+                workoutData.split(';').filter(time => {
+                  const trimmed = time.trim();
+                  return trimmed !== '' && trimmed !== '.' && trimmed !== ',' && trimmed !== '-' && !isNaN(parseFloat(trimmed));
+                }).map((time, index) => {
+                  const seconds = safeNumber(time, 0);
+                  const minutes = seconds / 60;
+                  const display = formatNumber(minutes, 1, '0');
+                  
                   return (
                     <ThemedText
                       key={index}
@@ -343,14 +351,15 @@ const ListTile = ({
                           : commonStyles.listItemValue
                       }
                     >
-                      {display}
+                      {safeText(display, '0')}
                     </ThemedText>
                   );
-                })}
+                })
+              ) : null}
             </View>
           </View>
         </>
-        {onPressBtn && <TimerButton text="Delete" onPress={onPressBtn} small />}
+        {onPressBtn ? <TimerButton text="Delete" onPress={onPressBtn} small /> : null}
       </Pressable>
       </View>
     </View>

@@ -1,13 +1,13 @@
 import { FontAwesome } from '@expo/vector-icons';
 import React, { useRef, useState } from 'react';
 import {
-  FlatList,
-  Modal,
-  Platform,
-  Pressable,
-  StyleSheet,
-  TouchableOpacity,
-  View
+    FlatList,
+    Modal,
+    Platform,
+    Pressable,
+    StyleSheet,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { useTheme } from './ThemeProvider';
 import ThemedText from './ThemedText';
@@ -129,6 +129,14 @@ const CustomPicker: React.FC<CustomPickerProps> = ({
                 data={items}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.value}
+                getItemLayout={(data, index) => ({
+                  length: 40,
+                  offset: 40 * index,
+                  index,
+                })}
+                windowSize={10}
+                maxToRenderPerBatch={10}
+                removeClippedSubviews={true}
                 style={styles.dropdownList}
                 showsVerticalScrollIndicator={false}
                 nestedScrollEnabled={true}

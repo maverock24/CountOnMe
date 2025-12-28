@@ -7,14 +7,14 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  Alert,
-  FlatList,
-  Modal,
-  Platform,
-  Pressable,
-  StyleSheet,
-  TouchableOpacity,
-  View,
+    Alert,
+    FlatList,
+    Modal,
+    Platform,
+    Pressable,
+    StyleSheet,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { useData } from './data.provider';
 import { getBlob, setBlob } from './data/indexeddb';
@@ -475,6 +475,14 @@ const ModalPicker: React.FC<MusicPickerProps> = ({ label, dataKey }) => {
               <FlatList
                 data={options}
                 keyExtractor={(item, index) => `${item.label}-${item.value}-${index}`}
+                getItemLayout={(data, index) => ({
+                  length: 50,
+                  offset: 50 * index,
+                  index,
+                })}
+                windowSize={10}
+                maxToRenderPerBatch={10}
+                removeClippedSubviews={true}
                 renderItem={({ item }) => {
                   const isSelected = selectedValue === item.label || selectedValue === (item.value as any);
                   return (

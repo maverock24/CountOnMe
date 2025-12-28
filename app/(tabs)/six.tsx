@@ -1,21 +1,22 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from 'expo-router';
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Animated,
-  Easing,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
+    Animated,
+    Easing,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 import CustomPicker from '@/components/CustomPicker';
 import { Text } from '@/components/Themed';
-import { useTheme } from '@/components/ThemeProvider';
 import ThemedText from '@/components/ThemedText';
+import { useTheme } from '@/components/ThemeProvider';
+import { formatNumber, safeNumber, safeText } from '@/utils/validation';
 import commonStyles from '../styles';
 
 // Import progressions list (exercises with their component progressions)
@@ -440,9 +441,14 @@ const ProgressNode = ({
                   {t('workout') || 'Workout'}:
                 </Text>
                 <Text style={[styles.workoutValue, { color: theme.colors.primary }]}>
-                  {component.workout?.split(';').map((time: string) =>
-                    `${Math.round(parseFloat(time) / 60 * 10) / 10}m`
-                  ).join(' → ') || 'N/A'}
+                  {safeText(component.workout?.split(';').filter((t: string) => {
+                    const trimmed = t.trim();
+                    return trimmed !== '' && trimmed !== '.' && trimmed !== ',' && trimmed !== '-' && !isNaN(parseFloat(trimmed));
+                  }).map((time: string) => {
+                    const seconds = safeNumber(time, 0);
+                    const minutes = seconds / 60;
+                    return `${formatNumber(minutes, 1, '0')}m`;
+                  }).join(' → '), 'N/A')}
                 </Text>
               </View>
               {completionCount > 0 && (
