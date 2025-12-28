@@ -10,8 +10,8 @@ import { useData } from '@/components/data.provider';
 import { WorkoutItem } from '@/components/data/types';
 import ListTile from '@/components/ListTile';
 import TimerButton from '@/components/TimerButton';
-import { useTheme } from './ThemeProvider';
 import CustomPicker from './CustomPicker';
+import { useTheme } from './ThemeProvider';
 
 // Import progressions list to determine which exercises are unlocked
 const progressionsList: any[] = require('@/assets/progressions.json');
@@ -295,7 +295,15 @@ const ReorderableWorkoutList: React.FC<ReorderableWorkoutListProps> = ({
         style={[styles.listContainer, { flex: 1 }]}
         data={displayWorkouts}
         renderItem={renderWorkoutItem}
-        keyExtractor={(item) => item.name}
+        keyExtractor={(item, index) => `${item.name}-${item.orderId || index}`}
+        getItemLayout={(data, index) => ({
+          length: 80,
+          offset: 80 * index,
+          index,
+        })}
+        windowSize={10}
+        maxToRenderPerBatch={10}
+        removeClippedSubviews={true}
         showsVerticalScrollIndicator={false}
         nestedScrollEnabled={true}
       />

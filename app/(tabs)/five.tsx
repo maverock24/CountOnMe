@@ -1,5 +1,6 @@
 import { prefixKey, useData } from '@/components/data.provider';
 import { WorkoutItem } from '@/components/data/types';
+import { Text } from '@/components/Themed';
 import { useTheme } from '@/components/ThemeProvider';
 import TimerButton from '@/components/TimerButton';
 import { generateExercisePlan } from '@/utils/generateExercisePlan';
@@ -10,7 +11,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Animated, FlatList, Keyboard, Platform, Pressable, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
-import { Text } from '@/components/Themed';
 import exercisesDe from '../../assets/exercises_de.json';
 import exercisesEn from '../../assets/exercises_en.json';
 import { PROFILE_FITNESS_LEVEL_KEY, PROFILE_WEIGHT_KEY } from '../_layout';
@@ -282,6 +282,14 @@ const AnalyzerScreen: React.FC = () => {
                   <FlatList
                     data={filteredExerciseObjects}
                     keyExtractor={(item) => item.name}
+                    getItemLayout={(data, index) => ({
+                      length: 44,
+                      offset: 44 * index,
+                      index,
+                    })}
+                    windowSize={8}
+                    maxToRenderPerBatch={8}
+                    removeClippedSubviews={true}
                     renderItem={({ item }) => (
                       <TouchableOpacity
                         onPress={() => {

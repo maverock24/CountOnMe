@@ -6,12 +6,12 @@ import React, { createContext, useCallback, useContext, useEffect, useReducer, u
 let setCurrentMusicBeingPlayedBridge: ((music: string | null) => void) | null = null;
 
 import {
-  breakMusic as breakMusicData,
-  DataKey,
-  language as languageData,
-  nextExerciseSound,
-  successSound as successSoundData,
-  workoutMusic as workoutMusicData,
+    breakMusic as breakMusicData,
+    DataKey,
+    language as languageData,
+    nextExerciseSound,
+    successSound as successSoundData,
+    workoutMusic as workoutMusicData,
 } from '@/constants/media';
 import { SoundProvider, useSound } from './sound.provider';
 
@@ -20,9 +20,9 @@ import { prefixKey } from './data/constants';
 import { initialState as defaultInitialState, stateReducer } from './data/reducer';
 import { DataParser, StorageService } from './data/storage';
 import {
-  GroupItem,
-  StoredItem,
-  WorkoutItem
+    GroupItem,
+    StoredItem,
+    WorkoutItem
 } from './data/types';
 import { WorkoutService } from './data/workoutService';
 
@@ -239,8 +239,9 @@ const DataProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
     const isSameSegment = currentSegmentRef.current === currentSegment;
 
     // Only debounce if it's the same segment within a short time (manual calls should be more intentional)
-    if (isSameSegment && timeSinceLastCall < 500) {
-      console.log(`[DataProvider.handleTimerStart] Debounced - same segment within 500ms`);
+    // Reduced from 500ms to 100ms to allow quicker music transitions
+    if (isSameSegment && timeSinceLastCall < 100) {
+      console.log(`[DataProvider.handleTimerStart] Debounced - same segment within 100ms`);
       return;
     }
 

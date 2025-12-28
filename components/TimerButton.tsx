@@ -4,7 +4,7 @@ import { Animated, Pressable, StyleProp, StyleSheet, ViewStyle } from 'react-nat
 import { useTheme } from './ThemeProvider';
 import ThemedText from './ThemedText';
 
-const TimerButton = ({
+const TimerButton = React.memo(({
   onPress,
   disabled,
   text,
@@ -110,7 +110,7 @@ const TimerButton = ({
       </Pressable>
     </Animated.View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   button: {

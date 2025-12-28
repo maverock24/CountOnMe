@@ -16,7 +16,7 @@ const formatTime = (seconds: number) => {
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
-const TimerItem: React.FC<TimerItemProps> = ({
+const TimerItem: React.FC<TimerItemProps> = React.memo(({
   onSegmentChange,
 }) => {
   // Get centralized timer state and functions
@@ -112,7 +112,7 @@ const TimerItem: React.FC<TimerItemProps> = ({
       <ThemedText weight="bold" style={[styles.count, { color: theme.colors.textPrimary }]}>{formatTime(time)}</ThemedText>
     </Animated.View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   count: {
