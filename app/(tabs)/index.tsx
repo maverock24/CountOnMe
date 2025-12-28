@@ -3,14 +3,13 @@ import { useData } from '@/components/data.provider';
 import { Text, View } from '@/components/Themed';
 import { useTheme } from '@/components/ThemeProvider';
 import TimerButton from '@/components/TimerButton';
-import ToastMessage from '@/components/ToastMessage';
 import { TriangleLeft } from '@/components/TriangleLeft';
 import { TriangleRight } from '@/components/TriangleRight';
 import {
-  AudioModule,
-  RecordingStatus as ExpoAudioRecordingStatus,
-  RecordingPresets,
-  useAudioRecorder,
+    AudioModule,
+    RecordingStatus as ExpoAudioRecordingStatus,
+    RecordingPresets,
+    useAudioRecorder,
 } from 'expo-audio';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -43,10 +42,6 @@ export default function TabOneScreen() {
   const [audioLevel, setAudioLevel] = useState(0);
 
   const [statusMessage, setStatusMessage] = useState(t('press_start_listening'));
-
-  // Toast state for testing
-  const [showToast, setShowToast] = useState(false);
-  const [toastType, setToastType] = useState<'success' | 'error' | 'warning' | 'info'>('success');
 
   const isMountedRef = useRef(true);
   const isLoopActiveRef = useRef(false);
@@ -448,21 +443,6 @@ export default function TabOneScreen() {
 
   return (
     <View style={commonStyles.container}>
-      {/* Toast Message Component */}
-      <ToastMessage
-        visible={showToast}
-        message="Explosive Toast with Tesla Coil Electric Effects!"
-        type={toastType}
-        duration={5000}
-        position="center"
-        showIcon={true}
-        onHide={hideToast}
-        onPress={() => {
-          console.log('Toast pressed!');
-          hideToast();
-        }}
-      />
-
       <View style={commonStyles.outerContainer}>
         <Text style={[commonStyles.tileTitle, { color: theme.colors.textPrimary }]}>{t('sound_trigger')}</Text>
         {/* Updated Title */}

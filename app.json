@@ -64,6 +64,11 @@
       "eas": {
         "projectId": "268fde1d-7bcd-48f8-a5fc-f86e4b070f01"
       }
+      ,
+      "ai": {
+        "defaultModel": "gpt-5-mini",
+        "enableForAllClients": true
+      }
     },
     "runtimeVersion": "1.0.0",
     "updates": {

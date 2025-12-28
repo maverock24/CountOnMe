@@ -1,7 +1,8 @@
+import { Text } from '@/components/Themed';
 import { faBed, faRunning } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -16,7 +17,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Text } from '@/components/Themed';
 import Svg, { Circle, Defs, FeGaussianBlur, FeMerge, FeMergeNode, Filter } from 'react-native-svg';
 
 import { useData } from '@/components/data.provider';
@@ -59,7 +59,7 @@ const CircleWrapper = React.forwardRef((props: any, ref: any) => {
 const AnimatedCircle = Animated.createAnimatedComponent(CircleWrapper);
 
 const TabTwoScreen: React.FC = () => {
-  const { showToast, showMotivationalToast, showUnlockToast } = useToast();
+  const { showMotivationalToast, showUnlockToast } = useToast();
   const { theme } = useTheme();
   const { 
     workoutItems, 
@@ -471,12 +471,11 @@ const TabTwoScreen: React.FC = () => {
               duration: 6000, // Longer duration for unlock celebration
             });
           } else {
-            // Show regular success toast
-            showToast({
-              type: 'success',
+            // Show motivational toast for completion
+            showMotivationalToast({
               message: isFirstCompletion ? t('first_completion') || 'First time! Great Job!' : t('workout_complete') || 'Great Job!',
+              variant: 'champion_reveal',
               duration: 4000,
-              position: 'center',
             });
           }
         } catch (error) {
@@ -495,7 +494,7 @@ const TabTwoScreen: React.FC = () => {
     };
 
     setWorkoutCompleteCallback(handleWorkoutCompleteCallback);
-  }, [orderedWorkouts, handleWorkoutCompleteFlow, setWorkoutCompleteCallback, singleSelectMode, handleTimerReset, resetTimer, selectedItem, showToast, showUnlockToast, t]);
+  }, [orderedWorkouts, handleWorkoutCompleteFlow, setWorkoutCompleteCallback, singleSelectMode, handleTimerReset, resetTimer, selectedItem, showMotivationalToast, showUnlockToast, t]);
 
   // Set up callback for when workout/action music starts (for motivational toasts)
   useEffect(() => {

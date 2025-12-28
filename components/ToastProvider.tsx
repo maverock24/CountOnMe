@@ -1,13 +1,7 @@
 import React, { createContext, useCallback, useContext, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import MotivationalToast, { MotivationalToastConfig } from './MotivationalToast';
-import ToastMessage, { ToastConfig } from './ToastMessage';
 import UnlockToast, { UnlockToastConfig } from './UnlockToast';
-
-interface Toast extends ToastConfig {
-  id: string;
-  visible: boolean;
-}
 
 interface MotivationalToastState extends MotivationalToastConfig {
   id: string;
@@ -20,10 +14,8 @@ interface UnlockToastState extends UnlockToastConfig {
 }
 
 interface ToastContextType {
-  showToast: (config: Omit<ToastConfig, 'id'>) => void;
   showMotivationalToast: (config: Omit<MotivationalToastConfig, 'id'>) => void;
   showUnlockToast: (config: Omit<UnlockToastConfig, 'id'>) => void;
-  hideToast: (id: string) => void;
   hideAllToasts: () => void;
 }
 
@@ -39,38 +31,15 @@ export const useToast = () => {
 
 interface ToastProviderProps {
   children: React.ReactNode;
-  maxToasts?: number;
 }
 
-export function ToastProvider({ children, maxToasts = 3 }: ToastProviderProps) {
-  const [toasts, setToasts] = useState<Toast[]>([]);
+export function ToastProvider({ children }: ToastProviderProps) {
   const [motivationalToast, setMotivationalToast] = useState<MotivationalToastState | null>(null);
   const [unlockToast, setUnlockToast] = useState<UnlockToastState | null>(null);
 
   const generateId = useCallback(() => {
     return Date.now().toString() + Math.random().toString(36).slice(2, 11);
   }, []);
-
-  const showToast = useCallback((config: Omit<ToastConfig, 'id'>) => {
-    // Don't show regular toasts while unlock toast is active
-    if (unlockToast?.visible) return;
-
-    const id = generateId();
-    const newToast: Toast = {
-      ...config,
-      id,
-      visible: true,
-    };
-
-    setToasts((prevToasts) => {
-      const updatedToasts = [...prevToasts, newToast];
-      // Remove oldest toasts if we exceed maxToasts
-      if (updatedToasts.length > maxToasts) {
-        return updatedToasts.slice(-maxToasts);
-      }
-      return updatedToasts;
-    });
-  }, [generateId, maxToasts, unlockToast]);
 
   const showMotivationalToast = useCallback((config: Omit<MotivationalToastConfig, 'id'>) => {
     // Don't show motivational toasts while unlock toast is active
@@ -94,8 +63,7 @@ export function ToastProvider({ children, maxToasts = 3 }: ToastProviderProps) {
 
   // Unlock toast - exclusive mode: clears all other toasts when shown
   const showUnlockToast = useCallback((config: Omit<UnlockToastConfig, 'id'>) => {
-    // Clear all existing toasts first
-    setToasts([]);
+    // Clear motivational toast first
     setMotivationalToast(null);
 
     const id = generateId();
@@ -114,31 +82,14 @@ export function ToastProvider({ children, maxToasts = 3 }: ToastProviderProps) {
     setUnlockToast(null);
   }, []);
 
-  const hideToast = useCallback((id: string) => {
-    setToasts((prevToasts) =>
-      prevToasts.map((toast) =>
-        toast.id === id ? { ...toast, visible: false } : toast
-      )
-    );
-  }, []);
-
-  const removeToast = useCallback((id: string) => {
-    setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));
-  }, []);
-
   const hideAllToasts = useCallback(() => {
-    setToasts((prevToasts) =>
-      prevToasts.map((toast) => ({ ...toast, visible: false }))
-    );
     hideMotivationalToast();
     hideUnlockToast();
   }, [hideMotivationalToast, hideUnlockToast]);
 
   const contextValue: ToastContextType = {
-    showToast,
     showMotivationalToast,
     showUnlockToast,
-    hideToast,
     hideAllToasts,
   };
 
@@ -146,14 +97,6 @@ export function ToastProvider({ children, maxToasts = 3 }: ToastProviderProps) {
     <ToastContext.Provider value={contextValue}>
       {children}
       <View style={styles.toastContainer} pointerEvents="box-none">
-        {toasts.map((toast) => (
-          <ToastMessage
-            key={toast.id}
-            {...toast}
-            onHide={() => removeToast(toast.id)}
-            onDismiss={() => hideToast(toast.id)}
-          />
-        ))}
         {motivationalToast && (
           <MotivationalToast
             key={motivationalToast.id}
@@ -174,24 +117,6 @@ export function ToastProvider({ children, maxToasts = 3 }: ToastProviderProps) {
     </ToastContext.Provider>
   );
 }
-
-// Helper functions for common toast types
-export const showSuccessToast = (message: string, options?: Partial<ToastConfig>) => {
-  // This will be used with the hookend
-  return { message, type: 'success' as const, ...options };
-};
-
-export const showErrorToast = (message: string, options?: Partial<ToastConfig>) => {
-  return { message, type: 'error' as const, ...options };
-};
-
-export const showWarningToast = (message: string, options?: Partial<ToastConfig>) => {
-  return { message, type: 'warning' as const, ...options };
-};
-
-export const showInfoToast = (message: string, options?: Partial<ToastConfig>) => {
-  return { message, type: 'info' as const, ...options };
-};
 
 const styles = StyleSheet.create({
   toastContainer: {
