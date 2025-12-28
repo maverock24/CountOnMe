@@ -1,19 +1,18 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import {
-  faAtom,
-  faDumbbell,
-  faGauge,
-  faGears,
-  faList,
-  faSitemap,
-  IconDefinition,
+    faAtom,
+    faDumbbell,
+    faGauge,
+    faGears,
+    faList,
+    faSitemap,
+    IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { Asset } from 'expo-asset';
 import { EventEmitter } from 'events';
-import { Link, Tabs } from 'expo-router';
+import { Asset } from 'expo-asset';
+import { Tabs } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Easing, ImageBackground, Pressable, StyleSheet, View } from 'react-native';
+import { Easing, ImageBackground, StyleSheet, View } from 'react-native';
 
 import LoadingScreen from '@/components/LoadingScreen';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -103,20 +102,6 @@ export default function TabLayout() {
           options={{
             title: t('counter'),
             tabBarIcon: ({ color }) => <TabBarIcon size={22} iconName={faGauge} color={color} />,
-            headerRight: () => (
-              <Link href="/modal" asChild>
-                <Pressable>
-                  {({ pressed }) => (
-                    <FontAwesome
-                      name="info-circle"
-                      size={25}
-                      color={Colors[colorScheme ?? 'light'].text}
-                      style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                    />
-                  )}
-                </Pressable>
-              </Link>
-            ),
           }}
         />
         <Tabs.Screen
